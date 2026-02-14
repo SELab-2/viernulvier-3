@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[dutch]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{parskip}
+
+\geometry{margin=2.5cm}
+
+\title{Motivatie voor de keuze van de backend-technologie}
+\author{ }
+\date{ }
+
+\begin{document}
+
+\maketitle
+
+\section{Inleiding}
+
+Voor de ontwikkeling van het digitale archief van de theaterzaal is het belangrijk om een backend-technologie te kiezen die niet alleen vandaag goed werkt, maar ook op lange termijn onderhoudbaar en begrijpelijk blijft.  
+Aangezien het systeem in de toekomst mogelijk beheerd zal worden door opvolgers met een beperktere technische achtergrond, is eenvoud en duidelijkheid een cruciale factor.
+
+Op basis van deze vereisten is gekozen voor \textbf{Python in combinatie met het FastAPI-framework} als backend-oplossing.
+
+\section{Waarom Python?}
+
+Python is één van de meest gebruikte programmeertalen ter wereld en staat bekend om zijn leesbaarheid en eenvoud.
+
+De belangrijkste voordelen van Python in dit project zijn:
+
+\begin{itemize}
+  \item \textbf{Leesbare syntax}: Python-code lijkt sterk op natuurlijke taal, waardoor de werking van het systeem snel te begrijpen is.
+  \item \textbf{Lage instapdrempel}: Nieuwe ontwikkelaars kunnen zich snel inwerken zonder diepgaande voorkennis.
+  \item \textbf{Breed ondersteund}: Python wordt actief onderhouden en gebruikt in onderwijs, wetenschap en industrie.
+  \item \textbf{Toekomstbestendig}: De kans dat Python in de nabije of verre toekomst verdwijnt is zeer klein.
+\end{itemize}
+
+
+\section{Waarom FastAPI?}
+
+FastAPI is een modern, lichtgewicht webframework voor Python dat speciaal ontworpen is voor het bouwen van web-API’s.
+
+FastAPI sluit goed aan bij de noden van dit project omwille van de volgende redenen:
+
+\subsection{Eenvoud en duidelijkheid}
+
+FastAPI dwingt een duidelijke structuur af:
+\begin{itemize}
+  \item Elke URL heeft een duidelijke functie
+  \item Invoer en uitvoer zijn expliciet gedefinieerd
+  \item De code is makkelijk te lezen en te volgen
+\end{itemize}
+
+Dit zorgt ervoor dat opvolgers snel begrijpen hoe gegevens worden opgehaald, toegevoegd of aangepast.
+
+\subsection{Automatische documentatie}
+
+Een belangrijk voordeel van FastAPI is dat het automatisch documentatie genereert voor de backend.
+
+Dit betekent dat:
+\begin{itemize}
+  \item Alle beschikbare functies van het systeem overzichtelijk worden weergegeven
+  \item De API getest kan worden via een webinterface
+  \item Minder externe documentatie nodig is
+\end{itemize}
+
+Dit verlaagt de onderhoudskosten aanzienlijk.
+
+\subsection{Geschikt voor archief-toepassingen}
+
+Het archief vereist vooral:
+\begin{itemize}
+  \item het ophalen van voorstellingen
+  \item het zoeken en filteren van gegevens
+  \item het beheren van records
+\end{itemize}
+
+FastAPI is zeer geschikt voor deze klassieke \emph{CRUD}-functionaliteit (Create, Read, Update, Delete).
+
+
+\end{document}
