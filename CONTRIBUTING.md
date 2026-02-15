@@ -3,9 +3,9 @@
 1. **Issue aanmaken of kiezen** en desnoods bespreken
 2. **Nieuwe branch** voor elke issue/stuk werk dat je afhandelt
 3. **Genoeg commits** → niet alles bundelen in een enkele commit
-4. **PR voor elke verandering** → nooit rechtstreeks naar main pushen!
+4. **PR voor elke verandering** → nooit rechtstreeks naar main/dev pushen!
 5. **Minstens 2 reviewers** per PR (liefst de verantwoordelijke betrekken)
-6. **Merge** 
+6. **Merge** → dev
 7. (Verwijder branch)
 
 ### Pull Request richtlijnen
@@ -20,6 +20,7 @@ Gelieve:
 ### Branch naamgeving
 
 - `main` → productie versie
+- `dev` → hoofdbranch
 - `feature/naam`  → functionaliteit
 - `test/naam`  → testen
 - `fix/naam`  → bugfix
