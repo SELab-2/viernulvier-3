@@ -12,14 +12,7 @@ We gebruiken een gestroomlijnde **GitFlow** methodiek. Nieuwe code komt nooit di
 ### Branch Definities
 * **`main`**: Bevat de stabiele versie van de applicatie. Deze branch wordt gebruikt voor deployments.
 * **`dev`**: De primaire integratie-branch. Hier komt alle dagelijkse code van het team samen.
-* **`release/X.X.X`**: Een tijdelijke 'buffer' tussen `dev` en `main`. Gebruikt voor de laatste bugfixes en validaties voor (tussentijdse) releases.
-
-### Versiebeheer (SemVer)
-We volgen **Semantic Versioning** (`X.Y.Z`) voor onze releases:
-* **X (Major)**: Grote milestones of brekende veranderingen (bijv. Milestone 1 -> `1.0.0`).
-* **Y (Minor)**: Nieuwe features of functionele uitbreidingen (bijv. `0.1.0`).
-* **Z (Patch)**: Kleine bugfixes of onderhoud zonder nieuwe functies (bijv. `0.1.1`).
-
+* **`release/milestone-X`**: Een tijdelijke 'buffer' tussen `dev` en `main`. Gebruikt voor de laatste bugfixes en validaties voor releases.
 
 ## Branch Naamgeving
 
@@ -41,22 +34,18 @@ We volgen **Semantic Versioning** (`X.Y.Z`) voor onze releases:
 
 1. **Issue Selection**: Kies een issue op het Kanban-bord en wijs jezelf toe als *Assignee*.
 2. **Branching**: Maak een nieuwe branch aan vanuit `dev` volgens bovenstaand format.
-3. **Development**: Commit regelmatig. Schrijf duidelijke commit-messages in het Engels (zie richtlijnen onderaan).
+3. **Development**: Commit regelmatig. Richtlijnen voor commits zijn vooral van belang voor de history van `main` en `dev`.
 4. **Pull Request (PR)**:
-    * Push je branch en open een PR naar `dev`.
-    * Zorg dat de automatische CI-checks (GitHub Actions) "groen" zijn.
-    * Zet je PR op **Draft** als je tussentijds feedback wilt maar nog niet klaar bent.
-5. **Code Review**:
-    * Elke PR vereist minimaal **2 approvals** van teamgenoten.
-    * Los alle opmerkingen (conversations) op voordat je merget.
-6. **Merge**: Gebruik altijd de **Squash and Merge** optie op GitHub. Verwijder je branch na de merge.
-
+    * Open een PR naar `dev`. Gebruik **Draft** als je nog bezig bent.
+    * **Reviewers**: Wijs zelf actief **2 teamgenoten** aan als reviewer. Bij grote architecturale wijzigingen is het verstandig de technisch verantwoordelijke als 3e reviewer toe te voegen.
+5. **Code Review**: Elke PR vereist minimaal **2 approvals**. Los opmerkingen op voordat je merget.
+6. **Merge**: Gebruik **Squash and Merge**. Verwijder je branch na de merge.
 
 ## Definition of Done (DoD)
 
-Voordat je een Pull Request ter review aanbiedt, moet je aan de volgende punten voldoen:
+Check deze punten voordat je de PR ter review aanbiedt:
 
-1. **Code Quality**: De code is zelf-verklarend. Waar de logica complex is, zijn **comments** toegevoegd (Nederlands of Engels).
+1. **Code Quality**: De code is zelf-verklarend. Waar de logica complex is, zijn **comments** toegevoegd.
 2. **Testing**: Voor elke `feat/` zijn relevante unit- of integratietests toegevoegd en geslaagd.
 3. **Documentation**: Publieke interfaces (zoals nieuwe API endpoints) zijn gedocumenteerd. Interne logica wordt toegelicht via code comments.
 4. **CI Ready**: De GitHub Actions pipeline is succesvol.
@@ -66,19 +55,12 @@ Voordat je een Pull Request ter review aanbiedt, moet je aan de volgende punten 
 ## Richtlijnen voor Kwaliteit
 
 ### 1. Naming & Language
-* **Branches & Code**: Variabelen, functies en filenamen zijn altijd in het **Engels**.
-* **Comments**: Comments bij de code mogen in het **Nederlands** om complexe logica snel uit te leggen aan teamgenoten.
-* **Documentatie**: Officiële documentatie (README's, ADR's) is in het **Nederlands**.
+* **Code**: Variabelen en functies zijn in het **Engels**.
+* **Documentatie**: README's en ADR's zijn in het **Nederlands**.
 
 ### 2. Commits
-Schrijf je commits in het **Engels** en gebruik de gebiedende wijs (alsof je een commando geeft).
-* **Goede voorbeelden:**
-    * `Add` - *Add user authentication endpoint*
-    * `Fix` - *Fix broken database connection on startup*
-    * `Update` - *Update Dockerfile to use Python 3.11*
-    * `Refactor` - *Refactor login controller for better readability*
-    * `Remove` - *Remove unused helper functions*
-* **Liefst niet**: `fixed bug`, `weer een test`, `update`.
+Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken. Wees op je eigen werkbranch gerust flexibel, maar zorg dat de uiteindelijke **Squash Merge** naar de hoofdbranches een duidelijke omschrijving heeft. 
+*Voorkom vage teksten als "test1", "update" of "..." in de finale merge.*
 
 ### 3. Review Etiquette
 * Review openstaande PR's van teamgenoten zo snel mogelijk om blokkades te voorkomen.
