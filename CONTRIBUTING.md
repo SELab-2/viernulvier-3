@@ -11,7 +11,7 @@ We gebruiken een gestroomlijnde **GitFlow** methodiek. Nieuwe code komt nooit di
 
 ### Branch Definities
 * **`main`**: Bevat de stabiele versie van de applicatie. Deze branch wordt gebruikt voor deployments.
-* **`dev`**: De primaire integratie-branch. Hier komt alle dagelijkse code van het team samen.
+* **`dev`**: De primaire integratie-branch. Hier komt alle code van het team samen.
 * **`release/milestone-X`**: Een tijdelijke 'buffer' tussen `dev` en `main`. Gebruikt voor de laatste bugfixes en validaties voor releases.
 
 ## Branch Naamgeving
