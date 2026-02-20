@@ -16,6 +16,6 @@ We gebruiken **PostgreSQL** als relationele databank voor het project.
 - **Schaalbaarheid:** Kan meegroeien van een beperkte dataset naar grote hoeveelheden data via indexing, partitioning en replicatie (handig als we moeten filteren).
 - **Open source:** Geen licentiekosten en een grote, actieve community zorgen voor lange-termijnondersteuning.
 
-## Consequenties
+## Gevolgen
 - Datamodellering gebeurt relationeel en vraagt vooraf doordachte schema’s.
 - Toekomstige wijzigingen in de databankkeuze moeten worden vastgelegd in een nieuwe ADR of door de status te wijzigen naar `Superseded`.

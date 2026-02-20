@@ -15,7 +15,7 @@ We gebruiken **FastAPI (Python)** als backend framework voor de API.
 - **Productiviteit:** Snelle ontwikkeling dankzij moderne features en type hints.  
 - **Documentatie:** Geïntegreerde Swagger/OpenAPI-documentatie bespaart tijd.
 
-## Consequenties
+## Gevolgen
 - De backend development richt zich volledig op Python + FastAPI.  
 - Eventuele frontend- of databasekeuzes moeten compatibel zijn met python/FastAPI endpoints.  
 - Toekomstige wijzigingen in de API moeten opnieuw worden vastgelegd in een nieuwe ADR of door de status te wijzigen naar `Superseded`.
