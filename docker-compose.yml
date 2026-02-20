@@ -33,16 +33,16 @@ services:
       timeout: 5s
       retries: 5
 
-  sync-job:
-    build: ./backend
-    profiles: ["tools"]
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+  # sync-job:
+  #   build: ./backend
+  #   profiles: ["tools"]
+  #   environment:
+  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
 
-    command: ["python", "src/worker/sync_job.py"]
-    depends_on:
-      database:
-        condition: service_healthy
+  #   command: ["python", "src/worker/sync_job.py"]
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
 
 volumes:
   postgres_data:
