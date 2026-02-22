@@ -1,11 +1,21 @@
-from fastapi import FastAPI
+from database import SessionLocal, Language
 
-app = FastAPI(
-    title="Viernulvier Archief API",
-    root_path="/api",
-)
+with SessionLocal() as session:
+    existing = session.query(Language).filter(Language.id.in_([1, 2])).all()
+    existing_ids = {lang.id for lang in existing}
 
+    to_add = []
+    for id, name in [(1, "nl"), (2, "en")]:
+        if id in existing_ids:
+            print(f"Language '{name}' already exists, skipping.")
+        else:
+            to_add.append(Language(id=id, language=name))
+            print(f"Adding language '{name}'.")
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+    if to_add:
+        session.add_all(to_add)
+        session.commit()
+
+    print("\nAll languages in database:")
+    for lang in session.query(Language).all():
+        print(f"  {lang.id}: {lang.language}")
