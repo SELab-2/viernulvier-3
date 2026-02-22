@@ -21,15 +21,19 @@ hergebruiken we via docker delen van de code van de backend.
 
 ## Argumenten
 
-- **Onafhankelijkheid:** Door rechstreeks met de databank te praten kan het
-    archiveren doorgaan, ook al is de backend niet beschikbaar.
-- **Eenvoudigere betrouwbaarheid:** Databanken bieden transacties en commits aan
-    die voor de garantie zorgen dat het toevoegen van data zonder fouten gebeurt.
+- **Onafhankelijkheid:**
+    Door rechstreeks met de databank te praten kan het archiveren doorgaan,
+    ook al is de backend niet beschikbaar.
+- **Eenvoudigere betrouwbaarheid:**
+    Om data-integriteit te garanderen werken databanken met transacties en
+    commits. Als we dus een rechstreekse verbinding met de databank openen
+    dan is het makkelijk te weten wanneer het toevoegen van data correct verliep.
     Mochten we data toevoegen door de API dan moeten we die garantie zelf ook
     programmeren in het protocol.
-- **Geen speciale API nodig:** De backend API heeft geen extra endpoints nodig
-    die speciaal op het scraper-script zijn afgestemd en kan zich dus focussen
-    op het communiceren met de frontend.
+- **Geen speciale API nodig:**
+    De backend API heeft geen extra endpoints nodig die speciaal op het
+    scraper-script zijn afgestemd en kan zich dus focussen op het communiceren
+    met de frontend.
 
 ## Gevolgen
 
