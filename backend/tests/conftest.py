@@ -1,28 +1,21 @@
 # Configuration of integration tests
 import pytest
 from fastapi.testclient import TestClient
-from database import Database
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from src.main import app
 from src.database import get_db
 
 TEST_DATABASE_URL = "" # TBD
 
-test_database = Database(TEST_DATABASE_URL)
+test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
 
 
 # Override dependency
 async def override_get_db():
-    return test_database
-
-
-# Start connectie met database
-@pytest.mark.asyncio
-@pytest.fixture(scope="session", autouse=True)
-async def connect_test_db():
-    await test_database.connect()
-    yield
-    await test_database.disconnect()
+    async with TestSessionLocal() as session:
+        yield session
 
 
 @pytest.fixture(scope="session")

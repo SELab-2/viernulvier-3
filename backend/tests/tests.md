@@ -40,10 +40,10 @@ Met `services/foo_service.py`:
 from sqlalchemy import select
 from models import Foo
 
-async def get_foo_data(database):
-    result = await database.fetch_all("SELECT name FROM foo")
+async def get_foo_data(session):
+    result = await session.execute(select(Foo.name))
     # Doe eventuele bewerkingen op result
-    return result
+    return result.scalars().all()
 ```
 Deze manier van werken zorgt ervoor dat we `get_foo_data` als unit test kunnen
 uitvoeren en `get("/foo")` als integration test.
@@ -54,21 +54,24 @@ voor de `get_foo_data` zijn. Dit kan op deze manier in
 `test/test_foo_service.py`:
 ```py
 import pytest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from services.foo_service import get_foo_data
 
 @pytest.mark.asyncio
 async def test_get_foo_data():
-    fake_db = AsyncMock()
+    fake_session = AsyncMock()
 
     # Wat moet de databank returnen
-    fake_db.fetch_all.return_value = [
-       {"name": ""}, # Test lege string
-       {"name": "abc"}, # Test normale string
-       {"name": "ë"} # Test niet ASCII karakter
+    fake_result = MagicMock()
+    fake_result.scalars.return_value.all.return_value = [
+       "", # Test lege string
+       "abc", # Test normale string
+       "ë" # Test niet ASCII karakter
     ]
 
-    result = await get_foo_data(fake_db)
+    fake_session.execute.return_value = fake_result
+
+    result = await get_foo_data(fake_session)
 
     # Test dat lege string wordt gefilterd
     assert len(result) == 2
