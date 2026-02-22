@@ -1,10 +1,12 @@
-from database import Database
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 # URL van echte database
 DATABASE_URL = "" # TBD
 
-database = Database(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL, echo=False)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def get_db():
-    return database
+    async with AsyncSession() as session:
+        yield session
