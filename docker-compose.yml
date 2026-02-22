@@ -8,19 +8,34 @@ services:
         condition: service_started
       backend:
         condition: service_started
+    networks:
+      - default
 
   frontend:
     build: ./frontend
     expose:
       - "3000"
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - default
 
   backend:
     build: ./backend
     expose:
       - "8000"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
 
   database:
     image: postgres:15-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -32,17 +47,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # sync-job:
-  #   build: ./backend
-  #   profiles: ["tools"]
-  #   environment:
-  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
-
-  #   command: ["python", "src/worker/sync_job.py"]
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
+    networks:
+      - default
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: viernulvier-3_default
