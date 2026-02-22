@@ -17,7 +17,7 @@ databank.
 ## Beslissing
 
 We besloten een rechtstreekse verbinding met de databank te gebruiken. Hiervoor
-gebruiken we via docker delen van de code van de backend.
+hergebruiken we via docker delen van de code van de backend.
 
 ## Argumenten
 
@@ -33,8 +33,9 @@ gebruiken we via docker delen van de code van de backend.
 
 ## Gevolgen
 
-- Het script is iets ingewikkelder omdat het rekening moet houden met de databank.
-- De docker configuratie is iets ingewikkelders omdat het script code deelt met
+- Het script is iets ingewikkelder omdat het moet communiceren met een databank
+    in plaats van een web-API.
+- De docker configuratie is iets ingewikkelder omdat het script code deelt met
     de backend.
 - Toekomstige wijzigingen aan de containerisatiestrategie moeten worden
     vastgelegd in een nieuwe ADR of door de status te wijzigen naar `Superseded`.
