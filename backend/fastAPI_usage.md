@@ -47,9 +47,9 @@ app.include_router(production_router)
 Als we een nieuwe endpoint willen zullen we dus het volgende moeten toevoegen:
  
 ```python
-from routers.new_router import router as new_router
+from routers import events, productions, ... new_router_file
 ...
-app.include_router(new_router)
+app.include_router(new_router_file.router)
 ```
 ---
 
