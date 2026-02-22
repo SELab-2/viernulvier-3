@@ -102,10 +102,11 @@ Serveert de React-applicatie, gebouwd met **Node.js 20**.
 
 ### 2.3 Backend Container (API & Business Logic)
 
-De logische kern van de applicatie, gebouwd met **Python 3.14.3 en FastAPI**.
+De logische kern van de applicatie, gebouwd met **Python 3.14.3 en FastAPI**. De applicatie wordt geserveerd door **Uvicorn** (zie [ADR-007](adr/007-uvicorn-asgi-server.md)).
 
-- **Shared Logic Layer:** Bevat de centrale business rules en database-modellen die gedeeld worden met de Sync Worker.
+- **Shared Logic Layer:** Bevat de centrale business rules en **SQLAlchemy** database-modellen (zie [ADR-008](adr/008-sqlalchemy-orm.md)) die gedeeld worden met de Sync Worker.
 - **Stateless API:** Maakt gebruik van JWT-tokens voor authenticatie en Pydantic voor strikte data-validatie.
+- **Database Connectie:** Gebruikt de **psycopg2-binary** adapter om te communiceren met PostgreSQL (zie [ADR-009](adr/009-psycopg2-binary-adapter.md)).
 - **Services:** Intern verdeeld in een `Auth Service` en een `Archive Service`.
 
 ### 2.4 Sync Worker (Nightly Data Ingestie)
