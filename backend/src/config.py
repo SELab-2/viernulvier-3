@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     APP_TITLE: str = "Viernulvier Archief API"
     API_VERSION: str = "0.1.0"
     DATABASE_URL: str = "postgresql://postgres:postgres@database:5432/viernulvier"
-    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    # CORS_ORIGINS: list[str] = ["http://localhost"]
 
 
 settings = Settings()
