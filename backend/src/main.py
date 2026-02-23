@@ -1,21 +1,38 @@
-from database import SessionLocal, Language
+"""
+Viernulvier Archief API — entrypoint.
+"""
 
-with SessionLocal() as session:
-    existing = session.query(Language).filter(Language.id.in_([1, 2])).all()
-    existing_ids = {lang.id for lang in existing}
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from src.config import settings
+from src.database import get_db
 
-    to_add = []
-    for id, name in [(1, "nl"), (2, "en")]:
-        if id in existing_ids:
-            print(f"Language '{name}' already exists, skipping.")
-        else:
-            to_add.append(Language(id=id, language=name))
-            print(f"Adding language '{name}'.")
+app = FastAPI(
+    title=settings.APP_TITLE,
+    version=settings.API_VERSION,
+    root_path="/api",
+)
 
-    if to_add:
-        session.add_all(to_add)
-        session.commit()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    print("\nAll languages in database:")
-    for lang in session.query(Language).all():
-        print(f"  {lang.id}: {lang.language}")
+
+@app.get("/health")
+def health_check() -> dict:
+    return {"status": "ok"}
+
+
+@app.get("/health/db")
+def db_health_check(db: Session = Depends(get_db)) -> dict:
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as exc:
+        return {"status": "error", "database": str(exc)}
