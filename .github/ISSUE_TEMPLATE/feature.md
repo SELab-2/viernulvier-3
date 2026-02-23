@@ -1,7 +1,7 @@
 ---
 name: Feature
-about: Describe new feature
-title: "[FEAT] <short description>"
+about: Bescrijf een nieuwe feature
+title: "[FEAT] <korte beschrijving>"
 labels: ''
 assignees: ''
 
@@ -18,5 +18,5 @@ assignees: ''
 
 
 ### Specifieke reviewers nodig
-- mens1
-- mens2
+- persoon1
+- persoon2
