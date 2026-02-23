@@ -1,27 +1,27 @@
 ---
 name: Bug report
-about: Report a bug
-title: "[BUG] <short description>"
+about: Raporteer een bug
+title: "[BUG] <korte beschrijving>"
 labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Omschrijf de bug**
+Een beknopte beschrijving van de bug.
 
-**Expected behaviour**
-A clear and concise description of what you expected to happen.
+**Verwacht gedrag**
+Een beschrijving van wat je verwachte.
 
-**To Reproduce**
-Steps to reproduce the behaviour:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Stappen om de bug te reproduceren**
+1. Ga naar '...'
+2. Klik op '...'
+3. ...
+4. Zie bug
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Schermafbeeldingen**
+Indien mogelijk, voeg hier een of meer schermafbeeldingen toe die het probleem
+tonen.
 
-**Additional context**
-Add any other context about the problem here.
+**Extra context**
+Voeg hier extra context toe als die er is.
