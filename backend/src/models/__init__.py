@@ -6,11 +6,11 @@ from src.database import Base
 from src.models.associations import prod_genres, prod_tags
 from src.models.event import Event, EventPrice
 from src.models.gallery import Gallery
-from src.models.genre import Genre
+from src.models.genre import Genre, GenreName
 from src.models.hall import Hall
 from src.models.language import Language
 from src.models.production import ProdInfo, Production
-from src.models.tag import Tag
+from src.models.tag import Tag, TagName
 
 __all__ = [
     "Base",
@@ -21,7 +21,9 @@ __all__ = [
     "Production",
     "ProdInfo",
     "Genre",
+    "GenreName",
     "Tag",
+    "TagName",
     "Hall",
     "Event",
     "EventPrice",
