@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+# This workflow does the following:
+# 1. Checks out the code
+# 2. Builds the Docker environment
+# 3. Runs tests (placeholder for actual test command)
+# 4. Runs linting and formatting (placeholder for actual linting/formatting command)
+# 5. Shuts down the Docker environment
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker environment
+      run: docker compose up -d
+
+    - name: Run tests
+      run: echo "tests go here"
+      #run: docker compose exec app pytest
+
+    - name: Run linting and formatting
+      run: echo "linting and formatting go here"
+      #run: docker compose exec app flake8 .  
+
+    - name: Shut down the Docker environment
+      if: always()
+      run: docker compose down -v
