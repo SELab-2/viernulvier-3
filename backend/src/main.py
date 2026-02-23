@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 
-from routers import events, productions
+from api.v1.archive import global_router
 
 
 app = FastAPI(
@@ -9,5 +9,5 @@ app = FastAPI(
     version="0.1.0",
 )
 
-app.include_router(events.router)
-app.include_router(productions.router)
+app.include_router(global_router)
+
