@@ -1,6 +1,6 @@
 # ADR-011 pytest backend testing
 
-**Status:** Proposed
+**Status:** Accepted
 **Datum:** 2026-02-22
 
 ## Context
