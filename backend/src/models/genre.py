@@ -10,8 +10,8 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id = Column(Integer, primary_key=True)
+    
     names = relationship("GenreName", back_populates="genre")
-
     productions = relationship(
         "Production", secondary=prod_genres, back_populates="genres"
     )
