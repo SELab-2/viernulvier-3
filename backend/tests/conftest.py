@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from src.main import app
 from src.database import get_db
+from src.config import TEST_DATABASE_URL
 
-TEST_DATABASE_URL = "" # TBD
 
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
