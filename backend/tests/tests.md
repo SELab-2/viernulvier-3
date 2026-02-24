@@ -6,13 +6,15 @@ In dit voorbeeld zal ik werken met een hypothetische endpoint `/foo` dat een
 `GET` ondersteund. Ik zal volgende projectstructuur hanteren:
 ```
 backend
-├── services
-│   └── foo_service.py
-├── src
+├── src/
 │   ├── database.py
 │   ├── foo.py
-│   └── main.py
-└── tests
+│   ├── main.py
+│   ├── models/
+│   │   └── foo.py
+│   └── services/
+│       └── foo.py
+└── tests/
     ├── conftest.py
     ├── test_foo_service.py
     └── test_foo.py
@@ -27,7 +29,7 @@ from fastapi import Depends
 
 from src.main import app
 from src.database import get_db
-from services.foo_service import get_foo_data
+from src.services.foo import get_foo_data
 
 
 @app.get("/foo")
@@ -38,7 +40,7 @@ async def foo(db=Depends(get_db)):
 Met `services/foo_service.py`:
 ```py
 from sqlalchemy import select
-from models import Foo
+from src.models.foo import Foo
 
 async def get_foo_data(session):
     result = await session.execute(select(Foo.name))
@@ -55,7 +57,7 @@ voor de `get_foo_data` zijn. Dit kan op deze manier in
 ```py
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from services.foo_service import get_foo_data
+from src.services.foo import get_foo_data
 
 @pytest.mark.asyncio
 async def test_get_foo_data():
