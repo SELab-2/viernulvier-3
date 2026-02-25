@@ -12,7 +12,7 @@ Response: 200 OK
 	{
 		"id": "0000",
 		"title": "programma0",
-		"subtitle": "programma0.0",
+		"supertitle": "programma0.0",
 		"artist": "artiest",
 		"startdate": "xxxxxxx",
 		"enddate": "xxxxxxx",
@@ -23,7 +23,7 @@ Response: 200 OK
 	{
 		"id": "0001",
 		"title": "programma1",
-		"subtitle": "programma1.0",
+		"supertitle": "programma1.0",
 		"artist": "artiest2",
 		"startdate": "xxxxxxx",
 		"enddate": "xxxxxxx",
@@ -44,28 +44,29 @@ Response: 200 OK
 	"status": "succes",
 	"data": {
 		"title": "programma0",
-		"subtitle": "programma0.0",
+		"supertitle": "programma0.0",
 		"artist": "artiest",
-		"description1": "Lorem ipsum...",
-		"description2": "Lorem ipsum...",
-		"description3": "Lorem ipsum...",
+        "tagline": "tagline",
+        "teaser": "teaser",
+		"description": "Lorem ipsum...",
+        "info": "info",
 		"tumbnail": "image.png",
 		"events": [
 		{
-			"datetime": "xxxxxxx",
-			"location": "Gent",
+			"location": {"address": "Gent, ergens", "name": "iets"},
+			"starts_at": "xxxxxxx",
+			"ends_at": "xxxxxxx",
 			"prices": [
-				{ "price for": "minderjarigen", "price": "€10" },
-				{ "price for": "18+", "price": "€15" }
+				{ "label": "minderjarigen", "price": "€10" },
+				{ "label": "18+", "price": "€15" }
 			]
 		},
-		...
-		]
-		"extra_media": [
+		"media_gallery": [
 			"image2.png",
 			"video.mp4"
-		]
-		"tags": ["tag1", "tag2"]
+		],
+		"tags": ["tag1", "tag2"],
+        "genres": ["genre1", "genre2"]
 	}
 }
 ```
