@@ -25,6 +25,7 @@ jobs:
       env:
           DEFAULT_BRANCH: dev
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
 
     - name: Build the Docker environment
       run: docker compose up -d --wait
