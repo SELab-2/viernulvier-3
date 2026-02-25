@@ -81,7 +81,7 @@ Accept: application/json
 ```
 Response 200 OK
 Set-Cookie:
-	session_id=xxxxxxxxxxx;
+	JWT=xxxxxxxxxxx;
 	HttpOnly;
 	Secure;
 	SameSite=Strict;
@@ -99,7 +99,7 @@ Response 401 Unauthorized
 // Alles hierna geeft 401 Unauthorized terug als er geen correcte cookie is meegegeven
 
 PATCH /agenda
-Cookie: session_id=xxxxxxxxxxxx
+Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
 // Tags lijkt me het enige dat je in bulk zou willen aanpassen
@@ -117,7 +117,7 @@ Response: 200 OK
 ```
 
 PATCH /agenda/{id}
-Cookie: session_id=xxxxxxxxxxxx
+Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
 // Hier mag alles aangepast worden
