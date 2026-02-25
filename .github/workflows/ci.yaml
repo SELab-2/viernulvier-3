@@ -7,29 +7,35 @@ on:
     branches: [ "dev" ]
 
 # This workflow does the following:
-# 1. Checks out the code
-# 2. Builds the Docker environment
-# 3. Runs tests (placeholder for actual test command)
-# 4. Runs linting and formatting (placeholder for actual linting/formatting command)
-# 5. Shuts down the Docker environment
+# 1. Checks out the code.
+# 2. Runs linting and formatting (used Super-Linter).
+# 3. Builds the Docker environment.
+# 4. Runs tests (placeholder for actual test command).
+# 5. Shuts down the Docker environment.
 jobs:
 
   build:
 
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest    
     steps:
     - uses: actions/checkout@v4
+
+    - name: Run Super-Linter
+      uses: github/super-linter@v6
+      env:
+          DEFAULT_BRANCH: dev
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build the Docker environment
-      run: docker compose up -d
+      run: docker compose up -d --wait
 
     - name: Run tests
       run: echo "tests go here"
-      #run: docker compose exec app pytest
+      #run: docker compose exec -T app pytest 
 
-    - name: Run linting and formatting
-      run: echo "linting and formatting go here"
-      #run: docker compose exec app flake8 .  
+    - name: Show container logs if tests fail
+      if: failure()
+      run: docker compose logs
 
     - name: Shut down the Docker environment
       if: always()
