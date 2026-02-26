@@ -16,4 +16,3 @@ app = FastAPI(
 app.include_router(global_archive_router)
 app.include_router(global_auth_router)
 
-

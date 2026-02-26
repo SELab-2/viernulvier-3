@@ -1,17 +1,15 @@
 from fastapi import APIRouter
-import login
-import users
+from src.api.v1.auth import login, users
 
-global_auth_router = APIRouter()
+router = APIRouter()
 
-
-global_auth_router.include_router(
+router.include_router(
     login.router,
     prefix="/login",
     tags=["Login"]
 )
 
-global_auth_router.include_router(
+router.include_router(
     users.router,
     prefix="/users",
     tags=["Users"]

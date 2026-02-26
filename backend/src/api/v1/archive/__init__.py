@@ -1,17 +1,15 @@
 from fastapi import APIRouter
-import events
-import productions
+from src.api.v1.archive import events, productions
 
-global_archive_router = APIRouter()
+router = APIRouter()
 
-
-global_archive_router.include_router(
+router.include_router(
     events.router,
     prefix="/events",
     tags=["Events"]
 )
 
-global_archive_router.include_router(
+router.include_router(
     productions.router,
     prefix="/productions",
     tags=["Productions"]
