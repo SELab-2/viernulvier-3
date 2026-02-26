@@ -60,7 +60,8 @@ Response: 200 OK
 				{ "label": "minderjarigen", "price": "€10" },
 				{ "label": "18+", "price": "€15" }
 			]
-		},
+		}
+        ],
 		"media_gallery": [
 			"image2.png",
 			"video.mp4"
@@ -130,7 +131,7 @@ Accept: application/json
 	"description1": "Lorem ipsum...",
 	"description2": "Lorem ipsum...",
 	"description3": "Lorem ipsum...",
-	"tumbnail": "image.png",
+	"thumbnail": "image.png",
 	"events": [
 	{
 		"datetime": "xxxxxxx",
