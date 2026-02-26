@@ -1,21 +1,67 @@
-# Configuration of integration tests
+# Configuratie van integratietesten
+import os
+
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+from src.database import Base, get_db
 from src.main import app
-from src.database import get_db
-from src.config import TEST_DATABASE_URL
+
+# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren via omgevingsvariabelen.
+# Val terug op in-memory SQLite voor snelle, lokale developer testen.
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
+
+# Configureer de engine op basis van het database type
+if TEST_DATABASE_URL.startswith("sqlite"):
+    test_engine = create_engine(
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+else:
+    # Voor PostgreSQL hebben we de SQLite-specifieke argumenten niet nodig
+    if TEST_DATABASE_URL.startswith("postgresql://"):
+        TEST_DATABASE_URL = TEST_DATABASE_URL.replace(
+            "postgresql://", "postgresql+psycopg2://"
+        )
+    test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
+
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
+# Overschrijf dependency
+def override_get_db():
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-# Override dependency
-async def override_get_db():
-    async with TestSessionLocal() as session:
-        yield session
+@pytest.fixture(scope="function", autouse=True)
+def setup_test_db():
+    import src.models  # Zorg ervoor dat modellen geregistreerd zijn
+
+    # Maak tabellen aan voordat testen draaien
+    Base.metadata.create_all(bind=test_engine)
+    yield
+    # Verwijder tabellen nadat testen klaar zijn
+    Base.metadata.drop_all(bind=test_engine)
+
+
+@pytest.fixture(scope="function")
+def db_session():
+    """
+    Levert een database sessie voor unit testen.
+    Omdat setup_test_db autouse=True is, zijn de tabellen al aangemaakt.
+    """
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture(scope="session")
