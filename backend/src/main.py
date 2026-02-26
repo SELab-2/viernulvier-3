@@ -1,15 +1,38 @@
+"""
+Viernulvier Archief API — entrypoint.
+"""
 
-from fastapi import FastAPI
-
-from api.v1.archive import global_archive_router
-from api.v1.auth import global_auth_router
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from src.config import settings
+from src.database import get_db
 
 app = FastAPI(
-    title="VierNulVier-Archief-API",
-    version="0.1.0",
+    title=settings.APP_TITLE,
+    version=settings.API_VERSION,
+    root_path="/api",
 )
 
-app.include_router(global_archive_router)
-app.include_router(global_auth_router)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=settings.CORS_ORIGINS,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
+@app.get("/health")
+def health_check() -> dict:
+    return {"status": "ok"}
+
+
+@app.get("/health/db")
+def db_health_check(db: Session = Depends(get_db)) -> dict:
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as exc:
+        return {"status": "error", "database": str(exc)}
