@@ -17,7 +17,7 @@ Response: 200 OK
 		"startdate": "xxxxxxx",
 		"enddate": "xxxxxxx",
 		"description": "Lorem ipsum...",
-		"tumbnail": "image.png",
+		"thumbnail": "image.png",
 		"tags": ["tag1", "tag2"]
 	},
 	{
@@ -28,7 +28,7 @@ Response: 200 OK
 		"startdate": "xxxxxxx",
 		"enddate": "xxxxxxx",
 		"description": "Lorem ipsum...",
-		"tumbnail": "image.png",
+		"thumbnail": "image.png",
 		"tags": ["tag1", "tag2"]
 	},
 	...
@@ -50,7 +50,7 @@ Response: 200 OK
         "teaser": "teaser",
 		"description": "Lorem ipsum...",
         "info": "info",
-		"tumbnail": "image.png",
+		"thumbnail": "image.png",
 		"events": [
 		{
 			"location": {"address": "Gent, ergens", "name": "iets"},
