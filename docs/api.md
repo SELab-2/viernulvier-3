@@ -156,3 +156,53 @@ Response: 200 OK
 ```json
 { "status": "ok" }
 ```
+
+POST /agenda
+Cookie: JWT=xxxxxxxxxxxx
+Content-Type: application/json
+Accept: application/json
+// Nieuwe productie aanmaken.
+```json
+{
+    "title": "programma0",
+    "supertitle": "programma0.0",
+    "artist": "artiest",
+    "tagline": "tagline",
+    "teaser": "teaser",
+    "description": "Lorem ipsum...",
+    "info": "info",
+    "thumbnail": "image.png",
+    "events": [
+    {
+        "location": {"address": "Gent, ergens", "name": "iets"},
+        "starts_at": "xxxxxxx",
+        "ends_at": "xxxxxxx",
+        "prices": [
+            { "label": "minderjarigen", "price": "€10" },
+            { "label": "18+", "price": "€15" }
+        ]
+    }
+    ],
+    "media_gallery": [
+        "image2.png",
+        "video.mp4"
+    ],
+    "tags": ["tag1", "tag2"],
+    "genres": ["genre1", "genre2"]
+}
+```
+Response: 200 OK
+```json
+{
+    "status": "ok",
+    "id": "0003"
+}
+```
+
+DELETE /agenda/{id}
+Cookie: JWT=xxxxxxxxxxxx
+Accept: application/json
+Response: 200 OK
+```json
+{ "status": "succes" }
+```
