@@ -125,29 +125,31 @@ Accept: application/json
 // Hier mag alles aangepast worden
 ```json
 {
-	"title": "programma0",
-	"subtitle": "programma0.0",
-	"artist": "artiest",
-	"description1": "Lorem ipsum...",
-	"description2": "Lorem ipsum...",
-	"description3": "Lorem ipsum...",
-	"thumbnail": "image.png",
-	"events": [
-	{
-		"datetime": "xxxxxxx",
-		"location": "Gent",
-		"prices": [
-			{ "price for": "minderjarigen", "price": "€10" },
-			{ "price for": "18+", "price": "€15" }
-		]
-	},
-	...
-	]
-	"extra_media": [
-		"image2.png",
-		"video.mp4"
-	]
-	"tags": ["tag1", "tag2"]
+    "title": "programma0",
+    "supertitle": "programma0.0",
+    "artist": "artiest",
+    "tagline": "tagline",
+    "teaser": "teaser",
+    "description": "Lorem ipsum...",
+    "info": "info",
+    "thumbnail": "image.png",
+    "events": [
+    {
+        "location": {"address": "Gent, ergens", "name": "iets"},
+        "starts_at": "xxxxxxx",
+        "ends_at": "xxxxxxx",
+        "prices": [
+            { "label": "minderjarigen", "price": "€10" },
+            { "label": "18+", "price": "€15" }
+        ]
+    }
+    ],
+    "media_gallery": [
+        "image2.png",
+        "video.mp4"
+    ],
+    "tags": ["tag1", "tag2"],
+    "genres": ["genre1", "genre2"]
 }
 ```
 Response: 200 OK
