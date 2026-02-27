@@ -1,8 +1,8 @@
 GET /
 Accept: application/json
-Response: 303 See /agenda
+Response: 303 See /productions
 
-GET /agenda
+GET /productions
 Accept: application/json
 Response: 200 OK
 ```json
@@ -36,7 +36,7 @@ Response: 200 OK
 }
 ```
 
-GET /agenda/{id}
+GET /productions/{id}
 Accept: application/json
 Response: 200 OK
 ```json
@@ -100,7 +100,7 @@ Response 401 Unauthorized
 
 // Alles hierna geeft 401 Unauthorized terug als er geen correcte cookie is meegegeven
 
-PATCH /agenda
+PATCH /productions
 Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
@@ -118,7 +118,7 @@ Response: 200 OK
 { "status": "ok" }
 ```
 
-PATCH /agenda/{id}
+PATCH /productions/{id}
 Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
@@ -157,7 +157,7 @@ Response: 200 OK
 { "status": "ok" }
 ```
 
-POST /agenda
+POST /productions
 Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
@@ -199,7 +199,7 @@ Response: 200 OK
 }
 ```
 
-DELETE /agenda/{id}
+DELETE /productions/{id}
 Cookie: JWT=xxxxxxxxxxxx
 Accept: application/json
 Response: 200 OK
