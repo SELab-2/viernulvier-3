@@ -1,3 +1,15 @@
+## Algemeen:
+Velden dat in de databank meerdere talen ondersteunen staan in de volgende
+schemas als `"identifier": "text"`. In de productie moeten al deze dingen
+vervangen worden door een map:
+```json
+{
+    "nl": "tekst",
+    "en": "text"
+}
+```
+
+
 GET /
 Accept: application/json
 Response: 303 See /productions
