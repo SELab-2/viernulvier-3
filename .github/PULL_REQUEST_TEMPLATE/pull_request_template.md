@@ -16,3 +16,5 @@ welk deel ervan?>
 
 
 Closes <issue-nr>
+
+- [ ] Auteur wil zelf mergen.
