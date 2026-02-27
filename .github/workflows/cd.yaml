@@ -9,7 +9,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: self-hosted
-
+    environment: production
     env:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
