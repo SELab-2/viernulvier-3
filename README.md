@@ -24,15 +24,21 @@ Start de volledige stack:
 docker compose up -d
 ```
 
+Bij een eerste opstart of na codewijzigingen, bouw de images opnieuw:
+
+```bash
+docker compose up --build -d
+```
+
 De applicatie is bereikbaar op [http://localhost](http://localhost).
 
 ### Nuttige endpoints
 
-| Endpoint                      | Beschrijving                               |
-| ----------------------------- | ------------------------------------------ |
-| `http://localhost/`           | Frontend                                   |
-| `http://localhost/api/health` | Backend health check                       |
-| `http://localhost/api/docs`   | Interactieve API-documentatie (Swagger UI) |
+| Endpoint                            | Beschrijving                               |
+| ----------------------------------- | ------------------------------------------ |
+| `http://localhost/`                 | Frontend                                   |
+| `http://localhost/api/v1/health`    | Backend health check                       |
+| `http://localhost/api/docs`         | Interactieve API-documentatie (Swagger UI) |
 
 ## Stoppen
 
