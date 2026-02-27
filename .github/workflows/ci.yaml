@@ -34,11 +34,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      POSTGRES_USER: viernulvier
-      POSTGRES_PASSWORD: archief_test_password
-      POSTGRES_DB: viernulvier_archief
-      DATABASE_HOST: database
-      DATABASE_PORT: 5432
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
 
     steps:
       - name: Checkout Code
