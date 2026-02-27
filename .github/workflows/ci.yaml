@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Continuous Integration
 
 on:
   push:
@@ -13,34 +13,50 @@ on:
 # 4. Runs tests (placeholder for actual test command).
 # 5. Shuts down the Docker environment.
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest    
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Run Super-Linter
-      uses: github/super-linter@v6
-      env:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Super-Linter
+        uses: github/super-linter@v6
+        env:
           DEFAULT_BRANCH: dev
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_CHECKOV: false
 
-    - name: Build the Docker environment
-      run: docker compose up -d --wait
+  smoke-test:
+    name: Docker Smoke Test
+    runs-on: ubuntu-latest
 
-    - name: Run tests
-      run: echo "tests go here"
-      #run: docker compose exec -T app pytest 
+    env:
+      POSTGRES_USER: viernulvier
+      POSTGRES_PASSWORD: archief_test_password
+      POSTGRES_DB: viernulvier_archief
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
 
-    - name: Show container logs if tests fail
-      if: failure()
-      run: docker compose logs
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Shut down the Docker environment
-      if: always()
-      run: docker compose down -v
+      - name: Build Docker Environment
+        run: docker compose up -d --build --wait
+
+      - name: Run Tests
+        run: |
+          # Placeholder for actual test command, e.g., pytest or npm test
+          echo "Running tests..."
+          sleep 10 # Simulate test duration
+
+      - name: Dump Docker Logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Shut Down Docker Environment
+        if: always()
+        run: docker compose down -v
