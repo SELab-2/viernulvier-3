@@ -206,3 +206,25 @@ Response: 200 OK
 ```json
 { "status": "succes" }
 ```
+
+POST /tags
+Cookie: JWT=xxxxxxxxxxxx
+Content-Type: application/json
+Accept: application/json
+// Nieuwe productie aanmaken.
+```json
+{ "name": "tagX" }
+```
+Response: 200 OK
+```json
+{
+    "status": "ok",
+    "id": "0003"
+}
+```
+
+DELETE /tags/{id}
+Cookie: JWT=xxxxxxxxxxxx
+Accept: application/json
+Response: 200 OK
+{ "status": "ok" }
