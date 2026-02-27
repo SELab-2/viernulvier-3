@@ -207,6 +207,59 @@ Response: 200 OK
 { "status": "succes" }
 ```
 
+PATCH /productions/{id}/event/{id}
+Cookie: JWT=xxxxxxxxxxxx
+Content-Type: application/json
+Accept: application/json
+// Hier mag alles aangepast worden
+```json
+{
+    "location": {"address": "Gent, ergens", "name": "iets"},
+    "starts_at": "xxxxxxx",
+    "ends_at": "xxxxxxx",
+    "prices": [
+        { "label": "minderjarigen", "price": "€10" },
+        { "label": "18+", "price": "€15" }
+    ]
+}
+```
+Response: 200 OK
+```json
+{ "status": "ok" }
+```
+
+POST /productions/{id}/event/
+Cookie: JWT=xxxxxxxxxxxx
+Content-Type: application/json
+Accept: application/json
+// Hier moet alles ingevuld worden
+```json
+{
+    "location": {"address": "Gent, ergens", "name": "iets"},
+    "starts_at": "xxxxxxx",
+    "ends_at": "xxxxxxx",
+    "prices": [
+        { "label": "minderjarigen", "price": "€10" },
+        { "label": "18+", "price": "€15" }
+    ]
+}
+```
+Response: 200 OK
+```json
+{
+    "status": "ok"
+    "id": "0004"
+}
+```
+
+DELETE /productions/{id}/events/{id}
+Cookie: JWT=xxxxxxxxxxxx
+Accept: application/json
+Response: 200 OK
+```json
+{ "status": "ok" }
+```
+
 POST /tags
 Cookie: JWT=xxxxxxxxxxxx
 Content-Type: application/json
@@ -227,4 +280,6 @@ DELETE /tags/{id}
 Cookie: JWT=xxxxxxxxxxxx
 Accept: application/json
 Response: 200 OK
+```json
 { "status": "ok" }
+```
