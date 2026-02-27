@@ -3,7 +3,15 @@ Accept: application/json
 Response: 303 See /productions
 
 GET /productions
+Content-Type: application/json
 Accept: application/json
+```json
+{
+    "tag_filters": ["tag1", "tag2"],
+    "date_start": "xxxxxxx",
+    "date_end": "xxxxxx"
+}
+```
 Response: 200 OK
 ```json
 {
