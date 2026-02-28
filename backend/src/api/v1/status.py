@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.database import get_db
+from src.api.dependencies import get_db
 from src.schemas.status import HealthResponse
 from src.services.status import get_health
 
