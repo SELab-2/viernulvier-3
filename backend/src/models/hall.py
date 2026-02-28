@@ -13,3 +13,5 @@ class Hall(Base):
     name = Column(String)
 
     events = relationship("Event", back_populates="hall")
+    
+
