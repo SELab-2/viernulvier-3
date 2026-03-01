@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     DATABASE_HOST: str
     DATABASE_PORT: int
 
+    VIERNULVIER_KEY: str
+
     @computed_field
     def database_url(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.POSTGRES_DB}"
