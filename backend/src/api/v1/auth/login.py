@@ -19,7 +19,7 @@ router = APIRouter()
     summary="User login",
     description="Authenticates a user and returns access and refresh tokens.",
 )
-async def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     return auth_service.login_user(db, credentials.username, credentials.password)
 
 
@@ -29,5 +29,5 @@ async def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     summary="Refresh access token",
     description="Uses a refresh token to obtain a new access token.",
 )
-async def refresh_token(request: TokenRefreshRequest, db: Session = Depends(get_db)):
+def refresh_token(request: TokenRefreshRequest, db: Session = Depends(get_db)):
     return auth_service.refresh_access_token(db, request.refresh_token)

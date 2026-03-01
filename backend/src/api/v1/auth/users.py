@@ -13,7 +13,7 @@ router = APIRouter()
     summary="Get current user profile",
     description="Returns the profile information, roles, and permissions of the currently authenticated user.",
 )
-async def get_current_user_profile(current_user: User = Depends(get_current_user)):
+def get_current_user_profile(current_user: User = Depends(get_current_user)):
     roles = [role.name for role in current_user.roles]
     permissions = set()
     for role in current_user.roles:
