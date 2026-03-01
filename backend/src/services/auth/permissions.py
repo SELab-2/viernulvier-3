@@ -8,7 +8,6 @@ bij compilatie al opvallen en autocomplete werkt.
 
 class Permissions:
     # Archive
-    ARCHIVE_READ = "archive:read"
     ARCHIVE_CREATE = "archive:create"
     ARCHIVE_UPDATE = "archive:update"
     ARCHIVE_DELETE = "archive:delete"
