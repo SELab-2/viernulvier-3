@@ -3,6 +3,7 @@
 from sqlalchemy import DECIMAL, TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.database import Base
+from sqlalchemy.sql import func
 
 
 class Event(Base):
@@ -32,7 +33,7 @@ class EventPrice(Base):
     amount = Column(DECIMAL)
     available = Column(Integer)
     expires_at = Column(TIMESTAMP)
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     event = relationship("Event", back_populates="prices")
