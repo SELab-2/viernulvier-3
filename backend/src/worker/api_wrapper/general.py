@@ -1,13 +1,25 @@
 import http.client
 import json
+import logging
 from urllib.parse import urlencode
 
 from src.config import settings
 
 
+logging.basicConfig(
+    filename="sync_job.log",
+    filemode="w",
+    format='[%(levelname)s %(asctime)s] %(message)s'
+)
+
+
 class VNV_Wrapper:
     def __init__(self):
         self.connection = http.client.HTTPSConnection("www.viernulvier.gent")
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.info("connection created")
+
         self.headers = {
             "accept": "application/json",
             "X-AUTH-TOKEN": settings.VIERNULVIER_KEY,
@@ -16,7 +28,7 @@ class VNV_Wrapper:
 
     def close(self):
         self.connection.close()
-        print("[DEBUG] closed connection")
+        self.logger.info("connection closed")
 
     # Support use of 'with()' with the __enter__() and __exit__() magic methods
     def __enter__(self):
@@ -35,7 +47,8 @@ class VNV_Wrapper:
         else:
             link = f"/api/v1/{path}{parsed_params}"
 
-        print(f"[DEBUG] {link=}")
+        self.logger.debug(f"GET, created_link = {link}")
+
         self.connection.request("GET", link, headers=self.headers)
 
         result = self.connection.getresponse()
