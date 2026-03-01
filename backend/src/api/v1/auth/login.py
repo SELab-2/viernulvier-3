@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "/login",
     response_model=Token,
     summary="User login",
     description="Authenticates a user and returns access and refresh tokens.",
