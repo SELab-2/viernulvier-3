@@ -26,8 +26,8 @@ def get_current_user(
 
 
 class RequirePermissions:
-    def __init__(self, required_permissions: List[str]):
-        self.required_permissions = set(required_permissions)
+    def __init__(self, required_permissions: set[str]):
+        self.required_permissions = required_permissions
 
     def __call__(self, current_user: User = Depends(get_current_user)):
         user_permissions = set()
@@ -38,6 +38,6 @@ class RequirePermissions:
         if not self.required_permissions.issubset(user_permissions):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
+                detail="Incorrect permissions",
             )
         return current_user
