@@ -63,7 +63,7 @@ def test_refresh_token_integration(client: TestClient, db_session: Session):
     refresh_token = login_response.json()["refresh_token"]
     
     response = client.post(
-        "/api/v1/auth/login/refresh",
+        "/api/v1/auth/refresh",
         json={"refresh_token": refresh_token}
     )
     assert response.status_code == 200
