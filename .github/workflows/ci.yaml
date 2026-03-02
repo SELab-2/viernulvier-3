@@ -57,7 +57,7 @@ jobs:
           docker cp backend/requirements-dev.txt $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements-dev.txt
 
       - name: Install test dependencies in backend container
-        run: docker exec $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pip install -r requirements-dev.txt
+        run: docker exec --user root $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pip install -r requirements-dev.txt
 
       - name: Copy tests to backend container
         run: docker cp backend/tests $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests
