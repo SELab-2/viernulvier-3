@@ -67,7 +67,7 @@ jobs:
         run: docker cp backend/tests "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests"
 
       - name: Run Tests
-        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pytest --cache-dir /tmp tests/
+        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pytest tests/
 
       - name: Dump Docker Logs
         if: failure()
