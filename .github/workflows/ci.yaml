@@ -10,7 +10,7 @@ on:
 # 1. Checks out the code.
 # 2. Runs linting and formatting (used Super-Linter).
 # 3. Builds the Docker environment.
-# 4. Runs tests (placeholder for actual test command).
+# 4. Runs tests (pytest in the backend container).
 # 5. Shuts down the Docker environment.
 jobs:
   lint:
@@ -39,24 +39,31 @@ jobs:
       POSTGRES_DB: viernulvier_archief
       DATABASE_HOST: database
       DATABASE_PORT: 5432
+      SECRET_KEY: viernulvier_test_secret_2026
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_MINUTES: 43200
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Build Docker Environment
-        run: docker compose up -d --build --wait
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
+
+      - name: Install test dependencies in backend container
+        run: docker exec backend pip install -r requirements-dev.txt
+
+      - name: Copy tests to backend container
+        run: docker cp backend/tests backend:/app/tests
 
       - name: Run Tests
-        run: |
-          # Placeholder for actual test command, e.g., pytest or npm test
-          echo "Running tests..."
-          sleep 10 # Simulate test duration
+        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief backend pytest tests/
 
       - name: Dump Docker Logs
         if: failure()
-        run: docker compose logs
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci logs
 
       - name: Shut Down Docker Environment
         if: always()
-        run: docker compose down -v
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci down -v
