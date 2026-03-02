@@ -52,13 +52,13 @@ jobs:
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
 
       - name: Install test dependencies in backend container
-        run: docker exec backend pip install -r requirements-dev.txt
+        run: docker exec $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pip install -r requirements-dev.txt
 
       - name: Copy tests to backend container
-        run: docker cp backend/tests backend:/app/tests
+        run: docker cp backend/tests $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests
 
       - name: Run Tests
-        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief backend pytest tests/
+        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pytest tests/
 
       - name: Dump Docker Logs
         if: failure()
