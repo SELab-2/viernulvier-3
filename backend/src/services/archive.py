@@ -4,21 +4,33 @@ from schemas.event import EventResponse, HallNested, EventCreate, EventUpdate
 
 
 
-def get_event_by_id(db: Session, event_id: int, base_url: str) -> EventResponse:
-    event = db.query(Event).filter(Event.id == event_id).first()
-    if not event:
-        raise ValueError("Event not found")
-
+def build_event_response(
+    db: Session,
+    event: Event,
+    base_url: str
+) -> EventResponse:
     hall = db.query(Hall).filter(Hall.id == event.hall_id).first()
 
     event_data = EventResponse.model_validate(event)
     event_data.id = f"{base_url}/events/{event.id}"
     event_data.production_id = f"{base_url}/productions/{event.production_id}"
-    
-    event_data.hall_id = hall.id
-    event_data.hall = HallNested(name=hall.name, address=hall.address)
+
+    if hall:
+        event_data.hall_id = hall.id
+        event_data.hall = HallNested(
+            name=hall.name,
+            address=hall.address
+        )
 
     return event_data
+
+
+def get_event_by_id(db: Session, event_id: int, base_url: str) -> EventResponse:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValueError("Event not found")
+
+    return build_event_response(db, event, base_url)
 
 
 # DELETE /event, returns succes or not
@@ -36,21 +48,20 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
     return db.query(Hall).filter(Hall.id == hall_id).first()
 
 
-def make_event(db: Session, event_in: EventCreate) -> Event:
-    
-    # case 1 => use existing hall
+def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
+    # case 1: use existing hall
     if event_in.hall_id is not None:
         db_hall = db.query(Hall).filter(Hall.id == event_in.hall_id).first()
         if not db_hall:
             raise ValueError("Hall not found")
-
-    # case 2 => create new hall
+    # case 2: create new hall
     else:
         db_hall = Hall(**event_in.hall.model_dump())
         db.add(db_hall)
-        db.flush()
+        db.flush() 
 
 
+    # create the event
     db_event = Event(
         production_id=event_in.production_id,
         hall_id=db_hall.id,
@@ -64,11 +75,11 @@ def make_event(db: Session, event_in: EventCreate) -> Event:
     db.commit()
     db.refresh(db_event)
 
-    return db_event
+    return build_event_response(db, db_event, base_url)
 
 
 
-def update_event(db: Session, event_id: int, update_data: EventUpdate) -> Event:
+def update_event(db: Session, event_id: int, update_data: EventUpdate, base_url: str) -> EventResponse:
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise ValueError("Event not found")
@@ -91,9 +102,8 @@ def update_event(db: Session, event_id: int, update_data: EventUpdate) -> Event:
         event.order_url = update_data.order_url
     if update_data.external_order_url is not None:
         event.external_order_url = update_data.external_order_url
-
-    # updated_at happens automatically by db
     
     db.commit()
     db.refresh(event)
-    return event
+    
+    return build_event_response(db, event, base_url)
