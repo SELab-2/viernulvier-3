@@ -16,6 +16,10 @@ jobs:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
       DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALGORITHM: ${{ secrets.ALGORITHM }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+      REFRESH_TOKEN_EXPIRE_MINUTES: ${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}
 
     steps:
       - name: Checkout code
@@ -25,9 +29,4 @@ jobs:
 
       - name: Build and Restart Containers
         run: |
-          docker-compose up --build -d --remove-orphans
-
-      - name: System Cleanup
-        if: always()
-        run: |
-          docker image prune -f
+          docker compose --project-name viernulvier-prod up --build -d --remove-orphans
