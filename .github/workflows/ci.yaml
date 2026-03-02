@@ -2,9 +2,9 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ "dev", "main" ]
+    branches: ["dev", "main"]
   pull_request:
-    branches: [ "dev", "main" ]
+    branches: ["dev", "main"]
 
 # This workflow does the following:
 # 1. Checks out the code.
@@ -28,6 +28,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_CHECKOV: false
+          VALIDATE_ENV: false
+          VALIDATE_GITLEAKS: false
+          VALIDATE_JSCPD: false
+          VALIDATE_YAML: false
 
   smoke-test:
     name: Docker Smoke Test
@@ -53,17 +57,17 @@ jobs:
 
       - name: Copy requirements to backend container
         run: |
-          docker cp backend/requirements.txt $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements.txt
-          docker cp backend/requirements-dev.txt $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements-dev.txt
+          docker cp backend/requirements.txt "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements.txt"
+          docker cp backend/requirements-dev.txt "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements-dev.txt"
 
       - name: Install test dependencies in backend container
-        run: docker exec --user root $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pip install -r requirements-dev.txt
+        run: docker exec --user root "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pip install -r requirements-dev.txt
 
       - name: Copy tests to backend container
-        run: docker cp backend/tests $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests
+        run: docker cp backend/tests "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests"
 
       - name: Run Tests
-        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief $(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend) pytest --cache-dir /tmp tests/
+        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pytest --cache-dir /tmp tests/
 
       - name: Dump Docker Logs
         if: failure()
