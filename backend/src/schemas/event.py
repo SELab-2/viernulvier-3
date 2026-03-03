@@ -20,9 +20,6 @@ class EventResponse(BaseModel):
     external_order_url: Optional[str]
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True
         
     model_config = {
         "from_attributes": True
