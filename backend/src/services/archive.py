@@ -79,31 +79,36 @@ def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventRespon
 
 
 
-def update_event(db: Session, event_id: int, update_data: EventUpdate, base_url: str) -> EventResponse:
+from sqlalchemy.orm import Session
+from fastapi import HTTPException
+from typing import Any
+
+def update_event(
+    db: Session,
+    event_id: int,
+    update_data: EventUpdate,
+    base_url: str
+) -> EventResponse:
+    
+    # get the event
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
-        raise ValueError("Event not found")
+        raise HTTPException(status_code=404, detail="Event not found")
 
-    # hall id update
-    if update_data.hall_id is not None:
-        db_hall = db.query(Hall).filter(Hall.id == update_data.hall_id).first()
+    # only get the given fields for the patch
+    update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
+
+    # special check for hall_id
+    if "hall_id" in update_dict:
+        db_hall = db.query(Hall).filter(Hall.id == update_dict["hall_id"]).first()
         if not db_hall:
-            raise ValueError("Hall not found")
-        event.hall_id = db_hall.id
+            raise HTTPException(status_code=404, detail="Hall not found")
 
-    # update other fields if given
-    if update_data.production_id is not None:
-        event.production_id = update_data.production_id
-    if update_data.starts_at is not None:
-        event.starts_at = update_data.starts_at
-    if update_data.ends_at is not None:
-        event.ends_at = update_data.ends_at
-    if update_data.order_url is not None:
-        event.order_url = update_data.order_url
-    if update_data.external_order_url is not None:
-        event.external_order_url = update_data.external_order_url
-    
+    # update the fields
+    for field, value in update_dict.items():
+        setattr(event, field, value)
+
     db.commit()
     db.refresh(event)
-    
+
     return build_event_response(db, event, base_url)

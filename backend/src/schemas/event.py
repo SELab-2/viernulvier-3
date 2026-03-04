@@ -1,6 +1,6 @@
 # models/event.py
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -21,9 +21,7 @@ class EventResponse(BaseModel):
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
         
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = ConfigDict(from_attributes=True)
 
 
 class HallCreate(BaseModel):
