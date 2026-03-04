@@ -69,6 +69,7 @@ jobs:
       - name: Run Tests with Coverage
         run: |
           docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief \
+          -e COVERAGE_FILE=/tmp/.coverage \
           "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" \
           pytest --cov=backend --cov-report=xml tests/
 
