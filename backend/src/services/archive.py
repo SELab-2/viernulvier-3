@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
-from models import Event, Hall
-from schemas.event import EventResponse, HallNested, EventCreate, EventUpdate
+from src.models import Event, Hall
+from src.schemas.event import EventResponse, HallNested, EventCreate, EventUpdate
+from fastapi import HTTPException
+from typing import Any
 
 
 
@@ -83,9 +85,7 @@ def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventRespon
 
 
 
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
-from typing import Any
+
 
 def update_event(
     db: Session,
