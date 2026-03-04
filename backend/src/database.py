@@ -28,6 +28,4 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """Maak alle tabellen aan als ze nog niet bestaan."""
-    import src.models  # registreert alle modellen op Base.metadata
-
     Base.metadata.create_all(bind=engine)

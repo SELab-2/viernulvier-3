@@ -43,8 +43,6 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-    import src.models  # Zorg ervoor dat modellen geregistreerd zijn
-
     # Maak tabellen aan voordat testen draaien
     Base.metadata.create_all(bind=test_engine)
     yield
