@@ -1,7 +1,6 @@
 from pyparsing import Optional
 from pydantic import BaseModel, ConfigDict
 
-# ToDo: Replace id with varchar name (because unique) and remove field name.
 class LanguageCreate(BaseModel):
     id: int
     name: str
