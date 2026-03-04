@@ -66,10 +66,10 @@ jobs:
       - name: Copy tests to backend container
         run: docker cp backend/tests "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests"
 
-      - name: Prepare container for coverage
+      - name: Make /app writable
         run: |
           docker exec "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" \
-          mkdir -p /tmp
+          chown -R root:root /app
 
       - name: Run Tests with Coverage
         run: |
