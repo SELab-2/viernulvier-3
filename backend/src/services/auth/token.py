@@ -57,5 +57,5 @@ def decode_access_token(token: str) -> TokenData:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
         )
-    except jwt.PyJWTError:
-        raise credentials_exception
+    except jwt.PyJWTError as exc:
+        raise credentials_exception from exc
