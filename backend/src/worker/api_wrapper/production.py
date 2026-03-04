@@ -68,7 +68,7 @@ class ProductionFetcher:
                 # TODO:
                 #   if there are less we're in trouble, will have to refetch
                 #   everything?
-                assert False
+                raise RuntimeError("totalItems decreased during pagination")
 
         return_val = self._data
         self._data = None
