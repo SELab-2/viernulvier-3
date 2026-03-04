@@ -27,6 +27,8 @@ COPY --from=builder /opt/venv /opt/venv
 COPY --chown=appuser:appgroup src/ ./src/
 COPY --chown=appuser:appgroup init_db.py .
 
+RUN chown -R appuser:appgroup /app
+
 USER appuser
 
 EXPOSE 8000
