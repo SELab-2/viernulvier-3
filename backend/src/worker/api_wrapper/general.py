@@ -1,6 +1,7 @@
 import http.client
 import json
 import logging
+import time
 from urllib.parse import urlencode
 
 from src.config import settings
@@ -38,6 +39,18 @@ class VNV_Wrapper:
         self.close()
 
     def GET(self, path, params: dict | None = None):
+        """
+        Send a GET request to viernulvier.gent.
+
+        The optional params will be encoded inside this GET method using
+        `urllib.urlencode(params)`.
+
+        :param path: path to the resources, pasted behind `viernulvier.gent`
+        :param params: optional dictionary with params
+        :returns: the json-parsed response dict
+        :raises RateLimitError: on 429 response status
+        :raises ConnectionError: on other non-ok response status
+        """
         parsed_params = ""
         if params is not None:
             parsed_params = "?" + urlencode(params)
@@ -49,15 +62,22 @@ class VNV_Wrapper:
 
         self.logger.debug(f"GET, created_link = {link}")
 
-        self.connection.request("GET", link, headers=self.headers)
+        success = False
+        while not success:
+            self.connection.request("GET", link, headers=self.headers)
 
-        result = self.connection.getresponse()
-        status = result.status
+            result = self.connection.getresponse()
+            status = result.status
 
-        if not (200 <= status < 300):
-            raise ConnectionError(
-                '{' + f'"status": {status}, "reason": "{result.reason}"' + '}'
-            )
+            if status == 429:
+                # TODO: get from response header
+                time.sleep(100)
+            elif not (200 <= status < 300):
+                raise ConnectionError(
+                    '{'
+                    + f'"status": {status}, "reason": "{result.reason}"'
+                    + '}'
+                )
 
-        data = result.read()
-        return json.loads(data)
+            data = result.read()
+            return json.loads(data)
