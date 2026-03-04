@@ -14,24 +14,21 @@ on:
 # 5. Shuts down the Docker environment.
 jobs:
   lint:
-    name: Lint Code Base
+    name: Lint Code Base with Ruff
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Run Super-Linter
-        uses: github/super-linter@v6
-        env:
-          DEFAULT_BRANCH: dev
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_CHECKOV: false
-          VALIDATE_ENV: false
-          VALIDATE_GITLEAKS: false
-          VALIDATE_JSCPD: false
-          VALIDATE_YAML: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Ruff Linter
+        run: pip install ruff
+      - name: Run Ruff Linter
+        run: ruff check .
 
   smoke-test:
     name: Docker Smoke Test
