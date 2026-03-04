@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.orm import Session
 from src.models.user import User
 from src.schemas.auth import AccessTokenResponse, Token
@@ -60,8 +59,6 @@ def test_refresh_access_token_success(db_session: Session):
 
     tokens = login_user(db_session, "refresh_test", password)
 
-    new_access_token_resp = refresh_access_token(
-        db_session, tokens.refresh_token
-    )
+    new_access_token_resp = refresh_access_token(db_session, tokens.refresh_token)
     assert isinstance(new_access_token_resp, AccessTokenResponse)
     assert new_access_token_resp.access_token is not None

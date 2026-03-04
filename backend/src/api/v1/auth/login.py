@@ -19,9 +19,7 @@ router = APIRouter()
     description="Authenticates a user and returns access and refresh tokens.",
 )
 def login(credentials: LoginRequest, db: Session = Depends(get_db)):
-    return auth_service.login_user(
-        db, credentials.username, credentials.password
-    )
+    return auth_service.login_user(db, credentials.username, credentials.password)
 
 
 @router.post(

@@ -9,7 +9,8 @@ from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
 
-# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren via omgevingsvariabelen.
+# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
+# via omgevingsvariabelen.
 # Val terug op in-memory SQLite voor snelle, lokale developer testen.
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
 
@@ -28,9 +29,7 @@ else:
         )
     test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
-TestSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=test_engine
-)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 # Overschrijf dependency

@@ -12,9 +12,7 @@ class Tag(Base):
     id = Column(Integer, primary_key=True)
 
     names = relationship("TagName", back_populates="tag")
-    productions = relationship(
-        "Production", secondary=prod_tags, back_populates="tags"
-    )
+    productions = relationship("Production", secondary=prod_tags, back_populates="tags")
 
 
 class TagName(Base):

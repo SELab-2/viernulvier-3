@@ -55,9 +55,7 @@ def test_expired_token():
         "sub": "testuser",
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
     }
-    expired_token = jwt.encode(
-        data, settings.SECRET_KEY, algorithm=settings.ALGORITHM
-    )
+    expired_token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     with pytest.raises(HTTPException) as excinfo:
         decode_access_token(expired_token)
     assert excinfo.value.status_code == 401

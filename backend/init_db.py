@@ -1,7 +1,8 @@
 """
 Database-initialisatie — maakt alle tabellen aan op basis van de SQLAlchemy-modellen.
 
-Dit script wordt automatisch uitgevoerd vóór de start van de API-server (zie Dockerfile).
+Dit script wordt automatisch uitgevoerd vóór de start van de API-server
+(zie Dockerfile).
 """
 
 import os
@@ -20,11 +21,7 @@ def seed_db():
         all_perms = Permissions.all()
         db_perms = []
         for perm_name in all_perms:
-            perm = (
-                db.query(Permission)
-                .filter(Permission.name == perm_name)
-                .first()
-            )
+            perm = db.query(Permission).filter(Permission.name == perm_name).first()
             if not perm:
                 perm = Permission(name=perm_name)
                 db.add(perm)
@@ -45,14 +42,10 @@ def seed_db():
         admin_username = os.getenv("DEFAULT_ADMIN_USER", "admin")
         admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin")
 
-        admin_user = (
-            db.query(User).filter(User.username == admin_username).first()
-        )
+        admin_user = db.query(User).filter(User.username == admin_username).first()
         if not admin_user:
             hashed_password = get_password_hash(admin_password)
-            admin_user = User(
-                username=admin_username, hashed_password=hashed_password
-            )
+            admin_user = User(username=admin_username, hashed_password=hashed_password)
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
@@ -63,9 +56,7 @@ def seed_db():
         if admin_role not in admin_user.roles:
             admin_user.roles.append(admin_role)
             db.commit()
-            print(
-                "Successfully assigned the 'admin' role to the default admin user."
-            )
+            print("Successfully assigned the 'admin' role to the default admin user.")
 
     finally:
         db.close()
