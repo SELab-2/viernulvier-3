@@ -1,18 +1,19 @@
-import pytest
+from datetime import datetime, timedelta, timezone
+
 import jwt
-from datetime import datetime, timezone, timedelta
+import pytest
 from fastapi import HTTPException
 from src.config import settings
+from src.models.permission import Permission
+from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash, verify_password
 from src.services.auth.token import (
+    build_token_data,
     create_access_token,
     create_refresh_token,
     decode_access_token,
-    build_token_data,
 )
-from src.models.user import User
-from src.models.role import Role
-from src.models.permission import Permission
 
 
 def test_password_hashing():
@@ -50,8 +51,13 @@ def test_invalid_token():
 
 
 def test_expired_token():
-    data = {"sub": "testuser", "exp": datetime.now(timezone.utc) - timedelta(minutes=1)}
-    expired_token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    data = {
+        "sub": "testuser",
+        "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
+    }
+    expired_token = jwt.encode(
+        data, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     with pytest.raises(HTTPException) as excinfo:
         decode_access_token(expired_token)
     assert excinfo.value.status_code == 401

@@ -1,22 +1,24 @@
 from datetime import datetime, timezone
 from typing import Optional
-import jwt
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
+import jwt
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 from src.config import settings
 from src.models.user import User
-from src.schemas.auth import Token, AccessTokenResponse
-from src.services.auth.user import get_user
+from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.password import verify_password
 from src.services.auth.token import (
     build_token_data,
     create_access_token,
     create_refresh_token,
 )
+from src.services.auth.user import get_user
 
 
-def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
+def authenticate_user(
+    db: Session, username: str, password: str
+) -> Optional[User]:
     user = get_user(db, username=username)
     if not user or not verify_password(password, user.hashed_password):
         return None
@@ -38,7 +40,9 @@ def login_user(db: Session, username: str, password: str) -> Token:
     return Token(access_token=access_token, refresh_token=refresh_token)
 
 
-def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse:
+def refresh_access_token(
+    db: Session, refresh_token: str
+) -> AccessTokenResponse:
     invalid = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
     )

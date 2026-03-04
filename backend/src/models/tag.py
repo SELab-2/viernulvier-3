@@ -1,6 +1,6 @@
 """SQLAlchemy-model voor tags."""
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.database import Base
 from src.models.associations import prod_tags
@@ -12,7 +12,9 @@ class Tag(Base):
     id = Column(Integer, primary_key=True)
 
     names = relationship("TagName", back_populates="tag")
-    productions = relationship("Production", secondary=prod_tags, back_populates="tags")
+    productions = relationship(
+        "Production", secondary=prod_tags, back_populates="tags"
+    )
 
 
 class TagName(Base):

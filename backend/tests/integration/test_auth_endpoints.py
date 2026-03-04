@@ -1,8 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.services.auth.password import get_password_hash
 from src.models.user import User
+from src.services.auth.password import get_password_hash
 
 
 def test_login_integration(client: TestClient, db_session: Session):
@@ -13,7 +13,8 @@ def test_login_integration(client: TestClient, db_session: Session):
     db_session.commit()
 
     response = client.post(
-        "/api/v1/auth/login/", json={"username": "login_int_user", "password": password}
+        "/api/v1/auth/login/",
+        json={"username": "login_int_user", "password": password},
     )
     assert response.status_code == 200
     data = response.json()
@@ -24,7 +25,8 @@ def test_login_integration(client: TestClient, db_session: Session):
 
 def test_login_integration_fail(client: TestClient):
     response = client.post(
-        "/api/v1/auth/login/", json={"username": "non_existent", "password": "password"}
+        "/api/v1/auth/login/",
+        json={"username": "non_existent", "password": "password"},
     )
     assert response.status_code == 401
 
@@ -37,7 +39,8 @@ def test_get_me_integration(client: TestClient, db_session: Session):
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": "me_int_user", "password": password}
+        "/api/v1/auth/login/",
+        json={"username": "me_int_user", "password": password},
     )
     token = login_response.json()["access_token"]
 

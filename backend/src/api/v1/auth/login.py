@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from src.api.dependencies import get_db
 from src.schemas.auth import (
+    AccessTokenResponse,
     LoginRequest,
     Token,
     TokenRefreshRequest,
-    AccessTokenResponse,
 )
 from src.services import auth as auth_service
 
@@ -20,7 +19,9 @@ router = APIRouter()
     description="Authenticates a user and returns access and refresh tokens.",
 )
 def login(credentials: LoginRequest, db: Session = Depends(get_db)):
-    return auth_service.login_user(db, credentials.username, credentials.password)
+    return auth_service.login_user(
+        db, credentials.username, credentials.password
+    )
 
 
 @router.post(
