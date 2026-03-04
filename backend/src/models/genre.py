@@ -10,11 +10,12 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id = Column(Integer, primary_key=True)
-    
+
     names = relationship("GenreName", back_populates="genre")
     productions = relationship(
         "Production", secondary=prod_genres, back_populates="genres"
     )
+
 
 class GenreName(Base):
     __tablename__ = "genre_names"
@@ -25,4 +26,3 @@ class GenreName(Base):
 
     genre = relationship("Genre", back_populates="names")
     language = relationship("Language")
-

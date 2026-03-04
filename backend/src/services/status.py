@@ -13,5 +13,7 @@ def get_health(db: Session) -> HealthResponse:
         db_status = ComponentStatus.ERROR
         detail = str(exc)
 
-    overall = ComponentStatus.OK if db_status == ComponentStatus.OK else ComponentStatus.ERROR
+    overall = (
+        ComponentStatus.OK if db_status == ComponentStatus.OK else ComponentStatus.ERROR
+    )
     return HealthResponse(status=overall, database=db_status, detail=detail)
