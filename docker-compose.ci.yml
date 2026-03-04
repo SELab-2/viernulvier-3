@@ -41,6 +41,8 @@ services:
     restart: unless-stopped
     networks:
       - default
+    volumes:
+      - .:/app
 
   database:
     image: postgres:15-alpine

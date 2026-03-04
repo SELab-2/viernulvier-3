@@ -70,10 +70,12 @@ jobs:
         run: |
           docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief \
           "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" \
-          pytest --cov=backend tests/
+          pytest --cov=backend --cov-report=xml:/app/coverage.xml tests/
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v5
+        with:
+          files: .coverage.xml
 
       - name: Dump Docker Logs
         if: failure()
