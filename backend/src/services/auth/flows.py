@@ -16,9 +16,7 @@ from src.services.auth.token import (
 from src.services.auth.user import get_user
 
 
-def authenticate_user(
-    db: Session, username: str, password: str
-) -> Optional[User]:
+def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
     user = get_user(db, username=username)
     if not user or not verify_password(password, user.hashed_password):
         return None
@@ -40,9 +38,7 @@ def login_user(db: Session, username: str, password: str) -> Token:
     return Token(access_token=access_token, refresh_token=refresh_token)
 
 
-def refresh_access_token(
-    db: Session, refresh_token: str
-) -> AccessTokenResponse:
+def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse:
     invalid = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
     )
