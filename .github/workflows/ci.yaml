@@ -78,7 +78,7 @@ jobs:
           pytest --cov=backend --cov-report=xml:/app/coverage.xml tests/
 
       - name: Upload coverage.xml artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: ./backend/coverage.xml
