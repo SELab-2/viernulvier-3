@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
+
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
-
 from src.database import Base
 from src.models.associations import user_roles
 
