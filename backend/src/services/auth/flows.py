@@ -49,8 +49,8 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
         username: str = payload.get("sub")
         if username is None:
             raise invalid
-    except jwt.PyJWTError:
-        raise invalid
+    except jwt.PyJWTError as exc:
+        raise invalid from exc
 
     user = get_user(db, username=username)
     if not user:

@@ -29,12 +29,12 @@ else:
         )
     test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+TEST_SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 # Overschrijf dependency
 def override_get_db():
-    db = TestSessionLocal()
+    db = TEST_SESSION_LOCAL()
     try:
         yield db
     finally:
@@ -56,7 +56,7 @@ def db_session():
     Levert een database sessie voor unit testen.
     Omdat setup_test_db autouse=True is, zijn de tabellen al aangemaakt.
     """
-    db = TestSessionLocal()
+    db = TEST_SESSION_LOCAL()
     try:
         yield db
     finally:

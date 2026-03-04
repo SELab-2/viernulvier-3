@@ -7,7 +7,7 @@ Dit script wordt automatisch uitgevoerd vóór de start van de API-server
 
 import os
 
-from src.database import SessionLocal, init_db
+from src.database import SESSION_LOCAL, init_db
 from src.models.permission import Permission
 from src.models.role import Role
 from src.models.user import User
@@ -16,7 +16,7 @@ from src.services.auth.permissions import Permissions
 
 
 def seed_db():
-    db = SessionLocal()
+    db = SESSION_LOCAL()
     try:
         all_perms = Permissions.all()
         db_perms = []
