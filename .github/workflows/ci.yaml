@@ -67,7 +67,7 @@ jobs:
         run: docker cp backend/tests "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests"
 
       - name: Run Tests with Coverage
-        run: docer exec \
+        run: docker exec \
           "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" \
           pytest --cov=backend --cov-report=xml
 
