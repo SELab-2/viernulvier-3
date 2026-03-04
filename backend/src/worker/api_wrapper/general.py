@@ -21,7 +21,7 @@ class VNV_Wrapper:
         self.logger.info("connection created")
 
         self.headers = {
-            "accept": "application/json",
+            "accept": "application/ld+json",
             "X-AUTH-TOKEN": settings.VIERNULVIER_KEY,
             "User-Agent": "curl"  # wtf, why do they check this
         }
