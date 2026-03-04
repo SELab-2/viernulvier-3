@@ -9,20 +9,24 @@ def build_event_response(
     event: Event,
     base_url: str
 ) -> EventResponse:
+
     hall = db.query(Hall).filter(Hall.id == event.hall_id).first()
 
-    event_data = EventResponse.model_validate(event)
-    event_data.id = f"{base_url}/events/{event.id}"
-    event_data.production_id = f"{base_url}/productions/{event.production_id}"
-
-    if hall:
-        event_data.hall_id = hall.id
-        event_data.hall = HallNested(
+    return EventResponse(
+        id=f"{base_url}/events/{event.id}",
+        production_id=f"{base_url}/productions/{event.production_id}",
+        hall_id=event.hall_id,
+        hall=HallNested(
             name=hall.name,
             address=hall.address
-        )
-
-    return event_data
+        ) if hall else None,
+        starts_at=event.starts_at,
+        ends_at=event.ends_at,
+        order_url=event.order_url,
+        external_order_url=event.external_order_url,
+        created_at=event.created_at,
+        updated_at=event.updated_at,
+    )
 
 
 def get_event_by_id(db: Session, event_id: int, base_url: str) -> EventResponse:
