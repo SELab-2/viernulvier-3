@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.orm import Session
 from src.services.auth.flows import authenticate_user, login_user, refresh_access_token
 from src.services.auth.password import get_password_hash

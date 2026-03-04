@@ -3,7 +3,6 @@
 from sqlalchemy import DECIMAL, TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.database import Base
-from sqlalchemy.sql import func
 
 
 class Event(Base):

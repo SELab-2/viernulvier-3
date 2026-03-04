@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import pytest
 from src.schemas.status import ComponentStatus
 from src.services.status import get_health
 
