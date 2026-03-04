@@ -8,3 +8,4 @@ async def get_event(production_id: int) -> dict:
     # Tijdelijke fix om geen probleem met linter te hebben
     if production_id:
         pass
+    return {}
