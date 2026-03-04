@@ -74,14 +74,14 @@ jobs:
       - name: Run Tests with Coverage
         run: |
           docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief \
-          -e COVERAGE_FILE=/tmp/.coverage \
           "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" \
-          pytest --cov=backend --cov-report=xml:/tmp/coverage.xml tests/
+          pytest --cov=backend --cov-report=xml:/app/coverage.xml tests/
 
-      - name: Upload Coverage to Codecov
-        run: |
-          docker cp "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)":/tmp/coverage.xml ./coverage.xml
-          bash <(curl -s https://codecov.io/bash) -f coverage.xml
+      - name: Upload coverage.xml artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ./backend/coverage.xml
 
       - name: Dump Docker Logs
         if: failure()
