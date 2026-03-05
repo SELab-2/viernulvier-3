@@ -17,7 +17,6 @@ services:
     depends_on:
       backend:
         condition: service_started
-    restart: unless-stopped
     networks:
       - default
 
@@ -41,13 +40,11 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    restart: unless-stopped
     networks:
       - default
 
   database:
     image: postgres:15-alpine
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
