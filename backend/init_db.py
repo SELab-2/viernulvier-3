@@ -1,21 +1,22 @@
 """
 Database-initialisatie — maakt alle tabellen aan op basis van de SQLAlchemy-modellen.
 
-Dit script wordt automatisch uitgevoerd vóór de start van de API-server (zie Dockerfile).
+Dit script wordt automatisch uitgevoerd vóór de start van de API-server
+(zie Dockerfile).
 """
 
 import os
 
-from src.database import init_db, SessionLocal
-from src.models.user import User
-from src.models.role import Role
+from src.database import SESSION_LOCAL, init_db
 from src.models.permission import Permission
-from src.services.auth.permissions import Permissions
+from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash
+from src.services.auth.permissions import Permissions
 
 
 def seed_db():
-    db = SessionLocal()
+    db = SESSION_LOCAL()
     try:
         all_perms = Permissions.all()
         db_perms = []

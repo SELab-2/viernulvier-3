@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     DATABASE_HOST: str
     DATABASE_PORT: int
 
-    SECRET_KEY: str
-    ALGORITHM: str = "HS256"
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 dagen
 
@@ -34,7 +34,12 @@ class Settings(BaseSettings):
 
     @computed_field
     def database_url(self) -> str:
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.POSTGRES_DB}"
+        return (
+            "postgresql://"
+            + f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            + f"@{self.DATABASE_HOST}:{self.DATABASE_PORT}"
+            + f"/{self.POSTGRES_DB}"
+        )
 
     # CORS_ORIGINS: list[str] = ["http://localhost"]
 
