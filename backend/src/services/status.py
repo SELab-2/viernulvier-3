@@ -14,7 +14,7 @@ def get_health(db: Session) -> HealthResponse:
         detail = str(exc)
 
     overall_status = ComponentStatus.OK
-    
+
     # If any check is not OK, change overall_status to ERROR
     # Add later checks here if needed
     if db_status != ComponentStatus.OK:
