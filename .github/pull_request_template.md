@@ -17,4 +17,5 @@ welk deel ervan?>
 
 Closes <issue-nr>
 
+- [ ] Goede testen toegevoegd.
 - [ ] Auteur wil zelf mergen.
