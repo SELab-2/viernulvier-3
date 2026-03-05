@@ -7,10 +7,7 @@ from src.models.tag import Tag, TagName
 from src.schemas.tag import TagCreate, TagNameResponse, TagResponse
 
 def build_tag_name_response(tag_name: TagName):
-    return TagNameResponse(
-        language_id=tag_name.language_id,
-        name=tag_name.name
-    )
+    return TagNameResponse.model_validate(tag_name)
 
 def build_tag_response(tag: Tag, tag_names: List[TagName], base_url: str) -> TagResponse:
     return TagResponse(
