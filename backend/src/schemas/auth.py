@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import List, Optional
-
 from pydantic import BaseModel, ConfigDict
 
 
@@ -42,3 +41,26 @@ class LoginRequest(BaseModel):
 
 class TokenRefreshRequest(BaseModel):
     refresh_token: str
+
+
+class PermissionResponse(BaseModel):
+    id: int
+    name: str
+
+
+class RoleBase(BaseModel):
+    name: str
+
+
+class RoleCreate(RoleBase):
+    permissions: Optional[List[str]] = []  # List of permission names
+
+
+class RoleUpdate(RoleBase):
+    permissions: Optional[List[str]] = []
+
+
+class RoleResponse(RoleBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    permissions: List[str] = []
