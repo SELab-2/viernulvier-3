@@ -47,9 +47,10 @@ Check deze punten voordat je de PR ter review aanbiedt:
 
 1. **Code Quality**: De code is zelf-verklarend. Waar de logica complex is, zijn **comments** toegevoegd.
 2. **Testing**: Voor elke `feat/` zijn relevante unit- of integratietests toegevoegd en geslaagd.
-3. **Documentation**: Relevante documentatie (zoals API-docs, architectuur of handleidingen) is bijgewerkt.
-4. **CI Ready**: De GitHub Actions pipeline is succesvol.
-5. **No Conflicts**: De branch is up-to-date met de laatste versie van `dev`.
+3. **Coverage**: Voor elke `feat/` is de coverage minstens 80%.
+4. **Documentation**: Relevante documentatie (zoals API-docs, architectuur of handleidingen) is bijgewerkt.
+5. **CI Ready**: De GitHub Actions pipeline is succesvol.
+6. **No Conflicts**: De branch is up-to-date met de laatste versie van `dev`.
 
 
 ## Richtlijnen voor Kwaliteit
@@ -59,7 +60,7 @@ Check deze punten voordat je de PR ter review aanbiedt:
 * **Documentatie**: README's en ADR's zijn in het **Nederlands**.
 
 ### 2. Commits
-Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken. Wees op je eigen werkbranch gerust flexibel, maar zorg dat de uiteindelijke **Squash Merge** naar de hoofdbranches een duidelijke omschrijving heeft. 
+Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken. Wees op je eigen werkbranch gerust flexibel, maar zorg dat de uiteindelijke **Squash Merge** naar de hoofdbranches een duidelijke omschrijving heeft.
 *Voorkom vage teksten als "test1", "update" of "..." in de finale merge.*
 
 ### 3. Review Etiquette
