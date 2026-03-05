@@ -1,4 +1,3 @@
-import pytest
 from src.schemas.status import ComponentStatus
 
 

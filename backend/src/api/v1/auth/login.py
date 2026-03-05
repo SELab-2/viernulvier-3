@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from src.api.dependencies import get_db
 from src.schemas.auth import (
+    AccessTokenResponse,
     LoginRequest,
     Token,
     TokenRefreshRequest,
-    AccessTokenResponse,
 )
 from src.services import auth as auth_service
 

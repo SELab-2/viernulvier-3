@@ -14,12 +14,12 @@ from src.config import settings
 Base = declarative_base()
 
 engine = create_engine(settings.database_url, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine)
+SESSION_LOCAL = sessionmaker(bind=engine)
 
 
 def get_db() -> Generator[Session, None, None]:
     """Dependency die een database-sessie levert en correct afsluit."""
-    db = SessionLocal()
+    db = SESSION_LOCAL()
     try:
         yield db
     finally:
@@ -28,6 +28,4 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """Maak alle tabellen aan als ze nog niet bestaan."""
-    import src.models  # registreert alle modellen op Base.metadata
-
     Base.metadata.create_all(bind=engine)

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+
 import jwt
 from fastapi import HTTPException, status
-
 from src.config import settings
 from src.models.user import User
 from src.schemas.auth import TokenData
@@ -14,7 +14,11 @@ def build_token_data(user: User) -> dict:
     for role in user.roles:
         for perm in role.permissions:
             permissions.add(perm.name)
-    return {"sub": user.username, "roles": roles, "permissions": sorted(permissions)}
+    return {
+        "sub": user.username,
+        "roles": roles,
+        "permissions": sorted(permissions),
+    }
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -53,5 +57,5 @@ def decode_access_token(token: str) -> TokenData:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
         )
-    except jwt.PyJWTError:
-        raise credentials_exception
+    except jwt.PyJWTError as exc:
+        raise credentials_exception from exc
