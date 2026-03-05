@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from src.database import get_db
-from src.services.archive import get_event_by_id, delete_event_by_id, make_event, update_event, get_prices_for_event, get_event_price
+from src.services.event_service import get_event_by_id, delete_event_by_id, make_event, update_event, get_prices_for_event, get_event_price
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions

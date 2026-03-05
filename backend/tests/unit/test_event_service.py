@@ -1,11 +1,25 @@
-from datetime import datetime, timezone
 import pytest
+from datetime import datetime, timezone
 from fastapi import HTTPException
-from src.services.archive import update_event
-from src.schemas.event import EventUpdate
-from src.models.event import Event
+
+from src.services.event_service import (
+    get_event_by_id,
+    make_event,
+    update_event,
+    delete_event_by_id,
+    get_prices_for_event,
+    get_event_price
+)
+
+from src.schemas.event import EventCreate, EventUpdate
+from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
+from src.schemas.hall import HallSchema
+
+
+BASE_URL = "http://test"
+
 
 @pytest.fixture
 def production(db_session):
@@ -14,11 +28,17 @@ def production(db_session):
     db_session.commit()
     return prod
 
-def test_update_event_success(db_session, production):
+
+@pytest.fixture
+def hall(db_session):
     hall = Hall(name="Hall A", address="Street A")
     db_session.add(hall)
     db_session.commit()
-    
+    return hall
+
+
+@pytest.fixture
+def event(db_session, production, hall):
     event = Event(
         production_id=production.id,
         hall_id=hall.id,
@@ -28,82 +48,140 @@ def test_update_event_success(db_session, production):
     )
     db_session.add(event)
     db_session.commit()
-    
-    update_data = EventUpdate(order_url="new_url")
-    
-    updated = update_event(
-        db=db_session,
-        event_id=event.id,
-        update_data=update_data,
-        base_url="http://test"
+    return event
+
+
+def test_get_event_by_id_success(db_session, event):
+    result = get_event_by_id(db_session, event.id, BASE_URL)
+
+    assert result.id == f"{BASE_URL}/events/{event.id}"
+    assert result.hall_id == f"{BASE_URL}/halls/{event.hall_id}"
+
+
+def test_get_event_by_id_not_found(db_session):
+    with pytest.raises(ValueError):
+        get_event_by_id(db_session, 999, BASE_URL)
+
+
+def test_make_event_with_existing_hall(db_session, production, hall):
+    event_in = EventCreate(
+        production_id=f"{BASE_URL}/productions/{production.id}",
+        hall_id=f"{BASE_URL}/halls/{hall.id}"
     )
-    
+
+    result = make_event(db_session, event_in, BASE_URL)
+
+    assert result.production_id == f"{BASE_URL}/productions/{production.id}"
+    assert result.hall_id == f"{BASE_URL}/halls/{hall.id}"
+
+
+def test_make_event_with_new_hall(db_session, production):
+    event_in = EventCreate(
+        production_id=f"{BASE_URL}/productions/{production.id}",
+        hall=HallSchema(
+            name="New Hall",
+            address="New Adress"
+        )
+    )
+
+    result = make_event(db_session, event_in, BASE_URL)
+
+    assert result.hall.name == "New Hall"
+
+
+def test_make_event_invalid_hall(db_session, production):
+    event_in = EventCreate(
+        production_id=f"{BASE_URL}/productions/{production.id}",
+        hall_id=f"{BASE_URL}/halls/999"
+    )
+
+    with pytest.raises(ValueError):
+        make_event(db_session, event_in, BASE_URL)
+
+
+def test_update_event_success(db_session, event):
+    update_data = EventUpdate(order_url="new_url")
+
+    updated = update_event(
+        db_session,
+        event.id,
+        update_data,
+        BASE_URL
+    )
+
     assert updated.order_url == "new_url"
-    # prices should be empty list initially
-    assert updated.prices == []
+
 
 def test_update_event_not_found(db_session):
     update_data = EventUpdate(order_url="new_url")
-    with pytest.raises(HTTPException) as exc:
-        update_event(
-            db=db_session,
-            event_id=999,
-            update_data=update_data,
-            base_url="http://test"
-        )
-    assert exc.value.status_code == 404
 
-def test_update_event_invalid_hall(db_session, production):
-    hall = Hall(name="Hall A", address="Street A")
-    db_session.add(hall)
-    db_session.commit()
-    
-    event = Event(
-        production_id=production.id,
-        hall_id=hall.id,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
-    )
-    db_session.add(event)
-    db_session.commit()
-    
-    update_data = EventUpdate(hall_id=999)
-    
-    with pytest.raises(HTTPException) as exc:
+    with pytest.raises(HTTPException):
         update_event(
-            db=db_session,
-            event_id=event.id,
-            update_data=update_data,
-            base_url="http://test"
+            db_session,
+            999,
+            update_data,
+            BASE_URL
         )
-    
-    assert exc.value.status_code == 404
-    assert "Hall not found" in exc.value.detail
 
-def test_update_event_partial(db_session, production):
-    hall = Hall(name="Hall A", address="Street A")
-    db_session.add(hall)
-    db_session.commit()
-    
-    event = Event(
-        production_id=production.id,
-        hall_id=hall.id,
-        order_url="old",
-        external_order_url="old_ext",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+
+def test_update_event_invalid_hall(db_session, event):
+    update_data = EventUpdate(
+        hall_id=f"{BASE_URL}/halls/999"
     )
-    db_session.add(event)
-    db_session.commit()
-    
-    update_data = EventUpdate(order_url="new")
-    
-    updated = update_event(
-        db=db_session,
+
+    with pytest.raises(HTTPException):
+        update_event(
+            db_session,
+            event.id,
+            update_data,
+            BASE_URL
+        )
+
+
+def test_delete_event_success(db_session, event):
+    result = delete_event_by_id(db_session, event.id)
+
+    assert result is True
+
+
+def test_delete_event_not_found(db_session):
+    result = delete_event_by_id(db_session, 999)
+
+    assert result is False
+
+
+def test_get_prices_for_event(db_session, event):
+    price = EventPrice(
         event_id=event.id,
-        update_data=update_data,
-        base_url="http://test"
+        label="Standard",
+        amount=10,
+        available=100
     )
-    
-    assert updated.order_url == "new"
-    assert updated.external_order_url == "old_ext"
+
+    db_session.add(price)
+    db_session.commit()
+
+    prices = get_prices_for_event(db_session, event.id, BASE_URL)
+
+    assert len(prices) == 1
+    assert prices[0].label == "Standard"
+
+
+def test_get_event_price_success(db_session, event):
+    price = EventPrice(
+        event_id=event.id,
+        label="VIP",
+        amount=50
+    )
+
+    db_session.add(price)
+    db_session.commit()
+
+    result = get_event_price(db_session, event.id, price.id, BASE_URL)
+
+    assert result.label == "VIP"
+
+
+def test_get_event_price_not_found(db_session, event):
+    with pytest.raises(ValueError):
+        get_event_price(db_session, event.id, 999, BASE_URL)

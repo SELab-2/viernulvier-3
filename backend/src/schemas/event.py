@@ -1,54 +1,50 @@
-# models/event.py
 
 from pydantic import BaseModel, model_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
-
-
+from src.schemas.hall import HallSchema
 
 
 class PriceResponse(BaseModel):
     id: str
-    label: Optional[str]
-    amount: Optional[float]
-    available: Optional[int]
-    expires_at: Optional[datetime]
+    label: Optional[str] = None
+    amount: Optional[float] = None
+    available: Optional[int] = None
+    expires_at: Optional[datetime] = None
 
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
     
-class HallNested(BaseModel):
-    name: str
-    address: str 
-    
-    model_config = ConfigDict(from_attributes=True)
     
 class EventResponse(BaseModel):
     id: str # ids are url's
     production_id: str
     hall_id: str
-    hall: Optional[HallNested] = None
-    starts_at: Optional[datetime]
-    ends_at: Optional[datetime]
-    order_url: Optional[str]
-    external_order_url: Optional[str]
-    prices: List[str] # str because url's
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
-        
+
+    hall: Optional[HallSchema] = None
+
+    starts_at: Optional[datetime] = None
+    ends_at: Optional[datetime] = None
+
+    order_url: Optional[str] = None
+    external_order_url: Optional[str] = None
+
+    prices: List[str] = []  # list of price urls
+
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
-class HallCreate(BaseModel):
-    name: str
-    address: str
+
 
 class EventCreate(BaseModel):
     production_id: str
-    hall_id: str
-    hall: Optional[HallCreate] = None
+    hall_id: Optional[str] = None
+    hall: Optional[HallSchema] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
@@ -65,8 +61,7 @@ class EventCreate(BaseModel):
 
 class EventUpdate(BaseModel):
     production_id: Optional[str] = None
-    price_id: Optional[str] = None
-    hall_id: Optional[int] = None
+    hall_id: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
