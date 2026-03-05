@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.database import get_db
 from src.schemas.tag import TagCreate, TagResponse
-from src.services.tag import create_tag, get_tag_by_id, get_tags_list
+from src.services.tag import create_tag, delete_tag_by_id, get_tag_by_id, get_tags_list
 
 router = APIRouter()
 
@@ -24,5 +24,5 @@ async def post_tag(tag_in: TagCreate, request: Request, db: Session=Depends(get_
     return create_tag(db, tag_in, base_url)
 
 @router.delete("/{tag_id}")
-async def delete_tag(tag_id: str) -> dict:
-    return {}
+async def delete_tag(tag_id: str, db: Session=Depends(get_db)):
+    return delete_tag_by_id(db, tag_id)

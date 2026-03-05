@@ -54,3 +54,23 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 
     return build_tag_response(db_tag, db_tag_names, base_url)
 
+def delete_tag_by_id(db: Session, tag_id):
+    stmt = (
+        select(Tag)
+        .where(Tag.id == tag_id)
+        .options(selectinload(Tag.names))
+    )
+
+    tag = db.execute(stmt).scalar_one_or_none()
+
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    for tagname in tag.names:
+        db.delete(tagname)
+
+    db.delete(tag)
+    db.commit()
+
+    return { "status": "ok" }
+
