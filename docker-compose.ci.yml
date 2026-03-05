@@ -22,7 +22,9 @@ services:
       - default
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: test
     expose:
       - "8000"
     environment:
@@ -35,6 +37,7 @@ services:
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+      TEST_DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${POSTGRES_DB}
     depends_on:
       database:
         condition: service_healthy
