@@ -61,6 +61,22 @@ def test_permissions_endpoint_forbidden(client: TestClient, db_session: Session)
     assert response.status_code == 403
 
 
+def test_permissions_endpoint_lists_all_defined_permissions(
+    client: TestClient, db_session: Session
+):
+    user = create_user_with_permissions(
+        db_session, "perm_user_all", [Permissions.USERS_READ]
+    )
+    token = get_token(client, "perm_user_all")
+    response = client.get(
+        "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    perms = {p["name"] for p in response.json()}
+    defined_perms = set(Permissions.all())
+    assert perms == defined_perms
+
+
 def test_roles_crud(client: TestClient, db_session: Session):
     user = create_user_with_permissions(
         db_session,

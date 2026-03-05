@@ -17,6 +17,6 @@ def list_permissions(
     _=Depends(RequirePermissions([Permissions.USERS_READ])),
 ) -> List[PermissionResponse]:
     return [
-        PermissionResponse(id=i + 1, name=name)
-        for i, name in enumerate(Permissions.all())
+        PermissionResponse(name=name)
+        for name in Permissions.all()
     ]

@@ -44,7 +44,6 @@ class TokenRefreshRequest(BaseModel):
 
 
 class PermissionResponse(BaseModel):
-    id: int
     name: str
 
 
