@@ -15,17 +15,31 @@ logging.basicConfig(
 
 
 class VNV_Wrapper:
-    def __init__(self):
-        self.connection = http.client.HTTPSConnection("www.viernulvier.gent")
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.info("connection with viernulvier.gent created")
+    def __init__(self, connection=None, sleep=time.sleep):
+        """
+        ---
+
+        :param connection: injectable connection, should only be used for tests
+        :param sleep: injectable sleep function, should only be used for tests
+        """
+        if connection is None:
+            self.connection = http.client.HTTPSConnection(
+                "www.viernulvier.gent"
+            )
+        else:
+            self.connection = connection
+        self.sleep = sleep
 
         self.headers = {
             "accept": "application/ld+json",
             "X-AUTH-TOKEN": settings.VIERNULVIER_KEY,
             "User-Agent": "curl"  # wtf, why do they check this
         }
+
+        # Initialize logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.info("connection with viernulvier.gent created")
 
     def close(self):
         self.connection.close()
@@ -71,14 +85,14 @@ class VNV_Wrapper:
             result = self.connection.getresponse()
             status = result.status
 
-            if status == 429 and tries < 5:
+            if status == 429 and tries < MAX_TRIES:
                 tries += 1
-                self.logger.warn(
+                self.logger.warning(
                     "Response status 429, retrying after 5s "
                     f"({tries}/{MAX_TRIES})"
                 )
                 # From other group, 5s delay seems fine
-                time.sleep(5)
+                self.sleep(5)
 
             elif not (200 <= status < 300):
                 self.logger.error(
