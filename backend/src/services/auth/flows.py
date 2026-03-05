@@ -44,7 +44,7 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
     )
     try:
         payload = jwt.decode(
-            refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         username: str = payload.get("sub")
         if username is None:

@@ -41,8 +41,8 @@ jobs:
       POSTGRES_DB: viernulvier_archief
       DATABASE_HOST: database
       DATABASE_PORT: 5432
-      SECRET_KEY: viernulvier_test_secret_2026_longer_for_ci_testing
-      ALGORITHM: HS256
+      JWT_SECRET_KEY: viernulvier_test_secret_2026_longer_for_ci_testing
+      JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_MINUTES: 43200
 
