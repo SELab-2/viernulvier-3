@@ -16,7 +16,4 @@ router = APIRouter()
 def list_permissions(
     _=Depends(RequirePermissions([Permissions.USERS_READ])),
 ) -> List[PermissionResponse]:
-    return [
-        PermissionResponse(name=name)
-        for name in Permissions.all()
-    ]
+    return [PermissionResponse(name=name) for name in Permissions.all()]
