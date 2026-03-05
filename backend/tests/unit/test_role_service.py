@@ -1,6 +1,5 @@
 import pytest
 from src.models.role import Role
-from src.models.permission import Permission
 from src.schemas.auth import RoleCreate, RoleUpdate
 from src.services.auth import role as role_service
 

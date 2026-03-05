@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.models.role import Role
@@ -40,9 +39,7 @@ def get_token(client: TestClient, username: str) -> str:
 def test_permissions_endpoint_requires_users_read(
     client: TestClient, db_session: Session
 ):
-    user = create_user_with_permissions(
-        db_session, "perm_user", [Permissions.USERS_READ]
-    )
+    create_user_with_permissions(db_session, "perm_user", [Permissions.USERS_READ])
     token = get_token(client, "perm_user")
     response = client.get(
         "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
@@ -53,7 +50,7 @@ def test_permissions_endpoint_requires_users_read(
 
 
 def test_permissions_endpoint_forbidden(client: TestClient, db_session: Session):
-    user = create_user_with_permissions(db_session, "noperm_user", [])
+    create_user_with_permissions(db_session, "noperm_user", [])
     token = get_token(client, "noperm_user")
     response = client.get(
         "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
@@ -64,9 +61,7 @@ def test_permissions_endpoint_forbidden(client: TestClient, db_session: Session)
 def test_permissions_endpoint_lists_all_defined_permissions(
     client: TestClient, db_session: Session
 ):
-    user = create_user_with_permissions(
-        db_session, "perm_user_all", [Permissions.USERS_READ]
-    )
+    create_user_with_permissions(db_session, "perm_user_all", [Permissions.USERS_READ])
     token = get_token(client, "perm_user_all")
     response = client.get(
         "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
@@ -78,7 +73,7 @@ def test_permissions_endpoint_lists_all_defined_permissions(
 
 
 def test_roles_crud(client: TestClient, db_session: Session):
-    user = create_user_with_permissions(
+    create_user_with_permissions(
         db_session,
         "admin",
         [
@@ -120,9 +115,7 @@ def test_roles_crud(client: TestClient, db_session: Session):
 
 
 def test_roles_permission_enforcement(client: TestClient, db_session: Session):
-    user = create_user_with_permissions(
-        db_session, "readonly", [Permissions.USERS_READ]
-    )
+    create_user_with_permissions(db_session, "readonly", [Permissions.USERS_READ])
     token = get_token(client, "readonly")
     headers = {"Authorization": f"Bearer {token}"}
 
