@@ -8,8 +8,8 @@ from src.config import settings
 
 
 logging.basicConfig(
-    filename="sync_job.log",
-    filemode="w",
+    # filename="sync_job.log",
+    # filemode="w",
     format='[%(levelname)s %(asctime)s] %(message)s'
 )
 
@@ -19,7 +19,7 @@ class VNV_Wrapper:
         self.connection = http.client.HTTPSConnection("www.viernulvier.gent")
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.logger.info("connection created")
+        self.logger.info("connection with viernulvier.gent created")
 
         self.headers = {
             "accept": "application/ld+json",
@@ -60,24 +60,38 @@ class VNV_Wrapper:
         else:
             link = f"/api/v1/{path}{parsed_params}"
 
-        self.logger.debug(f"GET, created_link = {link}")
+        self.logger.debug(f"VNV_Wrapper.GET, created_link = {link}")
 
-        success = False
-        while not success:
+        tries = 0
+        MAX_TRIES = 5
+
+        while True:
             self.connection.request("GET", link, headers=self.headers)
 
             result = self.connection.getresponse()
             status = result.status
 
-            if status == 429:
-                # TODO: get from response header
-                time.sleep(100)
+            if status == 429 and tries < 5:
+                tries += 1
+                self.logger.warn(
+                    "Response status 429, retrying after 5s "
+                    f"({tries}/{MAX_TRIES})"
+                )
+                # From other group, 5s delay seems fine
+                time.sleep(5)
+
             elif not (200 <= status < 300):
+                self.logger.error(
+                    f"Request failed ({status}), reason: {result.reason}"
+                )
                 raise ConnectionError(
                     '{'
                     + f'"status": {status}, "reason": "{result.reason}"'
                     + '}'
                 )
 
-            data = result.read()
-            return json.loads(data)
+            else:
+                # Success path
+                data = result.read()
+                self.logger.debug("Request succesful, returning data")
+                return json.loads(data)
