@@ -64,3 +64,11 @@ Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoi
 
 ### 3. Review Etiquette
 * Review openstaande PR's van teamgenoten zo snel mogelijk om blokkades te voorkomen.
+
+### 4. Code Formatting en Linting
+Voor de backend code gebruiken we **Ruff** voor automatische formatting en linting om consistente code kwaliteit te waarborgen.
+
+- **Formatting**: Voer `ruff format backend/` uit om de code te formatteren volgens de standaarden.
+- **Linting**: Voer `ruff check backend/` uit om te controleren op fouten en stijlproblemen. Los eventuele problemen op voordat je een Pull Request opent.
+
+De CI pipeline controleert automatisch op deze regels tijdens elke push naar `dev` of `main`.
