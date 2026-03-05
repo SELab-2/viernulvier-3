@@ -10,7 +10,7 @@ from src.config import settings
 logging.basicConfig(
     # filename="sync_job.log",
     # filemode="w",
-    format='[%(levelname)s %(asctime)s] %(message)s'
+    format="[%(levelname)s %(asctime)s] %(message)s"
 )
 
 
@@ -23,9 +23,7 @@ class VNV_Wrapper:
         :param sleep: injectable sleep function, should only be used for tests
         """
         if connection is None:
-            self.connection = http.client.HTTPSConnection(
-                "www.viernulvier.gent"
-            )
+            self.connection = http.client.HTTPSConnection("www.viernulvier.gent")
         else:
             self.connection = connection
         self.sleep = sleep
@@ -33,7 +31,7 @@ class VNV_Wrapper:
         self.headers = {
             "accept": "application/ld+json",
             "X-AUTH-TOKEN": settings.VIERNULVIER_KEY,
-            "User-Agent": "curl"  # wtf, why do they check this
+            "User-Agent": "curl",  # for some reason this matters...
         }
 
         # Initialize logger
@@ -69,7 +67,7 @@ class VNV_Wrapper:
         if params is not None:
             parsed_params = "?" + urlencode(params)
 
-        if path[0] == '/':
+        if path[0] == "/":
             link = f"/api/v1{path}{parsed_params}"
         else:
             link = f"/api/v1/{path}{parsed_params}"
@@ -88,20 +86,15 @@ class VNV_Wrapper:
             if status == 429 and tries < MAX_TRIES:
                 tries += 1
                 self.logger.warning(
-                    "Response status 429, retrying after 5s "
-                    f"({tries}/{MAX_TRIES})"
+                    f"Response status 429, retrying after 5s ({tries}/{MAX_TRIES})"
                 )
                 # From other group, 5s delay seems fine
                 self.sleep(5)
 
             elif not (200 <= status < 300):
-                self.logger.error(
-                    f"Request failed ({status}), reason: {result.reason}"
-                )
+                self.logger.error(f"Request failed ({status}), reason: {result.reason}")
                 raise ConnectionError(
-                    '{'
-                    + f'"status": {status}, "reason": "{result.reason}"'
-                    + '}'
+                    "{" + f'"status": {status}, "reason": "{result.reason}"' + "}"
                 )
 
             else:

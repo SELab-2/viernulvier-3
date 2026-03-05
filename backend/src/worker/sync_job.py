@@ -3,7 +3,7 @@ from src.worker.api_wrapper.production import ProductionFetcher
 from src.worker.api_wrapper.event import EventFetcher
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with VNV_Wrapper() as wrapper:
         prod_fetcher = ProductionFetcher(wrapper)
         # print(

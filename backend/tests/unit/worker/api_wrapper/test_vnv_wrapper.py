@@ -109,9 +109,7 @@ def test_get_succes_context_manager():
 
 
 def test_non_200_raises():
-    fake_connection = FakeConnection(
-        FakeResponse(500, "Internal Server Error", "")
-    )
+    fake_connection = FakeConnection(FakeResponse(500, "Internal Server Error", ""))
 
     wrapper = VNV_Wrapper(connection=fake_connection)
     with pytest.raises(ConnectionError):
@@ -142,7 +140,7 @@ def test_rate_limit():
         FakeResponse(429, "Too many requests", "{}"),
         FakeResponse(429, "Too many requests", "{}"),
         FakeResponse(429, "Too many requests", "{}"),
-        FakeResponse(200, "OK", response_encoded)
+        FakeResponse(200, "OK", response_encoded),
     ]
 
     fake_connection = FakeConnectionMultipleResponses(responses)
