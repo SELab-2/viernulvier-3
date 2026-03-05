@@ -2,6 +2,10 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
+class Pagination(BaseModel):
+    next_cursor: int | None
+    has_more: bool
+
 class ProductionInfoCreate(BaseModel):
     production_id: int
     language_id: int
@@ -60,3 +64,7 @@ class ProductionResponse(BaseModel):
     info: list[ProductionInfoResponse]
 
     model_config = ConfigDict(from_attributes=True)
+
+class ProductionListResponse(BaseModel):
+    productions: list[ProductionResponse]
+    pagination: Pagination

@@ -1,6 +1,7 @@
+from backend.src.schemas.production import Pagination
 from sqlalchemy.orm import Session
 from src.models import Production, ProdInfo, Language
-from src.schemas import ProductionCreate, ProductionInfoCreate, ProductionResponse, ProductionInfoResponse
+from src.schemas import ProductionCreate, ProductionInfoCreate, ProductionResponse, ProductionInfoResponse, ProductionListResponse
 
 # The response functions: both return copies.
 def build_production_info_response(production_info: ProdInfo, base_url: str) -> ProductionInfoResponse:
@@ -30,9 +31,32 @@ def build_production_response(db: Session, production: Production, base_url: str
         info=production_infos
     )
 
+# /GET /productions --> Use pagination to return a part of all productions.
+def get_productions_service(db: Session, base_url: str, cursor: int | None = None, limit: int = 20) -> ProductionListResponse: 
+    query = db.query(Production).order_by(Production.id)
+    if cursor is not None:
+        query = query.filter(Production.id > cursor)
+    
+    productions = query.limit(limit+1).all()
+    has_more = len(productions) > limit
+    productions = productions[:limit]
+    next_cursor = productions[-1].id if productions else None
+    
+    return ProductionListResponse(
+        productions=[
+            build_production_response(db, production, base_url) 
+            for production in productions
+        ],
+        pagination=Pagination(
+            next_cursor=next_cursor,
+            has_more=has_more
+        )
+    )   
+    
+
 # /GET /productions/{production_id}/infos/{language_id}.
 # If we leave language ID as it is, we can have multiple prodinfos in the same language for one production.
-def get_production_info_by_id(db: Session, production_id: int, language_id: int, base_url: str) -> ProductionInfoResponse:
+def get_production_info_id_service(db: Session, production_id: int, language_id: int, base_url: str) -> ProductionInfoResponse:
     production_info = db.query(ProdInfo).filter(ProdInfo.production_id == production_id, ProdInfo.language_id == language_id).first()
     if not production_info:
         raise ValueError(f"Production info with production id '{production_id}' and language id '{language_id}' not found.")
@@ -40,7 +64,7 @@ def get_production_info_by_id(db: Session, production_id: int, language_id: int,
 
 # /GET /productions/{production_id}.
 # Returns a copy of the production.
-def get_production_by_id(db: Session, production_id: int, base_url: str) -> ProductionResponse:
+def get_production_id_service(db: Session, production_id: int, base_url: str) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production info with production id '{production_id}' not found.")
@@ -48,7 +72,7 @@ def get_production_by_id(db: Session, production_id: int, base_url: str) -> Prod
 
 # /DELETE /productions/{production_id}/infos/{language_id} --> Deletes the production info for the given language.
 # Returns succes or failure.
-def delete_production_info(db: Session, production_id: int, language_id: int) -> bool:
+def delete_production_info_service(db: Session, production_id: int, language_id: int) -> bool:
     production_info = db.query(ProdInfo).filter(ProdInfo.production_id == production_id, ProdInfo.language_id == language_id).first()
     if not production_info:
         return False
@@ -59,7 +83,7 @@ def delete_production_info(db: Session, production_id: int, language_id: int) ->
 
 # /DELETE /productions/{production_id} --> Deletes the production and all related production infos.
 # Returns succes or failure. 
-def delete_production(db: Session, production_id: int) -> bool:
+def delete_production_service(db: Session, production_id: int) -> bool:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         return False
@@ -69,15 +93,15 @@ def delete_production(db: Session, production_id: int) -> bool:
     db.commit()
     return True
 
-def get_language_id(db: Session, language: str) -> int:
+def get_language_id_service(db: Session, language: str) -> int:
     language = db.query(Language).filter(Language.name == language).first()
     return language.id if language else None
 
 # /POST /productions/{production_id}/infos/{language_id} --> Creates a new production info for the given language.
 # Returns a copy of the created production info if not first info, else returns the production object.
-def create_production_info(db: Session, production_id: int, production_info_in: ProductionInfoCreate, language: str, base_url: str, first_info=False) -> ProductionInfoResponse:
+def create_production_info_service(db: Session, production_id: int, production_info_in: ProductionInfoCreate, language: str, base_url: str, first_info=False) -> ProductionInfoResponse:
     # Given language when creating new production info should exist in the database.
-    language_id = get_language_id(db, language)
+    language_id = get_language_id_service(db, language)
     if language_id is None:
         raise ValueError(f"Language '{language}' not found in the database.")
 
@@ -103,9 +127,9 @@ def create_production_info(db: Session, production_id: int, production_info_in: 
 
 # /POST /productions --> Creates a new production and a new production info for the given language. 
 # Returns a copy of the created production.
-def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language: str, base_url: str) -> ProductionResponse:
+def create_production_service(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language: str, base_url: str) -> ProductionResponse:
     # Given language when creating new production should exist in the database.
-    language_id = get_language_id(db, language)
+    language_id = get_language_id_service(db, language)
     if language_id is None:
         raise ValueError(f"Language '{language}' not found")
     
@@ -120,7 +144,7 @@ def create_production(db: Session, production_in: ProductionCreate, production_i
     db.add(db_production)
     db.flush()
     
-    db_production_info = create_production_info(db, db_production.id, production_info_in, language, base_url, first_info=True)
+    db_production_info = create_production_info_service(db, db_production.id, production_info_in, language, base_url, first_info=True)
     
     db.add(db_production_info)
     db.commit()
@@ -129,7 +153,7 @@ def create_production(db: Session, production_in: ProductionCreate, production_i
     return build_production_response(db, db_production, base_url=base_url)
 
 # PATCH /productions/{production_id}/infos/{language_id} --> Updates the production info for the given language.
-def update_production_info(db: Session, production_id: int, language_id: int, production_info_in: ProductionInfoCreate, base_url: str) -> ProductionInfoResponse:
+def update_production_info_service(db: Session, production_id: int, language_id: int, production_info_in: ProductionInfoCreate, base_url: str) -> ProductionInfoResponse:
     production_info = db.query(ProdInfo).filter(ProdInfo.production_id == production_id, ProdInfo.language_id == language_id).first()
     if not production_info:
         raise ValueError(f"Production info with production id '{production_id}' and language id '{language_id}' not found.")
@@ -142,7 +166,7 @@ def update_production_info(db: Session, production_id: int, language_id: int, pr
     return build_production_info_response(production_info, base_url)
 
 # Patch /productions/{production_id} --> Updates the production and all related production infos.
-def update_production(db: Session, production_id: int, production_in: ProductionCreate, base_url: str) -> ProductionResponse:
+def update_production_service(db: Session, production_id: int, production_in: ProductionCreate, base_url: str) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with id '{production_id}' not found.")
