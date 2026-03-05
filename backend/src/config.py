@@ -38,6 +38,7 @@ class Settings(BaseSettings):
             + f"@{self.DATABASE_HOST}:{self.DATABASE_PORT}"
             + f"/{self.POSTGRES_DB}"
         )
+
     # CORS_ORIGINS: list[str] = ["http://localhost"]
 
 
