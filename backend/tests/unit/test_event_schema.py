@@ -18,8 +18,8 @@ def test_event_create_cannot_have_both():
 
 def test_event_create_with_hall_id_only():
     event = EventCreate(
-        production_id="https://example/1",
-        hall_id=1
+        production_id="https://productions/1",
+        hall_id="https://example/halls/1"
     )
-    assert event.hall_id == 1
+    assert event.hall_id == "https://example/halls/1"
     assert event.hall is None

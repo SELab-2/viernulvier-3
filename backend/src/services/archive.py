@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from src.models import Event, Hall
-from src.schemas.event import EventResponse, HallNested, EventCreate, EventUpdate
+from src.models import Event, Hall, EventPrice
+from src.schemas.event import EventResponse, HallNested, EventCreate, EventUpdate, PriceResponse
 from fastapi import HTTPException
 from typing import Any
 
@@ -14,10 +14,21 @@ def build_event_response(
 
     hall = db.query(Hall).filter(Hall.id == event.hall_id).first()
 
+    prices_db = (
+        db.query(EventPrice)
+        .filter(EventPrice.event_id == event.id)
+        .all()
+    )
+
+    price_urls = [
+        f"{base_url}/events/{event.id}/prices/{price.id}"
+        for price in prices_db
+    ]
+
     return EventResponse(
         id=f"{base_url}/events/{event.id}",
         production_id=f"{base_url}/productions/{event.production_id}",
-        hall_id=event.hall_id,
+        hall_id=f"{base_url}/halls/{event.hall_id}",
         hall=HallNested(
             name=hall.name,
             address=hall.address
@@ -28,6 +39,7 @@ def build_event_response(
         external_order_url=event.external_order_url,
         created_at=event.created_at,
         updated_at=event.updated_at,
+        prices=price_urls
     )
 
 
@@ -84,9 +96,6 @@ def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventRespon
     return build_event_response(db, db_event, base_url)
 
 
-
-
-
 def update_event(
     db: Session,
     event_id: int,
@@ -116,3 +125,57 @@ def update_event(
     db.refresh(event)
 
     return build_event_response(db, event, base_url)
+
+
+
+# get all price objects and return them
+def get_prices_for_event(db: Session, event_id: int, base_url: str) -> list[PriceResponse]:
+    prices = (
+        db.query(EventPrice)
+        .filter(EventPrice.event_id == event_id)
+        .all()
+    )
+
+    result = []
+
+    for price in prices:
+        result.append(
+            PriceResponse(
+                id=f"{base_url}/events/{event_id}/prices/{price.id}",
+                label=price.label,
+                amount=float(price.amount) if price.amount else None,
+                available=price.available,
+                expires_at=price.expires_at,
+                created_at=price.created_at,
+                updated_at=price.updated_at
+            )
+        )
+
+    return result
+
+def get_event_price(
+    db: Session,
+    event_id: int,
+    price_id: int,
+    base_url: str
+) -> PriceResponse:
+
+    price = (
+        db.query(EventPrice)
+        .filter(EventPrice.id == price_id)
+        .filter(EventPrice.event_id == event_id)
+        .first()
+    )
+
+    if not price:
+        raise ValueError("Price not found")
+
+    return PriceResponse(
+        id=f"{base_url}/events/{event_id}/prices/{price.id}",
+        label=price.label,
+        amount=float(price.amount) if price.amount else None,
+        available=price.available,
+        expires_at=price.expires_at,
+        created_at=price.created_at,
+        updated_at=price.updated_at
+    )

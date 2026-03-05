@@ -1,23 +1,40 @@
 # models/event.py
 
 from pydantic import BaseModel, model_validator, ConfigDict
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
+
+
+class PriceResponse(BaseModel):
+    id: str
+    label: Optional[str]
+    amount: Optional[float]
+    available: Optional[int]
+    expires_at: Optional[datetime]
+
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+    model_config = ConfigDict(from_attributes=True)
+    
 class HallNested(BaseModel):
     name: str
     address: str 
     
+    model_config = ConfigDict(from_attributes=True)
+    
 class EventResponse(BaseModel):
     id: str # ids are url's
     production_id: str
-    hall_id: int
+    hall_id: str
     hall: Optional[HallNested] = None
     starts_at: Optional[datetime]
     ends_at: Optional[datetime]
     order_url: Optional[str]
     external_order_url: Optional[str]
+    prices: List[str] # str because url's
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
         
@@ -30,7 +47,7 @@ class HallCreate(BaseModel):
 
 class EventCreate(BaseModel):
     production_id: str
-    hall_id: Optional[int] = None
+    hall_id: str
     hall: Optional[HallCreate] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
@@ -47,7 +64,8 @@ class EventCreate(BaseModel):
     
 
 class EventUpdate(BaseModel):
-    production_id: Optional[int] = None
+    production_id: Optional[str] = None
+    price_id: Optional[str] = None
     hall_id: Optional[int] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
