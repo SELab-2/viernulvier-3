@@ -68,6 +68,10 @@ Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoi
 ### 4. Code Formatting en Linting
 Voor de backend code gebruiken we **Ruff** voor automatische formatting en linting om consistente code kwaliteit te waarborgen.
 
+Om Ruff te installeren, voer `pip install ruff` uit in je virtuele omgeving.
+
+Ruff onderscheidt tussen formatting en linting: `ruff format` past automatische formattering toe om de code volgens de standaarden te structureren, terwijl `ruff check` controleert op fouten en stijlproblemen die mogelijk handmatige aanpassingen vereisen. Het kan voorkomen dat na formattering er nog steeds problemen zijn die door `ruff check` worden gedetecteerd, omdat niet alle linting regels automatisch kunnen worden opgelost.
+
 - **Formatting**: Voer `ruff format backend/` uit om de code te formatteren volgens de standaarden.
 - **Linting**: Voer `ruff check backend/` uit om te controleren op fouten en stijlproblemen. Los eventuele problemen op voordat je een Pull Request opent.
 
