@@ -25,7 +25,7 @@ class ProductionFetcher:
         #   mogelijks niet volledig in memory kunnen houden.
         self._data: list | None = None
 
-    def get_productions_after(self, timestamp) -> list:
+    def get_new_productions_after(self, timestamp) -> list:
         """
         Get all productions after the given timestamp.
 

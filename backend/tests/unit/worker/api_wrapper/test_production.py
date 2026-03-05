@@ -16,7 +16,7 @@ def test_single_page_fetch():
 
     fetcher = ProductionFetcher(mock_wrapper)
 
-    result = fetcher.get_productions_after("2024-01-01")
+    result = fetcher.get_new_productions_after("2024-01-01")
 
     assert result == [{"id": 1}, {"id": 2}]
     assert mock_wrapper.GET.call_count == 1
@@ -39,7 +39,7 @@ def test_multi_page_fetch():
 
     fetcher = ProductionFetcher(mock_wrapper)
 
-    result = fetcher.get_productions_after("2024-01-01")
+    result = fetcher.get_new_productions_after("2024-01-01")
 
     assert result == [{"id": 1}, {"id": 2}, {"id": 3}]
     assert mock_wrapper.GET.call_count == 2
@@ -52,7 +52,7 @@ def test_connection_error_on_first_call():
     fetcher = ProductionFetcher(mock_wrapper)
 
     with pytest.raises(ConnectionError):
-        fetcher.get_productions_after("2024-01-01")
+        fetcher.get_new_productions_after("2024-01-01")
 
     assert fetcher.has_data() is False
 
@@ -71,7 +71,7 @@ def test_partial_data_retained_on_error():
     fetcher = ProductionFetcher(mock_wrapper)
 
     with pytest.raises(ConnectionError):
-        fetcher.get_productions_after("2024-01-01")
+        fetcher.get_new_productions_after("2024-01-01")
 
     assert fetcher.has_data() is True
     assert fetcher.get_data() == [{"id": 1}, {"id": 2}]
@@ -94,4 +94,4 @@ def test_total_items_decreases_error():
     fetcher = ProductionFetcher(mock_wrapper)
 
     with pytest.raises(RuntimeError):
-        fetcher.get_productions_after("2024-01-01")
+        fetcher.get_new_productions_after("2024-01-01")
