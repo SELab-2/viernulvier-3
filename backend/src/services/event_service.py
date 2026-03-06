@@ -77,17 +77,9 @@ def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventRespon
     production_id = extract_id(event_in.production_id)
     hall_id = extract_id(event_in.hall_id)
 
-    # case 1: existing hall
-    if hall_id is not None:
-        db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
-        if not db_hall:
-            raise ValueError("Hall not found")
-
-    # case 2: create hall
-    else:
-        db_hall = Hall(**event_in.hall.model_dump())
-        db.add(db_hall)
-        db.flush()
+    db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
+    if not db_hall:
+        raise ValueError("Hall not found")
 
     db_event = Event(
         production_id=production_id,

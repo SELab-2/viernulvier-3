@@ -22,4 +22,3 @@ def test_event_create_with_hall_id_only():
         hall_id="https://example/halls/1"
     )
     assert event.hall_id == "https://example/halls/1"
-    assert event.hall is None

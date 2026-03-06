@@ -75,19 +75,6 @@ def test_make_event_with_existing_hall(db_session, production, hall):
     assert result.hall_id == f"{BASE_URL}/halls/{hall.id}"
 
 
-def test_make_event_with_new_hall(db_session, production):
-    event_in = EventCreate(
-        production_id=f"{BASE_URL}/productions/{production.id}",
-        hall=HallSchema(
-            name="New Hall",
-            address="New Adress"
-        )
-    )
-
-    result = make_event(db_session, event_in, BASE_URL)
-
-    assert result.hall.name == "New Hall"
-
 
 def test_make_event_invalid_hall(db_session, production):
     event_in = EventCreate(

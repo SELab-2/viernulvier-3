@@ -43,22 +43,14 @@ class EventResponse(BaseModel):
 
 class EventCreate(BaseModel):
     production_id: str
-    hall_id: Optional[str] = None
-    hall: Optional[HallSchema] = None
+    hall_id: str
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
     external_order_url: Optional[str] = None
     
-    @model_validator(mode="after")
-    def validate_hall_input(self):
-        if not self.hall_id and not self.hall:
-            raise ValueError("You must provide either hall_id or hall")
-        if self.hall_id and self.hall:
-            raise ValueError("Provide either hall_id or hall, not both")
-        return self
     
-
+    
 class EventUpdate(BaseModel):
     production_id: Optional[str] = None
     hall_id: Optional[str] = None
