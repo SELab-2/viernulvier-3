@@ -23,7 +23,6 @@ def get_names_for_language(names, language: str):
     if language:
         for name in names:
             if name.language.language == language:
-                print(language)
                 return [name]
         return names
     else:
