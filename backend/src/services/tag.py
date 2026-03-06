@@ -16,20 +16,11 @@ def build_tag_response(tag: Tag, tag_names: List[TagName], base_url: str) -> Tag
     )
 
 def get_tags_list(db: Session, base_url: str) -> List[TagResponse]:
-    stmt = select(Tag).options(selectinload(Tag.names))
-    tags = db.execute(stmt).scalars().all()
-
+    tags = db.query(Tag).all()
     return [ build_tag_response(tag, tag.names, base_url) for tag in tags ]
     
 def get_tag_by_id(db: Session, tag_id: int, base_url: str) -> TagResponse:
-    stmt = (
-        select(Tag)
-        .where(Tag.id == tag_id)
-        .options(selectinload(Tag.names))
-    )
-
-    tag = db.execute(stmt).scalar_one_or_none()
-
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
@@ -57,20 +48,12 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
     return build_tag_response(db_tag, db_tag_names, base_url)
 
 def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResponse:
-    stmt = (
-        select(Tag)
-        .where(Tag.id == tag_id)
-        .options(selectinload(Tag.names))
-    )
-
-    tag = db.execute(stmt).scalar_one_or_none()
-
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
     # Get a list of names that already exist (these will need to be adjusted instead of added)
     existing_names = {name.language_id: name for name in tag.names}
-
     for name in tag_in.names:
         if name.language_id in existing_names:
             existing_names[name.language_id].name = name.name
@@ -88,14 +71,7 @@ def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResp
     return build_tag_response(tag, tag.names, base_url)
 
 def delete_tag_by_id(db: Session, tag_id):
-    stmt = (
-        select(Tag)
-        .where(Tag.id == tag_id)
-        .options(selectinload(Tag.names))
-    )
-
-    tag = db.execute(stmt).scalar_one_or_none()
-
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
