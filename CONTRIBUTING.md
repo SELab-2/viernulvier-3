@@ -39,7 +39,7 @@ We gebruiken een gestroomlijnde **GitFlow** methodiek. Nieuwe code komt nooit di
     * Open een PR naar `dev`. Gebruik **Draft** als je nog bezig bent.
     * **Reviewers**: Wijs zelf actief **2 teamgenoten** aan als reviewer. Bij grote architecturale wijzigingen is het verstandig de technisch verantwoordelijke als 3e reviewer toe te voegen.
 5. **Code Review**: Elke PR vereist minimaal **2 approvals**. Los opmerkingen op voordat je merget.
-6. **Merge**: Gebruik **Squash and Merge**. Verwijder je branch na de merge.
+6. **Merge**: Gebruik **Rebase and merge**. Verwijder je branch na de merge.
 
 ## Definition of Done (DoD)
 
@@ -59,7 +59,7 @@ Check deze punten voordat je de PR ter review aanbiedt:
 * **Documentatie**: README's en ADR's zijn in het **Nederlands**.
 
 ### 2. Commits
-Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken. Wees op je eigen werkbranch gerust flexibel, maar zorg dat de uiteindelijke **Squash Merge** naar de hoofdbranches een duidelijke omschrijving heeft. 
+Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken.
 *Voorkom vage teksten als "test1", "update" of "..." in de finale merge.*
 
 ### 3. Review Etiquette
