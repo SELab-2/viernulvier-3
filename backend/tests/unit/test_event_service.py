@@ -15,7 +15,6 @@ from src.schemas.event import EventCreate, EventUpdate
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
-from src.schemas.hall import HallSchema
 
 
 BASE_URL = "http://test"

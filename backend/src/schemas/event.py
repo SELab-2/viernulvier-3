@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel, model_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from src.schemas.hall import HallSchema
