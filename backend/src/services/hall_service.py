@@ -42,7 +42,7 @@ def update_hall(db: Session, hall_id: int, hall_in: HallSchema) -> HallSchema:
     return HallSchema(name=hall.name, address=hall.address)
 
 
-def delete_hall(db: Session, hall_id: int) -> bool:
+def delete_hall_by_id(db: Session, hall_id: int) -> bool:
     hall = db.query(Hall).filter(Hall.id == hall_id).first()
     if not hall:
         return False
