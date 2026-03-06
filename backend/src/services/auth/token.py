@@ -8,6 +8,12 @@ from src.models.user import User
 from src.schemas.auth import TokenData
 
 
+def build_user_subject(user: User) -> str:
+    if user.id is None:
+        raise ValueError("Cannot issue a token for a user without an ID")
+    return str(user.id)
+
+
 def build_token_data(user: User) -> dict:
     roles = [role.name for role in user.roles]
     permissions = set()
@@ -15,10 +21,21 @@ def build_token_data(user: User) -> dict:
         for perm in role.permissions:
             permissions.add(perm.name)
     return {
-        "sub": user.username,
+        "sub": build_user_subject(user),
         "roles": roles,
         "permissions": sorted(permissions),
     }
+
+
+def get_token_subject_user_id(payload: dict) -> int:
+    subject = payload.get("sub")
+    if subject is None:
+        raise ValueError("Token subject is missing")
+
+    try:
+        return int(subject)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Token subject must be a valid user ID") from exc
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -53,13 +70,11 @@ def decode_access_token(token: str) -> TokenData:
         payload = jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
+        user_id = get_token_subject_user_id(payload)
         return TokenData(
-            username=username,
+            user_id=user_id,
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
         )
-    except jwt.PyJWTError as exc:
+    except (jwt.PyJWTError, ValueError) as exc:
         raise credentials_exception from exc
