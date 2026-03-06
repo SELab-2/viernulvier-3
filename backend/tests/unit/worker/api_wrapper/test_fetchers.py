@@ -8,6 +8,7 @@ parameter.
 from unittest.mock import MagicMock
 from src.worker.api_wrapper.production import ProductionFetcher
 from src.worker.api_wrapper.event import EventFetcher
+from src.worker.api_wrapper.event_prices import EventPriceFetcher
 
 
 # Only this top function has comments explaining steps, the rest is
@@ -34,5 +35,15 @@ def test_get_new_events_after_calls_fetch_all():
     result = fetcher.get_new_events_after("2024-01-01")
     fetcher.fetch_all.assert_called_once_with(
         "/events", {"created_at[after]": "2024-01-01"}
+    )
+    assert result == ["data"]
+
+
+def test_get_new_prices_after_calls_fetch_all():
+    fetcher = EventPriceFetcher(vnv_wrapper=MagicMock())
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+    result = fetcher.get_new_prices_after("2024-01-01")
+    fetcher.fetch_all.assert_called_once_with(
+        "/events/prices", {"created_at[after]": "2024-01-01"}
     )
     assert result == ["data"]

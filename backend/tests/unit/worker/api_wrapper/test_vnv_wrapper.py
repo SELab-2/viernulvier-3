@@ -132,6 +132,23 @@ def test_params_encoded():
     assert link == "/api/v1/productions?page=2"
 
 
+def test_always_correct_link():
+    response_data = {"ok": True}
+    response_encoded = json.dumps(response_data)
+
+    fake_connection = FakeConnection(FakeResponse(200, "", response_encoded))
+
+    wrapper = VNV_Wrapper(connection=fake_connection)
+
+    wrapper.GET("/productions", {"page": 2})
+    _, link, _ = fake_connection.last_request
+    assert link == "/api/v1/productions?page=2"
+
+    wrapper.GET("productions", {"page": 3})
+    _, link, _ = fake_connection.last_request
+    assert link == "/api/v1/productions?page=3"
+
+
 def test_rate_limit():
     response_data = {"ok": True}
     response_encoded = json.dumps(response_data)
