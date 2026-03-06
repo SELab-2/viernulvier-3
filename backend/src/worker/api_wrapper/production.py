@@ -15,13 +15,12 @@ class ProductionFetcher(PagedFetcher):
         Get all productions after the given timestamp.
 
         The timestamp is used **inclusive**, meaning that it probably returns
-        a production that already sits in the database.
+        a production that already exists in the database.
 
         When calling the API fails this will throw an error. However,
         if there was already data fetched (f.e. when paging and hitting a
         rate limit), the object will have stored the results which you can
-        query with `ProductionFetcher.has_data()` and
-        `ProductionFetcher.get_data()`.
+        query with `.has_data()` and `.get_data()`.
 
         ---
 
