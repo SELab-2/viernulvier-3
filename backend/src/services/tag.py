@@ -1,10 +1,10 @@
 from typing import List
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from src.models.tag import Tag, TagName
 from src.schemas.tag import TagCreate, TagNameResponse, TagResponse
+from src.services.language import Languages
 
 def build_tag_name_response(tag_name: TagName):
     return TagNameResponse.model_validate(tag_name)
@@ -15,16 +15,31 @@ def build_tag_response(tag: Tag, tag_names: List[TagName], base_url: str) -> Tag
         names=[build_tag_name_response(tag_name) for tag_name in tag_names],
     )
 
-def get_tags_list(db: Session, base_url: str) -> List[TagResponse]:
+def get_names_for_language(names, language: str):
+    if language:
+        for name in names:
+            if name.language.language == language:
+                print(language)
+                return [name]
+        return names
+    else:
+        return names
+
+def get_tags_list(db: Session, base_url: str, language: str) -> List[TagResponse]:
     tags = db.query(Tag).all()
-    return [ build_tag_response(tag, tag.names, base_url) for tag in tags ]
-    
-def get_tag_by_id(db: Session, tag_id: int, base_url: str) -> TagResponse:
+
+    responses = []
+    for tag in tags:
+        names = get_names_for_language(tag.names, language)
+        responses.append(build_tag_response(tag, names, base_url))
+    return responses
+   
+def get_tag_by_id(db: Session, tag_id: int, base_url: str, language: str) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
-    return build_tag_response(tag, tag.names, base_url)
+    return build_tag_response(tag, get_names_for_language(tag.names, language), base_url)
 
 def create_tag(db: Session, tag_in: TagCreate, base_url: str):
     db_tag = Tag()
