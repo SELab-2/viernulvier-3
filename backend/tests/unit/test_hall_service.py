@@ -88,7 +88,7 @@ def test_update_hall_not_found(db_session):
         update_hall(db_session, 999, hall_in)
 
 
-def test_delete_hall_success(db_session):
+def test_delete_hall_by_id_success(db_session):
     hall = Hall(
         name="Hall A",
         address="Street A"
@@ -97,12 +97,12 @@ def test_delete_hall_success(db_session):
     db_session.add(hall)
     db_session.commit()
 
-    result = delete_hall(db_session, hall.id)
+    result = delete_hall_by_id(db_session, hall.id)
 
     assert result is True
 
 
-def test_delete_hall_not_found(db_session):
-    result = delete_hall(db_session, 999)
+def test_delete_hall_by_id_not_found(db_session):
+    result = delete_hall_by_id(db_session, 999)
 
     assert result is False
