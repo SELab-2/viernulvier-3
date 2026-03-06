@@ -5,7 +5,7 @@ from src.services.hall_service import (
     get_hall_by_id,
     create_hall,
     update_hall,
-    delete_hall
+    delete_hall_by_id
 )
 
 from src.schemas.hall import HallSchema
