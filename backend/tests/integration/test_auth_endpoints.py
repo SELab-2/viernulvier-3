@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.models.user import User
 from src.services.auth.password import get_password_hash
+from src.services.auth.token import decode_access_token
 
 
 def test_login_integration(client: TestClient, db_session: Session):
@@ -20,6 +21,8 @@ def test_login_integration(client: TestClient, db_session: Session):
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
+    assert decode_access_token(data["access_token"]).user_id == user.id
+    assert decode_access_token(data["refresh_token"]).user_id == user.id
 
 
 def test_login_integration_fail(client: TestClient):
@@ -71,3 +74,4 @@ def test_refresh_token_integration(client: TestClient, db_session: Session):
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+    assert decode_access_token(data["access_token"]).user_id == user.id
