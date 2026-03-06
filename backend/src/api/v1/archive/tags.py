@@ -3,8 +3,11 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from src.database import get_db
+from src.models.user import User
 from src.schemas.tag import TagCreate, TagResponse
 from src.services.tag import create_tag, delete_tag_by_id, get_tag_by_id, get_tags_list
+from src.services.auth.permissions import Permissions
+from src.api.dependencies import RequirePermissions
 
 router = APIRouter()
 
@@ -34,7 +37,7 @@ def get_tag(tag_id: int, request: Request, db: Session=Depends(get_db)):
     response_model=TagResponse,
     summary="Create a new tag",
 )
-async def post_tag(tag_in: TagCreate, request: Request, db: Session=Depends(get_db)):
+async def post_tag(tag_in: TagCreate, request: Request, db: Session=Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))):
     base_url = str(request.base_url).rstrip("/")
     return create_tag(db, tag_in, base_url)
 
@@ -42,5 +45,5 @@ async def post_tag(tag_in: TagCreate, request: Request, db: Session=Depends(get_
     "/{tag_id}",
     summary="Delete a tag"
 )
-async def delete_tag(tag_id: str, db: Session=Depends(get_db)):
+async def delete_tag(tag_id: str, db: Session=Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE]))):
     return delete_tag_by_id(db, tag_id)
