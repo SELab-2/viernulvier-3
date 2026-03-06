@@ -55,7 +55,9 @@ def test_expired_token():
         "sub": "testuser",
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
     }
-    expired_token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    expired_token = jwt.encode(
+        data, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
     with pytest.raises(HTTPException) as excinfo:
         decode_access_token(expired_token)
     assert excinfo.value.status_code == 401
@@ -64,7 +66,7 @@ def test_expired_token():
 
 def test_token_missing_sub():
     data = {"roles": [], "permissions": []}
-    token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    token = jwt.encode(data, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     with pytest.raises(HTTPException) as excinfo:
         decode_access_token(token)
     assert excinfo.value.status_code == 401
