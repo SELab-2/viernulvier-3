@@ -66,6 +66,10 @@ def test_get_tags(client, language):
 
     assert len(data) == n
 
+    for i in range(n):
+        # check if all tags are present in list of tags (independent of order)
+        assert any(data[j]["names"][0]["name"] == f"tag{i}" for j in range(n))
+
 
 def test_delete_tag(client, language):
     created_tag = client.post(

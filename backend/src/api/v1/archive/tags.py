@@ -10,13 +10,13 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=List[str],
+    response_model=List[TagResponse],
     summary="Get all tags",
     description="Returns a list of tags."
 )
-async def get_tags(db: Session=Depends(get_db)):
-    tags = get_tags_list(db)
-    return tags
+async def get_tags(request: Request, db: Session=Depends(get_db)):
+    base_url = str(request.base_url).rstrip("/")
+    return get_tags_list(db, base_url)
 
 @router.get(
     "/{tag_id}", 

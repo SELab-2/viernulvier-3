@@ -15,9 +15,11 @@ def build_tag_response(tag: Tag, tag_names: List[TagName], base_url: str) -> Tag
         names=[build_tag_name_response(tag_name) for tag_name in tag_names],
     )
 
-def get_tags_list(db: Session) -> Sequence[Tag]:
-    stmt = select(Tag)
-    return db.execute(stmt).scalars().all()
+def get_tags_list(db: Session, base_url: str) -> List[TagResponse]:
+    stmt = select(Tag).options(selectinload(Tag.names))
+    tags = db.execute(stmt).scalars().all()
+
+    return [ build_tag_response(tag, tag.names, base_url) for tag in tags ]
     
 def get_tag_by_id(db: Session, tag_id: int, base_url: str) -> TagResponse:
     stmt = (
