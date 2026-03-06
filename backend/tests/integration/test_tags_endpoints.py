@@ -36,8 +36,6 @@ def language_en(db_session: Session):
 
     return lang
 
-
-
 @pytest.fixture
 def create_headers(client: TestClient, db_session: Session):
     return create_user_and_login(
@@ -112,12 +110,13 @@ def test_create_tag_unauthorized(client: TestClient, language_nl: Language):
     assert response.status_code == 401
 
 
-def test_get_tag(client: TestClient, create_headers, language_nl: Language):
+def test_get_tag(client: TestClient, create_headers, language_nl: Language, language_en: Language):
     created_tag = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1"}
+                {"language_id": language_nl.id, "name": "tag1_nl"},
+                {"language_id": language_en.id, "name": "tag1_en"}
             ]
         },
         headers=create_headers
@@ -126,35 +125,45 @@ def test_get_tag(client: TestClient, create_headers, language_nl: Language):
     tag_url = created_tag.json()["id"]
     tag_id = tag_url.split("/")[-1]
 
-    response = client.get(f"{TAGS_URL}/{tag_id}")
+    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "nl"})
     assert response.status_code == 200
 
     data = response.json()
-    assert data["names"][0]["name"] == "tag1"
+    assert len(data["names"]) == 1
+    assert data["names"][0]["name"] == "tag1_nl"
+    
+    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "en"})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["names"]) == 1
+    assert data["names"][0]["name"] == "tag1_en"
 
 
-def test_get_tags(client: TestClient, create_headers, language_nl: Language):
+def test_get_tags(client: TestClient, create_headers, language_nl: Language, language_en: Language):
     n = 5
     for i in range(n):
         client.post(
             TAGS_URL,
             json={
                 "names": [
-                    {"language_id": language_nl.id, "name": f"tag{i}"}
+                    {"language_id": language_nl.id, "name": f"tag{i}_nl"},
+                    {"language_id": language_en.id, "name": f"tag{i}_en"}
                 ]
             },
             headers=create_headers
         )
 
-    response = client.get(TAGS_URL)
+    response = client.get(TAGS_URL, headers={"Accept-Language": "nl"})
     assert response.status_code == 200
     data = response.json()
 
     assert len(data) == n
 
     for i in range(n):
+        assert(len(data[i]["names"]) == 1)
         # check if all tags are present in list of tags (independent of order)
-        assert any(data[j]["names"][0]["name"] == f"tag{i}" for j in range(n))
+        assert any(data[j]["names"][0]["name"] == f"tag{i}_nl" for j in range(n))
 
 
 def test_patch_tag(client: TestClient, db_session: Session, create_headers, language_nl: Language, language_en: Language):
