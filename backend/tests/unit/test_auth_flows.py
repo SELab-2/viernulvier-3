@@ -7,6 +7,7 @@ from src.services.auth.flows import (
     refresh_access_token,
 )
 from src.services.auth.password import get_password_hash
+from src.services.auth.token import decode_access_token
 
 
 def test_authenticate_user_success(db_session: Session):
@@ -48,6 +49,8 @@ def test_login_user_success(db_session: Session):
     assert isinstance(token, Token)
     assert token.access_token is not None
     assert token.refresh_token is not None
+    assert decode_access_token(token.access_token).user_id == user.id
+    assert decode_access_token(token.refresh_token).user_id == user.id
 
 
 def test_refresh_access_token_success(db_session: Session):
@@ -62,3 +65,4 @@ def test_refresh_access_token_success(db_session: Session):
     new_access_token_resp = refresh_access_token(db_session, tokens.refresh_token)
     assert isinstance(new_access_token_resp, AccessTokenResponse)
     assert new_access_token_resp.access_token is not None
+    assert decode_access_token(new_access_token_resp.access_token).user_id == user.id
