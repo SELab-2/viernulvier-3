@@ -15,6 +15,21 @@ logging.basicConfig(
 
 
 class VNV_Wrapper:
+    """
+    This class serves as the lowest abstraction layer providing a GET method
+    which will hit the viernulvier API.
+
+    It implements the magic methods `__enter__()` and `__exit__()` so it can
+    be used with the `with` context manager:
+    ```py
+    with VNV_Wrapper() as wrapper:
+        wrapper.GET(link)
+    ```
+
+    When used without `with`, do not forget to call `vnv_wrapper.close()` at
+    the end to close the connection with the viernulvier server.
+    """
+
     def __init__(self, connection=None, sleep=time.sleep):
         """
         ---

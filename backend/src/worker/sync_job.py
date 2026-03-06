@@ -4,6 +4,9 @@ from src.worker.api_wrapper.event import EventFetcher
 
 
 if __name__ == "__main__":
+    # This code does not do anything productive yet, but is here to kinda show
+    # how the classes inside `api_wrapper/` can be used.
+
     with VNV_Wrapper() as wrapper:
         prod_fetcher = ProductionFetcher(wrapper)
         # print(
