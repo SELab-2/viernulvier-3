@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 from src.services.event_service import (
     get_event_by_id,
-    make_event,
+    create_event,
     update_event,
     delete_event_by_id,
     get_prices_for_event,
@@ -68,7 +68,7 @@ def test_make_event_with_existing_hall(db_session, production, hall):
         hall_id=f"{BASE_URL}/halls/{hall.id}"
     )
 
-    result = make_event(db_session, event_in, BASE_URL)
+    result = create_event(db_session, event_in, BASE_URL)
 
     assert result.production_id == f"{BASE_URL}/productions/{production.id}"
     assert result.hall_id == f"{BASE_URL}/halls/{hall.id}"
@@ -82,7 +82,7 @@ def test_make_event_invalid_hall(db_session, production):
     )
 
     with pytest.raises(ValueError):
-        make_event(db_session, event_in, BASE_URL)
+        create_event(db_session, event_in, BASE_URL)
 
 
 def test_update_event_success(db_session, event):

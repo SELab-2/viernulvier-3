@@ -72,7 +72,7 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
     return db.query(Hall).filter(Hall.id == hall_id).first()
 
 
-def make_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
+def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
 
     production_id = extract_id(event_in.production_id)
     hall_id = extract_id(event_in.hall_id)
