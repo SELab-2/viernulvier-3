@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     name: Lint Code Base with Ruff
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
   smoke-test:
     name: Docker Smoke Test
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       POSTGRES_USER: viernulvier
