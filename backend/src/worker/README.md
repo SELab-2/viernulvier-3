@@ -12,7 +12,7 @@ historische data die in via de API beschikbaar is.
 ## Random: hoe uitvoeren
 Het script heeft een API key nodig, dit zit in het `.env` bestand in de root
 van het project. Deze wordt al uitgelezen door `backend/src/config.py`, dus
-deze code kunnen we hergebruiken. Om Python's imports te latan werken moet
+deze code kunnen we hergebruiken. Om Python's imports te laten werken moet
 het script uitgevoerd worden vanuit de `backend/` folder met het volgende
 commando:
 ```sh
