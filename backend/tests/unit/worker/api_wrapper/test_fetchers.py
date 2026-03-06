@@ -9,6 +9,10 @@ from unittest.mock import MagicMock
 from src.worker.api_wrapper.production import ProductionFetcher
 from src.worker.api_wrapper.event import EventFetcher
 from src.worker.api_wrapper.event_prices import EventPriceFetcher
+from src.worker.api_wrapper.halls import HallFetcher
+from src.worker.api_wrapper.genres import GenreFetcher
+from src.worker.api_wrapper.tags import TagFetcher
+from src.worker.api_wrapper.gallery import GalleryFetcher
 
 
 # Only this top function has comments explaining steps, the rest is
@@ -45,5 +49,45 @@ def test_get_new_prices_after_calls_fetch_all():
     result = fetcher.get_new_prices_after("2024-01-01")
     fetcher.fetch_all.assert_called_once_with(
         "/events/prices", {"created_at[after]": "2024-01-01"}
+    )
+    assert result == ["data"]
+
+
+def test_get_new_halls_after_calls_fetch_all():
+    fetcher = HallFetcher(vnv_wrapper=MagicMock())
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+    result = fetcher.get_new_halls_after("2024-01-01")
+    fetcher.fetch_all.assert_called_once_with(
+        "/halls", {"created_at[after]": "2024-01-01"}
+    )
+    assert result == ["data"]
+
+
+def test_get_new_genres_after_calls_fetch_all():
+    fetcher = GenreFetcher(vnv_wrapper=MagicMock())
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+    result = fetcher.get_new_genres_after("2024-01-01")
+    fetcher.fetch_all.assert_called_once_with(
+        "/genres", {"created_at[after]": "2024-01-01"}
+    )
+    assert result == ["data"]
+
+
+def test_get_new_tags_after_calls_fetch_all():
+    fetcher = TagFetcher(vnv_wrapper=MagicMock())
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+    result = fetcher.get_new_tags_after("2024-01-01")
+    fetcher.fetch_all.assert_called_once_with(
+        "/tags", {"created_at[after]": "2024-01-01"}
+    )
+    assert result == ["data"]
+
+
+def test_get_new_galleries_after_calls_fetch_all():
+    fetcher = GalleryFetcher(vnv_wrapper=MagicMock())
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+    result = fetcher.get_new_galleries_after("2024-01-01")
+    fetcher.fetch_all.assert_called_once_with(
+        "/media/galleries", {"created_at[after]": "2024-01-01"}
     )
     assert result == ["data"]
