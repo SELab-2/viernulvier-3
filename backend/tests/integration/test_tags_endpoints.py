@@ -11,10 +11,10 @@ from src.services.auth.permissions import Permissions
 TAGS_URL = "/api/v1/archive/tags"
 
 @pytest.fixture
-def language(db_session: Session):
+def language_nl(db_session: Session):
     lang = Language(
         id=1,
-        language="English"
+        language="nl"
     )
 
     db_session.add(lang)
@@ -22,6 +22,21 @@ def language(db_session: Session):
     db_session.refresh(lang)
 
     return lang
+
+@pytest.fixture
+def language_en(db_session: Session):
+    lang = Language(
+        id=2,
+        language="en"
+    )
+
+    db_session.add(lang)
+    db_session.commit()
+    db_session.refresh(lang)
+
+    return lang
+
+
 
 @pytest.fixture
 def create_headers(client: TestClient, db_session: Session):
@@ -67,12 +82,12 @@ def create_user_and_login(client: TestClient, db_session: Session, username: str
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_create_tag(client: TestClient, create_headers, language: Language):
+def test_create_tag(client: TestClient, create_headers, language_nl: Language):
     response = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language.id, "name": "tag1"},
+                {"language_id": language_nl.id, "name": "tag1"},
             ]
         },
         headers=create_headers
@@ -85,24 +100,24 @@ def test_create_tag(client: TestClient, create_headers, language: Language):
     assert data["names"][0]["name"] == "tag1"
 
 
-def test_create_tag_unauthorized(client: TestClient, language: Language):
+def test_create_tag_unauthorized(client: TestClient, language_nl: Language):
     response = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language.id, "name": "tag1"},
+                {"language_id": language_nl.id, "name": "tag1"},
             ]
         },
     )
     assert response.status_code == 401
 
 
-def test_get_tag(client: TestClient, create_headers, language: Language):
+def test_get_tag(client: TestClient, create_headers, language_nl: Language):
     created_tag = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language.id, "name": "tag1"}
+                {"language_id": language_nl.id, "name": "tag1"}
             ]
         },
         headers=create_headers
@@ -118,14 +133,14 @@ def test_get_tag(client: TestClient, create_headers, language: Language):
     assert data["names"][0]["name"] == "tag1"
 
 
-def test_get_tags(client: TestClient, create_headers, language: Language):
+def test_get_tags(client: TestClient, create_headers, language_nl: Language):
     n = 5
     for i in range(n):
         client.post(
             TAGS_URL,
             json={
                 "names": [
-                    {"language_id": language.id, "name": f"tag{i}"}
+                    {"language_id": language_nl.id, "name": f"tag{i}"}
                 ]
             },
             headers=create_headers
@@ -142,12 +157,81 @@ def test_get_tags(client: TestClient, create_headers, language: Language):
         assert any(data[j]["names"][0]["name"] == f"tag{i}" for j in range(n))
 
 
-def test_delete_tag(client: TestClient, db_session: Session, create_headers, language: Language):
+def test_patch_tag(client: TestClient, db_session: Session, create_headers, language_nl: Language, language_en: Language):
     created_tag = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language.id, "name": "tag1"}
+                {"language_id": language_nl.id, "name": "tag1"}
+            ]
+        },
+        headers=create_headers
+    )
+    tag_id = created_tag.json()["id"].split("/")[-1]
+
+    patch_headers = create_user_and_login(
+        client, 
+        db_session, 
+        "patch_tag_user", 
+        permissions=[Permissions.ARCHIVE_UPDATE]
+    )
+    response = client.patch(
+        f"{TAGS_URL}/{tag_id}",
+        json={
+            "names": [
+                {"language_id": language_nl.id, "name": "tag1_updated"},
+                {"language_id": language_en.id, "name": "tag1_en"}
+            ]
+        },
+        headers=patch_headers
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["names"]) == 2
+
+    names = {n["language_id"]: n["name"] for n in data["names"]}
+    assert names[language_nl.id] == "tag1_updated"
+    assert names[language_en.id] == "tag1_en"
+
+
+def test_patch_tag_unauthorized(client: TestClient, create_headers, language_nl: Language, language_en: Language):
+    created_tag = client.post(
+        TAGS_URL,
+        json={
+            "names": [
+                {"language_id": language_nl.id, "name": "tag1"}
+            ]
+        },
+        headers=create_headers
+    )
+    tag_id = created_tag.json()["id"].split("/")[-1]
+
+    response = client.patch(
+        f"{TAGS_URL}/{tag_id}",
+        json={
+            "names": [
+                {"language_id": language_nl.id, "name": "tag1_updated"},
+                {"language_id": language_en.id, "name": "tag1_en"}
+            ]
+        },
+    )
+    assert response.status_code == 401
+
+    get_response = client.get(f"{TAGS_URL}/{tag_id}")
+    data = get_response.json()
+    assert len(data["names"]) == 1
+
+    names = {n["language_id"]: n["name"] for n in data["names"]}
+    assert names[language_nl.id] == "tag1"
+
+
+def test_delete_tag(client: TestClient, db_session: Session, create_headers, language_nl: Language):
+    created_tag = client.post(
+        TAGS_URL,
+        json={
+            "names": [
+                {"language_id": language_nl.id, "name": "tag1"}
             ]
         },
         headers=create_headers
@@ -168,12 +252,12 @@ def test_delete_tag(client: TestClient, db_session: Session, create_headers, lan
     assert get_response.status_code == 404
 
 
-def test_delete_unauthorized(client: TestClient, create_headers, language: Language):
+def test_delete_unauthorized(client: TestClient, create_headers, language_nl: Language):
     created_tag = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language.id, "name": "tag1"}
+                {"language_id": language_nl.id, "name": "tag1"}
             ]
         },
         headers=create_headers
