@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from fastapi import HTTPException
@@ -55,6 +55,37 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
     db.refresh(db_tag)
 
     return build_tag_response(db_tag, db_tag_names, base_url)
+
+def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResponse:
+    stmt = (
+        select(Tag)
+        .where(Tag.id == tag_id)
+        .options(selectinload(Tag.names))
+    )
+
+    tag = db.execute(stmt).scalar_one_or_none()
+
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    # Get a list of names that already exist (these will need to be adjusted instead of added)
+    existing_names = {name.language_id: name for name in tag.names}
+
+    for name in tag_in.names:
+        if name.language_id in existing_names:
+            existing_names[name.language_id].name = name.name
+        else:
+            db_tag_name = TagName(
+                tag_id=tag.id,
+                language_id=name.language_id,
+                name=name.name,
+            )
+            db.add(db_tag_name)
+            tag.names.append(db_tag_name)
+    db.commit()
+    db.refresh(tag)
+
+    return build_tag_response(tag, tag.names, base_url)
 
 def delete_tag_by_id(db: Session, tag_id):
     stmt = (

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from src.database import get_db
 from src.models.user import User
 from src.schemas.tag import TagCreate, TagResponse
-from src.services.tag import create_tag, delete_tag_by_id, get_tag_by_id, get_tags_list
+from src.services.tag import create_tag, delete_tag_by_id, get_tag_by_id, get_tags_list, update_tag
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 
@@ -40,6 +40,15 @@ def get_tag(tag_id: int, request: Request, db: Session=Depends(get_db)):
 async def post_tag(tag_in: TagCreate, request: Request, db: Session=Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))):
     base_url = str(request.base_url).rstrip("/")
     return create_tag(db, tag_in, base_url)
+
+@router.patch(
+    "/{tag_id}",
+    response_model=TagResponse,
+    summary="Update a tag"
+)
+async def patch_tag(tag_id: int, tag_in: TagCreate, request: Request, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE]))):
+    base_url = str(request.base_url).rstrip("/")
+    return update_tag(db, tag_id, tag_in, base_url)
 
 @router.delete(
     "/{tag_id}",
