@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.api.v1.archive import events, productions
+from src.api.v1.archive import events, productions, halls
 
 router = APIRouter()
 
@@ -14,3 +14,10 @@ router.include_router(
     prefix="/productions",
     tags=["Productions"]
 )
+
+router.include_router(
+    halls.router,
+    prefix="/halls",
+    tags=["Halls"]
+)
+

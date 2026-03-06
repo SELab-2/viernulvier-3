@@ -12,6 +12,7 @@ router = APIRouter()
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, request: Request, db: Session = Depends(get_db)):
     base_url = str(request.base_url).rstrip("/")
+    
     try:
         event_data = get_event_by_id(db, event_id, base_url)
     except ValueError:
@@ -23,6 +24,7 @@ def get_event(event_id: int, request: Request, db: Session = Depends(get_db)):
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(event_id: int, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE]))):
     success = delete_event_by_id(db, event_id)
+    
     if not success:
         raise HTTPException(status_code=404, detail="Event not found")
     
@@ -31,6 +33,7 @@ def delete_event(event_id: int, db: Session = Depends(get_db), _: User = Depends
 @router.post("/", response_model=EventResponse, status_code=201)
 def post_event(event_in: EventCreate, request: Request, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))):
     base_url = str(request.base_url).rstrip("/")
+    
     try:
         return make_event(db, event_in, base_url)
     except ValueError as e:
@@ -40,7 +43,7 @@ def post_event(event_in: EventCreate, request: Request, db: Session = Depends(ge
 @router.patch("/{event_id}", response_model=EventResponse)
 def patch_event(event_id: int, update_data: EventUpdate, request: Request, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE]))):
     base_url = str(request.base_url).rstrip("/")
-
+    
     try:
         return update_event(db, event_id, update_data, base_url)
     except ValueError as e:
