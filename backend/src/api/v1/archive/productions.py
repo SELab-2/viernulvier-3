@@ -3,6 +3,9 @@ from backend.src.database import get_db
 from backend.src.schemas.production import ProductionCreate, ProductionInfoCreate, ProductionListResponse, ProductionResponse, ProductionUpdate
 from backend.src.services.production import create_production, get_production_by_id, get_productions_paginated, update_production_by_id, delete_production_by_id
 from fastapi import APIRouter, Depends, Query, Request, HTTPException
+from src.services.auth.permissions import Permissions
+from src.api.dependencies import RequirePermissions
+from src.models.user import User
 
 router = APIRouter()
 
@@ -19,7 +22,8 @@ async def get_productions(request: Request, db: Session = Depends(get_db), curso
     return productions_data
 
 @router.post("/", response=ProductionResponse)
-async def post_production(production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language_id: int, request: Request, db: Session = Depends(get_db)) -> ProductionResponse:
+async def post_production(production_in: ProductionCreate, production_info_in: ProductionInfoCreate,
+                           language_id: int, request: Request, db: Session = Depends(get_db), _: User = Depends(RequirePermissions(Permissions.ARCHIVE_CREATE))) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
     try:
         production_data = create_production(db, production_in, production_info_in, language_id, base_url)
@@ -39,7 +43,8 @@ async def get_production(production_id: int, request: Request, db: Session = Dep
     return production_data
 
 @router.patch("/{production_id}", response=ProductionResponse)
-async def patch_production(production_id: int, production_in: ProductionUpdate, request: Request, db: Session = Depends(get_db)) -> ProductionResponse:
+async def patch_production(production_id: int, production_in: ProductionUpdate, request: Request, 
+                           db: Session = Depends(get_db), _: User = Depends(RequirePermissions(Permissions.ARCHIVE_UPDATE))) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
     try:
         production_data = update_production_by_id(db, production_in, production_id, base_url)
@@ -49,7 +54,8 @@ async def patch_production(production_id: int, production_in: ProductionUpdate, 
     return production_data
 
 @router.delete("/{production_id}")
-async def delete_production(production_id: int, db: Session = Depends(get_db)):
+async def delete_production(production_id: int, db: Session = Depends(get_db), 
+                            _: User = Depends(RequirePermissions(Permissions.ARCHIVE_DELETE))):
     try:
         delete_production_by_id(db, production_id)
     except ValueError as e:
