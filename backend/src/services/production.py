@@ -1,9 +1,7 @@
-from multiprocessing import Event
-
-from backend.src.schemas.production import Pagination, UpdateAction
+from src.schemas.production import Pagination, UpdateAction
 from sqlalchemy.orm import Session
-from src.models import Production, ProdInfo, Language
-from src.schemas import ProductionCreate, ProductionInfoCreate, ProductionUpdate, ProductionResponse, ProductionInfoResponse, ProductionListResponse
+from src.models import Event, Production, ProdInfo, Language
+from src.schemas.production import ProductionCreate, ProductionInfoCreate, ProductionUpdate, ProductionResponse, ProductionInfoResponse, ProductionListResponse
 
 # The response functions: both return copies.
 def build_production_info_response(production_info: ProdInfo, base_url: str) -> ProductionInfoResponse:
@@ -61,7 +59,7 @@ def get_productions_paginated(db: Session, base_url: str, cursor: int | None = N
     
     return ProductionListResponse(
         productions=[
-            build_production_response(db, production, base_url) 
+            build_production_response(db, production, base_url, language_id=None) 
             for production in productions
         ],
         pagination=Pagination(
