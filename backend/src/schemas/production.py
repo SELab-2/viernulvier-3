@@ -1,5 +1,3 @@
-from enum import Enum
-
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
@@ -7,10 +5,6 @@ from datetime import datetime
 class Pagination(BaseModel):
     next_cursor: int | None = None
     has_more: bool = False
-
-class UpdateAction(str, Enum):
-    UPSERT = "upsert"
-    DELETE = "delete"
 
 # The response for a production info in a specific language.
 class ProductionInfoResponse(BaseModel):
@@ -68,8 +62,7 @@ class ProductionCreate(BaseModel):
     updated_at: Optional[datetime] = None
 
 class ProductionInfoUpdate(BaseModel):
-    language_id: int
-    action: UpdateAction = UpdateAction.UPSERT
+    language: str
 
     title: Optional[str] = None
     supertitle: Optional[str] = None
@@ -85,4 +78,6 @@ class ProductionUpdate(BaseModel):
     media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    
     production_infos: Optional[list[ProductionInfoUpdate]] = None
+    remove_languages: list[str] | None = None

@@ -19,8 +19,9 @@ def build_production_info_response(production_info: ProdInfo, base_url: str) -> 
         info=production_info.info
     )
 
-def build_production_response(db: Session, production: Production, base_url: str, language_id: int | None) -> ProductionResponse:    
+def build_production_response(db: Session, production: Production, base_url: str, language: str | None = None) -> ProductionResponse:    
     # If language is provided, only get that specific info (if it exists, otherwise error). Otherwise, get all infos.
+    language_id = db.query(Language.id).filter(Language.language == language).scalar() if language else None
     if language_id is not None:
         production_infos = db.query(ProdInfo).filter(ProdInfo.production_id == production.id, ProdInfo.language_id == language_id).all()
         if not production_infos:
@@ -57,9 +58,10 @@ def get_productions_paginated(db: Session, base_url: str, cursor: int | None = N
     productions = productions[:limit]
     next_cursor = productions[-1].id if productions else None
     
+    # When returning all productions, just returs infos in all languages.
     return ProductionListResponse(
         productions=[
-            build_production_response(db, production, base_url, language_id=None) 
+            build_production_response(db, production, base_url) 
             for production in productions
         ],
         pagination=Pagination(
@@ -78,11 +80,11 @@ def get_events_for_production(db: Session, production_id: int, base_url: str) ->
     return [f"{base_url}/events/{event.id}" for event in events]
 
 # Returns a production with given id.
-def get_production_by_id(db: Session, production_id: int, base_url: str) -> ProductionResponse:
+def get_production_by_id(db: Session, production_id: int, base_url: str, language: str | None = None) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with production id '{production_id}' not found.")
-    return build_production_response(db, production, base_url)
+    return build_production_response(db, production, base_url, language)
 
 def create_production_info(db: Session, production_info_in: ProductionInfoCreate, production_id: int) -> ProdInfo:
     # Given language when creating new production info should exist in the database.
@@ -106,11 +108,11 @@ def create_production_info(db: Session, production_info_in: ProductionInfoCreate
 
 # Creates a new production with production info for the given language. 
 # Returns a copy of the created production.
-def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language_id: int, base_url: str) -> ProductionResponse:
+def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, base_url: str, language: str | None = None) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
-    language = db.query(Language).filter(Language.id == language_id).first()
+    language = db.query(Language).filter(Language.language == language).first()
     if not language:
-        raise ValueError(f"Language with id '{language_id}' not found.")
+        raise ValueError(f"Language {language} not supported.")
 
     db_production = Production(
         performer_type=production_in.performer_type,
@@ -129,32 +131,59 @@ def create_production(db: Session, production_in: ProductionCreate, production_i
     db.commit()
     db.refresh(db_production)
     #db.refresh(db_production_info) --> needed?
-    return build_production_response(db, db_production, base_url=base_url)
+    return build_production_response(db, db_production, base_url, language)
     
 # Updates the production and all related production infos.
-def update_production_by_id(db: Session, production_in: ProductionUpdate, production_id: int, base_url: str = "") -> ProductionResponse:
+def update_production_by_id(db: Session, production_in: ProductionUpdate, production_id: int, base_url: str) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with id '{production_id}' not found.")
 
-    for field, value in production_in.model_dump(exclude_unset=True, exclude={"production_infos"}).items():
+    update_data = production_in.model_dump(exclude_unset=True, exclude={"info", "remove_languages"})
+    for field, value in update_data.items():
         setattr(production, field, value)
 
     # Check if info is provided.
     if production_in.production_infos:
-        existing = {info.language_id: info for info in production.info}
         for production_info_in in production_in.production_infos:
-            if production_info_in.action == UpdateAction.DELETE:
-                if production_info_in.language_id not in existing:
-                    raise ValueError(f"Production info with production id '{production_id}' and language id '{production_info_in.language_id}' not found for deletion.")
-                db.delete(existing[production_info_in.language_id])  
-            else: # UPSERT
-                if production_info_in.language_id in existing:
-                    for field, value in production_info_in.model_dump(exclude_unset=True, exclude={"language_id", "action"}).items():
-                        setattr(existing[production_info_in.language_id], field, value)
-                else:
-                    db_production_info = create_production_info(db, production_info_in, production_id)
-                    db.add(db_production_info)
+            language_id = db.query(Language.id).filter(
+                Language.language == production_info_in.language
+            ).scalar()
+            if language_id is None:
+                raise ValueError(f"Language '{production_info_in.language}' not supported.")
+            production_info = db.query(ProdInfo).filter(
+                ProdInfo.production_id == production_id,
+                ProdInfo.language_id == language_id
+            ).first()
+
+            if not production_info:
+                prod_info = ProdInfo(
+                    production_id=production_id,
+                    language_id=language_id
+                )
+                db.add(prod_info)
+
+            update_info = production_info_in.model_dump(exclude_unset=True, exclude={"language"})
+            for field, value in update_info.items():
+                setattr(prod_info, field, value)
+
+    if production_in.remove_languages:
+
+        for lang in production_in.remove_languages:
+
+            language_id = db.query(Language.id).filter(
+                Language.language == lang
+            ).scalar()
+
+            if language_id:
+                db.query(ProdInfo).filter(
+                    ProdInfo.production_id == production_id,
+                    ProdInfo.language_id == language_id
+                ).delete()
+
+    db.commit()
+    db.refresh(production)
+
             
     db.commit()
     # Refreshes the whole production with eager loading (simplest).
