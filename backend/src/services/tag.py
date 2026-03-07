@@ -2,6 +2,7 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from src.models.tag import Tag, TagName
+from src.models.language import Language
 from src.schemas.tag import TagCreate, TagResponse
 
 
@@ -49,10 +50,16 @@ def get_tag_by_id(
 
 
 def create_tag(db: Session, tag_in: TagCreate, base_url: str):
-    db_tag = Tag()
+    language_ids = [name.language_id for name in tag_in.names]
+    languages = db.query(Language).filter(Language.id.in_(language_ids)).all()
+    if len(languages) != len(language_ids):
+        raise ValueError("One or more languages not found")
 
+    db_tag = Tag()
     db.add(db_tag)
     db.flush()
+    db.commit()
+    db.refresh(db_tag)
 
     db_tag_names = []
     for name in tag_in.names:
