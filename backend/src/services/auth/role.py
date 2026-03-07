@@ -22,15 +22,16 @@ def create_role(db: Session, role: RoleCreate) -> RoleResponse:
         )
     db_role = Role(name=role.name)
     if role.permissions:
+        unique_permissions = list(set(role.permissions))
         valid_permissions = set(Permissions.all())
-        invalid = [p for p in role.permissions if p not in valid_permissions]
+        invalid = [p for p in unique_permissions if p not in valid_permissions]
         if invalid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid permissions: {', '.join(invalid)}",
             )
-        perms = db.query(Permission).filter(Permission.name.in_(role.permissions)).all()
-        if len(perms) != len(role.permissions):
+        perms = db.query(Permission).filter(Permission.name.in_(unique_permissions)).all()
+        if len(perms) != len(unique_permissions):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="One or more permissions do not exist in the database",
@@ -72,17 +73,18 @@ def update_role(db: Session, role_id: int, update: RoleUpdate) -> RoleResponse:
         )
     role.name = update.name
     if update.permissions is not None:
+        unique_permissions = list(set(update.permissions))
         valid_permissions = set(Permissions.all())
-        invalid = [p for p in update.permissions if p not in valid_permissions]
+        invalid = [p for p in unique_permissions if p not in valid_permissions]
         if invalid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid permissions: {', '.join(invalid)}",
             )
         perms = (
-            db.query(Permission).filter(Permission.name.in_(update.permissions)).all()
+            db.query(Permission).filter(Permission.name.in_(unique_permissions)).all()
         )
-        if len(perms) != len(update.permissions):
+        if len(perms) != len(unique_permissions):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="One or more permissions do not exist in the database",
