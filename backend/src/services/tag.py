@@ -25,7 +25,7 @@ def get_names_for_language(names, language: str | None):
 
 
 def get_tags_list(
-    db: Session, base_url: str, language: str | None
+    db: Session, base_url: str, language: str | None = None
 ) -> List[TagResponse]:
     tags = db.query(Tag).all()
 
@@ -37,7 +37,7 @@ def get_tags_list(
 
 
 def get_tag_by_id(
-    db: Session, tag_id: int, base_url: str, language: str | None
+    db: Session, tag_id: int, base_url: str, language: str | None = None
 ) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
