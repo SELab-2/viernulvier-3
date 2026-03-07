@@ -34,7 +34,7 @@ def build_production_response(db: Session, production: Production, base_url: str
     production_infos = [build_production_info_response(production_info, base_url) for production_info in production_infos]
 
     # Get events of this production.
-    events = get_events_for_production_service(db, production.id, base_url)
+    events = get_events_for_production(db, production.id, base_url)
 
     return ProductionResponse(
         id=f"{base_url}/productions/{production.id}",
@@ -49,7 +49,7 @@ def build_production_response(db: Session, production: Production, base_url: str
     )
 
 # Uses pagination to return a part of all productions.
-def get_productions_service(db: Session, base_url: str, cursor: int | None = None, limit: int = 20) -> ProductionListResponse: 
+def get_productions_paginated(db: Session, base_url: str, cursor: int | None = None, limit: int = 20) -> ProductionListResponse: 
     query = db.query(Production).order_by(Production.id)
     if cursor is not None:
         query = query.filter(Production.id > cursor)
@@ -71,7 +71,7 @@ def get_productions_service(db: Session, base_url: str, cursor: int | None = Non
     )   
 
 # Returns all event-urls for a given production.   
-def get_events_for_production_service(db: Session, production_id: int, base_url: str) -> list[str]:
+def get_events_for_production(db: Session, production_id: int, base_url: str) -> list[str]:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with id '{production_id}' not found.")
@@ -80,13 +80,13 @@ def get_events_for_production_service(db: Session, production_id: int, base_url:
     return [f"{base_url}/events/{event.id}" for event in events]
 
 # Returns a production with given id.
-def get_production_id_service(db: Session, production_id: int, base_url: str) -> ProductionResponse:
+def get_production_by_id(db: Session, production_id: int, base_url: str) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with production id '{production_id}' not found.")
     return build_production_response(db, production, base_url)
 
-def create_production_info_service(db: Session, production_info_in: ProductionInfoCreate, production_id: int) -> ProdInfo:
+def create_production_info(db: Session, production_info_in: ProductionInfoCreate, production_id: int) -> ProdInfo:
     # Given language when creating new production info should exist in the database.
     language = db.query(Language).filter(Language.id == production_info_in.language_id).first()
     if not language:
@@ -108,7 +108,7 @@ def create_production_info_service(db: Session, production_info_in: ProductionIn
 
 # Creates a new production with production info for the given language. 
 # Returns a copy of the created production.
-def create_production_service(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language_id: int, base_url: str) -> ProductionResponse:
+def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, language_id: int, base_url: str) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
     language = db.query(Language).filter(Language.id == language_id).first()
     if not language:
@@ -125,7 +125,7 @@ def create_production_service(db: Session, production_in: ProductionCreate, prod
     db.add(db_production)
     db.flush()
     
-    db_production_info = create_production_info_service(db, production_info_in, db_production.id)
+    db_production_info = create_production_info(db, production_info_in, db_production.id)
     
     db.add(db_production_info)
     db.commit()
@@ -134,7 +134,7 @@ def create_production_service(db: Session, production_in: ProductionCreate, prod
     return build_production_response(db, db_production, base_url=base_url)
     
 # Updates the production and all related production infos.
-def update_production_service(db: Session, production_in: ProductionUpdate, production_id: int, base_url: str = "") -> ProductionResponse:
+def update_production_by_id(db: Session, production_in: ProductionUpdate, production_id: int, base_url: str = "") -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with id '{production_id}' not found.")
@@ -155,7 +155,7 @@ def update_production_service(db: Session, production_in: ProductionUpdate, prod
                     for field, value in production_info_in.model_dump(exclude_unset=True, exclude={"language_id", "action"}).items():
                         setattr(existing[production_info_in.language_id], field, value)
                 else:
-                    db_production_info = create_production_info_service(db, production_info_in, production_id)
+                    db_production_info = create_production_info(db, production_info_in, production_id)
                     db.add(db_production_info)
             
     db.commit()
@@ -164,7 +164,7 @@ def update_production_service(db: Session, production_in: ProductionUpdate, prod
     return build_production_response(db, production, base_url)
 
 # Deletes the production and all related production infos/events and returns success or failure.
-def delete_production_service(db: Session, production_id: int) -> bool:
+def delete_production_by_id(db: Session, production_id: int) -> bool:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         return False
