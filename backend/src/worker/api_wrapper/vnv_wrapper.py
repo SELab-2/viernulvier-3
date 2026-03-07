@@ -7,13 +7,6 @@ from urllib.parse import urlencode
 from src.config import settings
 
 
-logging.basicConfig(
-    # filename="sync_job.log",
-    # filemode="w",
-    format="[%(levelname)s %(asctime)s] %(message)s"
-)
-
-
 class VNV_Wrapper:
     """
     This class serves as the lowest abstraction layer providing a GET method

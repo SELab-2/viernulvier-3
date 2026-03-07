@@ -7,9 +7,10 @@ Dit script is hiervoor verantwoordelijk. Het werkt dagelijks één keer, haalt
 de data op en slaat deze op in de archief databank.
 
 Verder wordt dit script ook gebruikt om initiëel het archief te vullen met
-historische data die in via de API beschikbaar is.
+historische data die via de API beschikbaar is.
 
-## Random: hoe uitvoeren
+
+## Hoe uitvoeren
 Het script heeft een API key nodig, dit zit in het `.env` bestand in de root
 van het project. Deze wordt al uitgelezen door `backend/src/config.py`, dus
 deze code kunnen we hergebruiken. Om Python's imports te laten werken moet
@@ -43,7 +44,9 @@ met `page=3`.
 aantal events.)
 
 Als we aannemen dat de API altijd de data gesorteerd per oplopende timestamp
-teruggeeft, dan kan het script pagina per pagina werken.
+teruggeeft, dan kan het script pagina per pagina werken. Dit lijkt uit
+experimentele data ook te kloppen, de resultaten uit de API zijn altijd
+oplopend gesorteerd.
 
 Een alternatief zou zijn om dag per dag op te vragen, maar ook hier kan het
 fout lopen. Als er een garantie is dat de data gesorteerd is per timestamp,
