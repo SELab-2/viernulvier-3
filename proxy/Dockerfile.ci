@@ -1,0 +1,2 @@
+FROM nginx:alpine
+COPY nginx.ci.conf /etc/nginx/nginx.conf

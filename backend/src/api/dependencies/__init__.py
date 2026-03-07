@@ -8,5 +8,5 @@ __all__ = [
     "RequirePermissions",
     "security_scheme",
     "get_db",
-    "get_accepted_language"
+    "get_accepted_language",
 ]

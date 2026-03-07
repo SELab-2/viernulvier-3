@@ -15,7 +15,7 @@ def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(security_scheme),
 ) -> User:
     token_data = auth_service.decode_access_token(token.credentials)
-    user = auth_service.get_user(db, username=token_data.username)
+    user = auth_service.get_user_by_id(db, user_id=token_data.user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
