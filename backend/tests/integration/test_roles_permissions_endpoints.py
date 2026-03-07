@@ -97,6 +97,7 @@ def test_roles_crud(client: TestClient, db_session: Session):
     response = client.get(f"/api/v1/auth/roles/{role_id}", headers=headers)
     assert response.status_code == 200
     assert response.json()["name"] == "testrole"
+    assert response.json()["permissions"] == [Permissions.USERS_READ]
 
     response = client.put(
         f"/api/v1/auth/roles/{role_id}",
