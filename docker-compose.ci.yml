@@ -1,6 +1,8 @@
 services:
   proxy:
-    build: ./proxy
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile.ci # separate dockerfile because of ssl certs
     # No ports exposed for CI to avoid conflicts
     depends_on:
       frontend:
