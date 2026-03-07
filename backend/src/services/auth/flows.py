@@ -1,19 +1,19 @@
 from datetime import datetime, timezone
 from typing import Optional
-import jwt
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
+import jwt
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 from src.config import settings
 from src.models.user import User
-from src.schemas.auth import Token, AccessTokenResponse
-from src.services.auth.user import get_user
+from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.password import verify_password
 from src.services.auth.token import (
     build_token_data,
     create_access_token,
     create_refresh_token,
 )
+from src.services.auth.user import get_user
 
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
@@ -44,13 +44,13 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
     )
     try:
         payload = jwt.decode(
-            refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         username: str = payload.get("sub")
         if username is None:
             raise invalid
-    except jwt.PyJWTError:
-        raise invalid
+    except jwt.PyJWTError as exc:
+        raise invalid from exc
 
     user = get_user(db, username=username)
     if not user:

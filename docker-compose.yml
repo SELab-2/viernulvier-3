@@ -32,8 +32,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
-      SECRET_KEY: ${SECRET_KEY}
-      ALGORITHM: ${ALGORITHM}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES} 
     depends_on:
@@ -62,7 +62,3 @@ services:
 
 volumes:
   postgres_data:
-
-networks:
-  default:
-    name: viernulvier-3_default

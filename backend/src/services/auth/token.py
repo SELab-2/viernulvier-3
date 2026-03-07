@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+
 import jwt
 from fastapi import HTTPException, status
-
 from src.config import settings
 from src.models.user import User
 from src.schemas.auth import TokenData
@@ -14,7 +14,11 @@ def build_token_data(user: User) -> dict:
     for role in user.roles:
         for perm in role.permissions:
             permissions.add(perm.name)
-    return {"sub": user.username, "roles": roles, "permissions": sorted(permissions)}
+    return {
+        "sub": user.username,
+        "roles": roles,
+        "permissions": sorted(permissions),
+    }
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -23,7 +27,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(
+        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
 
 
 def create_refresh_token(data: dict) -> str:
@@ -32,7 +38,9 @@ def create_refresh_token(data: dict) -> str:
         minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(
+        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
 
 
 def decode_access_token(token: str) -> TokenData:
@@ -43,7 +51,7 @@ def decode_access_token(token: str) -> TokenData:
     )
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         username: str = payload.get("sub")
         if username is None:
@@ -53,5 +61,5 @@ def decode_access_token(token: str) -> TokenData:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
         )
-    except jwt.PyJWTError:
-        raise credentials_exception
+    except jwt.PyJWTError as exc:
+        raise credentials_exception from exc

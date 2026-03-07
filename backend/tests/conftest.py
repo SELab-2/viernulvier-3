@@ -9,7 +9,8 @@ from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
 
-# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren via omgevingsvariabelen.
+# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
+# via omgevingsvariabelen.
 # Val terug op in-memory SQLite voor snelle, lokale developer testen.
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
 
@@ -28,12 +29,12 @@ else:
         )
     test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+TEST_SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 # Overschrijf dependency
 def override_get_db():
-    db = TestSessionLocal()
+    db = TEST_SESSION_LOCAL()
     try:
         yield db
     finally:
@@ -42,8 +43,6 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-    import src.models  # Zorg ervoor dat modellen geregistreerd zijn
-
     # Maak tabellen aan voordat testen draaien
     Base.metadata.create_all(bind=test_engine)
     yield
@@ -57,7 +56,7 @@ def db_session():
     Levert een database sessie voor unit testen.
     Omdat setup_test_db autouse=True is, zijn de tabellen al aangemaakt.
     """
-    db = TestSessionLocal()
+    db = TEST_SESSION_LOCAL()
     try:
         yield db
     finally:

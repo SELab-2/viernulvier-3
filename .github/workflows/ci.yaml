@@ -6,36 +6,34 @@ on:
   pull_request:
     branches: ["dev", "main"]
 
-# This workflow does the following:
-# 1. Checks out the code.
-# 2. Runs linting and formatting (used Super-Linter).
-# 3. Builds the Docker environment.
-# 4. Runs tests (pytest in the backend container).
-# 5. Shuts down the Docker environment.
 jobs:
   lint:
-    name: Lint Code Base
-    runs-on: ubuntu-latest
+    name: Lint Code Base with Ruff
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Run Super-Linter
-        uses: github/super-linter@v6
-        env:
-          DEFAULT_BRANCH: dev
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_CHECKOV: false
-          VALIDATE_ENV: false
-          VALIDATE_GITLEAKS: false
-          VALIDATE_JSCPD: false
-          VALIDATE_YAML: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Ruff Linter
+        run: pip install ruff
+
+      - name: Check Formatting
+        run: ruff format --check backend/
+
+      - name: Run Ruff Linter
+        run: ruff check backend/
 
   smoke-test:
     name: Docker Smoke Test
-    runs-on: ubuntu-latest
+    needs: lint
+    runs-on: self-hosted
 
     env:
       POSTGRES_USER: viernulvier
@@ -43,8 +41,8 @@ jobs:
       POSTGRES_DB: viernulvier_archief
       DATABASE_HOST: database
       DATABASE_PORT: 5432
-      SECRET_KEY: viernulvier_test_secret_2026_longer_for_ci_testing
-      ALGORITHM: HS256
+      JWT_SECRET_KEY: viernulvier_test_secret_2026_longer_for_ci_testing
+      JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_MINUTES: 43200
 
@@ -55,19 +53,8 @@ jobs:
       - name: Build Docker Environment
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
 
-      - name: Copy requirements to backend container
-        run: |
-          docker cp backend/requirements.txt "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements.txt"
-          docker cp backend/requirements-dev.txt "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/requirements-dev.txt"
-
-      - name: Install test dependencies in backend container
-        run: docker exec --user root "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pip install -r requirements-dev.txt
-
-      - name: Copy tests to backend container
-        run: docker cp backend/tests "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend):/app/tests"
-
       - name: Run Tests
-        run: docker exec -e TEST_DATABASE_URL=postgresql+psycopg2://viernulvier:archief_test_password@database:5432/viernulvier_archief "$(docker compose -f docker-compose.ci.yml --project-name viernulvier-ci ps -q backend)" pytest tests/
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci exec -T backend pytest tests/
 
       - name: Dump Docker Logs
         if: failure()

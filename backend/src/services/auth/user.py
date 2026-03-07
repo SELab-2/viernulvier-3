@@ -1,6 +1,6 @@
 from typing import Optional
-from sqlalchemy.orm import Session
 
+from sqlalchemy.orm import Session
 from src.models.user import User
 from src.schemas.auth import UserResponse
 
