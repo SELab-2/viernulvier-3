@@ -72,6 +72,7 @@ async def post_tag(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
 async def patch_tag(
     tag_id: int,
@@ -85,7 +86,6 @@ async def patch_tag(
         return update_tag(db, tag_id, tag_in, base_url)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
 
 
 @router.delete("/{tag_id}", summary="Delete a tag")
