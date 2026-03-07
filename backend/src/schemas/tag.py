@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 from pydantic import BaseModel, ConfigDict
 
 
@@ -16,7 +16,7 @@ class Tag(BaseModel):
 
 
 class TagResponse(Tag):
-    names: List[TagNameResponse]
+    names: Sequence[TagNameResponse]
 
     model_config = ConfigDict(from_attributes=True)
 

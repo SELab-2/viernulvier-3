@@ -48,7 +48,7 @@ def get_tag(
 ):
     base_url = str(request.base_url).rstrip("/")
     tag = get_tag_by_id(db, tag_id, base_url, language)
-    return TagResponse.model_validate(tag)
+    return tag
 
 
 @router.post(

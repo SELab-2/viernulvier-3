@@ -6,16 +6,12 @@ from src.models.tag import Tag, TagName
 from src.schemas.tag import TagCreate, TagNameResponse, TagResponse
 
 
-def build_tag_name_response(tag_name: TagName):
-    return TagNameResponse.model_validate(tag_name)
-
-
 def build_tag_response(
     tag: Tag, tag_names: List[TagName], base_url: str
 ) -> TagResponse:
     return TagResponse(
         id=f"{base_url}/tags/{tag.id}",
-        names=[build_tag_name_response(tag_name) for tag_name in tag_names],
+        names=tag_names,
     )
 
 
