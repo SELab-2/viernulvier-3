@@ -1,9 +1,8 @@
 from typing import List
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
 
 from src.models.tag import Tag, TagName
-from src.schemas.tag import TagCreate, TagNameResponse, TagResponse
+from src.schemas.tag import TagCreate, TagResponse
 
 
 def build_tag_response(
@@ -42,7 +41,7 @@ def get_tag_by_id(
 ) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        raise ValueError("Tag not found")
 
     return build_tag_response(
         tag, get_names_for_language(tag.names, language), base_url
@@ -72,7 +71,7 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        raise ValueError("Tag not found")
 
     # Get a list of names that already exist (these will need to be adjusted instead of added)
     existing_names = {name.language_id: name for name in tag.names}
@@ -93,10 +92,10 @@ def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResp
     return build_tag_response(tag, tag.names, base_url)
 
 
-def delete_tag_by_id(db: Session, tag_id):
+def delete_tag_by_id(db: Session, tag_id) -> bool:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
+        return False
 
     for tagname in tag.names:
         db.delete(tagname)
@@ -104,4 +103,4 @@ def delete_tag_by_id(db: Session, tag_id):
     db.delete(tag)
     db.commit()
 
-    return {"status": "ok"}
+    return True

@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from src.api.dependencies.language import get_accepted_language
@@ -47,7 +47,11 @@ def get_tag(
     language: str | None = Depends(get_accepted_language),
 ):
     base_url = str(request.base_url).rstrip("/")
-    tag = get_tag_by_id(db, tag_id, base_url, language)
+    try:
+        tag = get_tag_by_id(db, tag_id, base_url, language)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
     return tag
 
 
@@ -63,8 +67,10 @@ async def post_tag(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
     base_url = str(request.base_url).rstrip("/")
-    return create_tag(db, tag_in, base_url)
-
+    try:
+        return create_tag(db, tag_in, base_url)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
 async def patch_tag(
@@ -75,7 +81,11 @@ async def patch_tag(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
     base_url = str(request.base_url).rstrip("/")
-    return update_tag(db, tag_id, tag_in, base_url)
+    try:
+        return update_tag(db, tag_id, tag_in, base_url)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 
 @router.delete("/{tag_id}", summary="Delete a tag")
@@ -84,4 +94,6 @@ async def delete_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    return delete_tag_by_id(db, tag_id)
+    success = delete_tag_by_id(db, tag_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Tag not found")
