@@ -86,7 +86,7 @@ def test_create_tag(client: TestClient, create_headers, language_nl: Language):
         },
         headers=create_headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     data = response.json()
     assert "id" in data
@@ -255,7 +255,7 @@ def test_delete_tag(
         client, db_session, "delete_tag_user", permissions=[Permissions.ARCHIVE_DELETE]
     )
     response = client.delete(f"{TAGS_URL}/{tag_id}", headers=delete_headers)
-    assert response.status_code == 200
+    assert response.status_code == 204
 
     get_response = client.get(f"{TAGS_URL}/{tag_id}")
     assert get_response.status_code == 404
