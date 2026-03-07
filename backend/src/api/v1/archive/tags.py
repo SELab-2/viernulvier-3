@@ -28,7 +28,7 @@ router = APIRouter()
 async def get_tags(
     request: Request,
     db: Session = Depends(get_db),
-    language: str = Depends(get_accepted_language),
+    language: str | None = Depends(get_accepted_language),
 ):
     base_url = str(request.base_url).rstrip("/")
     return get_tags_list(db, base_url, language)
@@ -44,7 +44,7 @@ def get_tag(
     tag_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    language: str = Depends(get_accepted_language),
+    language: str | None = Depends(get_accepted_language),
 ):
     base_url = str(request.base_url).rstrip("/")
     tag = get_tag_by_id(db, tag_id, base_url, language)

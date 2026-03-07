@@ -5,9 +5,9 @@ from src.services.language import Languages
 
 def get_accepted_language(
     accept_language: str = Header(None, alias="Accept-Language"),
-) -> str:
+) -> str | None:
     if not accept_language:
-        return Languages.ENGLISH
+        return None
 
     # Parse de header (bijv. "en-US,en;q=0.9,nl;q=0.8")
     languages = [lang.split(";")[0].strip() for lang in accept_language.split(",")]
@@ -18,4 +18,4 @@ def get_accepted_language(
         elif lang.lower() in ["nl", "nederlands", "dutch"]:
             return Languages.NEDERLANDS
 
-    return Languages.ENGLISH
+    return None

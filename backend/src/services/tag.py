@@ -19,7 +19,7 @@ def build_tag_response(
     )
 
 
-def get_names_for_language(names, language: str):
+def get_names_for_language(names, language: str | None):
     if language:
         for name in names:
             if name.language.language == language:
@@ -29,7 +29,9 @@ def get_names_for_language(names, language: str):
         return names
 
 
-def get_tags_list(db: Session, base_url: str, language: str) -> List[TagResponse]:
+def get_tags_list(
+    db: Session, base_url: str, language: str | None
+) -> List[TagResponse]:
     tags = db.query(Tag).all()
 
     responses = []
@@ -40,7 +42,7 @@ def get_tags_list(db: Session, base_url: str, language: str) -> List[TagResponse
 
 
 def get_tag_by_id(
-    db: Session, tag_id: int, base_url: str, language: str
+    db: Session, tag_id: int, base_url: str, language: str | None
 ) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
