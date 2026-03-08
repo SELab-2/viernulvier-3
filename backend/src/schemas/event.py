@@ -52,7 +52,6 @@ class EventCreate(BaseModel):
     
     
 class EventUpdate(BaseModel):
-    production_id: Optional[str] = None
     hall_id: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None

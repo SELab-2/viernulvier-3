@@ -111,9 +111,6 @@ def update_event(
 
     update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
 
-    # convert ids if present
-    if "production_id" in update_dict:
-        update_dict["production_id"] = extract_id(update_dict["production_id"])
 
     if "hall_id" in update_dict:
         hall_id = extract_id(update_dict["hall_id"])

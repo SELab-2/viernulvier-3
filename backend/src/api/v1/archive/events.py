@@ -69,6 +69,3 @@ def get_price(event_id: int, price_id: int, request: Request, db: Session = Depe
         return get_event_price(db, event_id, price_id, base_url)
     except ValueError:
         raise HTTPException(status_code=404, detail="Price not found")
-
-    
-    
