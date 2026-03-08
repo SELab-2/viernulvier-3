@@ -32,6 +32,20 @@ docker compose up --build -d
 
 De applicatie is bereikbaar op [http://localhost](http://localhost).
 
+## Compose-bestanden
+
+- `docker-compose.yml` is de standaard voor lokaal ontwikkelen via HTTP.
+- `docker-compose.ci.yml` is een aparte CI-stack, zodat tests geen lokale poortbindingen of volumes erven.
+- `docker-compose.prod.yml` is een override die de productie-Nginx-configuratie, TLS en Certbot toevoegt bovenop de basisstack.
+
+Voor productie gebruik je de basisstack samen met de productie-override:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+De productie-setup gaat ervan uit dat de Let's Encrypt-certificaten al een eerste keer zijn uitgegeven; de Compose-configuratie vernieuwt ze daarna automatisch.
+
 ### Nuttige endpoints
 
 | Endpoint                            | Beschrijving                               |
