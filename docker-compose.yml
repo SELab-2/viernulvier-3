@@ -47,6 +47,7 @@ services:
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+      VIERNULVIER_KEY: ${VIERNULVIER_KEY}
     depends_on:
       database:
         condition: service_healthy
