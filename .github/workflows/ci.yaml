@@ -45,6 +45,7 @@ jobs:
       JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_MINUTES: 43200
+      VIERNULVIER_KEY: viernulvier_test_api_key
 
     steps:
       - name: Checkout Code
