@@ -133,6 +133,10 @@ def update_event(
 
 def get_prices_for_event(db: Session, event_id: int, base_url: str) -> list[PriceResponse]:
 
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValueError("Event not found")
+    
     prices = (
         db.query(EventPrice)
         .filter(EventPrice.event_id == event_id)

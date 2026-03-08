@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-from src.models.event import Event
+from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
 from src.models.user import User
@@ -185,3 +185,107 @@ def test_create_event_without_permission(client: TestClient, db_session: Session
         headers=headers
     )
     assert response.status_code == 403
+    
+
+def test_get_event_prices_success(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Prices", address="Street Prices")
+    production = Production()
+
+    event = Event(
+        hall=hall,
+        production=production,
+        order_url="http://order.url",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    price1 = EventPrice(
+        event=event,
+        label="Standard",
+        amount=10.0,
+        available=100,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    price2 = EventPrice(
+        event=event,
+        label="VIP",
+        amount=25.0,
+        available=50,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    db_session.add_all([hall, production, event, price1, price2])
+    db_session.commit()
+
+    response = client.get(f"{BASE_URL}/{event.id}/prices")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    assert len(data) == 2
+    assert any(p["label"] == "Standard" for p in data)
+    assert any(p["label"] == "VIP" for p in data)
+    
+    
+def test_get_event_prices_event_not_found(client: TestClient):
+    response = client.get(f"{BASE_URL}/9999/prices")
+
+    assert response.status_code == 404
+    
+    
+def test_get_event_price_success(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Price Detail", address="Street Price Detail")
+    production = Production()
+
+    event = Event(
+        hall=hall,
+        production=production,
+        order_url="http://order.url",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    price = EventPrice(
+        event=event,
+        label="Standard",
+        amount=15.0,
+        available=75,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    db_session.add_all([hall, production, event, price])
+    db_session.commit()
+
+    response = client.get(f"{BASE_URL}/{event.id}/prices/{price.id}")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["id"].endswith(str(price.id))
+    assert data["label"] == "Standard"
+    assert float(data["amount"]) == 15.0
+    
+    
+    
+def test_get_event_price_not_found(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Missing Price", address="Street Missing Price")
+    production = Production()
+
+    event = Event(
+        hall=hall,
+        production=production,
+        order_url="http://order.url",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
+
+    db_session.add_all([hall, production, event])
+    db_session.commit()
+
+    response = client.get(f"{BASE_URL}/{event.id}/prices/9999")
+
+    assert response.status_code == 404
