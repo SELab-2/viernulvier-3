@@ -6,12 +6,14 @@ Dit script wordt automatisch uitgevoerd vóór de start van de API-server
 """
 
 import os
+from datetime import datetime
 
 from src.database import SESSION_LOCAL, init_db
+from src.models.language import Language
 from src.models.permission import Permission
 from src.models.role import Role
+from src.models.sync_state import ResourceType, SyncState, SyncType
 from src.models.user import User
-from src.models.language import Language
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
@@ -68,6 +70,24 @@ def seed_db():
             admin_user.roles.append(admin_role)
             db.commit()
             print("Successfully assigned the 'admin' role to the default admin user.")
+
+        start_sync_date = datetime.fromisocalendar(2026, 1, 1)
+        for sync_type in SyncType:
+            for resource_type in ResourceType:
+                sync_state = db.query(SyncState).filter(
+                    SyncState.sync_type == sync_type
+                ).filter(
+                    SyncState.resource == resource_type
+                ).first()
+                if not sync_state:
+                    sync_state = SyncState(
+                        resource=resource_type,
+                        sync_type=sync_type,
+                        last_timestamp=start_sync_date
+                    )
+                    db.add(sync_state)
+                    db.commit()
+                    db.refresh(sync_state)
 
     finally:
         db.close()
