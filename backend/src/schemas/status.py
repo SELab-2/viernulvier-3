@@ -12,4 +12,3 @@ class HealthResponse(BaseModel):
     status: ComponentStatus
     database: ComponentStatus
     detail: str | None = None
-    

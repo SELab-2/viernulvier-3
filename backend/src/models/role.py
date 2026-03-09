@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-
 from src.database import Base
 from src.models.associations import role_permissions, user_roles
 
@@ -15,5 +14,8 @@ class Role(Base):
 
     users = relationship("User", secondary=user_roles, back_populates="roles")
     permissions = relationship(
-        "Permission", secondary=role_permissions, back_populates="roles", lazy="joined"
+        "Permission",
+        secondary=role_permissions,
+        back_populates="roles",
+        lazy="joined",
     )

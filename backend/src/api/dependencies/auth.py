@@ -1,8 +1,8 @@
 from typing import List
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
 
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 from src.database import get_db
 from src.models.user import User
 from src.services import auth as auth_service
@@ -15,7 +15,7 @@ def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(security_scheme),
 ) -> User:
     token_data = auth_service.decode_access_token(token.credentials)
-    user = auth_service.get_user(db, username=token_data.username)
+    user = auth_service.get_user_by_id(db, user_id=token_data.user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,12 +1,16 @@
 from typing import Optional
-from sqlalchemy.orm import Session
 
+from sqlalchemy.orm import Session
 from src.models.user import User
 from src.schemas.auth import UserResponse
 
 
 def get_user(db: Session, username: str) -> Optional[User]:
     return db.query(User).filter(User.username == username).first()
+
+
+def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
 
 
 def get_user_profile(user: User) -> UserResponse:

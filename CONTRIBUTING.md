@@ -39,7 +39,7 @@ We gebruiken een gestroomlijnde **GitFlow** methodiek. Nieuwe code komt nooit di
     * Open een PR naar `dev`. Gebruik **Draft** als je nog bezig bent.
     * **Reviewers**: Wijs zelf actief **2 teamgenoten** aan als reviewer. Bij grote architecturale wijzigingen is het verstandig de technisch verantwoordelijke als 3e reviewer toe te voegen.
 5. **Code Review**: Elke PR vereist minimaal **2 approvals**. Los opmerkingen op voordat je merget.
-6. **Merge**: Gebruik **Squash and Merge**. Verwijder je branch na de merge.
+6. **Merge**: Gebruik **Rebase and merge**. Verwijder je branch na de merge.
 
 ## Definition of Done (DoD)
 
@@ -59,8 +59,23 @@ Check deze punten voordat je de PR ter review aanbiedt:
 * **Documentatie**: README's en ADR's zijn in het **Nederlands**.
 
 ### 2. Commits
-Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken. Wees op je eigen werkbranch gerust flexibel, maar zorg dat de uiteindelijke **Squash Merge** naar de hoofdbranches een duidelijke omschrijving heeft. 
+Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoint`, `Fix db connection`) te gebruiken.
 *Voorkom vage teksten als "test1", "update" of "..." in de finale merge.*
 
 ### 3. Review Etiquette
 * Review openstaande PR's van teamgenoten zo snel mogelijk om blokkades te voorkomen.
+
+### 4. Code Formatting en Linting
+Voor de backend code gebruiken we **Ruff** voor automatische formatting en linting om consistente code kwaliteit te waarborgen.
+
+Ruff wordt automatisch geïnstalleerd via de ontwikkelvereisten. Installeer alle benodigde tools met:
+```bash
+pip install -r requirements-dev.txt
+```
+
+Ruff onderscheidt tussen formatting en linting: `ruff format` past automatische formattering toe om de code volgens de standaarden te structureren, terwijl `ruff check` controleert op fouten en stijlproblemen die mogelijk handmatige aanpassingen vereisen. Het kan voorkomen dat na formattering er nog steeds problemen zijn die door `ruff check` worden gedetecteerd, omdat niet alle linting regels automatisch kunnen worden opgelost.
+
+- **Formatting**: Voer `ruff format backend/` uit om de code te formatteren volgens de standaarden.
+- **Linting**: Voer `ruff check backend/` uit om te controleren op fouten en stijlproblemen. Los eventuele problemen op voordat je een Pull Request opent.
+
+De CI pipeline controleert automatisch op deze regels tijdens elke push naar `dev` of `main`.

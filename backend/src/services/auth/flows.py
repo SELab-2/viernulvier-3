@@ -1,19 +1,21 @@
 from datetime import datetime, timezone
 from typing import Optional
-import jwt
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
+import jwt
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 from src.config import settings
 from src.models.user import User
-from src.schemas.auth import Token, AccessTokenResponse
-from src.services.auth.user import get_user
+from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.password import verify_password
 from src.services.auth.token import (
     build_token_data,
+    build_user_subject,
     create_access_token,
     create_refresh_token,
+    get_token_subject_user_id,
 )
+from src.services.auth.user import get_user, get_user_by_id
 
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
@@ -32,7 +34,7 @@ def login_user(db: Session, username: str, password: str) -> Token:
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data=build_token_data(user))
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    refresh_token = create_refresh_token(data={"sub": build_user_subject(user)})
     user.last_login_at = datetime.now(timezone.utc)
     db.commit()
     return Token(access_token=access_token, refresh_token=refresh_token)
@@ -44,15 +46,13 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
     )
     try:
         payload = jwt.decode(
-            refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-        username: str = payload.get("sub")
-        if username is None:
-            raise invalid
-    except jwt.PyJWTError:
-        raise invalid
+        user_id = get_token_subject_user_id(payload)
+    except (jwt.PyJWTError, ValueError) as exc:
+        raise invalid from exc
 
-    user = get_user(db, username=username)
+    user = get_user_by_id(db, user_id=user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"

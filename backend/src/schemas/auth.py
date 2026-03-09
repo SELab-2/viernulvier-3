@@ -1,6 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserBase(BaseModel):
@@ -29,9 +30,9 @@ class AccessTokenResponse(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
-    roles: List[str] = []
-    permissions: List[str] = []
+    user_id: int
+    roles: List[str] = Field(default_factory=list)
+    permissions: List[str] = Field(default_factory=list)
 
 
 class LoginRequest(BaseModel):
@@ -41,3 +42,25 @@ class LoginRequest(BaseModel):
 
 class TokenRefreshRequest(BaseModel):
     refresh_token: str
+
+
+class PermissionResponse(BaseModel):
+    name: str
+
+
+class RoleBase(BaseModel):
+    name: str
+
+
+class RoleCreate(RoleBase):
+    permissions: Optional[List[str]] = []  # List of permission names
+
+
+class RoleUpdate(RoleBase):
+    permissions: Optional[List[str]] = []
+
+
+class RoleResponse(RoleBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    permissions: List[str] = []

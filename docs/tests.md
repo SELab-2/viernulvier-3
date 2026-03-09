@@ -101,3 +101,14 @@ def test_foo(client):
     assert "foo_name" in data
     # ...
 ```
+
+## Hoe testen?
+De testen voor de backend kan je uitvoeren door volgende stappen te volgen:
+1. Zorg dat je een geldige `.env` in root hebt staan
+2. Zorg dat je CWD `backend/` is (`cd backend/`)
+3. Zorg dat je alle packages geïnstalleerd hebt: `pip install -r requirements.txt`, `pip install -r requirements-dev.txt`
+4. Voer pytest uit `pytest test/`
+
+Coverage kan op een gelijkaardige manier berekent worden, stappen 1-3 zijn hetzelfde, hierna doe je:
+1. Voer coverage op pytest uit: `coverage run -m pytest test/`
+2. Laad het coverage bestand: `coverage report -m`
