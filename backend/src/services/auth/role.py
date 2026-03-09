@@ -30,7 +30,9 @@ def create_role(db: Session, role: RoleCreate) -> RoleResponse:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid permissions: {', '.join(invalid)}",
             )
-        perms = db.query(Permission).filter(Permission.name.in_(unique_permissions)).all()
+        perms = (
+            db.query(Permission).filter(Permission.name.in_(unique_permissions)).all()
+        )
         if len(perms) != len(unique_permissions):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
