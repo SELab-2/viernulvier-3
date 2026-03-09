@@ -84,16 +84,17 @@ def seed_db():
         start_sync_date = datetime.fromisocalendar(2026, 1, 1)
         for sync_type in SyncType:
             for resource_type in ResourceType:
-                sync_state = db.query(SyncState).filter(
-                    SyncState.sync_type == sync_type
-                ).filter(
-                    SyncState.resource == resource_type
-                ).first()
+                sync_state = (
+                    db.query(SyncState)
+                    .filter(SyncState.sync_type == sync_type)
+                    .filter(SyncState.resource == resource_type)
+                    .first()
+                )
                 if not sync_state:
                     sync_state = SyncState(
                         resource=resource_type,
                         sync_type=sync_type,
-                        last_timestamp=start_sync_date
+                        last_timestamp=start_sync_date,
                     )
                     db.add(sync_state)
                     db.commit()

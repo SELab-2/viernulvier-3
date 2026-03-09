@@ -17,7 +17,7 @@ from src.worker.api_wrapper.vnv_wrapper import VNV_Wrapper
 logging.basicConfig(
     # filename="sync_job.log", filemode="w",
     level=logging.DEBUG,
-    format="[%(levelname)s %(asctime)s] %(message)s"
+    format="[%(levelname)s %(asctime)s] %(message)s",
 )
 
 
