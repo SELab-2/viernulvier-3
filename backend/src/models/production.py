@@ -2,6 +2,7 @@
 
 from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from src.database import Base
 from src.models.associations import prod_genres, prod_tags
 
@@ -12,11 +13,11 @@ class Production(Base):
     id = Column(Integer, primary_key=True)
     performer_type = Column(String)
     attendance_mode = Column(String)
-    media_gallery_id = Column(Integer, ForeignKey("gallery.id"))
+    # media_gallery_id = Column(Integer, ForeignKey("gallery.id"))
     created_at = Column(TIMESTAMP)
     updated_at = Column(TIMESTAMP)
 
-    gallery = relationship("Gallery")
+    # gallery = relationship("Gallery")
     info = relationship("ProdInfo", back_populates="production")
     tags = relationship("Tag", secondary=prod_tags, back_populates="productions")
     genres = relationship("Genre", secondary=prod_genres, back_populates="productions")
