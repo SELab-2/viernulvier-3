@@ -10,13 +10,7 @@ Voor een gedetailleerd overzicht van de architectuur en ontwerpbeslissingen, zie
 
 ## Opstarten
 
-Maak een `.env` bestand aan in de root van het project op basis van het onderstaande voorbeeld:
-
-```env
-POSTGRES_USER=viernulvier
-POSTGRES_PASSWORD=geheimwachtwoord
-POSTGRES_DB=viernulvier_archief
-```
+Maak een `.env` bestand aan in de root van het project op basis van het [`.env.example`](.env.example) bestand.
 
 Start de volledige stack:
 
