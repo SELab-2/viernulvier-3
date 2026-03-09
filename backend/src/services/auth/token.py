@@ -24,6 +24,14 @@ def build_token_data(user: User) -> dict:
         "sub": build_user_subject(user),
         "roles": roles,
         "permissions": sorted(permissions),
+        "token_version": user.token_version,
+    }
+
+
+def build_refresh_token_data(user: User) -> dict:
+    return {
+        "sub": build_user_subject(user),
+        "token_version": user.token_version,
     }
 
 
@@ -36,6 +44,20 @@ def get_token_subject_user_id(payload: dict) -> int:
         return int(subject)
     except (TypeError, ValueError) as exc:
         raise ValueError("Token subject must be a valid user ID") from exc
+
+
+def get_token_version(payload: dict) -> int:
+    raw_version = payload.get("token_version", 0)
+
+    try:
+        token_version = int(raw_version)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Token version must be a valid integer") from exc
+
+    if token_version < 0:
+        raise ValueError("Token version cannot be negative")
+
+    return token_version
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -71,10 +93,12 @@ def decode_access_token(token: str) -> TokenData:
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         user_id = get_token_subject_user_id(payload)
+        token_version = get_token_version(payload)
         return TokenData(
             user_id=user_id,
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
+            token_version=token_version,
         )
     except (jwt.PyJWTError, ValueError) as exc:
         raise credentials_exception from exc

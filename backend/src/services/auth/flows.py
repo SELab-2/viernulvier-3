@@ -10,9 +10,10 @@ from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.password import verify_password
 from src.services.auth.token import (
     build_token_data,
-    build_user_subject,
+    build_refresh_token_data,
     create_access_token,
     create_refresh_token,
+    get_token_version,
     get_token_subject_user_id,
 )
 from src.services.auth.user import get_user, get_user_by_id
@@ -34,7 +35,7 @@ def login_user(db: Session, username: str, password: str) -> Token:
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data=build_token_data(user))
-    refresh_token = create_refresh_token(data={"sub": build_user_subject(user)})
+    refresh_token = create_refresh_token(data=build_refresh_token_data(user))
     user.last_login_at = datetime.now(timezone.utc)
     db.commit()
     return Token(access_token=access_token, refresh_token=refresh_token)
@@ -49,6 +50,7 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
             refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         user_id = get_token_subject_user_id(payload)
+        token_version = get_token_version(payload)
     except (jwt.PyJWTError, ValueError) as exc:
         raise invalid from exc
 
@@ -57,6 +59,8 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
+    if user.token_version != token_version:
+        raise invalid
 
     access_token = create_access_token(data=build_token_data(user))
     user.last_login_at = datetime.now(timezone.utc)
