@@ -6,7 +6,7 @@ from src.schemas.production import ProductionCreate, ProductionInfoCreate, Produ
 # The response functions: both return copies.
 def build_production_info_response(production_info: ProdInfo, base_url: str) -> ProductionInfoResponse:
     return ProductionInfoResponse(
-        #id_url=f"{base_url}/productions/{production_info.production_id}/infos/{production_info.language_id}",
+        id_url=f"{base_url}/productions/{production_info.production_id}/infos/{production_info.language_id}",
         production_id_url=f"{base_url}/productions/{production_info.production_id}",
         language_id_url=f"{base_url}/languages/{production_info.language_id}",
         
@@ -19,9 +19,8 @@ def build_production_info_response(production_info: ProdInfo, base_url: str) -> 
         info=production_info.info
     )
 
-def build_production_response(db: Session, production: Production, base_url: str, language: str | None = None) -> ProductionResponse:    
+def build_production_response(db: Session, production: Production, base_url: str, language_id: int | None = None) -> ProductionResponse:    
     # If language is provided, only get that specific info (if it exists, otherwise error). Otherwise, get all infos.
-    language_id = db.query(Language.id).filter(Language.language == language).scalar() if language else None
     if language_id is not None:
         production_infos = db.query(ProdInfo).filter(ProdInfo.production_id == production.id, ProdInfo.language_id == language_id).all()
         if not production_infos:
@@ -34,16 +33,14 @@ def build_production_response(db: Session, production: Production, base_url: str
 
     # Get events of this production.
     events = get_events_for_production(db, production.id, base_url)
-
     return ProductionResponse(
-        id=f"{base_url}/productions/{production.id}",
-        
+        id_url=f"{base_url}/productions/{production.id}",
         performer_type=production.performer_type,
         attendance_mode=production.attendance_mode,
         media_gallery_id=production.media_gallery_id,
         created_at=production.created_at,
         updated_at=production.updated_at,
-        info=production_infos,
+        production_infos=production_infos,
         events=events
     )
 
@@ -56,7 +53,7 @@ def get_productions_paginated(db: Session, base_url: str, cursor: int | None = N
     productions = query.limit(limit+1).all()
     has_more = len(productions) > limit
     productions = productions[:limit]
-    next_cursor = productions[-1].id if productions else None
+    next_cursor = productions[-1].id if has_more else None
     
     # When returning all productions, just returs infos in all languages.
     return ProductionListResponse(
@@ -80,17 +77,13 @@ def get_production_by_id(db: Session, production_id: int, base_url: str, languag
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with production id '{production_id}' not found.")
-    return build_production_response(db, production, base_url, language)
+    language_id = db.query(Language.id).filter(Language.language == language).scalar()
+    return build_production_response(db, production, base_url, language_id)
 
-def create_production_info(db: Session, production_info_in: ProductionInfoCreate, production_id: int) -> ProdInfo:
-    # Given language when creating new production info should exist in the database.
-    language = db.query(Language).filter(Language.id == production_info_in.language_id).first()
-    if not language:
-        raise ValueError(f"Language with id '{production_info_in.language_id}' not found.")
-
+def create_production_info(production_info_in: ProductionInfoCreate, production_id: int, language_id: int) -> ProdInfo:
     db_production_info = ProdInfo(
         production_id=production_id,
-        language_id=production_info_in.language_id,
+        language_id=language_id,
 
         title=production_info_in.title,
         supertitle=production_info_in.supertitle,
@@ -104,7 +97,7 @@ def create_production_info(db: Session, production_info_in: ProductionInfoCreate
 
 # Creates a new production with production info for the given language. 
 # Returns a copy of the created production.
-def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, base_url: str, language: str | None = None) -> ProductionResponse:
+def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, base_url: str, language: str) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
     language_id = db.query(Language.id).filter(Language.language == language).scalar()
     if not language_id:
@@ -121,13 +114,12 @@ def create_production(db: Session, production_in: ProductionCreate, production_i
     db.add(db_production)
     db.flush()
     
-    db_production_info = create_production_info(db, production_info_in, db_production.id)
+    db_production_info = create_production_info(production_info_in, db_production.id, language_id)
     
     db.add(db_production_info)
     db.commit()
     db.refresh(db_production)
-    #db.refresh(db_production_info) --> needed?
-    return build_production_response(db, db_production, base_url, language)
+    return build_production_response(db, db_production, base_url, language_id)
     
 # Updates the production and all related production infos.
 def update_production_by_id(db: Session, production_in: ProductionUpdate, production_id: int, base_url: str) -> ProductionResponse:

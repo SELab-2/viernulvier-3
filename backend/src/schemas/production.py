@@ -31,7 +31,7 @@ class ProductionResponse(BaseModel):
 
     # A production has a list of event urls (for the different events of that producttion).
     # A production has a list of info urls (for different languages). 
-    info: list[ProductionInfoResponse] = Field(default_factory=list)
+    production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
@@ -43,8 +43,6 @@ class ProductionListResponse(BaseModel):
 
 # When a new production info is created in a specific language.
 class ProductionInfoCreate(BaseModel):
-    production_id: int
-    language_id: int
     title: Optional[str] = None
     supertitle: Optional[str] = None
     artist: Optional[str] = None
