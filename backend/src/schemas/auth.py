@@ -18,6 +18,16 @@ class UserResponse(UserBase):
     last_login_at: Optional[datetime] = None
 
 
+class UserCreate(UserBase):
+    password: str
+    roles: List[str] = Field(default_factory=list)
+
+
+class UserUpdate(UserBase):
+    password: Optional[str] = None
+    roles: Optional[List[str]] = None
+
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str
@@ -33,6 +43,7 @@ class TokenData(BaseModel):
     user_id: int
     roles: List[str] = Field(default_factory=list)
     permissions: List[str] = Field(default_factory=list)
+    token_version: int = 0
 
 
 class LoginRequest(BaseModel):
