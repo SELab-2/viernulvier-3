@@ -44,7 +44,6 @@ class VNV_Wrapper:
 
         # Initialize logger
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
         self.logger.info("connection with viernulvier.gent created")
 
     def close(self):

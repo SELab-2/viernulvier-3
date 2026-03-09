@@ -11,6 +11,7 @@ from src.worker.api_wrapper.event import EventFetcher
 # we might want to save it to a file.
 logging.basicConfig(
     # filename="sync_job.log", filemode="w",
+    level=logging.DEBUG,
     format="[%(levelname)s %(asctime)s] %(message)s"
 )
 
