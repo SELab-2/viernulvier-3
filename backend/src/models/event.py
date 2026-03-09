@@ -34,5 +34,4 @@ class EventPrice(Base):
     expires_at = Column(TIMESTAMP)
     created_at = Column(TIMESTAMP)
     updated_at = Column(TIMESTAMP)
-
     event = relationship("Event", back_populates="prices")
