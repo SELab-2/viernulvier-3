@@ -27,7 +27,7 @@ def test_password_hashing():
 def test_token_creation_and_decoding():
     perm = Permission(name="test:perm")
     role = Role(name="test_role", permissions=[perm])
-    user = User(id=123, username="testuser", roles=[role])
+    user = User(id=123, username="testuser", roles=[role], token_version=7)
 
     token_data = build_token_data(user)
     access_token = create_access_token(data=token_data)
@@ -36,13 +36,26 @@ def test_token_creation_and_decoding():
     assert decoded.user_id == 123
     assert "test_role" in decoded.roles
     assert "test:perm" in decoded.permissions
+    assert decoded.token_version == 7
 
 
 def test_refresh_token_creation():
-    data = {"sub": "123"}
+    data = {"sub": "123", "token_version": 4}
     refresh_token = create_refresh_token(data=data)
     decoded = decode_access_token(refresh_token)
     assert decoded.user_id == 123
+    assert decoded.token_version == 4
+
+
+def test_token_without_version_defaults_to_zero():
+    access_token = create_access_token(
+        data={"sub": "123", "roles": [], "permissions": []}
+    )
+
+    decoded = decode_access_token(access_token)
+
+    assert decoded.user_id == 123
+    assert decoded.token_version == 0
 
 
 def test_invalid_token():

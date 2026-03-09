@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.models.user import User
+from src.schemas.auth import UserUpdate
+from src.services.auth import user as user_service
 from src.services.auth.password import get_password_hash
 from src.services.auth.token import decode_access_token
 
@@ -75,3 +77,36 @@ def test_refresh_token_integration(client: TestClient, db_session: Session):
     assert "access_token" in data
     assert data["token_type"] == "bearer"
     assert decode_access_token(data["access_token"]).user_id == user.id
+
+
+def test_tokens_invalidated_after_password_change_integration(
+    client: TestClient, db_session: Session
+):
+    password = "invalidate_int_pw"
+    hashed = get_password_hash(password)
+    user = User(username="invalidate_int_user", hashed_password=hashed)
+    db_session.add(user)
+    db_session.commit()
+
+    login_response = client.post(
+        "/api/v1/auth/login/",
+        json={"username": "invalidate_int_user", "password": password},
+    )
+    access_token = login_response.json()["access_token"]
+    refresh_token = login_response.json()["refresh_token"]
+
+    user_service.update_user(
+        db_session,
+        user.id,
+        UserUpdate(username="invalidate_int_user", password="new-password", roles=None),
+    )
+
+    me_response = client.get(
+        "/api/v1/auth/users/me", headers={"Authorization": f"Bearer {access_token}"}
+    )
+    assert me_response.status_code == 401
+
+    refresh_response = client.post(
+        "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
+    )
+    assert refresh_response.status_code == 401
