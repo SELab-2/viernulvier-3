@@ -14,14 +14,15 @@ def get_current_user(
     db: Session = Depends(get_db),
     token: HTTPAuthorizationCredentials = Depends(security_scheme),
 ) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     token_data = auth_service.decode_access_token(token.credentials)
     user = auth_service.get_user_by_id(db, user_id=token_data.user_id)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if user is None or user.token_version != token_data.token_version:
+        raise credentials_exception
     return user
 
 
