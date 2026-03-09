@@ -9,6 +9,10 @@ def get_user(db: Session, username: str) -> Optional[User]:
     return db.query(User).filter(User.username == username).first()
 
 
+def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
+
+
 def get_user_profile(user: User) -> UserResponse:
     roles = [role.name for role in user.roles]
     permissions = set()

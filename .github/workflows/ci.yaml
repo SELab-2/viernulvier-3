@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     name: Lint Code Base with Ruff
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -33,22 +33,24 @@ jobs:
   smoke-test:
     name: Docker Smoke Test
     needs: lint
-    runs-on: ubuntu-latest
-
-    env:
-      POSTGRES_USER: viernulvier
-      POSTGRES_PASSWORD: archief_test_password
-      POSTGRES_DB: viernulvier_archief
-      DATABASE_HOST: database
-      DATABASE_PORT: 5432
-      JWT_SECRET_KEY: viernulvier_test_secret_2026_longer_for_ci_testing
-      JWT_ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: 30
-      REFRESH_TOKEN_EXPIRE_MINUTES: 43200
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_USER=viernulvier" > .env
+          echo "POSTGRES_PASSWORD=archief_test_password" >> .env
+          echo "POSTGRES_DB=viernulvier_archief" >> .env
+          echo "DATABASE_HOST=database" >> .env
+          echo "DATABASE_PORT=5432" >> .env
+          echo "JWT_SECRET_KEY=viernulvier_test_secret_2026_longer_for_ci_testing" >> .env
+          echo "JWT_ALGORITHM=HS256" >> .env
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
+          echo "REFRESH_TOKEN_EXPIRE_MINUTES=43200" >> .env
+          echo "VIERNULVIER_KEY=viernulvier_test_api_key" >> .env
 
       - name: Build Docker Environment
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait

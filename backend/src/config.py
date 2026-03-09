@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 dagen
 
+    VIERNULVIER_KEY: str
+
     @computed_field
     def database_url(self) -> str:
         return (
