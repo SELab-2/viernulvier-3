@@ -11,7 +11,9 @@ from src.services.auth.permissions import Permissions
 BASE_URL = "/api/v1/archive/halls"
 
 
-def create_user_and_login(client: TestClient, db_session: Session, username: str, permissions=None):
+def create_user_and_login(
+    client: TestClient, db_session: Session, username: str, permissions=None
+):
     password = "test_pw"
     hashed = get_password_hash(password)
 
@@ -20,6 +22,7 @@ def create_user_and_login(client: TestClient, db_session: Session, username: str
     # Voeg Permission objecten toe
     if permissions:
         from src.models.permission import Permission
+
         perm_objs = []
         for p in permissions:
             perm = db_session.query(Permission).filter_by(name=p).first()
@@ -36,8 +39,7 @@ def create_user_and_login(client: TestClient, db_session: Session, username: str
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
-        json={"username": username, "password": password}
+        "/api/v1/auth/login/", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -79,19 +81,13 @@ def test_get_hall_not_found(client: TestClient):
 
 def test_create_hall(client: TestClient, db_session: Session):
     headers = create_user_and_login(
-        client,
-        db_session,
-        "create_hall_user",
-        [Permissions.ARCHIVE_CREATE]
+        client, db_session, "create_hall_user", [Permissions.ARCHIVE_CREATE]
     )
 
     response = client.post(
         BASE_URL + "/",
-        json={
-            "name": "New Hall",
-            "address": "New Street"
-        },
-        headers=headers
+        json={"name": "New Hall", "address": "New Street"},
+        headers=headers,
     )
 
     assert response.status_code == 201
@@ -102,10 +98,7 @@ def test_create_hall(client: TestClient, db_session: Session):
 
 def test_update_hall(client: TestClient, db_session: Session):
     headers = create_user_and_login(
-        client,
-        db_session,
-        "update_hall_user",
-        [Permissions.ARCHIVE_UPDATE]
+        client, db_session, "update_hall_user", [Permissions.ARCHIVE_UPDATE]
     )
 
     hall = Hall(name="Old Hall", address="Old Street")
@@ -114,11 +107,8 @@ def test_update_hall(client: TestClient, db_session: Session):
 
     response = client.patch(
         f"{BASE_URL}/{hall.id}",
-        json={
-            "name": "Updated Hall",
-            "address": "Updated Street"
-        },
-        headers=headers
+        json={"name": "Updated Hall", "address": "Updated Street"},
+        headers=headers,
     )
 
     assert response.status_code == 200
@@ -129,38 +119,25 @@ def test_update_hall(client: TestClient, db_session: Session):
 
 def test_delete_hall(client: TestClient, db_session: Session):
     headers = create_user_and_login(
-        client,
-        db_session,
-        "delete_hall_user",
-        [Permissions.ARCHIVE_DELETE]
+        client, db_session, "delete_hall_user", [Permissions.ARCHIVE_DELETE]
     )
 
     hall = Hall(name="Delete Hall", address="Delete Street")
     db_session.add(hall)
     db_session.commit()
 
-    response = client.delete(
-        f"{BASE_URL}/{hall.id}",
-        headers=headers
-    )
+    response = client.delete(f"{BASE_URL}/{hall.id}", headers=headers)
 
     assert response.status_code == 204
 
 
 def test_create_hall_without_permission(client: TestClient, db_session: Session):
-    headers = create_user_and_login(
-        client,
-        db_session,
-        "no_permission_user"
-    )
+    headers = create_user_and_login(client, db_session, "no_permission_user")
 
     response = client.post(
         BASE_URL + "/",
-        json={
-            "name": "Should Fail",
-            "address": "Fail Street"
-        },
-        headers=headers
+        json={"name": "Should Fail", "address": "Fail Street"},
+        headers=headers,
     )
 
     assert response.status_code == 403

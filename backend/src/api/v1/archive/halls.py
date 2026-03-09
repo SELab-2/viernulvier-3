@@ -9,7 +9,7 @@ from src.services.hall_service import (
     get_hall_by_id,
     create_hall,
     update_hall,
-    delete_hall_by_id
+    delete_hall_by_id,
 )
 
 from src.services.auth.permissions import Permissions
@@ -33,12 +33,21 @@ def get_hall(hall_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=HallSchema, status_code=201)
-def post_hall(hall_in: HallSchema, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))):
+def post_hall(
+    hall_in: HallSchema,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
+):
     return create_hall(db, hall_in)
 
 
 @router.patch("/{hall_id}", response_model=HallSchema)
-def patch_hall(hall_id: int, hall_in: HallSchema, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE]))):
+def patch_hall(
+    hall_id: int,
+    hall_in: HallSchema,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
+):
     try:
         return update_hall(db, hall_id, hall_in)
     except ValueError:
@@ -46,8 +55,12 @@ def patch_hall(hall_id: int, hall_in: HallSchema, db: Session = Depends(get_db),
 
 
 @router.delete("/{hall_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_hall(hall_id: int, db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE]))):
+def delete_hall(
+    hall_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
+):
     success = delete_hall_by_id(db, hall_id)
-    
+
     if not success:
         raise HTTPException(status_code=404, detail="Hall not found")

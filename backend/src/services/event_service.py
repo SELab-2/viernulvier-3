@@ -12,40 +12,28 @@ def extract_id(url: str | None) -> int | None:
     return int(url.rstrip("/").split("/")[-1])
 
 
-def build_event_response(
-    db: Session,
-    event: Event,
-    base_url: str
-) -> EventResponse:
+def build_event_response(db: Session, event: Event, base_url: str) -> EventResponse:
 
     hall = db.query(Hall).filter(Hall.id == event.hall_id).first()
 
-    prices_db = (
-        db.query(EventPrice)
-        .filter(EventPrice.event_id == event.id)
-        .all()
-    )
+    prices_db = db.query(EventPrice).filter(EventPrice.event_id == event.id).all()
 
     price_urls = [
-        f"{base_url}/events/{event.id}/prices/{price.id}"
-        for price in prices_db
+        f"{base_url}/events/{event.id}/prices/{price.id}" for price in prices_db
     ]
 
     return EventResponse(
         id=f"{base_url}/events/{event.id}",
         production_id=f"{base_url}/productions/{event.production_id}",
         hall_id=f"{base_url}/halls/{event.hall_id}",
-        hall=HallSchema(
-            name=hall.name,
-            address=hall.address
-        ) if hall else None,
+        hall=HallSchema(name=hall.name, address=hall.address) if hall else None,
         starts_at=event.starts_at,
         ends_at=event.ends_at,
         order_url=event.order_url,
         external_order_url=event.external_order_url,
         created_at=event.created_at,
         updated_at=event.updated_at,
-        prices=price_urls
+        prices=price_urls,
     )
 
 
@@ -98,10 +86,7 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
 
 
 def update_event(
-    db: Session,
-    event_id: int,
-    update_data: EventUpdate,
-    base_url: str
+    db: Session, event_id: int, update_data: EventUpdate, base_url: str
 ) -> EventResponse:
 
     event = db.query(Event).filter(Event.id == event_id).first()
@@ -110,7 +95,6 @@ def update_event(
         raise HTTPException(status_code=404, detail="Event not found")
 
     update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
-
 
     if "hall_id" in update_dict:
         hall_id = extract_id(update_dict["hall_id"])
@@ -131,17 +115,15 @@ def update_event(
     return build_event_response(db, event, base_url)
 
 
-def get_prices_for_event(db: Session, event_id: int, base_url: str) -> list[PriceResponse]:
+def get_prices_for_event(
+    db: Session, event_id: int, base_url: str
+) -> list[PriceResponse]:
 
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise ValueError("Event not found")
-    
-    prices = (
-        db.query(EventPrice)
-        .filter(EventPrice.event_id == event_id)
-        .all()
-    )
+
+    prices = db.query(EventPrice).filter(EventPrice.event_id == event_id).all()
 
     result = []
 
@@ -154,7 +136,7 @@ def get_prices_for_event(db: Session, event_id: int, base_url: str) -> list[Pric
                 available=price.available,
                 expires_at=price.expires_at,
                 created_at=price.created_at,
-                updated_at=price.updated_at
+                updated_at=price.updated_at,
             )
         )
 
@@ -162,10 +144,7 @@ def get_prices_for_event(db: Session, event_id: int, base_url: str) -> list[Pric
 
 
 def get_event_price(
-    db: Session,
-    event_id: int,
-    price_id: int,
-    base_url: str
+    db: Session, event_id: int, price_id: int, base_url: str
 ) -> PriceResponse:
 
     price = (
@@ -185,5 +164,5 @@ def get_event_price(
         available=price.available,
         expires_at=price.expires_at,
         created_at=price.created_at,
-        updated_at=price.updated_at
+        updated_at=price.updated_at,
     )

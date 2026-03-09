@@ -13,13 +13,16 @@ from src.services.auth.permissions import Permissions
 BASE_URL = "/api/v1/archive/events"
 
 
-def create_user_and_login(client: TestClient, db_session: Session, username: str, permissions=None):
+def create_user_and_login(
+    client: TestClient, db_session: Session, username: str, permissions=None
+):
     password = "test_pw"
     hashed = get_password_hash(password)
-    
+
     role = Role(name=f"{username}_role")
     if permissions:
         from src.models.permission import Permission
+
         perm_objs = []
         for p in permissions:
             perm = db_session.query(Permission).filter_by(name=p).first()
@@ -29,15 +32,13 @@ def create_user_and_login(client: TestClient, db_session: Session, username: str
             perm_objs.append(perm)
         role.permissions = perm_objs
 
-
     user = User(username=username, hashed_password=hashed, roles=[role])
     db_session.add(role)
     db_session.add(user)
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
-        json={"username": username, "password": password}
+        "/api/v1/auth/login/", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -59,9 +60,9 @@ def test_create_event_success(client: TestClient, db_session: Session):
         json={
             "production_id": str(production.id),
             "hall_id": str(hall.id),
-            "order_url": "http://order.url"
+            "order_url": "http://order.url",
         },
-        headers=headers
+        headers=headers,
     )
 
     assert response.status_code == 201
@@ -79,7 +80,7 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
         production=production,
         order_url="http://order.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -105,7 +106,7 @@ def test_update_event_success(client: TestClient, db_session: Session):
         production=production,
         order_url="http://old.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -115,9 +116,7 @@ def test_update_event_success(client: TestClient, db_session: Session):
     )
 
     response = client.patch(
-        f"{BASE_URL}/{event.id}",
-        json={"order_url": "http://new.url"},
-        headers=headers
+        f"{BASE_URL}/{event.id}", json={"order_url": "http://new.url"}, headers=headers
     )
     assert response.status_code == 200
     data = response.json()
@@ -130,9 +129,7 @@ def test_update_event_not_found(client: TestClient, db_session: Session):
     )
 
     response = client.patch(
-        f"{BASE_URL}/9999",
-        json={"order_url": "http://new.url"},
-        headers=headers
+        f"{BASE_URL}/9999", json={"order_url": "http://new.url"}, headers=headers
     )
     assert response.status_code == 404
 
@@ -145,7 +142,7 @@ def test_delete_event_success(client: TestClient, db_session: Session):
         production=production,
         order_url="http://order.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -180,12 +177,12 @@ def test_create_event_without_permission(client: TestClient, db_session: Session
         json={
             "production_id": str(production.id),
             "hall_id": str(hall.id),
-            "order_url": "http://order.url"
+            "order_url": "http://order.url",
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 403
-    
+
 
 def test_get_event_prices_success(client: TestClient, db_session: Session):
     hall = Hall(name="Hall Prices", address="Street Prices")
@@ -196,7 +193,7 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         production=production,
         order_url="http://order.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     price1 = EventPrice(
@@ -205,7 +202,7 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         amount=10.0,
         available=100,
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     price2 = EventPrice(
@@ -214,7 +211,7 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         amount=25.0,
         available=50,
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event, price1, price2])
@@ -228,14 +225,14 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
     assert len(data) == 2
     assert any(p["label"] == "Standard" for p in data)
     assert any(p["label"] == "VIP" for p in data)
-    
-    
+
+
 def test_get_event_prices_event_not_found(client: TestClient):
     response = client.get(f"{BASE_URL}/9999/prices")
 
     assert response.status_code == 404
-    
-    
+
+
 def test_get_event_price_success(client: TestClient, db_session: Session):
     hall = Hall(name="Hall Price Detail", address="Street Price Detail")
     production = Production()
@@ -245,7 +242,7 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
         production=production,
         order_url="http://order.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     price = EventPrice(
@@ -254,7 +251,7 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
         amount=15.0,
         available=75,
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event, price])
@@ -268,9 +265,8 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
     assert data["id"].endswith(str(price.id))
     assert data["label"] == "Standard"
     assert float(data["amount"]) == 15.0
-    
-    
-    
+
+
 def test_get_event_price_not_found(client: TestClient, db_session: Session):
     hall = Hall(name="Hall Missing Price", address="Street Missing Price")
     production = Production()
@@ -280,7 +276,7 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
         production=production,
         order_url="http://order.url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event])

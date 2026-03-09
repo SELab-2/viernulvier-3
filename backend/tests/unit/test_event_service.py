@@ -8,7 +8,7 @@ from src.services.event_service import (
     update_event,
     delete_event_by_id,
     get_prices_for_event,
-    get_event_price
+    get_event_price,
 )
 
 from src.schemas.event import EventCreate, EventUpdate
@@ -43,7 +43,7 @@ def event(db_session, production, hall):
         hall_id=hall.id,
         order_url="old_url",
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add(event)
     db_session.commit()
@@ -65,7 +65,7 @@ def test_get_event_by_id_not_found(db_session):
 def test_make_event_with_existing_hall(db_session, production, hall):
     event_in = EventCreate(
         production_id=f"{BASE_URL}/productions/{production.id}",
-        hall_id=f"{BASE_URL}/halls/{hall.id}"
+        hall_id=f"{BASE_URL}/halls/{hall.id}",
     )
 
     result = create_event(db_session, event_in, BASE_URL)
@@ -74,11 +74,10 @@ def test_make_event_with_existing_hall(db_session, production, hall):
     assert result.hall_id == f"{BASE_URL}/halls/{hall.id}"
 
 
-
 def test_make_event_invalid_hall(db_session, production):
     event_in = EventCreate(
         production_id=f"{BASE_URL}/productions/{production.id}",
-        hall_id=f"{BASE_URL}/halls/999"
+        hall_id=f"{BASE_URL}/halls/999",
     )
 
     with pytest.raises(ValueError):
@@ -88,12 +87,7 @@ def test_make_event_invalid_hall(db_session, production):
 def test_update_event_success(db_session, event):
     update_data = EventUpdate(order_url="new_url")
 
-    updated = update_event(
-        db_session,
-        event.id,
-        update_data,
-        BASE_URL
-    )
+    updated = update_event(db_session, event.id, update_data, BASE_URL)
 
     assert updated.order_url == "new_url"
 
@@ -102,26 +96,14 @@ def test_update_event_not_found(db_session):
     update_data = EventUpdate(order_url="new_url")
 
     with pytest.raises(HTTPException):
-        update_event(
-            db_session,
-            999,
-            update_data,
-            BASE_URL
-        )
+        update_event(db_session, 999, update_data, BASE_URL)
 
 
 def test_update_event_invalid_hall(db_session, event):
-    update_data = EventUpdate(
-        hall_id=f"{BASE_URL}/halls/999"
-    )
+    update_data = EventUpdate(hall_id=f"{BASE_URL}/halls/999")
 
     with pytest.raises(HTTPException):
-        update_event(
-            db_session,
-            event.id,
-            update_data,
-            BASE_URL
-        )
+        update_event(db_session, event.id, update_data, BASE_URL)
 
 
 def test_delete_event_success(db_session, event):
@@ -137,12 +119,7 @@ def test_delete_event_not_found(db_session):
 
 
 def test_get_prices_for_event(db_session, event):
-    price = EventPrice(
-        event_id=event.id,
-        label="Standard",
-        amount=10,
-        available=100
-    )
+    price = EventPrice(event_id=event.id, label="Standard", amount=10, available=100)
 
     db_session.add(price)
     db_session.commit()
@@ -154,11 +131,7 @@ def test_get_prices_for_event(db_session, event):
 
 
 def test_get_event_price_success(db_session, event):
-    price = EventPrice(
-        event_id=event.id,
-        label="VIP",
-        amount=50
-    )
+    price = EventPrice(event_id=event.id, label="VIP", amount=50)
 
     db_session.add(price)
     db_session.commit()

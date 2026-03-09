@@ -43,7 +43,7 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-    
+
     # Maak tabellen aan voordat testen draaien
     Base.metadata.create_all(bind=test_engine)
     yield

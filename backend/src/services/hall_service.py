@@ -4,6 +4,7 @@ from typing import List
 from src.models import Hall
 from src.schemas.hall import HallSchema
 
+
 def get_all_halls(db: Session) -> List[HallSchema]:
     halls = db.query(Hall).all()
     return [HallSchema(name=h.name, address=h.address) for h in halls]

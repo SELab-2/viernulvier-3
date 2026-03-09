@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
@@ -16,10 +15,10 @@ class PriceResponse(BaseModel):
     updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
-    
-    
+
+
 class EventResponse(BaseModel):
-    id: str # ids are url's
+    id: str  # ids are url's
     production_id: str
     hall_id: str
 
@@ -39,8 +38,6 @@ class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-
-
 class EventCreate(BaseModel):
     production_id: str
     hall_id: str
@@ -48,9 +45,8 @@ class EventCreate(BaseModel):
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
     external_order_url: Optional[str] = None
-    
-    
-    
+
+
 class EventUpdate(BaseModel):
     hall_id: Optional[str] = None
     starts_at: Optional[datetime] = None
