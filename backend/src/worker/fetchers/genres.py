@@ -6,11 +6,11 @@ class GenreFetcher(PagedFetcher):
     This class stands in for fetching genres from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_genres_after(timestamp)` to request all
+    requests, and has a `get_new_items_after(timestamp)` to request all
     genres.
     """
 
-    def get_new_genres_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all genres after the given timestamp.
 

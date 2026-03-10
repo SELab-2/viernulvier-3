@@ -6,10 +6,10 @@ class TagFetcher(PagedFetcher):
     This class stands in for fetching tags from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_tags_after(timestamp)` to request all tags.
+    requests, and has a `get_new_items_after(timestamp)` to request all tags.
     """
 
-    def get_new_tags_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all tags after the given timestamp.
 

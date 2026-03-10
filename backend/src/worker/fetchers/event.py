@@ -6,11 +6,11 @@ class EventFetcher(PagedFetcher):
     This class stands in for fetching events from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_events_after(timestamp)` to request all
+    requests, and has a `get_new_items_after(timestamp)` to request all
     events.
     """
 
-    def get_new_events_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all event prices after the given timestamp.
 
