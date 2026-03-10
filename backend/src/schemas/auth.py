@@ -23,7 +23,13 @@ class UserCreate(UserBase):
     roles: List[str] = Field(default_factory=list)
 
 
-class UserUpdate(UserBase):
+class UserReplace(UserBase):
+    password: str
+    roles: List[str] = Field(default_factory=list)
+
+
+class UserPatch(BaseModel):
+    username: Optional[str] = None
     password: Optional[str] = None
     roles: Optional[List[str]] = None
 

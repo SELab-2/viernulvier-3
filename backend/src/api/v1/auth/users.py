@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from src.api.dependencies import RequirePermissions, get_current_user
 from src.database import get_db
 from src.models.user import User
-from src.schemas.auth import UserCreate, UserResponse, UserUpdate
+from src.schemas.auth import UserCreate, UserPatch, UserReplace, UserResponse
 from src.services.auth import permissions as permission_service
 from src.services.auth import user as user_service
 
@@ -70,18 +70,35 @@ def get_user(
 @router.put(
     "/{user_id}",
     response_model=UserResponse,
-    summary="Update a user",
-    description="Update a user's username, password, or roles.",
+    summary="Replace a user",
+    description="Replace a user's username, password, and roles.",
 )
-def update_user(
+def replace_user(
     user_id: int,
-    update: UserUpdate,
+    replacement: UserReplace,
     db: Session = Depends(get_db),
     _: User = Depends(
         RequirePermissions([permission_service.Permissions.USERS_UPDATE])
     ),
 ) -> UserResponse:
-    return user_service.update_user(db, user_id, update)
+    return user_service.replace_user(db, user_id, replacement)
+
+
+@router.patch(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="Patch a user",
+    description="Update one or more user fields without replacing the full resource.",
+)
+def patch_user(
+    user_id: int,
+    update: UserPatch,
+    db: Session = Depends(get_db),
+    _: User = Depends(
+        RequirePermissions([permission_service.Permissions.USERS_UPDATE])
+    ),
+) -> UserResponse:
+    return user_service.patch_user(db, user_id, update)
 
 
 @router.delete(

@@ -18,7 +18,8 @@ from src.services.auth.user import (
     get_user_detail,
     get_user_profile,
     list_users,
-    update_user,
+    patch_user,
+    replace_user,
 )
 
 __all__ = [
@@ -37,7 +38,8 @@ __all__ = [
     "list_users",
     "create_user",
     "get_user_detail",
-    "update_user",
+    "replace_user",
+    "patch_user",
     "delete_user",
     "get_user_profile",
 ]
