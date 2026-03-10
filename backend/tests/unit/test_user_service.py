@@ -85,9 +85,7 @@ def test_replace_user_can_change_username_password_and_roles(db_session):
     updated = user_service.replace_user(
         db_session,
         created.id,
-        UserReplace(
-            username="alice-updated", password="new-secret", roles=["editor"]
-        ),
+        UserReplace(username="alice-updated", password="new-secret", roles=["editor"]),
     )
 
     db_user = user_service.get_user(db_session, "alice-updated")

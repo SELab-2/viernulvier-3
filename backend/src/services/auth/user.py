@@ -26,11 +26,7 @@ def _get_user_or_404(db: Session, user_id: int) -> User:
 
 
 def _ensure_username_is_available(db: Session, user_id: int, username: str) -> None:
-    if (
-        db.query(User)
-        .filter(User.username == username, User.id != user_id)
-        .first()
-    ):
+    if db.query(User).filter(User.username == username, User.id != user_id).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Username already exists"
         )
