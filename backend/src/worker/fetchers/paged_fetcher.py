@@ -72,10 +72,10 @@ class PagedFetcher:
         self._paged_data = None
         return return_val
 
-    def has_data(self) -> bool:
+    def has_partial_data(self) -> bool:
         return self._paged_data is not None
 
-    def get_data(self) -> list:
+    def get_and_clear_partial_data(self) -> list:
         """
         Retrieve and clear the stored partial data.
         """

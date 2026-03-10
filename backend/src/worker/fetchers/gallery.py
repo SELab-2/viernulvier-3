@@ -20,7 +20,7 @@ class GalleryFetcher(PagedFetcher):
         When calling the API fails this will throw an error. However,
         if there was already data fetched (f.e. when paging and hitting a
         rate limit), the object will have stored the results which you can
-        query with `.has_data()` and `.get_data()`.
+        query with `.has_partial_data()` and `.get_partial_data()`.
 
         ---
 
