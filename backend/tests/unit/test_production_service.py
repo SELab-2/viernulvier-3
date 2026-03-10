@@ -1,66 +1,10 @@
-from src.models.production import ProdInfo, Production
-from src.models.event import Event
 from src.models.language import Language
-from src.services.production import get_production_by_id, get_productions_paginated, get_events_for_production, create_production, update_production_by_id, delete_production_by_id
+from src.services.production_service import get_production_by_id, get_productions_paginated, get_events_for_production, create_production, update_production_by_id, delete_production_by_id
 from src.schemas.production import ProductionCreate, ProductionInfoCreate, ProductionUpdate, ProductionInfoUpdate
 
 import pytest
 
 BASE_URL = "http://test"
-
-@pytest.fixture
-def language_nl(db_session):
-    lang = Language(id=1, language="nl")
-    db_session.add(lang)
-    db_session.commit()
-    return lang
-
-@pytest.fixture
-def language_en(db_session):
-    lang = Language(id=2, language="en")
-    db_session.add(lang)
-    db_session.commit()
-    return lang
-
-@pytest.fixture
-def productions_limited(db_session, language_nl, language_en):
-    prod1 = Production(performer_type="theater", attendance_mode="offline", media_gallery_id=1)
-    prod2 = Production(performer_type="concert", attendance_mode="online", media_gallery_id=2)
-    db_session.add_all([prod1, prod2])
-    db_session.flush()
-
-    info1_nl = ProdInfo(production_id=prod1.id, language_id=language_nl.id, title="prod1_nl")
-    info1_en = ProdInfo(production_id=prod1.id, language_id=language_en.id, title="prod1_en")
-    info2_nl = ProdInfo(production_id=prod2.id, language_id=language_nl.id, title="prod2_nl")
-
-    db_session.add_all([info1_nl, info1_en, info2_nl])
-    db_session.commit()
-
-    events1 = [Event(production_id=prod1.id) for _ in range(2)]
-    events2 = [Event(production_id=prod2.id) for _ in range(4)]
-
-    db_session.add_all(events1 + events2)
-    db_session.commit()
-
-    db_session.refresh(prod1)
-    db_session.refresh(prod2)
-    return [prod1, prod2]
-
-@pytest.fixture
-def many_productions(db_session, language_nl, language_en):
-    productions = []
-    for i in range(10):
-        prod = Production(performer_type="theater", attendance_mode="offline", media_gallery_id=i+1)
-        db_session.add(prod)
-        db_session.flush()
-
-        info_nl = ProdInfo(production_id=prod.id, language_id=language_nl.id, title=f"prod{i}_nl")
-        info_en = ProdInfo(production_id=prod.id, language_id=language_en.id, title=f"prod{i}_en")
-        db_session.add_all([info_nl, info_en])
-        productions.append(prod)
-
-    db_session.commit()
-    return productions
 
 # Limited amount of productions: only one page.
 def test_get_productions_paginated_limited(db_session, productions_limited):
@@ -130,19 +74,17 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
 def test_create_production_valid_info(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2
-    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4)
-    new_prod_info_nl = ProductionInfoCreate(title="nieuw_prod_nl")
+    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(title="nieuw_prod_nl"))
 
-    _ = create_production(db_session, new_prod, new_prod_info_nl, BASE_URL, language="nl")
+    _ = create_production(db_session, new_prod, BASE_URL, language="nl")
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 3
 
 # Create an invalid production, results in ValueError.
 def test_create_production_invalid_info(db_session, productions_limited):
-    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4)
-    new_prod_info_es = ProductionInfoCreate(title="el production - es")
+    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(title="el production - es")) 
     with pytest.raises(ValueError, match="Language 'es' not supported"):
-        _ = create_production(db_session, new_prod, new_prod_info_es, BASE_URL, language="es")
+        _ = create_production(db_session, new_prod, BASE_URL, language="es")
 
 # Update an existing production - basic field.
 def test_update_production_basic(db_session, productions_limited):
@@ -284,8 +226,8 @@ def test_delete_production_invalid(db_session, productions_limited):
     assert len(result.productions) == 2
 
     # Give a non-existing production id.
-    success = delete_production_by_id(db_session, 4)
-    assert not success
+    with pytest.raises(ValueError, match="Production with id '4' not found."):
+        delete_production_by_id(db_session, 4)
     
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from src.api.dependencies.language import get_accepted_language
 from src.database import get_db
-from src.schemas.production import ProductionCreate, ProductionInfoCreate, ProductionListResponse, ProductionResponse, ProductionUpdate
-from src.services.production import create_production, get_production_by_id, get_productions_paginated, update_production_by_id, delete_production_by_id
+from src.schemas.production import ProductionCreate, ProductionListResponse, ProductionResponse, ProductionUpdate
+from src.services.production_service import create_production, get_production_by_id, get_productions_paginated, update_production_by_id, delete_production_by_id
 from fastapi import APIRouter, Depends, Query, Request, HTTPException, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
@@ -23,13 +23,13 @@ async def get_productions(request: Request, db: Session = Depends(get_db), curso
     
     return productions_data
 
-@router.post("/", response_model=ProductionResponse)
-async def post_production(production_in: ProductionCreate, production_info_in: ProductionInfoCreate,
+@router.post("/", response_model=ProductionResponse, status_code=201)
+async def post_production(production_in: ProductionCreate,
                            request: Request, db: Session = Depends(get_db), language: str | None = Depends(get_accepted_language), 
-                           _: User = Depends(RequirePermissions(Permissions.ARCHIVE_CREATE))) -> ProductionResponse:
+                           _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
     try:
-        production_data = create_production(db, production_in, production_info_in, base_url, language)
+        production_data = create_production(db, production_in, base_url, language)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
@@ -48,7 +48,7 @@ async def get_production(production_id: int, request: Request, db: Session = Dep
 
 @router.patch("/{production_id}", response_model=ProductionResponse)
 async def patch_production(production_id: int, production_in: ProductionUpdate, request: Request, 
-                           db: Session = Depends(get_db), _: User = Depends(RequirePermissions(Permissions.ARCHIVE_UPDATE))) -> ProductionResponse:
+                           db: Session = Depends(get_db), _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE]))) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
     try:
         production_data = update_production_by_id(db, production_in, production_id, base_url)
@@ -59,7 +59,7 @@ async def patch_production(production_id: int, production_in: ProductionUpdate, 
 
 @router.delete("/{production_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_production(production_id: int, db: Session = Depends(get_db), 
-                            _: User = Depends(RequirePermissions(Permissions.ARCHIVE_DELETE))):
+                            _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE]))):
     try:
         delete_production_by_id(db, production_id)
     except ValueError as e:

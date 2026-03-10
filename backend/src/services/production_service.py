@@ -97,8 +97,9 @@ def create_production_info(production_info_in: ProductionInfoCreate, production_
 
 # Creates a new production with production info for the given language. 
 # Returns a copy of the created production.
-def create_production(db: Session, production_in: ProductionCreate, production_info_in: ProductionInfoCreate, base_url: str, language: str) -> ProductionResponse:
+def create_production(db: Session, production_in: ProductionCreate, base_url: str, language: str) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
+    production_info_in = production_in.production_info
     language_id = db.query(Language.id).filter(Language.language == language).scalar()
     if not language_id:
         raise ValueError(f"Language '{language}' not supported.")
@@ -172,6 +173,8 @@ def update_production_by_id(db: Session, production_in: ProductionUpdate, produc
 # Deletes the production and all related production infos/events and returns success or failure.
 def delete_production_by_id(db: Session, production_id: int) -> bool:
     production = db.query(Production).filter(Production.id == production_id).first()
+    if not production:
+        raise ValueError(f"Production with id '{production_id}' not found.")
     if not production:
         return False
 

@@ -58,6 +58,7 @@ class ProductionCreate(BaseModel):
     media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    production_info: ProductionInfoCreate
 
 class ProductionInfoUpdate(BaseModel):
     language: str
