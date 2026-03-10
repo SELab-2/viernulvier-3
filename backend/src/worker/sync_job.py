@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import select
+from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from sqlalchemy.orm import Session
 from src.database import SESSION_LOCAL
 from src.models.language import Language
-from src.models.sync_state import ResourceType, SyncState, SyncType
+from src.models.sync_state import ResourceType, SyncType
 from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.fetchers.production import ProductionFetcher
 from src.worker.vnv_wrapper import VNV_Wrapper
@@ -21,41 +21,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-
-def get_last_sync(db, resource_type: ResourceType, sync_type: SyncType):
-    query = select(SyncState).where(
-        SyncState.resource == resource_type,
-        SyncState.sync_type == sync_type,
-    )
-
-    result = db.execute(query).scalar_one_or_none()
-    assert result is not None
-
-    logger.debug(
-        f"get_last_sync({resource_type}, {sync_type}) -> {result.last_timestamp}"
-    )
-    return result.last_timestamp
-
-
-def update_sync_state(db, resource: ResourceType, sync_type: SyncType, new_timestamp):
-    state = (
-        db.query(SyncState)
-        .filter_by(resource=resource, sync_type=sync_type)
-        .one_or_none()
-    )
-
-    assert state is not None
-    state.last_timestamp = new_timestamp
-
-    logger.debug(
-        f"update_sync_state({resource}, {sync_type}) updates state timestamp to {
-            state.last_timestamp
-        }"
-    )
-
-    # No commit, happens inside the `sync_new_xxx()` so it commits together
-    # with the actual new data
 
 
 def sync_new_productions(
