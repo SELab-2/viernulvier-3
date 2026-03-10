@@ -15,7 +15,8 @@ class Event(Base):
     # hall_id = Column(Integer, ForeignKey("halls.id"))
     starts_at = Column(TIMESTAMP)
     ends_at = Column(TIMESTAMP)
-    external_order_url = Column(String)
+    order_url = Column(String)
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), server_onupdate=func.now()

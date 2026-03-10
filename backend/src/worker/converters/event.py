@@ -39,7 +39,7 @@ def api_event_to_model_event(json_event: dict, language_map: dict[str, int]) -> 
         production_id=production_id,
         starts_at=start_time,
         ends_at=end_time,
-        external_order_url=order_url,
+        order_url=order_url,
     )
 
     return event

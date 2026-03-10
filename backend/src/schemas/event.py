@@ -28,7 +28,6 @@ class EventResponse(BaseModel):
     ends_at: Optional[datetime] = None
 
     order_url: Optional[str] = None
-    external_order_url: Optional[str] = None
 
     prices: List[str] = []  # list of price urls
 
@@ -44,7 +43,6 @@ class EventCreate(BaseModel):
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
-    external_order_url: Optional[str] = None
 
 
 class EventUpdate(BaseModel):
@@ -52,4 +50,3 @@ class EventUpdate(BaseModel):
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
-    external_order_url: Optional[str] = None
