@@ -74,17 +74,17 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
 def test_create_production_valid_info(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2
-    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(title="nieuw_prod_nl"))
+    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"))
 
-    _ = create_production(db_session, new_prod, BASE_URL, language="nl")
+    _ = create_production(db_session, new_prod, BASE_URL)
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 3
 
 # Create an invalid production, results in ValueError.
 def test_create_production_invalid_info(db_session, productions_limited):
-    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(title="el production - es")) 
+    new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4, production_info=ProductionInfoCreate(language="es", title="el production - es")) 
     with pytest.raises(ValueError, match="Language 'es' not supported"):
-        _ = create_production(db_session, new_prod, BASE_URL, language="es")
+        _ = create_production(db_session, new_prod, BASE_URL)
 
 # Update an existing production - basic field.
 def test_update_production_basic(db_session, productions_limited):

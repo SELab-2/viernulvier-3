@@ -43,6 +43,8 @@ class ProductionListResponse(BaseModel):
 
 # When a new production info is created in a specific language.
 class ProductionInfoCreate(BaseModel):
+    language: str
+
     title: Optional[str] = None
     supertitle: Optional[str] = None
     artist: Optional[str] = None

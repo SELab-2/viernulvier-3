@@ -125,7 +125,7 @@ def test_get_production_by_id_invalid_language(client: TestClient, db_session: S
 
 # User with permissions should be able to update existing production.
 def test_patch_production_success(client: TestClient, db_session: Session, productions_limited):
-    headers = create_user_and_login(client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE], "nl")
+    headers = create_user_and_login(client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE])
     production = productions_limited[0]
     assert production.performer_type == "theater"
 
@@ -143,7 +143,7 @@ def test_patch_production_success(client: TestClient, db_session: Session, produ
 
 # User without permissions should be able to update existing production.
 def test_patch_production_failure(client: TestClient, db_session: Session, productions_limited):
-    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE], "nl") # User can only create.
+    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]) # User can only create.
     production = productions_limited[0]
     assert production.performer_type == "theater"
 
@@ -159,7 +159,7 @@ def test_patch_production_failure(client: TestClient, db_session: Session, produ
 
 # User cannot update a non existing production.
 def test_patch_production_not_found(client: TestClient, db_session, productions_limited):
-    headers = create_user_and_login(client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE], "nl")
+    headers = create_user_and_login(client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE])
     production = productions_limited[0]
     assert production.performer_type == "theater"
 
@@ -228,7 +228,7 @@ def test_patch_production_delete_info_success(client: TestClient, db_session: Se
 
 # User should be able to create a new production.
 def test_create_production_success(client: TestClient, db_session: Session, language_nl):
-    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE], "nl")
+    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE])
     response = client.post(
         BASE_URL + "/",
         json = {
@@ -236,6 +236,7 @@ def test_create_production_success(client: TestClient, db_session: Session, lang
             "attendance_mode": "offline",
             "media_gallery_id": 4,
             "production_info": {
+                "language": "nl",
                 "title": "Nieuwe productie"
             },
         },
@@ -250,7 +251,7 @@ def test_create_production_success(client: TestClient, db_session: Session, lang
 
 # User should not be able to create a new production because of persmissions.
 def test_create_production_failure(client: TestClient, db_session: Session, language_nl):
-    headers = create_user_and_login(client, db_session, "normal_user", language="nl")
+    headers = create_user_and_login(client, db_session, "normal_user")
     response = client.post(
         BASE_URL + "/",
         json = {
@@ -258,6 +259,7 @@ def test_create_production_failure(client: TestClient, db_session: Session, lang
             "attendance_mode": "offline",
             "media_gallery_id": 4,
             "production_info": {
+                "language": "nl",
                 "title": "Nieuwe productie"
             },
         },
@@ -268,7 +270,7 @@ def test_create_production_failure(client: TestClient, db_session: Session, lang
 
 # User should not be able to create a new production because of unsupported lanuage.
 def test_create_production_unsupported_language(client: TestClient, db_session: Session, language_nl):
-    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE], "en")
+    headers = create_user_and_login(client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE])
     response = client.post(
         BASE_URL + "/",
         json = {
@@ -276,6 +278,7 @@ def test_create_production_unsupported_language(client: TestClient, db_session: 
             "attendance_mode": "offline",
             "media_gallery_id": 4,
             "production_info": {
+                "language": "en",
                 "title": "new production"
             },
         },

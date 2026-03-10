@@ -25,11 +25,11 @@ async def get_productions(request: Request, db: Session = Depends(get_db), curso
 
 @router.post("/", response_model=ProductionResponse, status_code=201)
 async def post_production(production_in: ProductionCreate,
-                           request: Request, db: Session = Depends(get_db), language: str | None = Depends(get_accepted_language), 
+                           request: Request, db: Session = Depends(get_db), 
                            _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE]))) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
     try:
-        production_data = create_production(db, production_in, base_url, language)
+        production_data = create_production(db, production_in, base_url)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     

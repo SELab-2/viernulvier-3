@@ -97,12 +97,12 @@ def create_production_info(production_info_in: ProductionInfoCreate, production_
 
 # Creates a new production with production info for the given language. 
 # Returns a copy of the created production.
-def create_production(db: Session, production_in: ProductionCreate, base_url: str, language: str) -> ProductionResponse:
+def create_production(db: Session, production_in: ProductionCreate, base_url: str) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
     production_info_in = production_in.production_info
-    language_id = db.query(Language.id).filter(Language.language == language).scalar()
+    language_id = db.query(Language.id).filter(Language.language == production_info_in.language).scalar()
     if not language_id:
-        raise ValueError(f"Language '{language}' not supported.")
+        raise ValueError(f"Language '{production_info_in.language}' not supported.")
 
     db_production = Production(
         performer_type=production_in.performer_type,
