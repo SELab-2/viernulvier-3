@@ -65,11 +65,16 @@ def sync_new_productions(
         session, ResourceType.PRODUCTION, SyncType.CREATED_AT
     )
 
-    # TODO: do this in a try-catch block with corresponding error handling
-    productions = fetcher.get_new_productions_after(last_timestamp)
+    productions = []
+    try:
+        productions = fetcher.get_new_productions_after(last_timestamp)
+    except ConnectionError:
+        if fetcher.has_partial_data():
+            productions = fetcher.get_and_clear_partial_data()
+
     logger.info(f"fetched {len(productions)} new production(s) from API")
 
-    if not productions:
+    if not productions or len(productions) == 0:
         return
 
     newest_timestamp = last_timestamp
