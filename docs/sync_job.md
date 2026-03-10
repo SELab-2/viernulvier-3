@@ -20,6 +20,12 @@ commando:
 python -m src.worker.sync_job
 ```
 
+Dit allemaal verloopt het best in de docker containers (zodat de databank
+klaar staat):
+```sh
+docker compose run --rm sync_job
+```
+
 
 ## Uitdagingen
 Het is uitermate belangrijk dat er bij het synchroniseren geen data verloren
