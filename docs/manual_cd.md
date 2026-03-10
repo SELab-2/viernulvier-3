@@ -1,9 +1,21 @@
 # CD pipeline manueel triggeren
 
 ## GitHub CLI installeren
+**Ubuntu/Debian**
 ```bash
 sudo apt install gh
 ```
+
+**Arch Linux**
+```bash
+sudo pacman -S github-cli
+```
+
+**Windows**
+```powershell
+winget install GitHub.cli
+```
+Of via [cli.github.com](https://cli.github.com) de installer downloaden.
 
 ## Authenticeren
 Maak een personal access token aan met `workflow` scope:
