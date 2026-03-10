@@ -30,7 +30,6 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
         starts_at=event.starts_at,
         ends_at=event.ends_at,
         order_url=event.order_url,
-        external_order_url=event.external_order_url,
         created_at=event.created_at,
         updated_at=event.updated_at,
         prices=price_urls,
@@ -75,7 +74,6 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
         starts_at=event_in.starts_at,
         ends_at=event_in.ends_at,
         order_url=event_in.order_url,
-        external_order_url=event_in.external_order_url,
     )
 
     db.add(db_event)
