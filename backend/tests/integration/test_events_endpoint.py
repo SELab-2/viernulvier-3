@@ -1,12 +1,10 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
-
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
-from src.models.user import User
 from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 
@@ -79,8 +77,6 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://order.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -105,8 +101,6 @@ def test_update_event_success(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://old.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -141,8 +135,6 @@ def test_delete_event_success(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://order.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
     db_session.add_all([hall, production, event])
     db_session.commit()
@@ -192,8 +184,6 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://order.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     price1 = EventPrice(
@@ -201,8 +191,6 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         label="Standard",
         amount=10.0,
         available=100,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     price2 = EventPrice(
@@ -210,8 +198,6 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
         label="VIP",
         amount=25.0,
         available=50,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event, price1, price2])
@@ -241,8 +227,6 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://order.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     price = EventPrice(
@@ -250,8 +234,6 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
         label="Standard",
         amount=15.0,
         available=75,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event, price])
@@ -275,8 +257,6 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
         hall=hall,
         production=production,
         order_url="http://order.url",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
     )
 
     db_session.add_all([hall, production, event])
