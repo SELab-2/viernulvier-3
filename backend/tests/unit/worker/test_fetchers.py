@@ -8,13 +8,13 @@ parameter.
 import pytest
 
 from unittest.mock import MagicMock
-from src.worker.api_wrapper.production import ProductionFetcher
-from src.worker.api_wrapper.event import EventFetcher
-from src.worker.api_wrapper.event_prices import EventPriceFetcher
-from src.worker.api_wrapper.halls import HallFetcher
-from src.worker.api_wrapper.genres import GenreFetcher
-from src.worker.api_wrapper.tags import TagFetcher
-from src.worker.api_wrapper.gallery import GalleryFetcher
+from src.worker.fetchers.production import ProductionFetcher
+from src.worker.fetchers.event import EventFetcher
+from src.worker.fetchers.event_prices import EventPriceFetcher
+from src.worker.fetchers.halls import HallFetcher
+from src.worker.fetchers.genres import GenreFetcher
+from src.worker.fetchers.tags import TagFetcher
+from src.worker.fetchers.gallery import GalleryFetcher
 
 
 @pytest.mark.parametrize(
