@@ -1,14 +1,14 @@
 import logging
+from datetime import datetime
 
 from sqlalchemy import select
-from datetime import datetime
 from sqlalchemy.orm import Session
 from src.database import SESSION_LOCAL
 from src.models.language import Language
 from src.models.sync_state import ResourceType, SyncState, SyncType
-from src.worker.api_to_model.production import api_prod_to_model_prod
-from src.worker.api_wrapper.production import ProductionFetcher
-from src.worker.api_wrapper.vnv_wrapper import VNV_Wrapper
+from src.worker.converters.production import api_prod_to_model_prod
+from src.worker.fetchers.production import ProductionFetcher
+from src.worker.vnv_wrapper import VNV_Wrapper
 
 # Logging is used in the other classes, but seeing as this file is the main
 # one, setting the config here feels appropriate.

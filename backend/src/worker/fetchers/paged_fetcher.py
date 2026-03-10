@@ -1,4 +1,4 @@
-from src.worker.api_wrapper.vnv_wrapper import VNV_Wrapper
+from src.worker.vnv_wrapper import VNV_Wrapper
 
 
 class PagedFetcher:

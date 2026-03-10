@@ -1,4 +1,4 @@
-from src.worker.api_wrapper.paged_fetcher import PagedFetcher
+from src.worker.fetchers.paged_fetcher import PagedFetcher
 
 
 class EventPriceFetcher(PagedFetcher):
