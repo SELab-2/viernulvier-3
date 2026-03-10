@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from src.models.permission import Permission
 from src.models.role import Role
 from src.models.user import User
-from src.schemas.auth import UserCreate, UserUpdate
+from src.schemas.auth import UserCreate, UserPatch, UserReplace
 from src.services.auth import user as user_service
 from src.services.auth.password import verify_password
 
@@ -74,7 +74,7 @@ def test_create_user_invalid_role(db_session):
     assert excinfo.value.status_code == 400
 
 
-def test_update_user_can_change_username_password_and_roles(db_session):
+def test_replace_user_can_change_username_password_and_roles(db_session):
     create_role(db_session, "viewer", ["users:read"])
     create_role(db_session, "editor", ["users:update"])
     created = user_service.create_user(
@@ -82,10 +82,12 @@ def test_update_user_can_change_username_password_and_roles(db_session):
         UserCreate(username="alice", password="secret", roles=["viewer"]),
     )
 
-    updated = user_service.update_user(
+    updated = user_service.replace_user(
         db_session,
         created.id,
-        UserUpdate(username="alice-updated", password="new-secret", roles=["editor"]),
+        UserReplace(
+            username="alice-updated", password="new-secret", roles=["editor"]
+        ),
     )
 
     db_user = user_service.get_user(db_session, "alice-updated")
@@ -97,52 +99,56 @@ def test_update_user_can_change_username_password_and_roles(db_session):
     assert db_user.token_version == 1
 
 
-def test_update_user_without_password_keeps_token_version(db_session):
+def test_patch_user_updates_only_provided_fields(db_session):
     create_role(db_session, "viewer", ["users:read"])
+    create_role(db_session, "editor", ["users:update"])
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=["viewer"]),
     )
 
-    updated = user_service.update_user(
+    updated = user_service.patch_user(
         db_session,
         created.id,
-        UserUpdate(username="alice-renamed", password=None, roles=["viewer"]),
+        UserPatch(username="alice-renamed", roles=["editor"]),
     )
 
     db_user = user_service.get_user(db_session, "alice-renamed")
     assert updated.username == "alice-renamed"
+    assert updated.roles == ["editor"]
+    assert updated.permissions == ["users:update"]
     assert db_user is not None
+    assert verify_password("secret", db_user.hashed_password)
     assert db_user.token_version == 0
 
 
-def test_update_user_duplicate_username(db_session):
+def test_patch_user_duplicate_username(db_session):
     db_session.add(User(username="alice", hashed_password="hashed"))
     db_session.add(User(username="bob", hashed_password="hashed"))
     db_session.commit()
     bob = user_service.get_user(db_session, "bob")
 
     with pytest.raises(HTTPException) as excinfo:
-        user_service.update_user(
+        user_service.patch_user(
             db_session,
             bob.id,
-            UserUpdate(username="alice", password=None, roles=None),
+            UserPatch(username="alice"),
         )
 
     assert excinfo.value.status_code == 409
 
 
-def test_update_user_invalid_role(db_session):
+def test_patch_user_invalid_role(db_session):
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=[]),
     )
 
     with pytest.raises(HTTPException) as excinfo:
-        user_service.update_user(
+        user_service.patch_user(
             db_session,
             created.id,
-            UserUpdate(username="alice", password=None, roles=["missing"]),
+            UserPatch(roles=["missing"]),
         )
 
     assert excinfo.value.status_code == 400

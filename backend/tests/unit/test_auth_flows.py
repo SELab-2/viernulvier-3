@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from src.models.user import User
-from src.schemas.auth import UserUpdate
+from src.schemas.auth import UserPatch
 from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.flows import (
     authenticate_user,
@@ -81,10 +81,10 @@ def test_refresh_token_invalid_after_password_change(db_session: Session):
 
     tokens = login_user(db_session, "refresh_pw_change", password)
 
-    user_service.update_user(
+    user_service.patch_user(
         db_session,
         user.id,
-        UserUpdate(username="refresh_pw_change", password="newpassword", roles=None),
+        UserPatch(password="newpassword"),
     )
 
     with pytest.raises(HTTPException) as excinfo:

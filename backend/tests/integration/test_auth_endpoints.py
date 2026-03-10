@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.models.user import User
-from src.schemas.auth import UserUpdate
+from src.schemas.auth import UserPatch
 from src.services.auth import user as user_service
 from src.services.auth.password import get_password_hash
 from src.services.auth.token import decode_access_token
@@ -95,10 +95,10 @@ def test_tokens_invalidated_after_password_change_integration(
     access_token = login_response.json()["access_token"]
     refresh_token = login_response.json()["refresh_token"]
 
-    user_service.update_user(
+    user_service.patch_user(
         db_session,
         user.id,
-        UserUpdate(username="invalidate_int_user", password="new-password", roles=None),
+        UserPatch(password="new-password"),
     )
 
     me_response = client.get(

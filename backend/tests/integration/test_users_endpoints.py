@@ -81,26 +81,43 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     assert response.status_code == 200
     assert response.json()["username"] == "bob"
 
+    response = client.patch(
+        f"/api/v1/auth/users/{user_id}",
+        json={"username": "bobby"},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    patched = response.json()
+    assert patched["username"] == "bobby"
+    assert patched["roles"] == ["viewer"]
+    assert patched["permissions"] == [Permissions.USERS_READ]
+
+    response = client.post(
+        "/api/v1/auth/login/",
+        json={"username": "bobby", "password": "secret"},
+    )
+    assert response.status_code == 200
+
     response = client.put(
         f"/api/v1/auth/users/{user_id}",
-        json={"username": "bobby", "password": "new-secret", "roles": []},
+        json={"username": "robert", "password": "new-secret", "roles": []},
         headers=headers,
     )
     assert response.status_code == 200
     updated = response.json()
-    assert updated["username"] == "bobby"
+    assert updated["username"] == "robert"
     assert updated["roles"] == []
     assert updated["permissions"] == []
 
     response = client.post(
         "/api/v1/auth/login/",
-        json={"username": "bobby", "password": "new-secret"},
+        json={"username": "robert", "password": "new-secret"},
     )
     assert response.status_code == 200
 
     response = client.get("/api/v1/auth/users/", headers=headers)
     assert response.status_code == 200
-    assert any(user["username"] == "bobby" for user in response.json())
+    assert any(user["username"] == "robert" for user in response.json())
 
     response = client.delete(f"/api/v1/auth/users/{user_id}", headers=headers)
     assert response.status_code == 204
@@ -143,6 +160,13 @@ def test_users_permissions_are_enforced(client: TestClient, db_session: Session)
     )
     assert response.status_code == 403
 
+    response = client.patch(
+        f"/api/v1/auth/users/{target.id}",
+        json={"username": "patched-target"},
+        headers=headers,
+    )
+    assert response.status_code == 403
+
     response = client.delete(f"/api/v1/auth/users/{target.id}", headers=headers)
     assert response.status_code == 403
 
@@ -162,3 +186,34 @@ def test_create_user_rejects_unknown_role(client: TestClient, db_session: Sessio
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid roles: missing"
+
+
+def test_put_requires_complete_payload_but_patch_allows_partial_updates(
+    client: TestClient, db_session: Session
+):
+    create_user_with_permissions(
+        db_session,
+        "admin",
+        [Permissions.USERS_UPDATE],
+    )
+    target = User(username="target", hashed_password=get_password_hash("pw"))
+    db_session.add(target)
+    db_session.commit()
+    db_session.refresh(target)
+
+    headers = {"Authorization": f"Bearer {get_token(client, 'admin')}"}
+
+    response = client.put(
+        f"/api/v1/auth/users/{target.id}",
+        json={"username": "updated-target"},
+        headers=headers,
+    )
+    assert response.status_code == 422
+
+    response = client.patch(
+        f"/api/v1/auth/users/{target.id}",
+        json={"username": "updated-target"},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["username"] == "updated-target"
