@@ -20,7 +20,7 @@ def test_single_page_fetch():
 
     assert result == [{"id": 1}, {"id": 2}]
     assert mock_wrapper.GET.call_count == 1
-    assert fetcher.has_data() is False
+    assert fetcher.has_partial_data() is False
 
 
 def test_multi_page_fetch():
@@ -54,7 +54,7 @@ def test_connection_error_on_first_call():
     with pytest.raises(ConnectionError):
         fetcher.fetch_all("2024-01-01", {})
 
-    assert fetcher.has_data() is False
+    assert fetcher.has_partial_data() is False
 
 
 def test_partial_data_retained_on_error():
@@ -73,8 +73,8 @@ def test_partial_data_retained_on_error():
     with pytest.raises(ConnectionError):
         fetcher.fetch_all("2024-01-01", {})
 
-    assert fetcher.has_data() is True
-    assert fetcher.get_data() == [{"id": 1}, {"id": 2}]
+    assert fetcher.has_partial_data() is True
+    assert fetcher.get_and_clear_partial_data() == [{"id": 1}, {"id": 2}]
 
 
 def test_total_items_decreases_error():
