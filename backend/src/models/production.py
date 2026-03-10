@@ -2,6 +2,7 @@
 
 from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from src.database import Base
 from src.models.associations import prod_genres, prod_tags
@@ -14,8 +15,10 @@ class Production(Base):
     performer_type = Column(String)
     attendance_mode = Column(String)
     # media_gallery_id = Column(Integer, ForeignKey("gallery.id"))
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
+    )
 
     # gallery = relationship("Gallery")
     info = relationship("ProdInfo", back_populates="production")
