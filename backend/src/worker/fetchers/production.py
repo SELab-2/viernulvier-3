@@ -6,11 +6,11 @@ class ProductionFetcher(PagedFetcher):
     This class stands in for fetching productions from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_productions_after(timestamp)` to request all
+    requests, and has a `get_new_items_after(timestamp)` to request all
     productions.
     """
 
-    def get_new_productions_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all productions after the given timestamp.
 

@@ -19,6 +19,21 @@ class PagedFetcher:
 
         self._paged_data: list | None = None
 
+    def get_new_items_after(last_timestamp):
+        """
+        Abstract method that should be overwritten by every class inhereting
+        from this class.
+
+        Is meant to fetch all the newly created items after (inclusive) the
+        given timestamp.
+
+        Throws in this default implementation, shouldn't throw in the
+        overrides of course.
+        """
+        raise NotImplementedError(
+            f"method 'get_new_items_after' was not implemented for {__class__}"
+        )
+
     def fetch_all(self, link: str, parameters: dict) -> list:
         """
         Fetches all (potentially paginated) data from the API endpoint.

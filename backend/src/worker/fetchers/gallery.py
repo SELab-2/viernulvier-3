@@ -6,11 +6,11 @@ class GalleryFetcher(PagedFetcher):
     This class stands in for fetching galleries from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_galleries_after(timestamp)` to request all
+    requests, and has a `get_new_items_after(timestamp)` to request all
     galleries.
     """
 
-    def get_new_galleries_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all galleries after the given timestamp.
 

@@ -6,11 +6,11 @@ class HallFetcher(PagedFetcher):
     This class stands in for fetching halls from the viernulvier API.
 
     Its init takes in a `VNV_Wrapper` which will be used to execute all
-    requests, and has a `get_new_halls_after(timestamp)` to request all
+    requests, and has a `get_new_items_after(timestamp)` to request all
     halls.
     """
 
-    def get_new_halls_after(self, timestamp) -> list:
+    def get_new_items_after(self, timestamp) -> list:
         """
         Get all halls after the given timestamp.
 
