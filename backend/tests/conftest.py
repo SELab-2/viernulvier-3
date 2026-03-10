@@ -47,7 +47,6 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-
     # Maak tabellen aan voordat testen draaien
     Base.metadata.create_all(bind=test_engine)
     yield
@@ -67,6 +66,7 @@ def db_session():
     finally:
         db.close()
 
+
 @pytest.fixture(scope="session")
 def client():
     app.dependency_overrides[get_db] = override_get_db
@@ -74,17 +74,28 @@ def client():
         yield c
     app.dependency_overrides.clear()
 
+
 # Mock data for testing.
 @pytest.fixture
 def productions_limited(db_session, language_nl, language_en):
-    prod1 = Production(performer_type="theater", attendance_mode="offline", media_gallery_id=1)
-    prod2 = Production(performer_type="concert", attendance_mode="online", media_gallery_id=2)
+    prod1 = Production(
+        performer_type="theater", attendance_mode="offline", media_gallery_id=1
+    )
+    prod2 = Production(
+        performer_type="concert", attendance_mode="online", media_gallery_id=2
+    )
     db_session.add_all([prod1, prod2])
     db_session.flush()
 
-    info1_nl = ProdInfo(production_id=prod1.id, language_id=language_nl.id, title="prod1_nl")
-    info1_en = ProdInfo(production_id=prod1.id, language_id=language_en.id, title="prod1_en")
-    info2_nl = ProdInfo(production_id=prod2.id, language_id=language_nl.id, title="prod2_nl")
+    info1_nl = ProdInfo(
+        production_id=prod1.id, language_id=language_nl.id, title="prod1_nl"
+    )
+    info1_en = ProdInfo(
+        production_id=prod1.id, language_id=language_en.id, title="prod1_en"
+    )
+    info2_nl = ProdInfo(
+        production_id=prod2.id, language_id=language_nl.id, title="prod2_nl"
+    )
 
     db_session.add_all([info1_nl, info1_en, info2_nl])
     db_session.commit()
@@ -99,21 +110,29 @@ def productions_limited(db_session, language_nl, language_en):
     db_session.refresh(prod2)
     return [prod1, prod2]
 
+
 @pytest.fixture
 def many_productions(db_session, language_nl, language_en):
     productions = []
     for i in range(10):
-        prod = Production(performer_type="theater", attendance_mode="offline", media_gallery_id=i+1)
+        prod = Production(
+            performer_type="theater", attendance_mode="offline", media_gallery_id=i + 1
+        )
         db_session.add(prod)
         db_session.flush()
 
-        info_nl = ProdInfo(production_id=prod.id, language_id=language_nl.id, title=f"prod{i}_nl")
-        info_en = ProdInfo(production_id=prod.id, language_id=language_en.id, title=f"prod{i}_en")
+        info_nl = ProdInfo(
+            production_id=prod.id, language_id=language_nl.id, title=f"prod{i}_nl"
+        )
+        info_en = ProdInfo(
+            production_id=prod.id, language_id=language_en.id, title=f"prod{i}_en"
+        )
         db_session.add_all([info_nl, info_en])
         productions.append(prod)
 
     db_session.commit()
     return productions
+
 
 @pytest.fixture
 def language_nl(db_session: Session):
@@ -122,6 +141,7 @@ def language_nl(db_session: Session):
     db_session.commit()
     db_session.refresh(lang)
     return lang
+
 
 @pytest.fixture
 def language_en(db_session: Session):
