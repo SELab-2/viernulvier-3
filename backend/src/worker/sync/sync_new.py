@@ -53,7 +53,7 @@ def sync_new_items(
 
     items = []
     try:
-        items = fetcher.get_new_productions_after(last_timestamp)
+        items = fetcher.get_new_items_after(last_timestamp)
     except ConnectionError:
         if fetcher.has_partial_data():
             items = fetcher.get_and_clear_partial_data()
