@@ -30,13 +30,12 @@ def get_last_sync(db, resource_type: ResourceType, sync_type: SyncType):
     )
 
     result = db.execute(query).scalar_one_or_none()
+    assert result is not None
 
-    logger.debug(f"get_last_sync({resource_type}, {sync_type}) -> {result}")
-
-    if result:
-        return result.last_timestamp
-
-    return None
+    logger.debug(
+        f"get_last_sync({resource_type}, {sync_type}) -> {result.last_timestamp}"
+    )
+    return result.last_timestamp
 
 
 def update_sync_state(db, resource: ResourceType, sync_type: SyncType, new_timestamp):
@@ -49,7 +48,11 @@ def update_sync_state(db, resource: ResourceType, sync_type: SyncType, new_times
     assert state is not None
     state.last_timestamp = new_timestamp
 
-    logger.debug(f"update_sync_state({resource}, {sync_type}) updates state {state}")
+    logger.debug(
+        f"update_sync_state({resource}, {sync_type}) updates state timestamp to {
+            state.last_timestamp
+        }"
+    )
 
     # No commit, happens inside the `sync_new_xxx()` so it commits together
     # with the actual new data
@@ -64,7 +67,7 @@ def sync_new_productions(
 
     # TODO: do this in a try-catch block with corresponding error handling
     productions = fetcher.get_new_productions_after(last_timestamp)
-    logger.info(f"fetched {len(productions)} from API")
+    logger.info(f"fetched {len(productions)} new production(s) from API")
 
     if not productions:
         return
@@ -102,6 +105,7 @@ if __name__ == "__main__":
     # how the classes inside `api_wrapper/` can be used.
 
     db = SESSION_LOCAL()
+    logger.info("connection with database created")
     lang_map = get_language_map(db)
 
     try:
@@ -110,3 +114,4 @@ if __name__ == "__main__":
             sync_new_productions(db, lang_map, prod_fetcher)
     finally:
         db.close()
+        logger.info("connection with database closed")
