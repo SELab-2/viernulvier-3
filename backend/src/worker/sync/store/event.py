@@ -16,7 +16,7 @@ def store_new_events(
         created_at_str = json_event.get("created_at")
         if created_at_str:
             created_at_str = datetime.fromisoformat(created_at_str)
-            if created_at_str > newest_timestamp:
+            if newest_timestamp is None or created_at_str > newest_timestamp:
                 newest_timestamp = created_at_str
 
     return newest_timestamp

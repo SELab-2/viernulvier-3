@@ -17,7 +17,7 @@ def store_new_productions(
             db_session.merge(info)
 
         created_at = datetime.fromisoformat(json_prod["created_at"])
-        if created_at > newest_timestamp:
+        if newest_timestamp is None or created_at > newest_timestamp:
             newest_timestamp = created_at
 
     return newest_timestamp
