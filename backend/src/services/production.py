@@ -101,7 +101,7 @@ def create_production(db: Session, production_in: ProductionCreate, production_i
     # Given language_id when creating new production should exist in the database.
     language_id = db.query(Language.id).filter(Language.language == language).scalar()
     if not language_id:
-        raise ValueError(f"Language {language} not supported.")
+        raise ValueError(f"Language '{language}' not supported.")
 
     db_production = Production(
         performer_type=production_in.performer_type,

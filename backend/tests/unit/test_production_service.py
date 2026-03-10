@@ -1,7 +1,7 @@
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
 from src.models.language import Language
-from src.services.production import get_production_by_id, get_productions_paginated, get_events_for_production, create_production, update_production_by_id
+from src.services.production import get_production_by_id, get_productions_paginated, get_events_for_production, create_production, update_production_by_id, delete_production_by_id
 from src.schemas.production import ProductionCreate, ProductionInfoCreate, ProductionUpdate, ProductionInfoUpdate
 
 import pytest
@@ -104,8 +104,8 @@ def test_get_events_for_production(db_session, productions_limited):
     for i in range(4):
         assert events_prod2[i] == f"{BASE_URL}/events/{productions_limited[1].events[i].id}"
 
-# Get production by id (no/unvalid language specified): check if correct production is returned with all correct info and events.
-# Unvalid language results in all infos, could be changed if desired.
+# Get production by id (no/invalid language specified): check if correct production is returned with all correct info and events.
+# Invalid language results in all infos, could be changed if desired.
 def test_get_production_by_id_no_language(db_session, productions_limited):
     production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
     assert production_response.id_url == f"{BASE_URL}/productions/{productions_limited[0].id}"
@@ -137,11 +137,11 @@ def test_create_production_valid_info(db_session, productions_limited):
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 3
 
-# Create an unvalid production, results in ValueError.
-def test_create_production_unvalid_info(db_session, productions_limited):
+# Create an invalid production, results in ValueError.
+def test_create_production_invalid_info(db_session, productions_limited):
     new_prod = ProductionCreate(performer_type="band", attendance_mode="offline", media_gallery_id=4)
     new_prod_info_es = ProductionInfoCreate(title="el production - es")
-    with pytest.raises(ValueError, match="Language es not supported"):
+    with pytest.raises(ValueError, match="Language 'es' not supported"):
         _ = create_production(db_session, new_prod, new_prod_info_es, BASE_URL, language="es")
 
 # Update an existing production - basic field.
@@ -178,3 +178,115 @@ def test_update_production_info(db_session, productions_limited):
     production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
     production_info_nl = next(info for info in production_response.production_infos if info.title == "updated_title")
     assert production_info_nl.title == "updated_title"
+
+# Update an existing production - add invalid production info. 
+def test_update_production_info_add(db_session, productions_limited):
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+    # Add a third language.
+    lang = Language(id=3, language="fr")
+    db_session.add(lang)
+    db_session.commit()
+    db_session.refresh(lang)
+
+    # New info should be added. 
+    update = ProductionUpdate(
+        production_infos=[
+            ProductionInfoUpdate(
+                language="fr",
+                title="Un brioche et deux macarons!"
+                )
+        ]
+    )
+
+    # Check updated in response.
+    update_response = update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+    assert len(update_response.production_infos) == 3
+
+    # Check updated in database
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 3
+
+# Update an existing production - add invalid production info. 
+def test_update_production_info_add_invalid(db_session, productions_limited):
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+    # New info should not be added (french not supported). 
+    update = ProductionUpdate(
+        production_infos=[
+            ProductionInfoUpdate(
+                language="fr",
+                title="Un brioche et deux macarons!"
+                )
+        ]
+    )
+
+    with pytest.raises(ValueError, match="Language 'fr' not supported"):
+        update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+
+    # Check database
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+# Update an existing production - delete existing production info.
+def test_update_production_info_delete(db_session, productions_limited):
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+    # New info should be deleted. 
+    update = ProductionUpdate(
+        remove_languages=["en"]
+    )
+
+    # Check updated in response.
+    update_response = update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+    assert len(update_response.production_infos) == 1
+
+    # Check updated in database
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 1
+
+# Update an existing production - delete not existing production info (nothing happens, also no error).
+def test_update_production_info_delete_invalid(db_session, productions_limited):
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+    # New info should not be deleted (invalid language). 
+    update = ProductionUpdate(
+        remove_languages=["es"]
+    )
+
+    # Check response.
+    update_response = update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+    assert len(update_response.production_infos) == 2
+
+    # Check database
+    production_response = get_production_by_id(db_session, productions_limited[0].id, BASE_URL)
+    assert len(production_response.production_infos) == 2
+
+# Delete an existing production.
+def test_delete_production(db_session, productions_limited):
+    result = get_productions_paginated(db_session, BASE_URL)
+    assert len(result.productions) == 2
+
+    success = delete_production_by_id(db_session, productions_limited[0].id)
+    assert success
+    
+    result = get_productions_paginated(db_session, BASE_URL)
+    assert len(result.productions) == 1
+    assert result.productions[0].performer_type == "concert"
+
+# Delete a not existing production (does nothing).
+def test_delete_production_invalid(db_session, productions_limited):
+    result = get_productions_paginated(db_session, BASE_URL)
+    assert len(result.productions) == 2
+
+    # Give a non-existing production id.
+    success = delete_production_by_id(db_session, 4)
+    assert not success
+    
+    result = get_productions_paginated(db_session, BASE_URL)
+    assert len(result.productions) == 2
+    assert result.productions[0].performer_type == "theater"
