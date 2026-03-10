@@ -36,6 +36,10 @@ class EventPrice(Base):
     amount = Column(DECIMAL)
     available = Column(Integer)
     expires_at = Column(TIMESTAMP)
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
+    )
+
     event = relationship("Event", back_populates="prices")
