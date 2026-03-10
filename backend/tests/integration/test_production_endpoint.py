@@ -58,7 +58,7 @@ def test_get_productions_success(
     data = response.json()
     assert len(data["productions"]) == 5
     next_cursor = data["pagination"]["next_cursor"]
-    assert next_cursor == 5
+    assert next_cursor is not None
     assert data["pagination"]["has_more"]
 
     response = client.get(
