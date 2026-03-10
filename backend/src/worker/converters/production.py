@@ -13,8 +13,8 @@ def api_prod_to_model_prod(
 
     production = Production(
         id=production_id,
-        performer_type=json_prod["performer_type"],
-        attendance_mode=json_prod["attendance_mode"],
+        performer_type=json_prod.get("performer_type"),
+        attendance_mode=json_prod.get("attendance_mode"),
     )
 
     fields_to_check = (
