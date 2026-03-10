@@ -35,9 +35,7 @@ def get_last_sync(
 
 
 def update_sync_state(
-    db_session: Session,
-    resource: ResourceType, sync_type: SyncType,
-    new_timestamp
+    db_session: Session, resource: ResourceType, sync_type: SyncType, new_timestamp
 ):
     """
     Update the `db_session` with the `new_timestamp` for the given
