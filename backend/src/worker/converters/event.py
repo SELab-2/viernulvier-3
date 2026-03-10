@@ -30,7 +30,7 @@ def api_event_to_model_event(json_event: dict, language_map: dict[str, int]) -> 
     order_urls = json_event.get("external_order_url")
     order_url = None
     if order_urls:
-        order_urls = order_urls.values()
+        order_urls = list(order_urls.values())
         if len(order_urls) > 0:
             order_url = order_urls[0]
 
