@@ -1,8 +1,8 @@
-from datetime import datetime, timezone
 from enum import Enum
 
-from sqlalchemy import Column, DateTime
+from sqlalchemy import TIMESTAMP, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.sql import func
 
 from src.database import Base
 
@@ -31,7 +31,5 @@ class SyncState(Base):
     last_timestamp = Column(DateTime(timezone=True), nullable=False)
 
     updated_at = Column(
-        DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
     )

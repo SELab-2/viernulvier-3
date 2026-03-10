@@ -2,6 +2,8 @@
 
 from sqlalchemy import DECIMAL, TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from src.database import Base
 
 
@@ -15,8 +17,10 @@ class Event(Base):
     ends_at = Column(TIMESTAMP)
     order_url = Column(String)
     external_order_url = Column(String)
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
+    )
 
     production = relationship("Production", back_populates="events")
     hall = relationship("Hall", back_populates="events")
