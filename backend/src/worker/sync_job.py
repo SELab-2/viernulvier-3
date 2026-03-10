@@ -1,13 +1,14 @@
 import logging
-from datetime import datetime
 
-from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from sqlalchemy.orm import Session
 from src.database import SESSION_LOCAL
 from src.models.language import Language
-from src.models.sync_state import ResourceType, SyncType
-from src.worker.converters.production import api_prod_to_model_prod
+from src.models.sync_state import ResourceType
+from src.worker.fetchers.event import EventFetcher
+from src.worker.fetchers.event_prices import EventPriceFetcher
+from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
+from src.worker.sync.sync_new import sync_new_items
 from src.worker.vnv_wrapper import VNV_Wrapper
 
 # Logging is used in the other classes, but seeing as this file is the main
@@ -23,46 +24,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def sync_new_productions(
-    session: Session, language_map: dict[str, int], fetcher: ProductionFetcher
-):
-    last_timestamp = get_last_sync(
-        session, ResourceType.PRODUCTION, SyncType.CREATED_AT
-    )
-
-    productions = []
-    try:
-        productions = fetcher.get_new_productions_after(last_timestamp)
-    except ConnectionError:
-        if fetcher.has_partial_data():
-            productions = fetcher.get_and_clear_partial_data()
-
-    logger.info(f"fetched {len(productions)} new production(s) from API")
-
-    if not productions or len(productions) == 0:
-        return
-
-    newest_timestamp = last_timestamp
-
-    for json_prod in productions:
-        prod, prod_info = api_prod_to_model_prod(json_prod, language_map)
-        session.merge(prod)
-
-        for info in prod_info:
-            session.merge(info)
-
-        created_at = datetime.fromisoformat(json_prod["created_at"])
-        if created_at > newest_timestamp:
-            newest_timestamp = created_at
-
-    update_sync_state(
-        session, ResourceType.PRODUCTION, SyncType.CREATED_AT, newest_timestamp
-    )
-
-    session.commit()
-    logger.debug("committed sync_new_productions")
-
-
 # HACK: this will not be necessary anymore when we store languages by their
 #       code instead of by id
 def get_language_map(db_session: Session) -> dict[str, int]:
@@ -70,18 +31,31 @@ def get_language_map(db_session: Session) -> dict[str, int]:
     return {lang.language: lang.id for lang in languages}
 
 
-if __name__ == "__main__":
-    # This code does not do anything productive yet, but is here to kinda show
-    # how the classes inside `api_wrapper/` can be used.
+# The order in which to sync is defined here. If one type relies (via Foreign
+# Key constraints) on another, it should appear after the other in this list.
+SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
+    (ResourceType.PRODUCTION, ProductionFetcher),
+    (ResourceType.EVENT, EventFetcher),
+    (ResourceType.EVENT_PRICES, EventPriceFetcher),
+]
 
+
+def sync_all():
     db = SESSION_LOCAL()
     logger.info("connection with database created")
     lang_map = get_language_map(db)
 
     try:
         with VNV_Wrapper() as wrapper:
-            prod_fetcher = ProductionFetcher(wrapper)
-            sync_new_productions(db, lang_map, prod_fetcher)
+            for resource_type, fetcher_class in SYNC_ORDER:
+                fetcher = fetcher_class(wrapper)
+                sync_new_items(db, lang_map, fetcher, resource_type)
+                # And later:
+                # sync_updated_items(db, lang_map, fetcher, resource_type)
     finally:
         db.close()
         logger.info("connection with database closed")
+
+
+if __name__ == "__main__":
+    sync_all()
