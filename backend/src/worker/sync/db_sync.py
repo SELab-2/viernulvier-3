@@ -61,9 +61,8 @@ def update_sync_state(
     state.last_timestamp = new_timestamp
 
     logger.debug(
-        f"update_sync_state({resource}, {sync_type}) updates state timestamp to {
-            state.last_timestamp
-        }"
+        f"update_sync_state({resource}, {sync_type}) updates state timestamp to"
+        f" {state.last_timestamp}"
     )
 
     # No commit, happens inside the `sync_new_xxx()` so it commits together
