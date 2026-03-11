@@ -27,6 +27,7 @@ def store_new_events(
                 f"Not storing event (id={event.id}) because no associated production"
             )
             orphans += 1
+            continue
 
         elif event.production_id not in existing_productions:
             logger.warning(
@@ -34,10 +35,10 @@ def store_new_events(
                 f"production (id={event.production_id}) does not exist (anymore)"
             )
             orphans += 1
+            continue
 
         # Valid production id, so store this event
-        else:
-            db_session.merge(event)
+        db_session.merge(event)
 
         created_at_str = json_event.get("created_at")
         if created_at_str:
