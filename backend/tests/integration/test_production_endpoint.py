@@ -177,6 +177,7 @@ def test_patch_production_failure(
     )
 
     assert response.status_code == 403
+    assert response.json()["detail"] == "Incorrect permissions"
 
 
 # User cannot update a non existing production.
