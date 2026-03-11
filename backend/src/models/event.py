@@ -33,7 +33,6 @@ class EventPrice(Base):
 
     id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey("events.id"))
-    label = Column(String)
     amount = Column(DECIMAL)
     available = Column(Integer)
     expires_at = Column(TIMESTAMP)
