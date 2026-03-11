@@ -3,7 +3,7 @@ export default function Home() {
 		<div>
 			<title>Archief | VIERNULVIER</title>
 
-			<h1 className="text-3xl font-bold">Homepagina archief</h1>
+			<h1 className="text-3xl font-bold">Homepagina Archief</h1>
 		</div>
 	);
 }
