@@ -158,7 +158,7 @@ def test_patch_production_success(
     assert data["performer_type"] == "concert"
 
 
-# User without permissions should be able to update existing production.
+# User without permissions should not be able to update existing production.
 def test_patch_production_failure(
     client: TestClient, db_session: Session, productions_limited
 ):
@@ -203,7 +203,7 @@ def test_patch_production_not_found(
 
 # User with permissions can add a new info to an existing production.
 def test_patch_production_add_info_success(
-    client: TestClient, db_session: Session, language_en, productions_limited
+    client: TestClient, db_session: Session, productions_limited
 ):
     headers = create_user_and_login(
         client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
@@ -223,7 +223,7 @@ def test_patch_production_add_info_success(
 
 # User with permissions cannot add a new info to an existing production for an invalid language.
 def test_patch_production_add_info_invalid_language(
-    client: TestClient, db_session: Session, language_en, productions_limited
+    client: TestClient, db_session: Session, productions_limited
 ):
     headers = create_user_and_login(
         client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
@@ -241,7 +241,7 @@ def test_patch_production_add_info_invalid_language(
 
 # User with permissions can delete an existing info of an existing production.
 def test_patch_production_delete_info_success(
-    client: TestClient, db_session: Session, language_en, productions_limited
+    client: TestClient, db_session: Session, productions_limited
 ):
     headers = create_user_and_login(
         client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
