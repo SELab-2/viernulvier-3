@@ -72,3 +72,20 @@ dezelfde pagina als het eerste, en er liep iets mis voor die volgende pagina.
 Voor de veiligheid zal het script dus die kleine overlap ook opvragen, de
 databank zal er voor zorgen dat er geen dubbele items opgeslagen worden via
 restricties op uniekheid.
+
+
+## `sync_job` architectuur
+De padnamen laten steeds `backend/src/worker/` weg.
+
+Het entry-point van de sync-joc is `sync_job.py`. Hierin staan de verschillende
+resources (`Production`, `Event`, ...) opgelijst die gesynchroniseerd moeten
+worden.
+Per resource wordt er een nieuwe viernulvier-api-wrapper (`VNV_Wrapper`)
+aangemaakt (dus een nieuwe verbinding met de viernulvier server).
+Dan wordt het werk overgedragen aan de `sync/` folder. Hierin zal `sync/sync_new.py`
+de stappen orchestreren:
+- opvragen van laatste gesynchroniseerde timestamp aan de archief databank (`db_sync.py`)
+- ophalen van data van de api via gepagineerde fetchers (`fetchers/*`)
+- converteren van json api response naar databank objecten (`converters/*`)
+- databank objecten opslaan in de databank (`sync/store/*`)
+- nieuwe laatste timestamp in databank opslaan (`sync/db_sync.py`)
