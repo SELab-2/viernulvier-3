@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 from src.models.sync_state import ResourceType, SyncState, SyncType
@@ -8,7 +8,7 @@ from src.worker.sync.db_sync import get_last_sync, update_sync_state
 # Tiny test to check if the last stored timestamp for a resource- and synctype
 # is what we expect
 def test_get_last_sync_returns_timestamp(db_session):
-    ts = datetime(2024, 1, 1)
+    ts = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
     state = SyncState(
         resource=ResourceType.EVENT,
@@ -19,6 +19,11 @@ def test_get_last_sync_returns_timestamp(db_session):
     db_session.commit()
 
     result = get_last_sync(db_session, ResourceType.EVENT, SyncType.CREATED_AT)
+
+    # SQLite does not insert timezone info, postgres does, so here we are
+    # patching things up.
+    if result.tzinfo is None:
+        result = result.replace(tzinfo=timezone.utc)
 
     assert result == ts
 
