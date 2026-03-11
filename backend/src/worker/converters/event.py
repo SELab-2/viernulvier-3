@@ -3,7 +3,7 @@ from datetime import datetime
 from src.models.event import Event
 
 
-def api_event_to_model_event(json_event: dict, language_map: dict[str, int]) -> Event:
+def api_event_to_model_event(json_event: dict) -> Event:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.
@@ -25,7 +25,7 @@ def api_event_to_model_event(json_event: dict, language_map: dict[str, int]) -> 
     end_time = None
     end_str = json_event.get("ends_at")
     if end_str and end_str.strip() != "null":
-        end_time = datetime.fromisoformat(json_event["ends_at"])
+        end_time = datetime.fromisoformat(end_str)
 
     order_urls = json_event.get("external_order_url")
     order_url = None
