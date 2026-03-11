@@ -31,8 +31,8 @@ class ProductionResponse(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    # A production has a list of event urls (for the different events of that producttion).
-    # A production has a list of info urls (for different languages).
+    # A production has a list of event urls (for the different events of that production).
+    # A production has a list of infos (for different languages).
     production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
 

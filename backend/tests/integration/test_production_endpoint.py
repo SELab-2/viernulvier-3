@@ -133,6 +133,19 @@ def test_get_production_by_id_invalid_language(
     assert len(data["production_infos"]) == 2
 
 
+# Invalid id results in a 404.
+def test_get_production_by_id_invalid(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(client, db_session, "normal_user")
+    id = 1025
+    response = client.get(
+        BASE_URL + f"/{id}",
+        headers=headers,
+    )
+    assert response.status_code == 404
+
+
 # User with permissions should be able to update existing production.
 def test_patch_production_success(
     client: TestClient, db_session: Session, productions_limited
