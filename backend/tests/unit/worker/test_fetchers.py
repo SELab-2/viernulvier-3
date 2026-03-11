@@ -10,7 +10,7 @@ import pytest
 from unittest.mock import MagicMock
 from src.worker.fetchers.production import ProductionFetcher
 from src.worker.fetchers.event import EventFetcher
-from src.worker.fetchers.event_prices import EventPriceFetcher
+from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.halls import HallFetcher
 from src.worker.fetchers.genres import GenreFetcher
 from src.worker.fetchers.tags import TagFetcher
