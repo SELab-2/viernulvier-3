@@ -30,7 +30,7 @@ def store_new_eventprices(
 
         elif eventprice.event_id not in existing_events:
             logger.warning(
-                f"Not storing event (id={eventprice.id}) because the associated "
+                f"Not storing eventprice (id={eventprice.id}) because the associated "
                 f"event (id={eventprice.event_id}) does not exist (anymore)"
             )
             orphans += 1
