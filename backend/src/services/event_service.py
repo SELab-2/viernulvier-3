@@ -129,7 +129,6 @@ def get_prices_for_event(
         result.append(
             PriceResponse(
                 id=f"{base_url}/events/{event_id}/prices/{price.id}",
-                label=price.label,
                 amount=float(price.amount) if price.amount else None,
                 available=price.available,
                 expires_at=price.expires_at,
@@ -157,7 +156,6 @@ def get_event_price(
 
     return PriceResponse(
         id=f"{base_url}/events/{event_id}/prices/{price.id}",
-        label=price.label,
         amount=float(price.amount) if price.amount else None,
         available=price.available,
         expires_at=price.expires_at,

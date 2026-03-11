@@ -119,7 +119,7 @@ def test_delete_event_not_found(db_session):
 
 
 def test_get_prices_for_event(db_session, event):
-    price = EventPrice(event_id=event.id, label="Standard", amount=10, available=100)
+    price = EventPrice(event_id=event.id, amount=10, available=100)
 
     db_session.add(price)
     db_session.commit()
@@ -127,18 +127,18 @@ def test_get_prices_for_event(db_session, event):
     prices = get_prices_for_event(db_session, event.id, BASE_URL)
 
     assert len(prices) == 1
-    assert prices[0].label == "Standard"
+    assert prices[0].amount == 10
 
 
 def test_get_event_price_success(db_session, event):
-    price = EventPrice(event_id=event.id, label="VIP", amount=50)
+    price = EventPrice(event_id=event.id, amount=50)
 
     db_session.add(price)
     db_session.commit()
 
     result = get_event_price(db_session, event.id, price.id, BASE_URL)
 
-    assert result.label == "VIP"
+    assert result.amount == 50
 
 
 def test_get_event_price_not_found(db_session, event):

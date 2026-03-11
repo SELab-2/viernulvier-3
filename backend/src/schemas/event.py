@@ -6,7 +6,6 @@ from src.schemas.hall import HallSchema
 
 class PriceResponse(BaseModel):
     id: str
-    label: Optional[str] = None
     amount: Optional[float] = None
     available: Optional[int] = None
     expires_at: Optional[datetime] = None

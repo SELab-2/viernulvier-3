@@ -188,14 +188,12 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
 
     price1 = EventPrice(
         event=event,
-        label="Standard",
         amount=10.0,
         available=100,
     )
 
     price2 = EventPrice(
         event=event,
-        label="VIP",
         amount=25.0,
         available=50,
     )
@@ -209,8 +207,8 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
     data = response.json()
 
     assert len(data) == 2
-    assert any(p["label"] == "Standard" for p in data)
-    assert any(p["label"] == "VIP" for p in data)
+    assert any(p["available"] == 100 for p in data)
+    assert any(p["available"] == 50 for p in data)
 
 
 def test_get_event_prices_event_not_found(client: TestClient):
@@ -231,7 +229,6 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
 
     price = EventPrice(
         event=event,
-        label="Standard",
         amount=15.0,
         available=75,
     )
@@ -245,7 +242,6 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
     data = response.json()
 
     assert data["id"].endswith(str(price.id))
-    assert data["label"] == "Standard"
     assert float(data["amount"]) == 15.0
 
 
