@@ -235,8 +235,6 @@ def delete_production_by_id(db: Session, production_id: int) -> bool:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise ValueError(f"Production with id '{production_id}' not found.")
-    if not production:
-        return False
 
     db.query(ProdInfo).filter(ProdInfo.production_id == production_id).delete()
     db.query(Event).filter(Event.production_id == production_id).delete()
