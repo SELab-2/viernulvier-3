@@ -250,7 +250,7 @@ def test_update_production_info_add_invalid(db_session, productions_limited):
     # New info should not be added (french not supported).
     update = ProductionUpdate(
         production_infos=[
-            ProductionInfoUpdate(language="fr", title="Un brioche et deux macarons!")
+            ProductionInfoUpdate(language="fr", title="Une brioche et deux macarons!")
         ]
     )
 
