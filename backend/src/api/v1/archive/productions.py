@@ -24,7 +24,7 @@ router = APIRouter()
 
 # TODO: Add filter options (after merge tags-branch).
 # TODO: check for right upper/lower bounds.
-@router.get("/", response_model=ProductionListResponse)
+@router.get("/", response_model=ProductionListResponse, summary="Get productions", description="Gets all productions of the database, using pagination.")
 async def get_productions(
     request: Request,
     db: Session = Depends(get_db),
@@ -40,7 +40,7 @@ async def get_productions(
     return productions_data
 
 
-@router.post("/", response_model=ProductionResponse, status_code=201)
+@router.post("/", response_model=ProductionResponse, status_code=201, summary="Create production", description="Create a new production in the database.")
 async def post_production(
     production_in: ProductionCreate,
     request: Request,
@@ -56,7 +56,7 @@ async def post_production(
     return production_data
 
 
-@router.get("/{production_id}", response_model=ProductionResponse)
+@router.get("/{production_id}", response_model=ProductionResponse, summary="Get production by id", description="Gets a production with a certain id.")
 async def get_production(
     production_id: int,
     request: Request,
@@ -72,7 +72,7 @@ async def get_production(
     return production_data
 
 
-@router.patch("/{production_id}", response_model=ProductionResponse)
+@router.patch("/{production_id}", response_model=ProductionResponse, summary="Update production by id", description="Update a production with a certain id.")
 async def patch_production(
     production_id: int,
     production_in: ProductionUpdate,
@@ -91,7 +91,7 @@ async def patch_production(
     return production_data
 
 
-@router.delete("/{production_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{production_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete production by id", description="Deletes a production with a certain id.")
 async def delete_production(
     production_id: int,
     db: Session = Depends(get_db),
