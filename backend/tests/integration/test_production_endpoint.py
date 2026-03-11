@@ -271,7 +271,6 @@ def test_create_production_success(
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "media_gallery_id": 4,
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
         },
         headers=headers,

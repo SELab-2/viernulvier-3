@@ -100,9 +100,6 @@ def test_get_production_by_id_no_language(db_session, productions_limited):
     )
     assert production_response.performer_type == productions_limited[0].performer_type
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
-    assert (
-        production_response.media_gallery_id == productions_limited[0].media_gallery_id
-    )
     assert len(production_response.production_infos) == 2
     assert production_response.events == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
@@ -120,9 +117,6 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
     )
     assert production_response.performer_type == productions_limited[0].performer_type
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
-    assert (
-        production_response.media_gallery_id == productions_limited[0].media_gallery_id
-    )
     assert len(production_response.production_infos) == 1
     assert (
         production_response.production_infos[0].language_id_url
@@ -140,7 +134,6 @@ def test_create_production_valid_info(db_session, productions_limited):
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
-        media_gallery_id=4,
         production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
     )
 
@@ -154,7 +147,6 @@ def test_create_production_invalid_info(db_session, productions_limited):
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
-        media_gallery_id=4,
         production_info=ProductionInfoCreate(language="es", title="el production - es"),
     )
     with pytest.raises(ValueError, match="Language 'es' not supported"):
