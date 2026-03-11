@@ -1,3 +1,5 @@
+import logging
+
 from src.worker.vnv_wrapper import VNV_Wrapper
 
 
@@ -17,6 +19,7 @@ class PagedFetcher:
         Can be substituted by a mock implementation for tests.
         """
 
+        self.logger = logging.getLogger(__name__)
         self._paged_data: list | None = None
 
     def get_new_items_after(last_timestamp):
@@ -63,6 +66,14 @@ class PagedFetcher:
         members = data["member"]
         fetched_count = len(members)
         self._paged_data = members
+
+        PAGE_SIZE = 30
+        page_estimation = (total_items + PAGE_SIZE - 1) // PAGE_SIZE
+        self.logger.info(
+            f"Fetching {total_items} from {link}, estimated {
+                page_estimation
+            } pages to fetch"
+        )
 
         while fetched_count < total_items:
             page += 1
