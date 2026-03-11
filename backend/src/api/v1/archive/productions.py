@@ -7,7 +7,7 @@ from src.schemas.production import (
     ProductionResponse,
     ProductionUpdate,
 )
-from src.services.production_service import (
+from src.services.production import (
     create_production,
     get_production_by_id,
     get_productions_paginated,

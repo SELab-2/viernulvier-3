@@ -1,5 +1,5 @@
 from src.models.language import Language
-from src.services.production_service import (
+from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
     get_events_for_production,
@@ -231,7 +231,7 @@ def test_update_production_info_add(db_session, productions_limited):
     # New info should be added.
     update = ProductionUpdate(
         production_infos=[
-            ProductionInfoUpdate(language="fr", title="Un brioche et deux macarons!")
+            ProductionInfoUpdate(language="fr", title="Une brioche et deux macarons!")
         ]
     )
 

@@ -284,7 +284,7 @@ def test_create_production_success(
     assert data["attendance_mode"] == "offline"
 
 
-# User should not be able to create a new production because of persmissions.
+# User should not be able to create a new production because of permissions.
 def test_create_production_failure(
     client: TestClient, db_session: Session, language_nl
 ):

@@ -16,7 +16,6 @@ def build_production_info_response(
     production_info: ProdInfo, base_url: str
 ) -> ProductionInfoResponse:
     return ProductionInfoResponse(
-        id_url=f"{base_url}/productions/{production_info.production_id}/infos/{production_info.language_id}",
         production_id_url=f"{base_url}/productions/{production_info.production_id}",
         language_id_url=f"{base_url}/languages/{production_info.language_id}",
         title=production_info.title,
@@ -178,7 +177,7 @@ def update_production_by_id(
         raise ValueError(f"Production with id '{production_id}' not found.")
 
     update_data = production_in.model_dump(
-        exclude_unset=True, exclude={"info", "remove_languages"}
+        exclude_unset=True, exclude={"remove_languages"}
     )
     for field, value in update_data.items():
         setattr(production, field, value)
