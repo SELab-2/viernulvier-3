@@ -1,6 +1,6 @@
 # viernulvier-3
 
-Een webapplicatie voor het archief van VIERNULVIER, opgebouwd uit vier Docker-containers: een Nginx reverse proxy, een React frontend, een FastAPI backend en een PostgreSQL database.
+Webapplicatie voor het archief van VIERNULVIER.
 
 Voor een gedetailleerd overzicht van de architectuur en ontwerpbeslissingen, zie [`docs/architecture.md`](docs/architecture.md) en [`docs/adr/`](docs/adr/).
 

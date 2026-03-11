@@ -1,6 +1,6 @@
-# ADR-007: Up to date archief
+# ADR-010: Sync worker houdt het archief up-to-date
 
-**Status:** Proposed
+**Status:** Accepted
 **Datum:** 2026-02-22
 
 ## Context

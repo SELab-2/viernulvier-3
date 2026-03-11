@@ -1,191 +1,262 @@
 # Architectuur Documentatie: VIERNULVIER Archief
 
-> **STATUS: DRAFT** Dit document is momenteel een werkversie. Beslissingen over
-> de exacte implementatie moeten nog worden gefinaliseerd.
+Dit document beschrijft de high-level architectuur van het VIERNULVIER-archief, met aandacht voor de verschillende componenten en hun onderlinge interacties binnen de gecontaineriseerde omgeving.
 
-Dit document beschrijft de technische opbouw, de interactie tussen componenten
-en de veiligheidsstrategie van het systeem.
+## 1. Systeemoverzicht
 
-## 1. Systeem Overzicht
+De applicatie draait als een gecontaineriseerde webstack met een duidelijke
+scheiding tussen publieke HTTP-verwerking, businesslogica, data-opslag en
+achtergrondtaken.
 
-Het systeem is opgebouwd volgens een **Four-Tier Architecture**,
-gecontaineriseerd met Docker (zie [ADR-001](adr/001-docker.md) en
-[ADR-002](adr/002-four-container-architecture.md)). De architectuur is ontworpen
-om robuustheid en gegevensintegriteit te garanderen, met een strikte scheiding
-tussen publieke interface en administratieve achtergrondtaken.
+- De basisstack bestaat uit vier langlevende services: `proxy`, `frontend`,
+  `backend` en `database`.
+- Een aparte `sync_worker` gebruikt dezelfde backend-image, maar draait enkel
+  op aanvraag via het `sync`-profiel.
+- In productie voegt `docker-compose.prod.yml` een extra `certbot`-service toe
+  voor certificaatvernieuwing en wordt de productie-Nginx-configuratie geladen.
 
-## 2. Infrastructuur & Componenten
+De keuze voor deze containeropzet is verder uitgewerkt in
+[ADR-001](adr/001-docker.md) en
+[ADR-002](adr/002-four-container-architecture.md).
 
-Het systeem is verdeeld in vijf logische componenten die draaien binnen een
-afgeschermd virtueel Docker-netwerk op de host-server.
+## 2. Runtime-topologie
 
-```mermaid
-graph TD
-    User((🌐 Bezoeker & Admin <br/> Browser))
-    ExternalAPI[Externe VIERNULVIER API]
+![Runtime Topologie](assets/architecture_diagram.png)
 
-    subgraph Host_Server [Server Host]
-        direction TB
-        Port443[Poort 443: HTTPS]
-        Port80[Poort 80: HTTP]
-        Cron((Cron Job <br/> 02:00 AM))
+### 2.1 Netwerkgrenzen
 
-        subgraph Docker_Network [Intern Docker Netwerk]
-            direction TB
+- Alleen de `proxy`-container publiceert poorten naar buiten.
+- `frontend` en `backend` gebruiken `expose` en zijn enkel intern bereikbaar.
+- `database` heeft geen publieke poortbinding en is dus alleen vanuit het
+  Docker-netwerk toegankelijk.
+- `backend` en `sync_worker` wachten op een gezonde database via de
+  PostgreSQL-healthcheck in `docker-compose.yml`.
 
-            subgraph Proxy_Container [Proxy Container: Nginx]
-                direction TB
-                Proxy[Nginx Reverse Proxy]
-            end
+## 3. Componenten
 
-            subgraph Frontend_Container [Frontend Container: Node.js]
-                direction TB
-                ReactApp[React App <br/> Server-Side Rendered]
-            end
+### 3.1 Proxy
 
-            subgraph Backend_Container [Backend Container: Python]
-                direction LR
-                Auth[Auth Service]
-                Archive[Archive Service]
-            end
+De proxy gebruikt **Nginx** als enige publieke toegangspoort.
 
-            subgraph Sync_Worker [Sync Worker: Python]
-                direction TB
-                Ingest[Ingestie Script]
-            end
+- In de basisstack luistert Nginx op poort `80` en routeert het verkeer op pad.
+- Verkeer naar `/api/` wordt doorgestuurd naar `backend:8000`.
+- Alle andere requests worden doorgestuurd naar `frontend:3000`.
 
-            subgraph DB_Container [Database Container: PostgreSQL]
-                UsersTable[(Users Table)]
-                ArchiveData[(Archive Data)]
-            end
-        end
-    end
+In productie wordt de proxy uitgebreid met TLS-terminatie:
 
-    %% Flow van verkeer
-    User --> Port443
-    User --> Port80
+- HTTP op poort `80` dient voor redirects naar HTTPS en validatie.
+- HTTPS op poort `443` gebruikt Let's Encrypt-certificaten uit een gedeeld
+  volume.
+- Nginx wordt periodiek gerefresht zodat vernieuwde certificaten worden
+  opgepikt zonder de stack volledig te herstarten.
 
-    Port443 --> Proxy
-    Port80 --> Proxy
+De productie-aanpak rond TLS-terminatie en certificaatbeheer is vastgelegd in
+[ADR-013](adr/013-nginx-tls-certbot.md).
 
-    Proxy -- "Frontend Requests: /" --> ReactApp
-    Proxy -- "API Requests: /api/..." --> Backend_Container
+### 3.2 Frontend
 
-    %% Sync Flow
-    ExternalAPI --> Ingest
-    Cron -. "docker compose run" .-> Sync_Worker
-    Ingest --> ArchiveData
+De frontend draait als een aparte **Node.js 20** container.
 
-    %% DB Connections
-    Auth --> UsersTable
-    Archive --> ArchiveData
+- De image wordt gebouwd via een multi-stage Dockerfile.
+- De container start via `npm run start` en luistert intern op poort `3000`.
+- De frontend blijft achter de proxy en hoeft daarom geen eigen publieke
+  netwerkconfiguratie te bevatten.
 
-    %% Styling
-    style Host_Server fill:#b9b9b9,stroke:#333,stroke-dasharray: 5 5
-    style Proxy_Container fill:#c8e6c9,stroke:#388e3c,color:#000
-    style Frontend_Container fill:#b0c4de,stroke:#4682b4,color:#000
-    style Backend_Container fill:#ffe4b5,stroke:#cd853f,color:#000
-    style DB_Container fill:#bc8f8f,stroke:#8b4513,color:#000
-    style Sync_Worker fill:#d1d1d1,stroke:#666,stroke-dasharray: 3 3
-    style ExternalAPI fill:#98fb98,stroke:#228b22,color:#000
-```
+De keuze voor het React-framework en de component-bibliotheek is vastgelegd in
+[ADR-005](adr/005-react-frontend.md) en
+[ADR-006](adr/006-mui-frontend.md).
 
-### 2.1 Proxy Container (Toegangspoort)
+### 3.3 Backend API
 
-De enige container die direct verbonden is met de buitenwereld (Poort 80/443),
-gebouwd met **Nginx**.
+De backend draait op **Python 3.14.3**, **FastAPI** en **Uvicorn**.
 
-- **Reverse Proxy:** Routeert inkomend verkeer naar de juiste interne container.
-- **SSL-terminatie:** Handelt HTTPS af en forceert versleutelde verbindingen via
-  een 301-redirect.
-- **Routing:** Stuurt `/api/*` verzoeken door naar de backend-container en alle
-  overige verzoeken naar de frontend-container, via het interne Docker-netwerk.
+De keuze voor FastAPI als backendframework en Uvicorn als ASGI-server is
+gemotiveerd in [ADR-004](adr/004-fastapi-backend.md) en
+[ADR-007](ais een **RESTful API** en dr/007-uvicorn-asgi-server.md).
 
-### 2.2 Frontend Container (Gebruikersinterface)
+- De FastAPI-app gebruikt `root_path="/api"` en hangt alle API-routes onder
+  `/api/v1`.
+- De router is opgesplitst in drie hoofddomeinen:
+  `status`, `auth` en `archive`.
+- `status` bevat de healthcheck waarmee de API en databaseconnectie getest
+  worden.
+- `auth` bevat login, token refresh, profielopvraging en beheer van rollen en
+  permissies.
+- `archive` bevat de CRUD-operaties voor archiefentiteiten zoals producties,
+  events, halls en tags.
 
-Serveert de React-applicatie, gebouwd met **Node.js 20**.
+De backend-container voert bij elke start eerst `python init_db.py` uit en pas
+daarna `uvicorn src.main:app`.
 
-- **React Router:** Maakt gebruik van server-side rendering via React Router
-  voor snelle paginaweergave.
-- **Intern:** Luistert op poort 3000, enkel bereikbaar via de proxy-container.
-- **Build:** Gebruikt een multi-stage Docker build voor een geoptimaliseerde
-  productie-image.
+Deze initialisatie-stap is cruciaal voor de "zero-config" ervaring:
 
-### 2.3 Backend Container (API & Business Logic)
+- **Schema-sync:** Alle SQLAlchemy-tabellen worden aangemaakt indien ze nog niet bestaan.
+- **Seeding:** Basisseeding wordt uitgevoerd voor permissies, talen, de `admin`-rol en een default admingebruiker (instelbaar via `.env`).
+- **Idempotentie:** Het script kan veilig meerdere keren worden uitgevoerd zonder bestaande data te overschrijven.
 
-De logische kern van de applicatie, gebouwd met **Python 3.14.3 en FastAPI**. De
-applicatie wordt geserveerd door **Uvicorn** (zie
-[ADR-007](adr/007-uvicorn-asgi-server.md)).
+De backend is opgezet als een stateless API: verzoeken gebruiken een
+database-sessie per request en beveiligde endpoints vertrouwen op Bearer-tokens
+in plaats van server-side sessiestatus.
 
-- **Shared Logic Layer:** Bevat de centrale business rules en **SQLAlchemy**
-  database-modellen (zie [ADR-008](adr/008-sqlalchemy-orm.md)) die gedeeld
-  worden met de Sync Worker.
-- **Stateless API:** Maakt gebruik van JWT-tokens voor authenticatie en Pydantic
-  voor strikte data-validatie.
-- **Database Connectie:** Gebruikt de **psycopg2-binary** adapter om te
-  communiceren met PostgreSQL (zie
-  [ADR-009](adr/009-psycopg2-binary-adapter.md)).
-- **Services:** Intern verdeeld in een `Auth Service` en een `Archive Service`.
+### 3.4 Authenticatie en autorisatie
 
-### 2.4 Sync Worker (Nightly Data Ingestie)
+De huidige authenticatielaag is JWT-gebaseerd en rolgedreven.
 
-Een kortstondige (**ephemeral**) container die dezelfde base-image gebruikt als
-de backend.
+- `POST /api/v1/auth/login` valideert gebruikersnaam en wachtwoord en levert
+  zowel een access token als een refresh token op.
+- `POST /api/v1/auth/refresh` levert op basis van een geldig refresh token een
+  nieuw access token op.
+- Access tokens bevatten het gebruikers-ID, de rolnaam of rolnamen en de
+  afgeleide permissies van die rollen.
+- Beschermde endpoints gebruiken de `HTTPBearer` dependency en halen daarna de
+  actuele gebruiker uit de databank.
+- Autorisatie gebeurt via `RequirePermissions(...)`, dat controleert of de
+  huidige gebruiker de vereiste permissies heeft.
 
-- **Automatisering:** Wordt elke nacht om 02:00 aangeroepen via de host-system
-  **Cron**.
-- **Functie:** Haalt autonoom data op uit de externe VIERNULVIER API en
-  synchroniseert deze met de lokale database.
-- **Isolatie:** Draait als een apart proces om de publieke API niet te belasten.
+Dit levert in de praktijk een eenvoudige RBAC-opzet op met deze lagen:
 
-### 2.5 Database Container (Opslag)
+1. `users`
+2. `roles`
+3. `permissions`
+4. koppelrelaties `user_roles` en `role_permissions`
 
-Een **PostgreSQL 15** database die volledig is geïsoleerd van het internet.
+De keuze voor deze JWT- en RBAC-opzet is vastgelegd in
+[ADR-012](adr/012-jwt-rbac-authentication.md).
 
-- **Toegang:** Alleen bereikbaar voor de `backend` en `sync-worker` containers.
-- **Persistentie:** Maakt gebruik van named Docker volumes voor data-behoud bij
-  updates.
+### 3.5 Database
 
-## 3. Data Flow & Integriteit
+De databank draait in een aparte **PostgreSQL 15 alpine** container.
 
-### 3.1 Gebruikersinteractie (Read/Write)
+De keuze voor PostgreSQL als relationele databank is gemotiveerd in
+[ADR-003](adr/003-postgresql-database.md).
+- Persistentie gebeurt via het named volume `postgres_data`.
+- SQLAlchemy beheert het datamodel en de sessies.
+- De backend gebruikt een gedeelde declarative `Base` voor alle modellen.
+- Requests gebruiken een korte SQLAlchemy-sessie via `Depends(get_db)`.
 
-Wanneer een gebruiker of admin een actie uitvoert:
+De databank bevat niet alleen archiefdata, maar ook authenticatiegegevens zoals
+gebruikers, rollen en permissies.
 
-1. **Request:** Browser stuurt een HTTPS/JSON verzoek.
-2. **Proxy:** Nginx routeert het verzoek naar de frontend- of backend-container
-   op basis van het URL-pad.
-3. **Processing:** De backend valideert het verzoek en voert SQL-queries uit.
-4. **Response:** Data wordt als JSON teruggestuurd naar de frontend.
+De keuze voor SQLAlchemy en de PostgreSQL-driver is uitgewerkt in
+[ADR-008](adr/008-sqlalchemy-orm.md) en
+[ADR-009](adr/009-psycopg2-binary-adapter.md).
 
-### 3.2 Nachtelijke Synchronisatie & Transacties
+### 3.6 Sync worker
 
-Om de betrouwbaarheid van het archief te garanderen, volgt de Sync Worker een
-strikt protocol:
+De sync worker is een aparte procesrol boven op dezelfde Docker-image als de
+backend.
 
-1. **Fetch:** Data wordt opgehaald bij de externe bron.
-2. **Atomic Transaction:** De worker opent één enkele **SQL-transactie** voor de
-   gehele update-cyclus.
-3. **Commit/Rollback:** Pas als alle data succesvol is verwerkt, wordt de
-   `COMMIT` uitgevoerd. Bij een netwerkfout of crash vindt een automatische
-   `ROLLBACK` plaats, waardoor de database nooit in een inconsistente staat
-   verkeert.
+- De service gebruikt `python -m src.worker.sync_job` als entrypoint.
+- Ze draait niet standaard mee met `docker compose up`, maar alleen via het
+  `sync`-profiel of via een expliciete `docker compose run`.
+- De worker gebruikt dezelfde configuratie en codebasis als de backend,
+  inclusief toegang tot de databank en gedeelde modellen.
+- De worker bevat een API-wrapperlaag rond de externe VIERNULVIER-API voor het synchroniseren van data zoals producties en events.
 
-## 4. Beveiliging & Persistentie
+De scheiding tussen publieke API en achtergrondsync is apart vastgelegd in de
+[ADR-010](adr/010-up-to-date-database.md).
 
-### 4.1 Transport & Authenticatie
+### 3.7 Certbot in productie
 
-- **TLS:** Al het inkomende verkeer is versleuteld.
-- **JWT:** Authenticatie voor admin-functies gebeurt via stateless JSON Web
-  Tokens in de HTTP-headers.
+De productie-override voegt een aparte `certbot`-container toe.
 
-### 4.2 Data Persistentie
+- `certbot-www` wordt gebruikt voor validatie challenges.
+- `certbot-certs` bevat de uitgegeven certificaten.
+- Certbot draait in een lus met `certbot renew` zodat certificaatvernieuwing
+  geautomatiseerd is.
 
-- `db_data`: Volume voor de PostgreSQL data-directory.
-- `media_storage`: Volume voor fysieke archiefstukken (scans, afbeeldingen).
+## 4. Belangrijkste datastromen
 
-## 5. Ontwerpbeslissingen
+### 4.1 Browserverkeer
 
-Gedetailleerde argumentatie voor specifieke keuzes (zoals de keuze voor een
-directe DB-verbinding voor de worker boven een API-tussenlaag) is vastgelegd in
-de **Architecture Decision Records (ADRs)** in `/docs/adr/`.
+1. Een browser stuurt een request naar de host op poort `80` of `443`.
+2. Nginx beslist op basis van het pad of het request naar frontend of backend
+   moet.
+3. De frontend levert HTML of app-responses voor gebruikerspagina's.
+4. De backend verwerkt API-calls, raadpleegt PostgreSQL en geeft JSON terug.
+
+Omdat frontend en backend achter dezelfde proxy hangen, verloopt de publieke
+toegang als same-origin verkeer via Nginx in plaats van via directe
+cross-origin browsercalls.
+
+### 4.2 Authenticatieflow
+
+1. Een admin meldt zich aan via `POST /api/v1/auth/login`.
+2. De backend verifieert het wachtwoord tegen de gehashte waarde in de
+   `users`-tabel.
+3. Bij succes worden JWT-tokens uitgegeven.
+4. Bij volgende requests wordt het access token meegestuurd als Bearer-token.
+5. De backend decodeert het token, haalt de gebruiker opnieuw op uit de
+   databank en controleert daarna de vereiste permissies.
+
+Door de gebruiker opnieuw uit de databank te laden, blijft autorisatie
+gekoppeld aan de actuele rollenstructuur en niet enkel aan oude tokenclaims.
+
+### 4.3 Opstartflow van de backend
+
+1. Docker start de databasecontainer.
+2. Zodra de healthcheck slaagt, mag de backend opstarten.
+3. `init_db.py` maakt tabellen aan en seedt basisdata.
+4. Daarna start Uvicorn de FastAPI-app.
+
+Dit zorgt ervoor dat een nieuwe omgeving zonder handmatige bootstrap een
+minimale bruikbare auth-configuratie krijgt.
+
+### 4.4 Synchronisatieflow
+
+1. Een beheerder of host-cron start `sync_worker` expliciet.
+2. De worker gebruikt de API key uit `.env` om de externe VIERNULVIER-API aan
+   te spreken.
+3. Fetcherklassen halen pagineerbare datasets op, zoals producties en events.
+4. Verdere opslaglogica kan dezelfde gedeelde backendcode en databanklaag
+   hergebruiken.
+
+De worker is dus architecturaal gescheiden van het publieke HTTP-pad, zodat
+achtergrondverwerking geen impact hoeft te hebben op de responstijd van de API.
+
+## 5. Beveiliging
+
+### 5.1 Transportbeveiliging
+
+- Lokaal draait de stack standaard over HTTP op poort `80`.
+- In productie wordt HTTP gereduceerd tot redirect- en ACME-verkeer.
+- Alle normale gebruikersrequests horen in productie over HTTPS te lopen.
+
+### 5.2 Applicatiebeveiliging
+
+- Authenticatie gebruikt JWT access en refresh tokens.
+- Wachtwoorden worden gehasht opgeslagen, nooit in plaintext.
+- Autorisatie is fijnmazig en permissiegedreven in plaats van enkel
+  rolgedreven op endpointniveau.
+- De databank is niet rechtstreeks publiek bereikbaar.
+- **Geheimenbeheer:** Geheimen zoals database-credentials, de JWT-secret en de externe API-key worden via één centraal `.env`-bestand beheerd dat door alle relevante containers wordt ingelezen.
+
+## 6. Persistentie en deploymentvarianten
+
+### 6.1 Persistente volumes
+
+- `postgres_data`: PostgreSQL-data. Wordt beheerd door de `database`-container maar is de enige bron van waarheid voor zowel `backend` als `sync_worker`.
+- `certbot-www`: webroot voor validatie challenges in productie. Gedeeld tussen `proxy` en `certbot`.
+- `certbot-certs`: Let's Encrypt-certificaten in productie. Gedeeld tussen `proxy` en `certbot`.
+
+### 6.2 Compose-varianten
+
+- `docker-compose.yml`: lokale of generieke basisstack.
+- `docker-compose.prod.yml`: productie-override voor TLS, Certbot en restartbeleid.
+- `docker-compose.ci.yml`: aparte CI-configuratie voor tests.
+
+## 7. Kwaliteitsborging
+
+De betrouwbaarheid van de backend wordt gewaarborgd door een uitgebreide
+testsuite op basis van **Pytest**.
+
+- Er wordt onderscheid gemaakt tussen unit tests (logica) en integratietesten
+  (endpoints en database).
+- De teststrategie en de keuze voor Pytest zijn vastgelegd in
+  [ADR-011](adr/011-pytest-backend-test.md).
+
+## 8. ADRs
+
+De detailmotivatie voor grotere ontwerpbeslissingen staat in `docs/adr/`.
+In dit document worden vooral de ADRs aangehaald die rechtstreeks horen bij de
+containeropzet, backendstack, authenticatie, sync worker en productieproxy.
