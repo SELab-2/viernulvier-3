@@ -79,10 +79,10 @@ def client():
 @pytest.fixture
 def productions_limited(db_session, language_nl, language_en):
     prod1 = Production(
-        performer_type="theater", attendance_mode="offline", media_gallery_id=1
+        performer_type="theater", attendance_mode="offline",
     )
     prod2 = Production(
-        performer_type="concert", attendance_mode="online", media_gallery_id=2
+        performer_type="concert", attendance_mode="online",
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
@@ -116,7 +116,7 @@ def many_productions(db_session, language_nl, language_en):
     productions = []
     for i in range(10):
         prod = Production(
-            performer_type="theater", attendance_mode="offline", media_gallery_id=i + 1
+            performer_type="theater", attendance_mode="offline",
         )
         db_session.add(prod)
         db_session.flush()
