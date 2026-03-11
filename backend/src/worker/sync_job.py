@@ -5,7 +5,7 @@ from src.database import SESSION_LOCAL
 from src.models.language import Language
 from src.models.sync_state import ResourceType
 from src.worker.fetchers.event import EventFetcher
-from src.worker.fetchers.event_prices import EventPriceFetcher
+from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
 from src.worker.sync.sync_new import sync_new_items
@@ -46,8 +46,10 @@ def sync_all():
     lang_map = get_language_map(db)
 
     try:
-        with VNV_Wrapper() as wrapper:
-            for resource_type, fetcher_class in SYNC_ORDER:
+        for resource_type, fetcher_class in SYNC_ORDER:
+            # New wrapper because otherwise the api behaves strange when
+            # fetching a lot of data. Strang api...
+            with VNV_Wrapper() as wrapper:
                 fetcher = fetcher_class(wrapper)
                 sync_new_items(db, lang_map, fetcher, resource_type)
                 # And later:
