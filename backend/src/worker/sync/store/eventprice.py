@@ -24,9 +24,12 @@ def store_new_eventprices(
         # ForeignKey violation
         if not eventprice.event_id:
             logger.warning(
-                f"Not storing eventprice (id={eventprice.id}) because no associated event"
+                f"Not storing eventprice (id={
+                    eventprice.id
+                }) because no associated event"
             )
             orphans += 1
+            continue
 
         elif eventprice.event_id not in existing_events:
             logger.warning(
@@ -34,15 +37,18 @@ def store_new_eventprices(
                 f"event (id={eventprice.event_id}) does not exist (anymore)"
             )
             orphans += 1
+            continue
 
         # Valid event id, so store this eventprice
-        else:
-            db_session.merge(eventprice)
+        db_session.merge(eventprice)
 
         created_at_str = json_price.get("created_at")
         if created_at_str:
             created_at_str = datetime.fromisoformat(created_at_str)
             if newest_timestamp is None or created_at_str > newest_timestamp:
                 newest_timestamp = created_at_str
+
+    if orphans > 2:
+        logger.warning(f"Skipped {orphans} eventprices due to no valid event_id")
 
     return newest_timestamp
