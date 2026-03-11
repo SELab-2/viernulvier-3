@@ -1,14 +1,22 @@
 import logging
+import types
 
 from sqlalchemy.orm import Session
 from src.models.sync_state import ResourceType, SyncType
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.sync.db_sync import get_last_sync, update_sync_state
-from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
+from src.worker.sync.store.production import store_new_productions
 
 logger = logging.getLogger(__name__)
+
+
+STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
+    ResourceType.PRODUCTION: store_new_productions,
+    ResourceType.EVENT: store_new_events,
+    ResourceType.EVENT_PRICES: store_new_eventprices,
+}
 
 
 def store_new_items(
@@ -23,13 +31,13 @@ def store_new_items(
     ---
 
     :returns: the newest timestamp
+    :raises ValueError: when there is no store function for the given `resource_type`
     """
-    if resource_type == ResourceType.PRODUCTION:
-        return store_new_productions(db_session, language_map, items)
-    elif resource_type == ResourceType.EVENT:
-        return store_new_events(db_session, language_map, items)
-    elif resource_type == ResourceType.EVENT_PRICES:
-        return store_new_eventprices(db_session, language_map, items)
+    store_fn = STORE_FUNCTIONS.get(resource_type)
+    if not store_fn:
+        raise ValueError(f"No store function registered for {resource_type}")
+
+    return store_fn(db_session, language_map, items)
 
 
 def sync_new_items(
