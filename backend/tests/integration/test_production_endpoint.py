@@ -50,8 +50,7 @@ def create_user_and_login(
 def test_get_productions_success(
     client: TestClient, db_session: Session, many_productions
 ):
-    headers = create_user_and_login(client, db_session, "normal_user")
-    response = client.get(BASE_URL + "/", headers=headers, params={"limit": 5})
+    response = client.get(BASE_URL + "/", params={"limit": 5})
     assert response.status_code == 200
 
     # Check first page.
@@ -61,9 +60,7 @@ def test_get_productions_success(
     assert next_cursor is not None
     assert data["pagination"]["has_more"]
 
-    response = client.get(
-        BASE_URL + "/", headers=headers, params={"cursor": next_cursor, "limit": 5}
-    )
+    response = client.get(BASE_URL + "/", params={"cursor": next_cursor, "limit": 5})
     assert response.status_code == 200
 
     # Check second (last) page.
@@ -75,8 +72,7 @@ def test_get_productions_success(
 
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
-    headers = create_user_and_login(client, db_session, "normal_user")
-    response = client.get(BASE_URL + "/", headers=headers, params={"limit": 5})
+    response = client.get(BASE_URL + "/", params={"limit": 5})
     assert response.status_code == 200
 
     data = response.json()
@@ -90,11 +86,9 @@ def test_get_productions_empty(client: TestClient, db_session: Session):
 def test_get_production_by_id_all_infos(
     client: TestClient, db_session: Session, productions_limited
 ):
-    headers = create_user_and_login(client, db_session, "normal_user")
     id = productions_limited[0].id
     response = client.get(
         BASE_URL + f"/{id}",
-        headers=headers,
     )
     assert response.status_code == 200
 
@@ -106,11 +100,10 @@ def test_get_production_by_id_all_infos(
 def test_get_production_by_id_valid_language(
     client: TestClient, db_session: Session, productions_limited
 ):
-    headers = create_user_and_login(client, db_session, "normal_user", language="nl")
     id = productions_limited[0].id
     response = client.get(
         BASE_URL + f"/{id}",
-        headers=headers,
+        headers={"Accept-Language": "nl"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -122,11 +115,9 @@ def test_get_production_by_id_valid_language(
 def test_get_production_by_id_invalid_language(
     client: TestClient, db_session: Session, productions_limited
 ):
-    headers = create_user_and_login(client, db_session, "normal_user", language="es")
     id = productions_limited[0].id
     response = client.get(
         BASE_URL + f"/{id}",
-        headers=headers,
     )
     assert response.status_code == 200
     data = response.json()
@@ -137,11 +128,9 @@ def test_get_production_by_id_invalid_language(
 def test_get_production_by_id_invalid(
     client: TestClient, db_session: Session, productions_limited
 ):
-    headers = create_user_and_login(client, db_session, "normal_user")
     id = 1025
     response = client.get(
         BASE_URL + f"/{id}",
-        headers=headers,
     )
     assert response.status_code == 404
 
@@ -298,7 +287,6 @@ def test_create_production_success(
 def test_create_production_failure(
     client: TestClient, db_session: Session, language_nl
 ):
-    headers = create_user_and_login(client, db_session, "normal_user")
     response = client.post(
         BASE_URL + "/",
         json={
@@ -307,10 +295,9 @@ def test_create_production_failure(
             "media_gallery_id": 4,
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
         },
-        headers=headers,
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 # User should not be able to create a new production because of unsupported lanuage.
