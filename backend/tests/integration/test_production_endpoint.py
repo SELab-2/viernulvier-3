@@ -232,7 +232,7 @@ def test_patch_production_add_info_invalid_language(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"production_infos": [{"language": "es", "title": "prod2_en"}]},
+        json={"production_infos": [{"language": "es", "title": "prod2_es"}]},
         headers=headers,
     )
 
