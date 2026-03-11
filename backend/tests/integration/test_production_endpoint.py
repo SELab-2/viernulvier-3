@@ -301,7 +301,7 @@ def test_create_production_failure(
     assert response.status_code == 401
 
 
-# User should not be able to create a new production because of unsupported lanuage.
+# User should not be able to create a new production because of unsupported language.
 def test_create_production_unsupported_language(
     client: TestClient, db_session: Session, language_nl
 ):
