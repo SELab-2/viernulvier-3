@@ -6,6 +6,7 @@ from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.event import store_new_events
+from src.worker.sync.store.eventprice import store_new_eventprices
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,8 @@ def store_new_items(
         return store_new_productions(db_session, language_map, items)
     elif resource_type == ResourceType.EVENT:
         return store_new_events(db_session, language_map, items)
+    elif resource_type == ResourceType.EVENT_PRICES:
+        return store_new_eventprices(db_session, language_map, items)
 
 
 def sync_new_items(
