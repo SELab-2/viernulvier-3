@@ -6,6 +6,7 @@ from src.models.role import Role
 from src.models.user import User
 from src.schemas.auth import UserCreate, UserPatch, UserReplace, UserResponse
 from src.services.auth.password import get_password_hash
+from src.services.auth.permissions import Permissions
 
 
 def get_user(db: Session, username: str) -> Optional[User]:
@@ -38,18 +39,25 @@ def _commit_user_changes(db: Session, user: User) -> UserResponse:
     return _to_user_response(user)
 
 
-def _to_user_response(user: User) -> UserResponse:
-    roles = sorted(role.name for role in user.roles)
-    permissions = sorted(
+def get_user_permission_names(user: User) -> List[str]:
+    if user.super_user:
+        return sorted(Permissions.all())
+
+    return sorted(
         {permission.name for role in user.roles for permission in role.permissions}
     )
+
+
+def _to_user_response(user: User) -> UserResponse:
+    roles = sorted(role.name for role in user.roles)
     return UserResponse(
         id=user.id,
         username=user.username,
+        super_user=user.super_user,
         created_at=user.created_at,
         last_login_at=user.last_login_at,
         roles=roles,
-        permissions=permissions,
+        permissions=get_user_permission_names(user),
     )
 
 
@@ -127,8 +135,20 @@ def patch_user(db: Session, user_id: int, update: UserPatch) -> UserResponse:
     return _commit_user_changes(db, user)
 
 
-def delete_user(db: Session, user_id: int) -> None:
+def delete_user(db: Session, user_id: int, current_user: User) -> None:
     user = _get_user_or_404(db, user_id)
+
+    if user.super_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super users cannot be deleted",
+        )
+
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You cannot delete your own account",
+        )
 
     db.delete(user)
     db.commit()

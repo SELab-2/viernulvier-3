@@ -16,6 +16,7 @@ from src.services.auth.user import (
     create_user,
     delete_user,
     get_user_detail,
+    get_user_permission_names,
     get_user_profile,
     list_users,
     patch_user,
@@ -41,5 +42,6 @@ __all__ = [
     "replace_user",
     "patch_user",
     "delete_user",
+    "get_user_permission_names",
     "get_user_profile",
 ]

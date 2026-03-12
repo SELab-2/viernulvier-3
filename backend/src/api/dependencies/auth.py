@@ -31,6 +31,9 @@ class RequirePermissions:
         self.required_permissions = set(required_permissions)
 
     def __call__(self, current_user: User = Depends(get_current_user)):
+        if current_user.super_user:
+            return current_user
+
         user_permissions = set()
         for role in current_user.roles:
             for perm in role.permissions:

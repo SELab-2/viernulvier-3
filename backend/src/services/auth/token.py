@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from src.config import settings
 from src.models.user import User
 from src.schemas.auth import TokenData
+from src.services.auth.user import get_user_permission_names
 
 
 def build_user_subject(user: User) -> str:
@@ -16,14 +17,10 @@ def build_user_subject(user: User) -> str:
 
 def build_token_data(user: User) -> dict:
     roles = [role.name for role in user.roles]
-    permissions = set()
-    for role in user.roles:
-        for perm in role.permissions:
-            permissions.add(perm.name)
     return {
         "sub": build_user_subject(user),
         "roles": roles,
-        "permissions": sorted(permissions),
+        "permissions": get_user_permission_names(user),
         "token_version": user.token_version,
     }
 

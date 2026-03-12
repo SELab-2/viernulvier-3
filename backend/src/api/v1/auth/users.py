@@ -110,8 +110,8 @@ def patch_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(
+    current_user: User = Depends(
         RequirePermissions([permission_service.Permissions.USERS_DELETE])
     ),
 ) -> None:
-    user_service.delete_user(db, user_id)
+    user_service.delete_user(db, user_id, current_user)
