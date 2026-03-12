@@ -12,6 +12,16 @@ from src.services.auth.token import (
     get_token_subject_user_id,
 )
 from src.services.auth.user import get_user, get_user_by_id
+from src.services.auth.user import (
+    create_user,
+    delete_user,
+    get_user_detail,
+    get_user_permission_names,
+    get_user_profile,
+    list_users,
+    patch_user,
+    replace_user,
+)
 
 __all__ = [
     "get_password_hash",
@@ -26,4 +36,12 @@ __all__ = [
     "refresh_access_token",
     "get_user",
     "get_user_by_id",
+    "list_users",
+    "create_user",
+    "get_user_detail",
+    "replace_user",
+    "patch_user",
+    "delete_user",
+    "get_user_permission_names",
+    "get_user_profile",
 ]
