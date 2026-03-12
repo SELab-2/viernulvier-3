@@ -23,7 +23,7 @@ python -m src.worker.sync_job
 Dit allemaal verloopt het best in de docker containers (zodat de databank
 klaar staat):
 ```sh
-docker compose run --rm sync_job
+docker compose --profile sync run --rm sync_worker
 ```
 
 
