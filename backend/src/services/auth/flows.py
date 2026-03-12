@@ -49,6 +49,8 @@ def refresh_access_token(db: Session, refresh_token: str) -> AccessTokenResponse
         payload = jwt.decode(
             refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
+        if payload.get("type") != "refresh":
+            raise invalid
         user_id = get_token_subject_user_id(payload)
         token_version = get_token_version(payload)
     except (jwt.PyJWTError, ValueError) as exc:
