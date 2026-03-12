@@ -40,18 +40,20 @@ def test_token_creation_and_decoding():
 
 
 def test_refresh_token_creation():
-    data = {"sub": "123", "token_version": 4}
+    data = {"sub": "123", "token_version": 4, "type": "refresh"}
     refresh_token = create_refresh_token(data=data)
-    decoded = decode_access_token(refresh_token)
-    assert decoded.user_id == 123
-    assert decoded.token_version == 4
+    payload = jwt.decode(
+        refresh_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+    )
+    assert payload["sub"] == "123"
+    assert payload["token_version"] == 4
+    assert payload["type"] == "refresh"
 
 
 def test_token_without_version_defaults_to_zero():
     access_token = create_access_token(
-        data={"sub": "123", "roles": [], "permissions": []}
+        data={"sub": "123", "roles": [], "permissions": [], "type": "access"}
     )
-
     decoded = decode_access_token(access_token)
 
     assert decoded.user_id == 123
