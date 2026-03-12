@@ -30,13 +30,14 @@ def create_role_with_permissions(
 
 
 def create_user_with_permissions(
-    db: Session, username: str, permissions: list[str]
+    db: Session, username: str, permissions: list[str], super_user: bool = False
 ) -> User:
     role = create_role_with_permissions(db, f"role_{username}", permissions)
     user = User(
         username=username,
         hashed_password=get_password_hash("pw"),
         roles=[role],
+        super_user=super_user,
     )
     db.add(user)
     db.commit()
@@ -73,6 +74,7 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     assert response.status_code == 201
     created = response.json()
     assert created["username"] == "bob"
+    assert created["super_user"] is False
     assert created["roles"] == ["viewer"]
     assert created["permissions"] == [Permissions.USERS_READ]
     user_id = created["id"]
@@ -217,3 +219,38 @@ def test_put_requires_complete_payload_but_patch_allows_partial_updates(
     )
     assert response.status_code == 200
     assert response.json()["username"] == "updated-target"
+
+
+def test_delete_super_user_is_forbidden(client: TestClient, db_session: Session):
+    actor = create_user_with_permissions(
+        db_session,
+        "admin",
+        [Permissions.USERS_DELETE],
+    )
+    target = create_user_with_permissions(
+        db_session,
+        "root",
+        [],
+        super_user=True,
+    )
+
+    headers = {"Authorization": f"Bearer {get_token(client, actor.username)}"}
+
+    response = client.delete(f"/api/v1/auth/users/{target.id}", headers=headers)
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Super users cannot be deleted"
+
+
+def test_user_cannot_delete_self(client: TestClient, db_session: Session):
+    actor = create_user_with_permissions(
+        db_session,
+        "admin",
+        [Permissions.USERS_DELETE],
+    )
+    headers = {"Authorization": f"Bearer {get_token(client, actor.username)}"}
+
+    response = client.delete(f"/api/v1/auth/users/{actor.id}", headers=headers)
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "You cannot delete your own account"

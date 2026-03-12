@@ -5,6 +5,7 @@ from src.models.permission import Permission
 from src.models.role import Role
 from src.models.user import User
 from src.schemas.auth import UserCreate, UserPatch, UserReplace
+from src.services.auth.permissions import Permissions
 from src.services.auth import user as user_service
 from src.services.auth.password import verify_password
 
@@ -166,8 +167,53 @@ def test_get_user_profile_deduplicates_permissions(db_session):
     assert profile.permissions == ["users:read", "users:update"]
 
 
+def test_get_user_profile_returns_all_permissions_for_super_user(db_session):
+    user = User(username="root", hashed_password="hashed", super_user=True)
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    profile = user_service.get_user_profile(user)
+
+    assert profile.super_user is True
+    assert profile.permissions == sorted(Permissions.all())
+
+
 def test_delete_user_not_found(db_session):
+    acting_user = User(username="admin", hashed_password="hashed")
+    db_session.add(acting_user)
+    db_session.commit()
+    db_session.refresh(acting_user)
+
     with pytest.raises(HTTPException) as excinfo:
-        user_service.delete_user(db_session, 999)
+        user_service.delete_user(db_session, 999, acting_user)
 
     assert excinfo.value.status_code == 404
+
+
+def test_delete_user_rejects_deleting_super_user(db_session):
+    acting_user = User(username="admin", hashed_password="hashed")
+    target = User(username="root", hashed_password="hashed", super_user=True)
+    db_session.add_all([acting_user, target])
+    db_session.commit()
+    db_session.refresh(acting_user)
+    db_session.refresh(target)
+
+    with pytest.raises(HTTPException) as excinfo:
+        user_service.delete_user(db_session, target.id, acting_user)
+
+    assert excinfo.value.status_code == 403
+    assert excinfo.value.detail == "Super users cannot be deleted"
+
+
+def test_delete_user_rejects_self_delete(db_session):
+    acting_user = User(username="admin", hashed_password="hashed")
+    db_session.add(acting_user)
+    db_session.commit()
+    db_session.refresh(acting_user)
+
+    with pytest.raises(HTTPException) as excinfo:
+        user_service.delete_user(db_session, acting_user.id, acting_user)
+
+    assert excinfo.value.status_code == 403
+    assert excinfo.value.detail == "You cannot delete your own account"
