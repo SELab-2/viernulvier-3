@@ -22,7 +22,7 @@ def build_token_data(user: User) -> dict:
         "roles": roles,
         "permissions": get_user_permission_names(user),
         "token_version": user.token_version,
-        "type": "access"
+        "type": "access",
     }
 
 
@@ -30,7 +30,7 @@ def build_refresh_token_data(user: User) -> dict:
     return {
         "sub": build_user_subject(user),
         "token_version": user.token_version,
-        "type": "refresh"
+        "type": "refresh",
     }
 
 
