@@ -1,0 +1,9 @@
+fastapi==0.134.0
+uvicorn==0.41.0
+pydantic==2.12.5
+pydantic-settings==2.13.1
+sqlalchemy==2.0.47
+psycopg2-binary==2.9.11
+passlib[bcrypt]==1.7.4
+bcrypt==4.3.0
+PyJWT==2.11.0
