@@ -22,6 +22,7 @@ def build_token_data(user: User) -> dict:
         "roles": roles,
         "permissions": get_user_permission_names(user),
         "token_version": user.token_version,
+        "type": "access"
     }
 
 
@@ -29,6 +30,7 @@ def build_refresh_token_data(user: User) -> dict:
     return {
         "sub": build_user_subject(user),
         "token_version": user.token_version,
+        "type": "refresh"
     }
 
 
@@ -91,6 +93,8 @@ def decode_access_token(token: str) -> TokenData:
         )
         user_id = get_token_subject_user_id(payload)
         token_version = get_token_version(payload)
+        if payload.get("type") != "access":
+            raise credentials_exception
         return TokenData(
             user_id=user_id,
             roles=payload.get("roles", []),
