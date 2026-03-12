@@ -110,3 +110,26 @@ def test_tokens_invalidated_after_password_change_integration(
         "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
     )
     assert refresh_response.status_code == 401
+
+
+def test_refresh_token_rejected_as_access_token_integration(
+    client: TestClient, db_session: Session
+):
+    password = "exploit_int_pw"
+    hashed = get_password_hash(password)
+    user = User(username="exploit_int_user", hashed_password=hashed)
+    db_session.add(user)
+    db_session.commit()
+
+    login_response = client.post(
+        "/api/v1/auth/login/",
+        json={"username": "exploit_int_user", "password": password},
+    )
+    refresh_token = login_response.json()["refresh_token"]
+
+    # Submit the refresh token directly to /me as if it were an access token
+    response = client.get(
+        "/api/v1/auth/users/me",
+        headers={"Authorization": f"Bearer {refresh_token}"},
+    )
+    assert response.status_code == 401
