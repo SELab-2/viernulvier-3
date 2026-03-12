@@ -56,13 +56,23 @@ def seed_db():
         admin_user = db.query(User).filter(User.username == admin_username).first()
         if not admin_user:
             hashed_password = get_password_hash(admin_password)
-            admin_user = User(username=admin_username, hashed_password=hashed_password)
+            admin_user = User(
+                username=admin_username,
+                hashed_password=hashed_password,
+                super_user=True,
+            )
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
             print(
                 f"Created default admin user: '{admin_username}' / '{admin_password}'"
             )
+
+        if not admin_user.super_user:
+            admin_user.super_user = True
+            db.commit()
+            db.refresh(admin_user)
+            print("Promoted the default admin user to protected super user.")
 
         if admin_role not in admin_user.roles:
             admin_user.roles.append(admin_role)
