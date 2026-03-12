@@ -3,7 +3,6 @@ Viernulvier Archief API — entrypoint.
 """
 
 from fastapi import FastAPI
-
 from src.api.v1.router import api_router
 from src.config import settings
 
