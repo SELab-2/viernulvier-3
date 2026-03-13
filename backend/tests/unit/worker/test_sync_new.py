@@ -10,9 +10,9 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
+import src.worker.sync.sync_new as sync_new
 from src.models.sync_state import ResourceType
 from src.worker.sync.sync_new import sync_new_items
-import src.worker.sync.sync_new as sync_new
 
 OLD_TS = datetime(2024, 1, 1)
 NEW_TS = datetime(2024, 1, 5)
@@ -36,6 +36,7 @@ def overwrite_functions(monkeypatch):
     store_new_productions = MagicMock(return_value=NEW_TS)
     store_new_events = MagicMock(return_value=NEW_TS)
     store_new_eventprices = MagicMock(return_value=NEW_TS)
+    store_new_tags = MagicMock(return_value=NEW_TS)
 
     monkeypatch.setattr("src.worker.sync.sync_new.get_last_sync", get_last_sync)
     monkeypatch.setattr("src.worker.sync.sync_new.update_sync_state", update_sync_state)
@@ -47,6 +48,9 @@ def overwrite_functions(monkeypatch):
     monkeypatch.setitem(
         sync_new.STORE_FUNCTIONS, ResourceType.EVENT_PRICES, store_new_eventprices
     )
+    monkeypatch.setitem(
+        sync_new.STORE_FUNCTIONS, ResourceType.TAGS, store_new_tags
+    )
 
     return {
         "get_last_sync": get_last_sync,
@@ -54,6 +58,7 @@ def overwrite_functions(monkeypatch):
         "store_new_productions": store_new_productions,
         "store_new_events": store_new_events,
         "store_new_eventprices": store_new_eventprices,
+        "store_new_tags": store_new_tags,
     }
 
 
@@ -64,6 +69,7 @@ def overwrite_functions(monkeypatch):
         (ResourceType.PRODUCTION, "store_new_productions"),
         (ResourceType.EVENT, "store_new_events"),
         (ResourceType.EVENT_PRICES, "store_new_eventprices"),
+        (ResourceType.TAGS, "store_new_tags"),
     ],
 )
 def test_sync_new_items_dispatch_good_path(

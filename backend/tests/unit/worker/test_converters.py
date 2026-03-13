@@ -2,6 +2,7 @@ from datetime import datetime
 from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
+from src.worker.converters.tag import api_tag_to_model_tag
 
 
 LANG_MAP = {"en": 1, "nl": 2}
@@ -153,3 +154,30 @@ def test_api_eventprice_to_model_eventprice():
     assert abs(eventprice.amount - 15.00) < 0.001  # Floats :)
     assert eventprice.available == test_input["available"]
     assert eventprice.expires_at == datetime.fromisoformat(test_input["expires_at"])
+
+
+# Test normal test case from the actual API
+def test_api_tag_to_model_tag():
+    test_input = {
+        "@id": "/api/v1/tags/6",
+        "@type": "Tags",
+        "created_at": "2019-02-15T11:55:07+00:00",
+        "updated_at": "2023-01-16T09:34:20+00:00",
+        "source": "box_office",
+        "sourceType": "default",
+        "enable": "nee",
+        "code": "10000",
+        "name": {"nl": "Abonnee 17-18"},
+        "url": "",
+        "automatically_assigned": False,
+        "external": False,
+    }
+
+    tag, tag_names = api_tag_to_model_tag(test_input, LANG_MAP)
+
+    assert tag.id == 6
+
+    assert len(tag_names) == 1
+    assert tag_names[0].tag_id == 6
+    assert tag_names[0].language_id == LANG_MAP["nl"]
+    assert tag_names[0].name == test_input["name"]["nl"]
