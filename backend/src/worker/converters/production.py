@@ -1,6 +1,8 @@
 from src.models.production import ProdInfo, Production
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 def api_prod_to_model_prod(
     json_prod: dict, language_map: dict[str, int]
@@ -42,7 +44,7 @@ def api_prod_to_model_prod(
     for lang_code in appearing_languages:
         lang_id = language_map.get(lang_code)
         if not lang_id:
-            logging.warning(
+            logger.warning(
                 f"ignoring language {lang_code} for Production(id={production_id})"
             )
             continue
