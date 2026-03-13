@@ -48,9 +48,7 @@ def overwrite_functions(monkeypatch):
     monkeypatch.setitem(
         sync_new.STORE_FUNCTIONS, ResourceType.EVENT_PRICES, store_new_eventprices
     )
-    monkeypatch.setitem(
-        sync_new.STORE_FUNCTIONS, ResourceType.TAGS, store_new_tags
-    )
+    monkeypatch.setitem(sync_new.STORE_FUNCTIONS, ResourceType.TAGS, store_new_tags)
 
     return {
         "get_last_sync": get_last_sync,

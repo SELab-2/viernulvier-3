@@ -3,9 +3,7 @@ from sqlalchemy.orm import Session
 from src.worker.converters.tag import api_tag_to_model_tag
 
 
-def store_new_tags(
-    db_session: Session, language_map: dict[str, int], tags: list[dict]
-):
+def store_new_tags(db_session: Session, language_map: dict[str, int], tags: list[dict]):
     newest_timestamp = None
 
     for json_tag in tags:
