@@ -9,17 +9,19 @@ from src.services.event_service import (
     get_prices_for_event,
     get_event_price,
 )
+
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
+from src.services.archive import get_base_url
 
 router = APIRouter()
 
 
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, request: Request, db: Session = Depends(get_db)):
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(request, 2)
 
     try:
         event_data = get_event_by_id(db, event_id, base_url)
@@ -48,7 +50,7 @@ def post_event(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(request)
 
     try:
         return create_event(db, event_in, base_url)
@@ -64,8 +66,8 @@ def patch_event(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
-    base_url = str(request.base_url).rstrip("/")
-
+    base_url = get_base_url(request, 2)
+    
     try:
         return update_event(db, event_id, update_data, base_url)
     except ValueError as e:
@@ -74,7 +76,7 @@ def patch_event(
 
 @router.get("/{event_id}/prices", response_model=list[PriceResponse])
 def get_event_prices(event_id: int, request: Request, db: Session = Depends(get_db)):
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(request, 3)
 
     try:
         return get_prices_for_event(db, event_id, base_url)
@@ -86,7 +88,7 @@ def get_event_prices(event_id: int, request: Request, db: Session = Depends(get_
 def get_price(
     event_id: int, price_id: int, request: Request, db: Session = Depends(get_db)
 ):
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(request, 4)
 
     try:
         return get_event_price(db, event_id, price_id, base_url)
