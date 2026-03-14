@@ -276,3 +276,36 @@ def test_delete_unauthorized(client: TestClient, create_headers, language_nl: La
     # Ensure tag is still present in database
     response = client.get(f"{TAGS_URL}/{tag_id}")
     assert response.status_code == 200
+
+
+
+def test_tag_url_contains_full_path(client: TestClient, db_session: Session, language_nl: Language):
+
+    create_headers = create_user_and_login(
+        client, db_session, "tag_url_user", permissions=[Permissions.ARCHIVE_CREATE]
+    )
+
+    response = client.post(
+        TAGS_URL,
+        json={
+            "names": [
+                {"language_id": language_nl.id, "name": "tag_url_test"},
+            ]
+        },
+        headers=create_headers,
+    )
+    assert response.status_code == 201
+    data = response.json()
+
+
+    tag_url = data.get("id")
+    assert tag_url is not None
+
+    assert "/api/v1/archive/tags" in tag_url
+
+    tag_id = tag_url.split("/")[-1]
+    assert str(tag_id) in tag_url
+
+    names = data.get("names")
+    assert names is not None
+    assert any(n["name"] == "tag_url_test" for n in names)
