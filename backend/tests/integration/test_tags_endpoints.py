@@ -278,8 +278,9 @@ def test_delete_unauthorized(client: TestClient, create_headers, language_nl: La
     assert response.status_code == 200
 
 
-
-def test_tag_url_contains_full_path(client: TestClient, db_session: Session, language_nl: Language):
+def test_tag_url_contains_full_path(
+    client: TestClient, db_session: Session, language_nl: Language
+):
 
     create_headers = create_user_and_login(
         client, db_session, "tag_url_user", permissions=[Permissions.ARCHIVE_CREATE]
@@ -296,7 +297,6 @@ def test_tag_url_contains_full_path(client: TestClient, db_session: Session, lan
     )
     assert response.status_code == 201
     data = response.json()
-
 
     tag_url = data.get("id")
     assert tag_url is not None

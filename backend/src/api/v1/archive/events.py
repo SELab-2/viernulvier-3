@@ -67,7 +67,7 @@ def patch_event(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
     base_url = get_base_url(request, 2)
-    
+
     try:
         return update_event(db, event_id, update_data, base_url)
     except ValueError as e:

@@ -263,13 +263,11 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
     assert response.status_code == 404
 
 
-
 def test_event_url_contains_full_path(client: TestClient, db_session: Session):
 
     from src.models.hall import Hall
     from src.models.production import Production
     from src.models.event import Event
-
 
     hall = Hall(name="Hall URL Test", address="Street URL Test")
     production = Production()
@@ -280,22 +278,18 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
     db_session.add(event)
     db_session.commit()
 
-
     response = client.get(f"{BASE_URL}/{event.id}")
     assert response.status_code == 200
     data = response.json()
 
-   
-    event_url = data.get("id") 
+    event_url = data.get("id")
     assert event_url is not None
 
     assert "/api/v1/archive/events" in event_url
 
     assert str(event.id) in event_url
-    
-    
-    
-    
+
+
 def test_event_price_url_contains_full_path(client: TestClient, db_session: Session):
 
     # setup
@@ -314,12 +308,9 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
     assert response.status_code == 200
     data = response.json()
 
-
-    price_url = data.get("id") 
+    price_url = data.get("id")
     assert price_url is not None
 
-
     assert f"/api/v1/archive/events/{event.id}/prices/{price.id}" in price_url
-
 
     assert str(price.id) in price_url
