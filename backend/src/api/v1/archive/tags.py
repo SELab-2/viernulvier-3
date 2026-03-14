@@ -65,7 +65,6 @@ async def post_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
-
     base_url = get_base_url(str(request.url))
     return create_tag(db, tag_in, base_url)
 
