@@ -351,3 +351,41 @@ def test_delete_production_not_found(
     )
     response = client.delete(f"{BASE_URL}/100", headers=headers)
     assert response.status_code == 404
+
+
+
+def test_production_urls_contain_full_path(client: TestClient, db_session: Session):
+    from src.models.production import Production
+    from src.models.event import Event
+    from src.models.hall import Hall
+
+    hall = Hall(name="Test Hall", address="Test Street")
+    production = Production()
+    db_session.add_all([hall, production])
+    db_session.commit()
+
+
+    event1 = Event(hall=hall, production=production, order_url="http://order1.url")
+    event2 = Event(hall=hall, production=production, order_url="http://order2.url")
+    db_session.add_all([event1, event2])
+    db_session.commit()
+
+    response = client.get("/api/v1/archive/productions/")
+    assert response.status_code == 200
+    data = response.json()
+
+    assert "productions" in data
+    assert len(data["productions"]) > 0
+
+    prod_data = data["productions"][0]
+
+    production_url = prod_data.get("id_url")
+    assert production_url is not None
+    assert "/api/v1/archive/productions" in production_url
+
+
+    events_urls = prod_data.get("events", [])
+    assert len(events_urls) == 2
+    for event_url, event in zip(events_urls, [event1, event2]):
+        assert "/api/v1/archive/events" in event_url
+        assert str(event.id) in event_url
