@@ -2,31 +2,51 @@
 
 ## Overzicht
 
-Dit project is gebouwd met React en maakt gebruik van React Router in framework mode met manueel geconfigureerde routing.
+Dit project is gebouwd met React en maakt gebruik van React Router in framework mode met file based routing.
 
 ## Projectstructuur
 
 ```
-frontend/app
-├── assets/         ← Afbeeldingen, videos, ...
-├── components/     ← React components
-│   └── __tests__/      ← Tests voor components
-├── hooks/          ← Hook functies
-├── root.tsx        ← Entrypoint voor react router
-├── routes/         ← React pagina's 
-│   └── home.tsx        ← Homepagina
-├── routes.ts       ← Endpoints worden hier gedefinieërd
-├── services/       ← API calls
-│   └── __tests__/      ← Tests voor services
-├── contexts/       ← State Management
-├── styles/         ← CSS files
-│   └── app.css         ← styles die overal in de webapp voorkomen
-├── util/           ← Overige functies
-└── types/          ← Type definities
+frontend/app/
+├── assets/         ← Statische bestanden
+├── features/       ← Feature-based modules
+│   ├── search/         ← Alle files gerelateerd aan zoeken in het archief
+│   │   ├── components/         ← React components
+│   │   ├── hooks/              ← Custom React hooks
+│   │   ├── services/           ← Communicatie met de API
+│   │   │   ├── search.api.ts           ← Functies voor API requests
+│   │   │   └── search.api.test.ts      ← Tests voor API functies
+│   │   ├── index.ts            ← Public exports van de feature
+│   │   ├── search.const.ts     ← Constanten
+│   │   └── search.types.ts     ← Types
+│   └── auth/
+│       ├── components/
+│       └── ...
+├── shared/         ← Gedeelde code die door meerdere features gebruikt wordt
+│   ├── components/     ← Hebruikbare React components
+│   │   ├── Button.tsx
+│   │   └── Button.test.tsx
+│   ├── constants/      ← Globale constanten
+│   │   ├── api.const.ts
+│   │   └── routes.const.ts
+│   ├── hooks/          ← Algemene custom React hooks
+│   ├── services/       ← Algemene services
+│   ├── types/          ← Globale types
+│   └── utils/          ← Utility functions
+├── routes/     ← React Router route components
+│   ├── _index.tsx      ← Homepagina route
+│   ├── search.tsx      ← Search pagina
+│   └── item.$id.tsx    ← Voorbeeld van een route "/item/{id}"
+├── styles/     ← Globale CSS
+├── root.tsx    ← Root component / Entrypoint van de React app
+└── routes.ts   ← React router route config
 ```
+
 
 ### Testen
 Testbestanden worden geplaatst in directories genaamd `__tests__` die zich in dezelfde directory bevinden als de bestanden die worden getest, of alternatief staan testbestanden naast hun corresponderende bestanden met de extensie `*.test.ts` / `*.spec.ts`.
+
+De integratie testen bevinden zich in een tests/ folder buiten app/
 
 ## Scripts
 
@@ -42,6 +62,9 @@ Uitvoeren van ESLint:
 Formatteren van alle files:
 `npm run format`
 
+Uitvoeren van testen:
+`npm run test`
+
 ### Applicatie Starten
 
 De frontend kan lokaal gestart worden met:
@@ -53,14 +76,8 @@ De frontend zal dan beschikbaar komen op:
 
 ## Routing
 
-Voor routing wordt gebruik gemaakt van manueel geconfigureerd routen tegenover file-based routing.
+Voor routing wordt gebruik gemaakt van file-based routing, hierbij worden routes gedefiniëerd aan de hand van de namen van de bestanden in `frontend/app/routes/`
+Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd als `frontend/app/routes/archive.productions.$id.tsx`.
 
-Dit wil zeggen dat routes gespecifieërd worden in `routes.ts` door een lijn toe te voegen aan de RouteConfig lijst van de volgende vorm:
-```tsx
-export default [
-    ...
-    route("some/path", "./some/file.tsx") // <= Route "/some/path" geeft nu component in "./some/file.tsx" weer
-] satisfies RouteConfig;
-```
-
+Voor specifieke details zie de documentatie [file-route-conventions](https://reactrouter.com/how-to/file-route-conventions)
 
