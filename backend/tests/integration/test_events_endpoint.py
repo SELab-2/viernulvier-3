@@ -289,6 +289,9 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
 
     assert str(event.id) in event_url
 
+    response = client.get(event_url)
+    assert response.status_code == 200
+
 
 def test_event_price_url_contains_full_path(client: TestClient, db_session: Session):
 
@@ -314,3 +317,6 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
     assert f"/api/v1/archive/events/{event.id}/prices/{price.id}" in price_url
 
     assert str(price.id) in price_url
+
+    response = client.get(price_url)
+    assert response.status_code == 200

@@ -1,17 +1,20 @@
-from fastapi import Request
+from urllib.parse import urlparse, urlunparse
 
 
-def get_base_url(request: Request, remove_last_segments: int = 1):
+def get_base_url(url: str, remove_last_segments: int = 1) -> str:
+    """
+    Returns the base URL by removing a specified number of path segments from the end.
 
-    full_url = str(request.url).rstrip("/")
+    Examples:
+        >>> get_base_url("https://example.com/api/v1/users/", 1)
+        'https://example.com/api/v1'
+        >>> get_base_url("https://example.com/api/v1/users/", 2)
+        'https://example.com/api'
+    """
+    parsed = urlparse(url)
 
-    current_index = len(full_url) - 1
-    current_amount_removed = 0
-    while current_amount_removed < remove_last_segments:
-        if full_url[current_index] == "/":
-            current_amount_removed += 1
-        current_index -= 1
+    path_segments = parsed.path.rstrip("/").split("/")
 
-    base = full_url[: current_index + 1]
-
-    return base
+    new_path = "/".join(path_segments[:-remove_last_segments])
+    new_url = urlunparse(parsed._replace(path=new_path))
+    return new_url

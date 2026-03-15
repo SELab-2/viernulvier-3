@@ -309,3 +309,6 @@ def test_tag_url_contains_full_path(
     names = data.get("names")
     assert names is not None
     assert any(n["name"] == "tag_url_test" for n in names)
+
+    response = client.get(tag_url)
+    assert response.status_code == 200

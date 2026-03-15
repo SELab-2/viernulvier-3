@@ -31,7 +31,7 @@ async def get_tags(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ):
-    base_url = get_base_url(request)
+    base_url = get_base_url(str(request.url))
     return get_tags_list(db, base_url, language)
 
 
@@ -47,7 +47,7 @@ def get_tag(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ):
-    base_url = get_base_url(request, remove_last_segments=2)
+    base_url = get_base_url(str(request.url), remove_last_segments=2)
     try:
         tag = get_tag_by_id(db, tag_id, base_url, language)
     except ValueError as e:
@@ -68,7 +68,7 @@ async def post_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
-    base_url = get_base_url(request)
+    base_url = get_base_url(str(request.url))
     try:
         return create_tag(db, tag_in, base_url)
     except ValueError as e:
@@ -83,7 +83,7 @@ async def patch_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
-    base_url = get_base_url(request, remove_last_segments=2)
+    base_url = get_base_url(str(request.url), remove_last_segments=2)
     try:
         return update_tag(db, tag_id, tag_in, base_url)
     except ValueError as e:

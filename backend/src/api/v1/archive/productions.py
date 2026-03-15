@@ -36,7 +36,7 @@ async def get_productions(
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
 ) -> ProductionListResponse:
-    base_url = get_base_url(request)
+    base_url = get_base_url(str(request.url))
     return get_productions_paginated(db, base_url, cursor, limit)
 
 
@@ -53,7 +53,7 @@ async def post_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
-    base_url = get_base_url(request)
+    base_url = get_base_url(str(request.url))
     try:
         production_data = create_production(db, production_in, base_url)
     except ValueError as e:
@@ -74,7 +74,7 @@ async def get_production(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
-    base_url = get_base_url(request, 2)
+    base_url = get_base_url(str(request.url), 2)
     try:
         production_data = get_production_by_id(db, production_id, base_url, language)
     except ValueError as e:
@@ -96,7 +96,7 @@ async def patch_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
-    base_url = get_base_url(request, 2)
+    base_url = get_base_url(str(request.url), 2)
     try:
         production_data = update_production_by_id(
             db, production_in, production_id, base_url

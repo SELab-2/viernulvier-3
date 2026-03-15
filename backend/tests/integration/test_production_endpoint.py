@@ -386,3 +386,9 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
     for event_url, event in zip(events_urls, [event1, event2]):
         assert "/api/v1/archive/events" in event_url
         assert str(event.id) in event_url
+
+        response = client.get(event_url)
+        assert response.status_code == 200
+
+    response = client.get(production_url)
+    assert response.status_code == 200
