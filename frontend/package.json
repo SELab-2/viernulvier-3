@@ -8,6 +8,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "lint": "eslint",
     "format": "prettier --write .",
+    "test": "vitest run --coverage",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
@@ -27,9 +28,12 @@
     "@eslint/js": "^9.39.3",
     "@react-router/dev": "7.12.0",
     "@tailwindcss/vite": "^4.1.13",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^22",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
@@ -39,6 +43,7 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.1.7",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.1.0"
   }
 }
