@@ -7,15 +7,10 @@ import prettierConfig from "eslint-config-prettier";
 import react from "eslint-plugin-react";
 
 export default defineConfig({
-	ignores: ["**/.react-router/**", ".config/*"],
-	plugins: {
-		react,
-	},
+  ignores: ["**/.react-router/**", ".config/*"],
+  plugins: {
+    react,
+  },
 
-	extends: [
-		eslint.configs.recommended,
-		...tseslint.configs.recommended,
-
-		prettierConfig,
-	],
+  extends: [eslint.configs.recommended, ...tseslint.configs.recommended, prettierConfig],
 });
