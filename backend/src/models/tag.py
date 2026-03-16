@@ -9,7 +9,8 @@ from src.models.associations import prod_tags
 class Tag(Base):
     __tablename__ = "tags"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, autoincrement=False)
 
     names = relationship("TagName", back_populates="tag")
     productions = relationship("Production", secondary=prod_tags, back_populates="tags")

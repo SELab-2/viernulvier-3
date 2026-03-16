@@ -7,7 +7,9 @@ from src.database import Base
 class Gallery(Base):
     __tablename__ = "gallery"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, autoincrement=False)
+
     media = Column(
         Text
     )  # dit is momenteel een placeholder en wordt verder uitgewerkt in feature #27
