@@ -20,12 +20,7 @@ router = APIRouter()
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event(event_id: int, request: Request, db: Session = Depends(get_db)):
     base_url = str(request.base_url).rstrip("/")
-
-    try:
-        event_data = get_event_by_id(db, event_id, base_url)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="Event not found")
-
+    event_data = get_event_by_id(db, event_id, base_url)
     return event_data
 
 
@@ -35,10 +30,7 @@ def delete_event(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    success = delete_event_by_id(db, event_id)
-
-    if not success:
-        raise HTTPException(status_code=404, detail="Event not found")
+    delete_event_by_id(db, event_id)
 
 
 @router.post("/", response_model=EventResponse, status_code=201)

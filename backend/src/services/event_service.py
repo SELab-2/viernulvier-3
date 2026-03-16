@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
+from backend.src.models.production import Production
 from src.models import Event, Hall, EventPrice
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
 from src.schemas.hall import HallSchema
 from fastapi import HTTPException
 from typing import Any
+from src.api.exceptions import NotFoundError
 
 
 def extract_id(url: str | None) -> int | None:
@@ -39,7 +41,7 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
 def get_event_by_id(db: Session, event_id: int, base_url: str) -> EventResponse:
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
-        raise ValueError("Event not found")
+        raise NotFoundError("Event", event_id)
 
     return build_event_response(db, event, base_url)
 
@@ -48,7 +50,7 @@ def delete_event_by_id(db: Session, event_id: int) -> bool:
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if not event:
-        return False
+        raise NotFoundError("Event", event_id)
 
     db.delete(event)
     db.commit()
@@ -56,21 +58,38 @@ def delete_event_by_id(db: Session, event_id: int) -> bool:
 
 
 def get_hall_by_id(db: Session, hall_id: int) -> Hall:
-    return db.query(Hall).filter(Hall.id == hall_id).first()
+    hall = db.query(Hall).filter(Hall.id == hall_id).first()
+    if not hall:
+        raise NotFoundError("Hall", hall_id)
+    return hall
+
+
+from sqlalchemy.exc import IntegrityError
+from src.api.exceptions import NotFoundError, ValidationError, ConflictError
 
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
 
-    production_id = extract_id(event_in.production_id)
-    hall_id = extract_id(event_in.hall_id)
+    try:
+        production_id = extract_id(event_in.production_id)
+        hall_id = extract_id(event_in.hall_id)
+    except ValueError:
+        raise ValidationError("Invalid production_id or hall_id format")
+
+    db_production = db.query(Production).filter(Production.id == production_id).first()
+    if not db_production:
+        raise NotFoundError("Production", production_id)
 
     db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
     if not db_hall:
-        raise ValueError("Hall not found")
+        raise NotFoundError("Hall", hall_id)
+
+    if event_in.ends_at <= event_in.starts_at:
+        raise ValidationError("ends_at must be after starts_at")
 
     db_event = Event(
         production_id=production_id,
-        hall_id=db_hall.id,
+        hall_id=hall_id,
         starts_at=event_in.starts_at,
         ends_at=event_in.ends_at,
         order_url=event_in.order_url,
@@ -90,20 +109,47 @@ def update_event(
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+        raise NotFoundError("Event", event_id)
 
     update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
 
+    # hall_id update
     if "hall_id" in update_dict:
-        hall_id = extract_id(update_dict["hall_id"])
+        try:
+            hall_id = extract_id(update_dict["hall_id"])
+        except ValueError:
+            raise ValidationError("Invalid hall_id format")
 
         db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
-
         if not db_hall:
-            raise HTTPException(status_code=404, detail="Hall not found")
+            raise NotFoundError("Hall", hall_id)
 
         update_dict["hall_id"] = hall_id
 
+    # production_id update
+    if "production_id" in update_dict:
+        try:
+            production_id = extract_id(update_dict["production_id"])
+        except ValueError:
+            raise ValidationError("Invalid production_id format")
+
+        db_production = (
+            db.query(Production).filter(Production.id == production_id).first()
+        )
+
+        if not db_production:
+            raise NotFoundError("Production", production_id)
+
+        update_dict["production_id"] = production_id
+
+    # starts_at / ends_at validation
+    starts_at = update_dict.get("starts_at", event.starts_at)
+    ends_at = update_dict.get("ends_at", event.ends_at)
+
+    if ends_at <= starts_at:
+        raise ValidationError("ends_at must be after starts_at")
+
+    # update fields
     for field, value in update_dict.items():
         setattr(event, field, value)
 
@@ -119,7 +165,7 @@ def get_prices_for_event(
 
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
-        raise ValueError("Event not found")
+        raise NotFoundError("Event", event_id)
 
     prices = db.query(EventPrice).filter(EventPrice.event_id == event_id).all()
 
@@ -152,7 +198,7 @@ def get_event_price(
     )
 
     if not price:
-        raise ValueError("Price not found")
+        raise NotFoundError("Price", price_id)
 
     return PriceResponse(
         id=f"{base_url}/events/{event_id}/prices/{price.id}",
