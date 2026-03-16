@@ -47,11 +47,7 @@ def get_tag(
     language: str | None = Depends(get_accepted_language),
 ):
     base_url = str(request.base_url).rstrip("/")
-    try:
-        tag = get_tag_by_id(db, tag_id, base_url, language)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    tag = get_tag_by_id(db, tag_id, base_url, language)
     return tag
 
 
@@ -68,10 +64,8 @@ async def post_tag(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
     base_url = str(request.base_url).rstrip("/")
-    try:
-        return create_tag(db, tag_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    return create_tag(db, tag_in, base_url)
+
 
 
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
@@ -83,10 +77,8 @@ async def patch_tag(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
     base_url = str(request.base_url).rstrip("/")
-    try:
-        return update_tag(db, tag_id, tag_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    return update_tag(db, tag_id, tag_in, base_url)
+
 
 
 @router.delete(
@@ -97,6 +89,5 @@ async def delete_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    success = delete_tag_by_id(db, tag_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Tag not found")
+    delete_tag_by_id(db, tag_id)
+

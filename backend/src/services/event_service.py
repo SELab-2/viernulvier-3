@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
-from backend.src.models.production import Production
+from src.models.production import Production
 from src.models import Event, Hall, EventPrice
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
 from src.schemas.hall import HallSchema
-from fastapi import HTTPException
 from typing import Any
-from src.api.exceptions import NotFoundError
+from src.api.exceptions import NotFoundError, ValidationError
 
 
 def extract_id(url: str | None) -> int | None:
@@ -64,9 +63,6 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
     return hall
 
 
-from sqlalchemy.exc import IntegrityError
-from src.api.exceptions import NotFoundError, ValidationError, ConflictError
-
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
 
@@ -84,8 +80,10 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
     if not db_hall:
         raise NotFoundError("Hall", hall_id)
 
-    if event_in.ends_at <= event_in.starts_at:
-        raise ValidationError("ends_at must be after starts_at")
+    if event_in.starts_at is not None and event_in.ends_at is not None:
+        if event_in.ends_at <= event_in.starts_at:
+            raise ValidationError("ends_at must be after starts_at")
+    
 
     db_event = Event(
         production_id=production_id,
@@ -146,8 +144,9 @@ def update_event(
     starts_at = update_dict.get("starts_at", event.starts_at)
     ends_at = update_dict.get("ends_at", event.ends_at)
 
-    if ends_at <= starts_at:
-        raise ValidationError("ends_at must be after starts_at")
+    if ends_at is not None and starts_at is not None:
+        if ends_at <= starts_at:
+            raise ValidationError("ends_at must be after starts_at")
 
     # update fields
     for field, value in update_dict.items():

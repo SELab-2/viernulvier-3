@@ -15,6 +15,7 @@ from src.schemas.event import EventCreate, EventUpdate
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
+from src.api.exceptions import NotFoundError, ValidationError
 
 
 BASE_URL = "http://test"
@@ -58,7 +59,7 @@ def test_get_event_by_id_success(db_session, event):
 
 
 def test_get_event_by_id_not_found(db_session):
-    with pytest.raises(ValueError):
+    with pytest.raises(NotFoundError):
         get_event_by_id(db_session, 999, BASE_URL)
 
 
@@ -80,7 +81,7 @@ def test_make_event_invalid_hall(db_session, production):
         hall_id=f"{BASE_URL}/halls/999",
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NotFoundError):
         create_event(db_session, event_in, BASE_URL)
 
 
@@ -95,14 +96,14 @@ def test_update_event_success(db_session, event):
 def test_update_event_not_found(db_session):
     update_data = EventUpdate(order_url="new_url")
 
-    with pytest.raises(HTTPException):
+    with pytest.raises(NotFoundError):
         update_event(db_session, 999, update_data, BASE_URL)
 
 
 def test_update_event_invalid_hall(db_session, event):
     update_data = EventUpdate(hall_id=f"{BASE_URL}/halls/999")
 
-    with pytest.raises(HTTPException):
+    with pytest.raises(NotFoundError):
         update_event(db_session, event.id, update_data, BASE_URL)
 
 
@@ -111,11 +112,10 @@ def test_delete_event_success(db_session, event):
 
     assert result is True
 
-
 def test_delete_event_not_found(db_session):
-    result = delete_event_by_id(db_session, 999)
+    with pytest.raises(NotFoundError):
+        delete_event_by_id(db_session, 999)
 
-    assert result is False
 
 
 def test_get_prices_for_event(db_session, event):
@@ -142,5 +142,5 @@ def test_get_event_price_success(db_session, event):
 
 
 def test_get_event_price_not_found(db_session, event):
-    with pytest.raises(ValueError):
+    with pytest.raises(NotFoundError):
         get_event_price(db_session, event.id, 999, BASE_URL)

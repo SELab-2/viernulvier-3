@@ -53,11 +53,8 @@ async def post_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = create_production(db, production_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
 
+    production_data = create_production(db, production_in, base_url)
     return production_data
 
 
@@ -74,11 +71,8 @@ async def get_production(
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = get_production_by_id(db, production_id, base_url, language)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    
+    production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
 
 
@@ -96,12 +90,9 @@ async def patch_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = update_production_by_id(
-            db, production_in, production_id, base_url
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+
+    production_data = update_production_by_id(
+        db, production_in, production_id, base_url)
 
     return production_data
 
@@ -117,7 +108,6 @@ async def delete_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    try:
-        delete_production_by_id(db, production_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+
+    delete_production_by_id(db, production_id)
+
