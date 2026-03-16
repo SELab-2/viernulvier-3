@@ -236,7 +236,7 @@ def test_patch_production_add_info_invalid_language(
         headers=headers,
     )
 
-    assert response.status_code == 400 # bad request
+    assert response.status_code == 400  # bad request
 
 
 # User with permissions can delete an existing info of an existing production.

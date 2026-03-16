@@ -25,18 +25,11 @@ app = FastAPI(
 app.include_router(api_router, prefix="/v1")
 
 
-
 @app.exception_handler(NotFoundError)
 async def not_found_handler(request: Request, exc: NotFoundError):
-    return JSONResponse(
-        status_code=404,
-        content={"detail": str(exc)}
-    )
-    
-    
+    return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+
 @app.exception_handler(ValidationError)
 async def validation_handler(request: Request, exc: ValidationError):
-    return JSONResponse(
-        status_code=400,
-        content={"detail": str(exc)}
-    )
+    return JSONResponse(status_code=400, content={"detail": str(exc)})

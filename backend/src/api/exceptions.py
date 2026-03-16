@@ -1,5 +1,6 @@
 class AppException(Exception):
     """Base exception for application errors"""
+
     pass
 
 
@@ -14,8 +15,7 @@ class NotFoundError(AppException):
             message = f"{resource} not found"
 
         super().__init__(message)
-        
-        
+
 
 class ValidationError(AppException):
     pass

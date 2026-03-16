@@ -12,7 +12,7 @@ from src.services.tag import (
 from src.models.tag import Tag, TagName
 from src.models.language import Language
 from src.schemas.tag import TagCreate, TagNameBase
-from src.api.exceptions import ValidationError, NotFoundError
+from src.api.exceptions import NotFoundError
 
 BASE_URL = "http://test"
 
@@ -133,11 +133,9 @@ def test_delete_tag_success(db_session, tag):
     delete_tag_by_id(db_session, tag.id)
 
 
-
 def test_delete_tag_not_found(db_session):
-    with pytest.raises(NotFoundError):    
-        result = delete_tag_by_id(db_session, 999)
-
+    with pytest.raises(NotFoundError):
+        delete_tag_by_id(db_session, 999)
 
 
 def test_get_names_for_language_found(tag):

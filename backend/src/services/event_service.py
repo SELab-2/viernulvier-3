@@ -63,7 +63,6 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
     return hall
 
 
-
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
 
     try:
@@ -83,7 +82,6 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
     if event_in.starts_at is not None and event_in.ends_at is not None:
         if event_in.ends_at <= event_in.starts_at:
             raise ValidationError("ends_at must be after starts_at")
-    
 
     db_event = Event(
         production_id=production_id,

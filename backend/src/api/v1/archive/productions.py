@@ -14,7 +14,7 @@ from src.services.production import (
     update_production_by_id,
     delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, HTTPException, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
@@ -71,7 +71,7 @@ async def get_production(
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
     base_url = str(request.base_url).rstrip("/")
-    
+
     production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
 
@@ -92,7 +92,8 @@ async def patch_production(
     base_url = str(request.base_url).rstrip("/")
 
     production_data = update_production_by_id(
-        db, production_in, production_id, base_url)
+        db, production_in, production_id, base_url
+    )
 
     return production_data
 
@@ -110,4 +111,3 @@ async def delete_production(
 ):
 
     delete_production_by_id(db, production_id)
-

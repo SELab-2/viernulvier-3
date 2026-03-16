@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 
 from src.api.dependencies.language import get_accepted_language
@@ -67,7 +67,6 @@ async def post_tag(
     return create_tag(db, tag_in, base_url)
 
 
-
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
 async def patch_tag(
     tag_id: int,
@@ -80,7 +79,6 @@ async def patch_tag(
     return update_tag(db, tag_id, tag_in, base_url)
 
 
-
 @router.delete(
     "/{tag_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a tag"
 )
@@ -90,4 +88,3 @@ async def delete_tag(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
     delete_tag_by_id(db, tag_id)
-

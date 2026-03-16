@@ -83,8 +83,6 @@ def test_delete_hall_by_id_success(db_session):
     delete_hall_by_id(db_session, hall.id)
 
 
-
 def test_delete_hall_by_id_not_found(db_session):
-    with pytest.raises(NotFoundError):    
+    with pytest.raises(NotFoundError):
         delete_hall_by_id(db_session, 999)
-

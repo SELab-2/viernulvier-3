@@ -48,8 +48,8 @@ def build_production_response(
         if not production_infos:
             raise NotFoundError(
                 "Production info",
-            f"{production.id}-{language_id}",
-        )
+                f"{production.id}-{language_id}",
+            )
     else:
         production_infos = (
             db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
@@ -148,7 +148,8 @@ def create_production(
     )
     if not language_id:
         raise ValidationError(
-            f"Language '{production_info_in.language}' not supported.")
+            f"Language '{production_info_in.language}' not supported."
+        )
 
     db_production = Production(
         performer_type=production_in.performer_type,

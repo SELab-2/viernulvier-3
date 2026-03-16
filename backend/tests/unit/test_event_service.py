@@ -1,6 +1,5 @@
 import pytest
 from datetime import datetime, timezone
-from fastapi import HTTPException
 
 from src.services.event_service import (
     get_event_by_id,
@@ -15,7 +14,7 @@ from src.schemas.event import EventCreate, EventUpdate
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.production import Production
-from src.api.exceptions import NotFoundError, ValidationError
+from src.api.exceptions import NotFoundError
 
 
 BASE_URL = "http://test"
@@ -112,10 +111,10 @@ def test_delete_event_success(db_session, event):
 
     assert result is True
 
+
 def test_delete_event_not_found(db_session):
     with pytest.raises(NotFoundError):
         delete_event_by_id(db_session, 999)
-
 
 
 def test_get_prices_for_event(db_session, event):

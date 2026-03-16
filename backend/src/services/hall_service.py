@@ -3,7 +3,7 @@ from typing import List
 
 from src.models import Hall
 from src.schemas.hall import HallSchema
-from src.api.exceptions import ValidationError, NotFoundError
+from src.api.exceptions import NotFoundError
 
 
 def get_all_halls(db: Session) -> List[HallSchema]:
