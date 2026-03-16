@@ -12,5 +12,9 @@ export default defineConfig({
     react,
   },
 
-  extends: [eslint.configs.recommended, ...tseslint.configs.recommended, prettierConfig],
+  extends: [
+    eslint.configs.recommended,
+    ...tseslint.configs.recommended,
+    prettierConfig,
+  ],
 });
