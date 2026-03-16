@@ -38,24 +38,30 @@ def test_api_prod_to_model_prod():
     prod, prod_infos = api_prod_to_model_prod(test_input, LANG_MAP)
 
     # Check prod
-    assert prod.id == 5604
+    assert prod.viernulvier_id == 5604
     assert prod.performer_type == "group"
     assert prod.attendance_mode == "offline"
 
+    # Check that fields that are set by our DB are not set
+    assert prod.id is None
     assert prod.created_at is None
     assert prod.updated_at is None
 
     # Check prod_infos
-    assert len(prod_infos) == 2
 
+    # Two info's, one per language
+    assert len(prod_infos) == 2
     assert any(prod_info.language_id == LANG_MAP["en"] for prod_info in prod_infos)
     assert any(prod_info.language_id == LANG_MAP["nl"] for prod_info in prod_infos)
 
+    # Extract the info's to more easily test them
     info_nl = [pi for pi in prod_infos if pi.language_id == LANG_MAP["nl"]][0]
     info_en = [pi for pi in prod_infos if pi.language_id == LANG_MAP["en"]][0]
 
-    assert info_nl.production_id == prod.id
-    assert info_en.production_id == prod.id
+    # Production_id should point to our DB productions, but those are not set
+    # by the converters
+    assert info_nl.production_id is None
+    assert info_en.production_id is None
 
     assert info_nl.title == test_input["title"]["nl"]
     assert info_nl.supertitle == test_input["supertitle"]["nl"]
@@ -74,7 +80,7 @@ def test_api_prod_to_model_prod():
     assert info_en.info is None
 
 
-# Test onbekende taal -> geen prod-info
+# Test unknown language -> should not produce a lang-info for that language
 def test_api_prod_to_model_prod_unknown_language():
     test_input = {
         "@id": "/api/v1/productions/5604",
@@ -122,11 +128,15 @@ def test_api_event_to_model_event():
 
     event = api_event_to_model_event(test_input)
 
-    assert event.id == 6169
-    assert event.production_id == 4129
+    assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
     assert event.ends_at == datetime.fromisoformat(test_input["ends_at"])
     assert event.order_url == test_input["external_order_url"]["nl"]
+
+    assert event.id is None
+    assert event.production_id is None
+    assert event.created_at is None
+    assert event.updated_at is None
 
 
 # Test normal test case from the actual API
@@ -148,8 +158,12 @@ def test_api_eventprice_to_model_eventprice():
 
     eventprice = api_eventprice_to_model_eventprice(test_input)
 
-    assert eventprice.id == 14103
-    assert eventprice.event_id == 8385
+    assert eventprice.viernulvier_id == 14103
     assert abs(eventprice.amount - 15.00) < 0.001  # Floats :)
     assert eventprice.available == test_input["available"]
     assert eventprice.expires_at == datetime.fromisoformat(test_input["expires_at"])
+
+    assert eventprice.id is None
+    assert eventprice.event_id is None
+    assert eventprice.created_at is None
+    assert eventprice.updated_at is None
