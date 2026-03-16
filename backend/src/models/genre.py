@@ -10,7 +10,7 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     names = relationship("GenreName", back_populates="genre")
     productions = relationship(

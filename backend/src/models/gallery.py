@@ -8,7 +8,7 @@ class Gallery(Base):
     __tablename__ = "gallery"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     media = Column(
         Text

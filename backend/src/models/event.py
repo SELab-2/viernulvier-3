@@ -11,7 +11,7 @@ class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     production_id = Column(Integer, ForeignKey("productions.id"))
 
@@ -35,7 +35,7 @@ class EventPrice(Base):
     __tablename__ = "event_prices"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     event_id = Column(Integer, ForeignKey("events.id"))
 

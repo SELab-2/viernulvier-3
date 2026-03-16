@@ -12,7 +12,7 @@ class Production(Base):
     __tablename__ = "productions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     performer_type = Column(String)
     attendance_mode = Column(String)
