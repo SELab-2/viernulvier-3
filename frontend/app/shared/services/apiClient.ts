@@ -6,3 +6,8 @@ export const apiClient = axios.create({
   timeout: 1000,
   headers: { "Content-Type": "application/json" },
 });
+
+export async function getByUrl<T>(url: string): Promise<T> {
+  const data = await apiClient.get<T>(url);
+  return data.data;
+}
