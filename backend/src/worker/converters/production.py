@@ -2,9 +2,7 @@ from src.models.production import ProdInfo, Production
 import logging
 
 
-def api_prod_to_model_prod(
-    json_prod: dict, language_map: dict[str, int]
-) -> tuple[Production, list[ProdInfo]]:
+def api_prod_to_model_prod(json_prod: dict, language_map: dict[str, int]) -> Production:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.
@@ -12,7 +10,7 @@ def api_prod_to_model_prod(
     production_id = int(json_prod["@id"].split("/")[-1])
 
     production = Production(
-        id=production_id,
+        viernulvier_id=production_id,
         performer_type=json_prod.get("performer_type"),
         attendance_mode=json_prod.get("attendance_mode"),
     )
@@ -38,7 +36,6 @@ def api_prod_to_model_prod(
         _item = json_prod.get(key)
         return _item.get(lang_code) if _item else None
 
-    infos = []
     for lang_code in appearing_languages:
         lang_id = language_map.get(lang_code)
         if not lang_id:
@@ -48,7 +45,6 @@ def api_prod_to_model_prod(
             continue
 
         prod_info = ProdInfo(
-            production_id=production_id,
             language_id=lang_id,
             title=getty("title", lang_code),
             supertitle=getty("supertitle", lang_code),
@@ -59,6 +55,6 @@ def api_prod_to_model_prod(
             info=getty("info", lang_code),
         )
 
-        infos.append(prod_info)
+        production.info.append(prod_info)
 
-    return production, infos
+    return production
