@@ -18,6 +18,7 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
+from src.services.archive import get_base_url
 
 router = APIRouter()
 
@@ -35,7 +36,7 @@ async def get_productions(
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
 ) -> ProductionListResponse:
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(str(request.url))
     return get_productions_paginated(db, base_url, cursor, limit)
 
 
@@ -52,8 +53,8 @@ async def post_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
 
+    base_url = get_base_url(str(request.url))
     production_data = create_production(db, production_in, base_url)
     return production_data
 
@@ -70,8 +71,8 @@ async def get_production(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
 
+    base_url = get_base_url(str(request.url), 2)
     production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
 
@@ -88,12 +89,12 @@ async def patch_production(
     request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
-) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
-
+)
+    base_url = get_base_url(str(request.url), 2)
     production_data = update_production_by_id(
         db, production_in, production_id, base_url
     )
+
 
     return production_data
 
