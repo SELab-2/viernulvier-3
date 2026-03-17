@@ -1,17 +1,20 @@
-import { apiClient } from "~/shared/services/apiClient";
+import { createApiClient } from "~/shared/services/apiClient";
 import type { IAccessTokenResponse, ILoginRequest, ILoginResponse } from "../auth.types";
 import { API_BASE_URL } from "~/shared/constants/api.const";
 
 export async function login(request: ILoginRequest) {
+  const apiClient = createApiClient();
   const response = await apiClient.post<ILoginResponse>(`/auth/login`, request);
 
   const { access_token, refresh_token } = response.data;
 
   apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+  localStorage.setItem("access_token", access_token);
   localStorage.setItem("refresh_token", refresh_token);
 }
 
 export async function refreshToken() {
+  const apiClient = createApiClient();
   const refresh_token = localStorage.getItem("refresh_token");
   if (refresh_token) {
     const response = await apiClient.post<IAccessTokenResponse>(`${API_BASE_URL}/auth/refresh`, {
