@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -26,10 +26,7 @@ def get_halls(db: Session = Depends(get_db)):
 
 @router.get("/{hall_id}", response_model=HallSchema)
 def get_hall(hall_id: int, db: Session = Depends(get_db)):
-    try:
-        return get_hall_by_id(db, hall_id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="Hall not found")
+    return get_hall_by_id(db, hall_id)
 
 
 @router.post("/", response_model=HallSchema, status_code=201)
@@ -48,10 +45,7 @@ def patch_hall(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
-    try:
-        return update_hall(db, hall_id, hall_in)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="Hall not found")
+    return update_hall(db, hall_id, hall_in)
 
 
 @router.delete("/{hall_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -60,7 +54,4 @@ def delete_hall(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    success = delete_hall_by_id(db, hall_id)
-
-    if not success:
-        raise HTTPException(status_code=404, detail="Hall not found")
+    delete_hall_by_id(db, hall_id)

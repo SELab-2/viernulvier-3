@@ -12,6 +12,7 @@ from src.services.tag import (
 from src.models.tag import Tag, TagName
 from src.models.language import Language
 from src.schemas.tag import TagCreate, TagNameBase
+from src.api.exceptions import NotFoundError
 
 BASE_URL = "http://test"
 
@@ -80,7 +81,7 @@ def test_get_tag_by_id_language_filter(db_session, tag):
 
 
 def test_get_tag_by_id_not_found(db_session):
-    with pytest.raises(ValueError):
+    with pytest.raises(NotFoundError):
         get_tag_by_id(db_session, 999, BASE_URL)
 
 
@@ -124,20 +125,17 @@ def test_update_tag_existing_and_new_language(
 def test_update_tag_not_found(db_session, language_nl):
     tag_in = TagCreate(names=[TagNameBase(language_id=language_nl.id, name="tag")])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NotFoundError):
         update_tag(db_session, 999, tag_in, BASE_URL)
 
 
 def test_delete_tag_success(db_session, tag):
-    result = delete_tag_by_id(db_session, tag.id)
-
-    assert result is True
+    delete_tag_by_id(db_session, tag.id)
 
 
 def test_delete_tag_not_found(db_session):
-    result = delete_tag_by_id(db_session, 999)
-
-    assert result is False
+    with pytest.raises(NotFoundError):
+        delete_tag_by_id(db_session, 999)
 
 
 def test_get_names_for_language_found(tag):

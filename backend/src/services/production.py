@@ -9,6 +9,7 @@ from src.schemas.production import (
     ProductionInfoResponse,
     ProductionListResponse,
 )
+from src.api.exceptions import NotFoundError, ValidationError
 
 
 # The response functions: both return copies.
@@ -45,8 +46,9 @@ def build_production_response(
             .all()
         )
         if not production_infos:
-            raise ValueError(
-                f"Production info with production id '{production.id}' and language id '{language_id}' not found."
+            raise NotFoundError(
+                "Production info",
+                f"{production.id}-{language_id}",
             )
     else:
         production_infos = (
@@ -110,7 +112,7 @@ def get_production_by_id(
 ) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
-        raise ValueError(f"Production with production id '{production_id}' not found.")
+        raise NotFoundError("Production", production_id)
     language_id = db.query(Language.id).filter(Language.language == language).scalar()
     return build_production_response(db, production, base_url, language_id)
 
@@ -145,7 +147,9 @@ def create_production(
         .scalar()
     )
     if not language_id:
-        raise ValueError(f"Language '{production_info_in.language}' not supported.")
+        raise ValidationError(
+            f"Language '{production_info_in.language}' not supported."
+        )
 
     db_production = Production(
         performer_type=production_in.performer_type,
@@ -174,7 +178,7 @@ def update_production_by_id(
 ) -> ProductionResponse:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
-        raise ValueError(f"Production with id '{production_id}' not found.")
+        raise NotFoundError("Production", production_id)
 
     update_data = production_in.model_dump(
         exclude_unset=True, exclude={"remove_languages"}
@@ -191,7 +195,7 @@ def update_production_by_id(
                 .scalar()
             )
             if language_id is None:
-                raise ValueError(
+                raise ValidationError(
                     f"Language '{production_info_in.language}' not supported."
                 )
             production_info = (
@@ -234,7 +238,7 @@ def update_production_by_id(
 def delete_production_by_id(db: Session, production_id: int) -> bool:
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
-        raise ValueError(f"Production with id '{production_id}' not found.")
+        raise NotFoundError("Production", production_id)
 
     db.query(ProdInfo).filter(ProdInfo.production_id == production_id).delete()
     db.query(Event).filter(Event.production_id == production_id).delete()

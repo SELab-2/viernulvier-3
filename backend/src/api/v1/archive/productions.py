@@ -14,7 +14,7 @@ from src.services.production import (
     update_production_by_id,
     delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, HTTPException, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
@@ -53,12 +53,9 @@ async def post_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
-    base_url = get_base_url(str(request.url))
-    try:
-        production_data = create_production(db, production_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
 
+    base_url = get_base_url(str(request.url))
+    production_data = create_production(db, production_in, base_url)
     return production_data
 
 
@@ -74,12 +71,9 @@ async def get_production(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
-    base_url = get_base_url(str(request.url), 2)
-    try:
-        production_data = get_production_by_id(db, production_id, base_url, language)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
 
+    base_url = get_base_url(str(request.url), 2)
+    production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
 
 
@@ -97,12 +91,9 @@ async def patch_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
     base_url = get_base_url(str(request.url), 2)
-    try:
-        production_data = update_production_by_id(
-            db, production_in, production_id, base_url
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    production_data = update_production_by_id(
+        db, production_in, production_id, base_url
+    )
 
     return production_data
 
@@ -118,7 +109,5 @@ async def delete_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    try:
-        delete_production_by_id(db, production_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+
+    delete_production_by_id(db, production_id)
