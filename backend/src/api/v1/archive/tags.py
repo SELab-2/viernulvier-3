@@ -70,7 +70,6 @@ async def post_tag(
     return create_tag(db, tag_in, base_url)
 
 
-
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
 async def patch_tag(
     tag_id: int,
@@ -81,7 +80,6 @@ async def patch_tag(
 ):
     base_url = get_base_url(str(request.url), remove_last_segments=2)
     return update_tag(db, tag_id, tag_in, base_url)
-
 
 
 @router.delete(
