@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from src.models.tag import Tag, TagName
 from src.models.language import Language
 from src.schemas.tag import TagCreate, TagResponse
+from src.api.exceptions import ValidationError, NotFoundError
 
 
 def build_tag_response(
@@ -42,7 +43,7 @@ def get_tag_by_id(
 ) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise ValueError("Tag not found")
+        raise NotFoundError("Tag", tag_id)
 
     return build_tag_response(
         tag, get_names_for_language(tag.names, language), base_url
@@ -53,7 +54,7 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
     language_ids = [name.language_id for name in tag_in.names]
     languages = db.query(Language).filter(Language.id.in_(language_ids)).all()
     if len(languages) != len(language_ids):
-        raise ValueError("One or more languages not found")
+        raise ValidationError("One or more languages not found")
 
     db_tag = Tag()
     db.add(db_tag)
@@ -78,7 +79,7 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise ValueError("Tag not found")
+        raise NotFoundError("Tag", tag_id)
 
     # Get a list of names that already exist (these will need to be adjusted instead of added)
     existing_names = {name.language_id: name for name in tag.names}
@@ -102,12 +103,10 @@ def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResp
 def delete_tag_by_id(db: Session, tag_id) -> bool:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        return False
+        raise NotFoundError("Tag", tag_id)
 
     for tagname in tag.names:
         db.delete(tagname)
 
     db.delete(tag)
     db.commit()
-
-    return True

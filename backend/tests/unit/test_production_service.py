@@ -14,6 +14,8 @@ from src.schemas.production import (
     ProductionInfoUpdate,
 )
 
+from src.api.exceptions import NotFoundError, ValidationError
+
 import pytest
 
 BASE_URL = "http://test"
@@ -142,14 +144,14 @@ def test_create_production_valid_info(db_session, productions_limited):
     assert len(result2.productions) == 3
 
 
-# Create an invalid production, results in ValueError.
+# Create an invalid production, results in NotFoundError.
 def test_create_production_invalid_info(db_session, productions_limited):
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(language="es", title="el production - es"),
     )
-    with pytest.raises(ValueError, match="Language 'es' not supported"):
+    with pytest.raises(ValidationError, match="Language 'es' not supported"):
         _ = create_production(db_session, new_prod, BASE_URL)
 
 
@@ -254,7 +256,7 @@ def test_update_production_info_add_invalid(db_session, productions_limited):
         ]
     )
 
-    with pytest.raises(ValueError, match="Language 'fr' not supported"):
+    with pytest.raises(ValidationError, match="Language 'fr' not supported"):
         update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
 
     # Check database
@@ -329,7 +331,7 @@ def test_delete_production_invalid(db_session, productions_limited):
     assert len(result.productions) == 2
 
     # Give a non-existing production id.
-    with pytest.raises(ValueError, match="Production with id '4' not found."):
+    with pytest.raises(NotFoundError):
         delete_production_by_id(db_session, 4)
 
     result = get_productions_paginated(db_session, BASE_URL)

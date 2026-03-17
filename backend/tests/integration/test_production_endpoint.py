@@ -236,7 +236,7 @@ def test_patch_production_add_info_invalid_language(
         headers=headers,
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 400  # bad request
 
 
 # User with permissions can delete an existing info of an existing production.
@@ -317,7 +317,7 @@ def test_create_production_unsupported_language(
         },
         headers=headers,
     )
-    assert response.status_code == 404
+    assert response.status_code == 400
 
 
 # User with permissions should be able to delete an existing production.
