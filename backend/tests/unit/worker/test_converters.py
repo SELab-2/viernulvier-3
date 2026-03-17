@@ -35,7 +35,8 @@ def test_api_prod_to_model_prod():
         "uitdatabank_keywords": [],
     }
 
-    prod, prod_infos = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod_infos = prod.info
 
     # Check prod
     assert prod.viernulvier_id == 5604
@@ -89,7 +90,8 @@ def test_api_prod_to_model_prod_unknown_language():
         "title": {"es": "Poplife - NYE", "en": "Poplife - NYE"},
     }
 
-    prod, prod_infos = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod_infos = prod.info
 
     assert len(prod_infos) == 1
 
@@ -126,17 +128,42 @@ def test_api_event_to_model_event():
         },
     }
 
-    event = api_event_to_model_event(test_input)
+    event, prod_id = api_event_to_model_event(test_input)
 
     assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
     assert event.ends_at == datetime.fromisoformat(test_input["ends_at"])
     assert event.order_url == test_input["external_order_url"]["nl"]
 
+    assert prod_id == 4129
+
     assert event.id is None
     assert event.production_id is None
     assert event.created_at is None
     assert event.updated_at is None
+
+
+# Test events without production id should just return None because at that
+# point all hope is lost forever.
+def test_api_event_to_none():
+    test_input1 = {"@id": "/api/v1/events/6464"}
+
+    event, prod_id = api_event_to_model_event(test_input1)
+
+    assert event is not None
+    assert event.viernulvier_id == 6464
+    assert prod_id is None
+
+    test_input2 = {
+        "@id": "/api/v1/events/6464",
+        "production": {},
+    }
+
+    event, prod_id = api_event_to_model_event(test_input2)
+
+    assert event is not None
+    assert event.viernulvier_id == 6464
+    assert prod_id is None
 
 
 # Test normal test case from the actual API
@@ -156,14 +183,27 @@ def test_api_eventprice_to_model_eventprice():
         "rank": "/api/v1/prices/ranks/13",
     }
 
-    eventprice = api_eventprice_to_model_eventprice(test_input)
+    eventprice, event_id = api_eventprice_to_model_eventprice(test_input)
 
     assert eventprice.viernulvier_id == 14103
     assert abs(eventprice.amount - 15.00) < 0.001  # Floats :)
     assert eventprice.available == test_input["available"]
     assert eventprice.expires_at == datetime.fromisoformat(test_input["expires_at"])
 
+    assert event_id == 8385
+
     assert eventprice.id is None
     assert eventprice.event_id is None
     assert eventprice.created_at is None
     assert eventprice.updated_at is None
+
+
+# Test eventprices without event should just return None
+def test_api_eventprice_to_none():
+    test_input = {"@id": "/api/v1/events/prices/6464"}
+
+    eventprice, prod_id = api_eventprice_to_model_eventprice(test_input)
+
+    assert eventprice is not None
+    assert eventprice.viernulvier_id == 6464
+    assert prod_id is None
