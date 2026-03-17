@@ -10,8 +10,11 @@ from src.database import Base
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+
     production_id = Column(Integer, ForeignKey("productions.id"))
+
     # hall_id = Column(Integer, ForeignKey("halls.id"))
     hall_id = Column(Integer, ForeignKey("halls.id"), nullable=True)
     starts_at = Column(TIMESTAMP)
@@ -31,8 +34,11 @@ class Event(Base):
 class EventPrice(Base):
     __tablename__ = "event_prices"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+
     event_id = Column(Integer, ForeignKey("events.id"))
+
     amount = Column(DECIMAL)
     available = Column(Integer)
     expires_at = Column(TIMESTAMP)

@@ -66,12 +66,23 @@ def test_store_new_productions(db_session):
     db_session.commit()
 
     # Check
-    stored_prods = db_session.execute(select(Production)).scalars().all()
+    stored_prods: list[Production] = (
+        db_session.execute(select(Production)).scalars().all()
+    )
     assert len(stored_prods) == 3
 
-    stored_info = db_session.execute(select(ProdInfo)).scalars().all()
+    assert stored_prods[0].viernulvier_id == 5604
+    assert stored_prods[1].viernulvier_id == 5610
+    assert stored_prods[2].viernulvier_id == 5613
+
+    stored_infos = db_session.execute(select(ProdInfo)).scalars().all()
     # 6 prod_info because 2 languages per production
-    assert len(stored_info) == 6
+    assert len(stored_infos) == 6
+
+    # Check if everything is linked properly
+    stored_prod_ids = [prod.id for prod in stored_prods]
+    for stored_info in stored_infos:
+        assert stored_info.production_id in stored_prod_ids
 
     # Assert newest timestamp returned
     assert newest == datetime.fromisoformat("2022-11-22T13:45:59+00:00")
@@ -90,7 +101,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
     caplog.set_level(logging.WARNING)
 
     # Add a dummy production to the DB so that an event can be stored
-    prod = Production(id=4129)
+    prod = Production(viernulvier_id=4129)
     db_session.add(prod)
     db_session.commit()
 
@@ -150,7 +161,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
     # Assert that only one event was stored
     stored_events = db_session.execute(select(Event)).scalars().all()
     assert len(stored_events) == 1
-    assert stored_events[0].id == 6169
+    assert stored_events[0].viernulvier_id == 6169
 
     # newest timestamp should be from the last created valid event
     assert newest == datetime.fromisoformat("2021-08-16T14:36:53+00:00")
@@ -190,7 +201,7 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     caplog.set_level(logging.WARNING)
 
     # Add a dummy event to the DB so that an eventprice can be stored
-    event = Event(id=8625)
+    event = Event(viernulvier_id=8625)
     db_session.add(event)
     db_session.commit()
 
@@ -239,7 +250,7 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     # Assert that only one eventprice was stored
     stored_events = db_session.execute(select(EventPrice)).scalars().all()
     assert len(stored_events) == 1
-    assert stored_events[0].id == 14085
+    assert stored_events[0].viernulvier_id == 14085
 
     # newest timestamp should be from the last created valid eventprice
     assert newest == datetime.fromisoformat("2023-01-20T10:26:50+00:00")

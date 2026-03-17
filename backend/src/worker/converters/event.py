@@ -3,10 +3,14 @@ from datetime import datetime
 from src.models.event import Event
 
 
-def api_event_to_model_event(json_event: dict) -> Event:
+def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
     """
-    This function takes care of molding the json response of the api for a
-    production, into a Production object for our archive database.
+    This function takes care of molding the json response of the api for an
+    event, into an Event object for our archive database.
+
+    If the json_event does not have a production id, the second element of the
+    tuple will be None. The first will not be None so that the parsed id is
+    still available.
     """
     event_id = int(json_event["@id"].split("/")[-1])
 
@@ -35,11 +39,10 @@ def api_event_to_model_event(json_event: dict) -> Event:
             order_url = order_urls[0]
 
     event = Event(
-        id=event_id,
-        production_id=production_id,
+        viernulvier_id=event_id,
         starts_at=start_time,
         ends_at=end_time,
         order_url=order_url,
     )
 
-    return event
+    return event, production_id

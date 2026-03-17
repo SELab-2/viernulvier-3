@@ -3,7 +3,17 @@ from datetime import datetime
 from src.models.event import EventPrice
 
 
-def api_eventprice_to_model_eventprice(json_eventprice: dict) -> EventPrice:
+def api_eventprice_to_model_eventprice(
+    json_eventprice: dict,
+) -> tuple[EventPrice, int | None]:
+    """
+    This function takes care of molding the json response of the api for an
+    eventprice, into a EventPrice object for our archive database.
+
+    If the json_eventprice does not have an event id, the second element of the
+    tuple will be None. The first will not be None so that the parsed id is
+    still available.
+    """
     eventprice_id = int(json_eventprice["@id"].split("/")[-1])
 
     event_id = json_eventprice.get("event")
@@ -22,12 +32,11 @@ def api_eventprice_to_model_eventprice(json_eventprice: dict) -> EventPrice:
     if expires_at and expires_at != "null":
         expires_at = datetime.fromisoformat(expires_at)
 
-    event_price = EventPrice(
-        id=eventprice_id,
-        event_id=event_id,
+    eventprice = EventPrice(
+        viernulvier_id=eventprice_id,
         amount=amount,
         available=available,
         expires_at=expires_at,
     )
 
-    return event_price
+    return eventprice, event_id
