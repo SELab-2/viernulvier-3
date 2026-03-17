@@ -14,27 +14,32 @@ def store_new_eventprices(
 ):
     newest_timestamp = None
 
-    existing_events = set(db_session.execute(select(Event.id)).scalars())
+    existing_events = db_session.execute(select(Event.id, Event.viernulvier_id))
+    event_map: dict[int, int] = {
+        event_vnv_id: event_id for event_id, event_vnv_id in existing_events
+    }
+
     orphans = 0
 
     for json_price in eventprices:
-        eventprice = api_eventprice_to_model_eventprice(json_price)
+        eventprice, vnv_event_id = api_eventprice_to_model_eventprice(json_price)
 
         # Check if the eventprice is tied to a valid event, else we would get a
         # ForeignKey violation
-        if not eventprice.event_id:
+        if not vnv_event_id:
             logger.warning(
-                f"Not storing eventprice (id={
-                    eventprice.id
-                }) because no associated event"
+                f"Not storing eventprice (id={eventprice.viernulvier_id}) "
+                "because no associated event"
             )
             orphans += 1
             continue
 
-        elif eventprice.event_id not in existing_events:
+        internal_event_id = event_map.get(vnv_event_id)
+
+        if not internal_event_id:
             logger.warning(
-                f"Not storing eventprice (id={eventprice.id}) because the associated "
-                f"event (id={eventprice.event_id}) does not exist (anymore)"
+                f"Not storing eventprice (id={eventprice.viernulvier_id}) because "
+                f"the associated event (id={vnv_event_id}) does not exist (anymore)"
             )
             orphans += 1
             continue
