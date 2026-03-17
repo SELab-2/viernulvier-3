@@ -89,7 +89,7 @@ async def patch_production(
     request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
-):
+) -> ProductionResponse:
     base_url = get_base_url(str(request.url), 2)
     production_data = update_production_by_id(
         db, production_in, production_id, base_url
