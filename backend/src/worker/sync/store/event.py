@@ -18,17 +18,18 @@ def store_new_events(
         select(Production.id, Production.viernulvier_id)
     )
     prod_map: dict[int, int] = {
-        prod_vnv_id: prod_id for (prod_id, prod_vnv_id) in existing_productions
+        prod_viernulvier_id: prod_id
+        for (prod_id, prod_viernulvier_id) in existing_productions
     }
 
     orphans = 0
 
     for json_event in events:
-        event, vnv_prod_id = api_event_to_model_event(json_event)
+        event, viernulvier_prod_id = api_event_to_model_event(json_event)
 
         # Check if the event is tied to a valid production, else we would get a
         # ForeignKey violation
-        if not vnv_prod_id:
+        if not viernulvier_prod_id:
             logger.warning(
                 f"Not storing event (id={event.viernulvier_id}) because no "
                 "associated production"
@@ -36,12 +37,13 @@ def store_new_events(
             orphans += 1
             continue
 
-        internal_prod_id = prod_map.get(vnv_prod_id)
+        internal_prod_id = prod_map.get(viernulvier_prod_id)
 
         if not internal_prod_id:
             logger.warning(
                 f"Not storing event (id={event.viernulvier_id}) because the "
-                f"associated production (id={vnv_prod_id}) does not exist (anymore)"
+                f"associated production (id={viernulvier_prod_id}) does not "
+                "exist (anymore)"
             )
             orphans += 1
             continue
