@@ -5,3 +5,16 @@
 # React Router
 /.react-router/
 /build/
+
+.vscode/
+.idea/
+
+dist/
+out
+
+.jest/
+coverage/
+
+.vite
+
+*.tsbuildinfo
