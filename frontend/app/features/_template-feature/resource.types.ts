@@ -7,5 +7,5 @@ export interface ICreateResource {
   someData: string;
 }
 export interface IUpdateResource {
-  someData: string | undefined;
+  someData?: string;
 }
