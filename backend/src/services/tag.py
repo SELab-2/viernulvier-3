@@ -58,9 +58,7 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 
     db_tag_names = []
     for name in tag_in.names:
-        db_tag_name = TagName(
-            tag_id=db_tag.id, language=name.language, name=name.name
-        )
+        db_tag_name = TagName(tag_id=db_tag.id, language=name.language, name=name.name)
         db_tag_names.append(db_tag_name)
         db.add(db_tag_name)
 

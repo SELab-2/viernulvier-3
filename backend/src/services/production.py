@@ -155,7 +155,9 @@ def create_production(
     db.add(db_production_info)
     db.commit()
     db.refresh(db_production)
-    return build_production_response(db, db_production, base_url, production_info_in.language)
+    return build_production_response(
+        db, db_production, base_url, production_info_in.language
+    )
 
 
 # Updates the production and all related production infos.

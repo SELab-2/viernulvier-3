@@ -9,9 +9,7 @@ from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 logger = logging.getLogger(__name__)
 
 
-def store_new_eventprices(
-    db_session: Session, eventprices: list[dict]
-):
+def store_new_eventprices(db_session: Session, eventprices: list[dict]):
     newest_timestamp = None
 
     existing_events = db_session.execute(select(Event.id, Event.viernulvier_id))
