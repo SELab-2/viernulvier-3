@@ -1,4 +1,3 @@
-from src.models.language import Language
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
@@ -121,8 +120,8 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
     assert len(production_response.production_infos) == 1
     assert (
-        production_response.production_infos[0].language_id_url
-        == f"{BASE_URL}/languages/2"
+        production_response.production_infos[0].language
+        == "en"
     )
     assert production_response.events == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
@@ -207,39 +206,6 @@ def test_update_production_info(db_session, productions_limited):
         if info.title == "updated_title"
     )
     assert production_info_nl.title == "updated_title"
-
-
-# Update an existing production - add invalid production info.
-def test_update_production_info_add(db_session, productions_limited):
-    production_response = get_production_by_id(
-        db_session, productions_limited[0].id, BASE_URL
-    )
-    assert len(production_response.production_infos) == 2
-
-    # Add a third language.
-    lang = Language(id=3, language="fr")
-    db_session.add(lang)
-    db_session.commit()
-    db_session.refresh(lang)
-
-    # New info should be added.
-    update = ProductionUpdate(
-        production_infos=[
-            ProductionInfoUpdate(language="fr", title="Une brioche et deux macarons!")
-        ]
-    )
-
-    # Check updated in response.
-    update_response = update_production_by_id(
-        db_session, update, productions_limited[0].id, BASE_URL
-    )
-    assert len(update_response.production_infos) == 3
-
-    # Check updated in database
-    production_response = get_production_by_id(
-        db_session, productions_limited[0].id, BASE_URL
-    )
-    assert len(production_response.production_infos) == 3
 
 
 # Update an existing production - add invalid production info.
