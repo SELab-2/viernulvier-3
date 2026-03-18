@@ -4,9 +4,7 @@ from sqlalchemy.orm import Session
 from src.worker.converters.production import api_prod_to_model_prod
 
 
-def store_new_productions(
-    db_session: Session, productions: list[dict]
-):
+def store_new_productions(db_session: Session, productions: list[dict]):
     newest_timestamp = None
 
     for json_prod in productions:
