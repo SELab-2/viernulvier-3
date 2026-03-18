@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import axios from "axios";
 import * as envModule from "~/shared/utils/env";
+import * as apiClientModule from "~/shared/services/apiClient";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { login, refreshToken } from "./loginService";
@@ -65,6 +66,22 @@ describe("loginService", () => {
       expect(localStorage.getItem("access_token")).toBe("newAccess123");
 
       const apiClient = createApiClient();
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+    });
+
+    it("does not create new apiClient when passing client", async () => {
+      const createApiClientSpy = vi.spyOn(apiClientModule, "createApiClient");
+      localStorage.setItem("refresh_token", "refresh123");
+      mockAdapter.onPost("/auth/refresh").reply(200, {
+        access_token: "newAccess123",
+      });
+
+      const apiClient = createApiClient();
+
+      await refreshToken(apiClient);
+
+      expect(createApiClientSpy).toHaveBeenCalledTimes(1);
+      expect(localStorage.getItem("access_token")).toBe("newAccess123");
       expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
     });
 
