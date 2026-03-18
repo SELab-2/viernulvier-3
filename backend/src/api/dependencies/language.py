@@ -1,7 +1,5 @@
 from fastapi import Header
 
-from src.services.language import Languages
-
 
 def get_accepted_language(
     accept_language: str = Header(None, alias="Accept-Language"),
@@ -14,8 +12,8 @@ def get_accepted_language(
 
     for lang in languages:
         if lang.lower() in ["en", "english"]:
-            return Languages.ENGLISH
+            return "en"
         elif lang.lower() in ["nl", "nederlands", "dutch"]:
-            return Languages.NEDERLANDS
+            return "nl"
 
     return None

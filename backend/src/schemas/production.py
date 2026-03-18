@@ -11,7 +11,7 @@ class Pagination(BaseModel):
 # The response for a production info in a specific language.
 class ProductionInfoResponse(BaseModel):
     production_id_url: str
-    language_id_url: str
+    language: str
     title: Optional[str] = None
     supertitle: Optional[str] = None
     artist: Optional[str] = None
