@@ -19,11 +19,8 @@ logger.info("Loading csvs")
 # Productions
 with open(prod_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
-    firstline = True
+    next(reader)
     for row in reader:
-        if firstline:
-            firstline = False
-            continue
         # Sla alle entries met onnuttige data over
         if len(row) == 7 and row[5] != "" and row[0] != "":
             producties[row[5]] = row
@@ -31,11 +28,8 @@ with open(prod_file, newline="", encoding="utf-8") as f:
 # Events
 with open(event_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
-    firstline = True
+    next(reader)
     for row in reader:
-        if firstline:
-            firstline = False
-            continue
         # Sla alle entries met onbestaande producties over
         if row[3] in producties:
             if row[3] in events:
