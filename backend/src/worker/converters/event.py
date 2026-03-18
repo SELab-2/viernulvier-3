@@ -49,7 +49,7 @@ def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
 
 
 def csv_event_to_model_event(
-    prod_id: int, csv_event: list, hall_id: int, c: int
+    prod_id: int, csv_event: list, hall_id: int
 ) -> Event:
     """
     This function takes care of molding the csv format of an event,
@@ -60,7 +60,6 @@ def csv_event_to_model_event(
     if int(csv_event[1][:4]) < 1970:
         csv_event[1] = "1970-01-01 00:00:00"
     event = Event(
-        viernulvier_id=c,
         production_id=prod_id,
         starts_at=datetime.fromisoformat(csv_event[0]),
         ends_at=datetime.fromisoformat(csv_event[1]),

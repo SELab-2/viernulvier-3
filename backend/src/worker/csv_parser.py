@@ -54,7 +54,6 @@ try:
             nl_lang_id = lang.id
     if nl_lang_id is None:
         raise RuntimeError("Language 'nl' not found.")
-    c = 0
     for prod_id, productie in producties.items():
         production_model = csv_prod_to_model_prod(productie, nl_lang_id)
         db.add(production_model)
@@ -70,10 +69,9 @@ try:
                     hall_id = hall_model.id
                     hall_map[event[2]] = hall_id
                 event_model = csv_event_to_model_event(
-                    production_model.id, event, hall_id, c
+                    production_model.id, event, hall_id
                 )
                 db.add(event_model)
-                c += 1
         db.commit()
 finally:
     db.close()
