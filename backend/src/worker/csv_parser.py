@@ -58,9 +58,12 @@ try:
     for lang in languages:
         if lang.language == "nl":
             nl_lang_id = lang.id
+    if nl_lang_id is None:
+        raise RuntimeError("Language 'nl' not found.")
+    c = 0
     for prod_id, productie in producties.items():
-        production_model = csv_prod_to_model_prod(prod_id, productie, nl_lang_id)
-        merged_production = db.merge(production_model)
+        production_model = csv_prod_to_model_prod(productie, nl_lang_id)
+        db.add(production_model)
         db.flush()
         if prod_id in events:
             for event in events[prod_id]:
@@ -68,13 +71,15 @@ try:
                     hall_id = hall_map[event[2]]
                 else:
                     hall_model = Hall(name=event[2])
-                    merged_hall = db.merge(hall_model)
+                    db.add(hall_model)
                     db.flush()
-                    hall_id = merged_hall.id
+                    hall_id = hall_model.id
+                    hall_map[event[2]] = hall_id
                 event_model = csv_event_to_model_event(
-                    merged_production.id, event, hall_id
+                    production_model.id, event, hall_id, c
                 )
-                db.merge(event_model)
+                db.add(event_model)
+                c += 1
         db.commit()
 finally:
     db.close()
