@@ -9,7 +9,7 @@ from src.schemas.production import (
     ProductionInfoResponse,
     ProductionListResponse,
 )
-from src.api.exceptions import NotFoundError, ValidationError
+from src.api.exceptions import NotFoundError
 
 
 # The response functions: both return copies.
