@@ -58,11 +58,12 @@ describe("createApiClient", () => {
 
     vi.spyOn(axios, "create").mockReturnValue({
       get: mockGet,
-    } as any);
+    } as unknown as AxiosInstance);
 
-    const result = await getByUrl("/test");
+    const client = createApiClient();
+    const result = await client.get("/test");
     expect(mockGet).toHaveBeenCalledWith("/test");
-    expect(result).toEqual({ foo: "bar" });
+    expect(result).toEqual({ data: { foo: "bar" } });
   });
 });
 
@@ -72,7 +73,7 @@ describe("getByUrl", () => {
 
     vi.spyOn(axios, "create").mockReturnValue({
       get: mockGet,
-    } as any);
+    } as unknown as AxiosInstance);
 
     const result = await getByUrl("/test");
 
