@@ -60,7 +60,9 @@ def api_prod_to_model_prod(json_prod: dict, language_map: dict[str, int]) -> Pro
     return production
 
 
-def csv_prod_to_model_prod(production_id: int, csv_prod: dict, nl_lang_id: int) -> Production:
+def csv_prod_to_model_prod(
+    production_id: int, csv_prod: dict, nl_lang_id: int
+) -> Production:
     """
     This function takes care of molding the csv format of a production,
     into a Production object for our archive database.
@@ -73,7 +75,7 @@ def csv_prod_to_model_prod(production_id: int, csv_prod: dict, nl_lang_id: int) 
         language_id=nl_lang_id,
         title=csv_prod[0],
         supertitle=csv_prod[1],
-        description=csv_prod[2]+csv_prod[3],
+        description=(csv_prod[2] + "\n" + csv_prod[3]),
     )
 
     production.info.append(prod_info)
