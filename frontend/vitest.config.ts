@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [tailwindcss(), tsconfigPaths()],
   envDir: "../",
   test: {
+    environment: "jsdom",
     reporters: ["default", "hanging-process"],
   },
 });

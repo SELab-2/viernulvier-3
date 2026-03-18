@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import axios from "axios";
+import * as envModule from "~/shared/utils/env";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { login, refreshToken } from "./loginService";
@@ -8,6 +9,10 @@ describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;
 
   beforeEach(() => {
+    vi.spyOn(envModule, "getEnv").mockReturnValue({
+      API_BASE_URL: "http://localhost",
+    });
+
     const store: Record<string, string> = {};
     vi.stubGlobal("localStorage", {
       getItem: (key: string) => store[key] ?? null,
