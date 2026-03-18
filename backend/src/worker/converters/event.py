@@ -48,9 +48,7 @@ def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
     return event, production_id
 
 
-def csv_event_to_model_event(
-    prod_id: int, csv_event: list, hall_id: int
-) -> Event:
+def csv_event_to_model_event(prod_id: int, csv_event: list, hall_id: int) -> Event:
     """
     This function takes care of molding the csv format of an event,
     into an Event object for our archive database.
