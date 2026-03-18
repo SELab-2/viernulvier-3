@@ -86,9 +86,7 @@ def test_create_tag(db_session):
     assert names["en"] == "tag_en"
 
 
-def test_update_tag_existing_and_new_language(
-    db_session, tag
-):
+def test_update_tag_existing_and_new_language(db_session, tag):
     tag_in = TagCreate(
         names=[
             TagNameBase(language="nl", name="updated_nl"),

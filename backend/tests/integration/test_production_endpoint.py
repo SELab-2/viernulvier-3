@@ -260,9 +260,7 @@ def test_patch_production_delete_info_success(
 
 
 # User should be able to create a new production.
-def test_create_production_success(
-    client: TestClient, db_session: Session
-):
+def test_create_production_success(client: TestClient, db_session: Session):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
     )
@@ -284,9 +282,7 @@ def test_create_production_success(
 
 
 # User should not be able to create a new production because of permissions.
-def test_create_production_failure(
-    client: TestClient, db_session: Session
-):
+def test_create_production_failure(client: TestClient, db_session: Session):
     response = client.post(
         BASE_URL + "/",
         json={

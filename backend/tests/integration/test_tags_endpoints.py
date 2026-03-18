@@ -83,9 +83,7 @@ def test_create_tag_unauthorized(client: TestClient):
     assert response.status_code == 401
 
 
-def test_get_tag(
-    client: TestClient, create_headers
-):
+def test_get_tag(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
         json={
@@ -123,9 +121,7 @@ def test_get_tag(
     assert data["names"][0]["name"] == "tag1_en"
 
 
-def test_get_tags(
-    client: TestClient, create_headers
-):
+def test_get_tags(client: TestClient, create_headers):
     n = 5
     for i in range(n):
         client.post(
@@ -151,11 +147,7 @@ def test_get_tags(
         assert any(data[j]["names"][0]["name"] == f"tag{i}_nl" for j in range(n))
 
 
-def test_patch_tag(
-    client: TestClient,
-    db_session: Session,
-    create_headers
-):
+def test_patch_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
         json={"names": [{"language": "nl", "name": "tag1"}]},
@@ -186,9 +178,7 @@ def test_patch_tag(
     assert names["en"] == "tag1_en"
 
 
-def test_patch_tag_unauthorized(
-    client: TestClient, create_headers
-):
+def test_patch_tag_unauthorized(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
         json={"names": [{"language": "nl", "name": "tag1"}]},
@@ -215,9 +205,7 @@ def test_patch_tag_unauthorized(
     assert names["nl"] == "tag1"
 
 
-def test_delete_tag(
-    client: TestClient, db_session: Session, create_headers
-):
+def test_delete_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
         json={"names": [{"language": "nl", "name": "tag1"}]},
@@ -253,9 +241,7 @@ def test_delete_unauthorized(client: TestClient, create_headers):
     assert response.status_code == 200
 
 
-def test_tag_url_contains_full_path(
-    client: TestClient, db_session: Session
-):
+def test_tag_url_contains_full_path(client: TestClient, db_session: Session):
 
     create_headers = create_user_and_login(
         client, db_session, "tag_url_user", permissions=[Permissions.ARCHIVE_CREATE]
