@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def store_new_eventprices(
-    db_session: Session, language_map: dict[str, int], eventprices: list[dict]
+    db_session: Session, eventprices: list[dict]
 ):
     newest_timestamp = None
 
