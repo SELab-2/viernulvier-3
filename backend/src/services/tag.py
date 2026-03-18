@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.models.tag import Tag, TagName
 from src.schemas.tag import TagCreate, TagResponse
-from src.api.exceptions import ValidationError, NotFoundError
+from src.api.exceptions import NotFoundError
 
 
 def build_tag_response(
