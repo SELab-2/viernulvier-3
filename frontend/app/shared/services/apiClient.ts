@@ -19,9 +19,14 @@ export function createApiClient() {
   }
 
   apiClient.interceptors.response.use(undefined, async (error) => {
-    if (error.response?.status === 401) {
-      await refreshToken();
-      return apiClient(error.config); // Retry original request
+    const request = error.config;
+    if (error.response?.status === 401 && !request._retry) {
+      request._retry = true;
+      const refresh_token = localStorage.getItem("refresh_token");
+      if (refresh_token) {
+        await refreshToken();
+        return apiClient(request); // Retry original request
+      }
     }
 
     throw error;

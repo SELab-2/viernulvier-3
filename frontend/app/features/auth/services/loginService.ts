@@ -21,6 +21,7 @@ export async function refreshToken() {
     });
 
     const { access_token } = response.data;
+    localStorage.setItem("access_token", access_token);
     apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
   }
 }
