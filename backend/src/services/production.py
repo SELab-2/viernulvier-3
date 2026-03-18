@@ -47,9 +47,7 @@ def build_production_response(
         )
         if not production_infos:
             production_infos = (
-                db.query(ProdInfo)
-                .filter(ProdInfo.production_id == production.id)
-                .all()
+                db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
             )
     else:
         production_infos = (
