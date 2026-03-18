@@ -139,7 +139,9 @@ def create_production(
     production_info_in = production_in.production_info
     lang = get_accepted_language(production_info_in.language)
     if lang is None:
-        raise ValidationError(f"Language '{production_info_in.language}' not supported.")
+        raise ValidationError(
+            f"Language '{production_info_in.language}' not supported."
+        )
 
     db_production = Production(
         performer_type=production_in.performer_type,
@@ -159,9 +161,7 @@ def create_production(
     db.add(db_production_info)
     db.commit()
     db.refresh(db_production)
-    return build_production_response(
-        db, db_production, base_url, lang
-    )
+    return build_production_response(db, db_production, base_url, lang)
 
 
 # Updates the production and all related production infos.
@@ -183,7 +183,9 @@ def update_production_by_id(
         for production_info_in in production_in.production_infos:
             lang = get_accepted_language(production_info_in.language)
             if lang is None:
-                raise ValidationError(f"Language '{production_info_in.language}' not supported.")
+                raise ValidationError(
+                    f"Language '{production_info_in.language}' not supported."
+                )
 
             production_info = (
                 db.query(ProdInfo)
@@ -194,9 +196,7 @@ def update_production_by_id(
                 .first()
             )
             if not production_info:
-                production_info = ProdInfo(
-                    production_id=production_id, language=lang
-                )
+                production_info = ProdInfo(production_id=production_id, language=lang)
                 db.add(production_info)
             update_info = production_info_in.model_dump(
                 exclude_unset=True, exclude={"language"}

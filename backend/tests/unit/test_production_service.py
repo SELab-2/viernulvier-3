@@ -119,10 +119,7 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
     assert production_response.performer_type == productions_limited[0].performer_type
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
     assert len(production_response.production_infos) == 1
-    assert (
-        production_response.production_infos[0].language
-        == "en"
-    )
+    assert production_response.production_infos[0].language == "en"
     assert production_response.events == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
     ]
