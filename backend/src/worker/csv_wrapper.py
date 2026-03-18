@@ -71,7 +71,9 @@ try:
                     merged_hall = db.merge(hall_model)
                     db.flush()
                     hall_id = merged_hall.id
-                event_model = csv_event_to_model_event(merged_production.id, event, hall_id)
+                event_model = csv_event_to_model_event(
+                    merged_production.id, event, hall_id
+                )
                 db.merge(event_model)
         db.commit()
 finally:
