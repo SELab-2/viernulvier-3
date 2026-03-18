@@ -75,7 +75,7 @@ def test_sync_new_items_dispatch_good_path(
     fetcher = MagicMock()
     fetcher.get_new_items_after.return_value = [{"id": 4}]
 
-    sync_new_items(db_session, {}, fetcher, resource_type)
+    sync_new_items(db_session, fetcher, resource_type)
 
     fetcher.get_new_items_after.assert_called_once()
     mocks["get_last_sync"].assert_called_once()
@@ -103,7 +103,7 @@ def test_sync_new_items_connection_error(monkeypatch):
     fetcher.get_and_clear_partial_data.return_value = [{"id": 4}]
 
     # Type of resource type does not matter here
-    sync_new_items(db_session, {}, fetcher, ResourceType.PRODUCTION)
+    sync_new_items(db_session, fetcher, ResourceType.PRODUCTION)
 
     fetcher.get_new_items_after.assert_called_once()
     fetcher.get_and_clear_partial_data.assert_called_once()
@@ -118,7 +118,7 @@ def test_sync_new_items_no_data(monkeypatch):
     fetcher.get_new_items_after.return_value = []
 
     # Type of resource type does not matter here
-    sync_new_items(db_session, {}, fetcher, ResourceType.PRODUCTION)
+    sync_new_items(db_session, fetcher, ResourceType.PRODUCTION)
 
     fetcher.get_new_items_after.assert_called_once()
     mocks["store_new_productions"].assert_not_called()

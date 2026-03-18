@@ -261,7 +261,7 @@ def test_patch_production_delete_info_success(
 
 # User should be able to create a new production.
 def test_create_production_success(
-    client: TestClient, db_session: Session, language_nl
+    client: TestClient, db_session: Session
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -285,7 +285,7 @@ def test_create_production_success(
 
 # User should not be able to create a new production because of permissions.
 def test_create_production_failure(
-    client: TestClient, db_session: Session, language_nl
+    client: TestClient, db_session: Session
 ):
     response = client.post(
         BASE_URL + "/",
@@ -302,7 +302,7 @@ def test_create_production_failure(
 
 # User should not be able to create a new production because of unsupported language.
 def test_create_production_unsupported_language(
-    client: TestClient, db_session: Session, language_nl
+    client: TestClient, db_session: Session
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -313,7 +313,7 @@ def test_create_production_unsupported_language(
             "performer_type": "band",
             "attendance_mode": "offline",
             "media_gallery_id": 4,
-            "production_info": {"language": "en", "title": "new production"},
+            "production_info": {"language": "es", "title": "new production"},
         },
         headers=headers,
     )

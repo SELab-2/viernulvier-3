@@ -1,6 +1,7 @@
 from src.schemas.production import Pagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo
+from src.api.dependencies.language import get_accepted_language
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
@@ -9,7 +10,7 @@ from src.schemas.production import (
     ProductionInfoResponse,
     ProductionListResponse,
 )
-from src.api.exceptions import NotFoundError
+from src.api.exceptions import NotFoundError, ValidationError
 
 
 # The response functions: both return copies.
@@ -136,6 +137,9 @@ def create_production(
 ) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
     production_info_in = production_in.production_info
+    lang = get_accepted_language(production_info_in.language)
+    if lang is None:
+        raise ValidationError(f"Language '{production_info_in.language}' not supported.")
 
     db_production = Production(
         performer_type=production_in.performer_type,
@@ -149,14 +153,14 @@ def create_production(
     db.flush()
 
     db_production_info = create_production_info(
-        production_info_in, db_production.id, production_info_in.language
+        production_info_in, db_production.id, lang
     )
 
     db.add(db_production_info)
     db.commit()
     db.refresh(db_production)
     return build_production_response(
-        db, db_production, base_url, production_info_in.language
+        db, db_production, base_url, lang
     )
 
 
@@ -177,17 +181,21 @@ def update_production_by_id(
     # Check if info is provided.
     if production_in.production_infos:
         for production_info_in in production_in.production_infos:
+            lang = get_accepted_language(production_info_in.language)
+            if lang is None:
+                raise ValidationError(f"Language '{production_info_in.language}' not supported.")
+
             production_info = (
                 db.query(ProdInfo)
                 .filter(
                     ProdInfo.production_id == production_id,
-                    ProdInfo.language == production_info_in.language,
+                    ProdInfo.language == lang,
                 )
                 .first()
             )
             if not production_info:
                 production_info = ProdInfo(
-                    production_id=production_id, language=production_info_in.language
+                    production_id=production_id, language=lang
                 )
                 db.add(production_info)
             update_info = production_info_in.model_dump(

@@ -3,10 +3,6 @@ from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 
-
-LANG_MAP = {"en": 1, "nl": 2}
-
-
 # Test normal test case from the actual API
 def test_api_prod_to_model_prod():
     test_input = {
@@ -35,7 +31,7 @@ def test_api_prod_to_model_prod():
         "uitdatabank_keywords": [],
     }
 
-    prod = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
 
     # Check prod
@@ -52,12 +48,12 @@ def test_api_prod_to_model_prod():
 
     # Two info's, one per language
     assert len(prod_infos) == 2
-    assert any(prod_info.language_id == LANG_MAP["en"] for prod_info in prod_infos)
-    assert any(prod_info.language_id == LANG_MAP["nl"] for prod_info in prod_infos)
+    assert any(prod_info.language == "en" for prod_info in prod_infos)
+    assert any(prod_info.language == "nl" for prod_info in prod_infos)
 
     # Extract the info's to more easily test them
-    info_nl = [pi for pi in prod_infos if pi.language_id == LANG_MAP["nl"]][0]
-    info_en = [pi for pi in prod_infos if pi.language_id == LANG_MAP["en"]][0]
+    info_nl = [pi for pi in prod_infos if pi.language == "nl"][0]
+    info_en = [pi for pi in prod_infos if pi.language == "en"][0]
 
     # Production_id should point to our DB productions, but those are not set
     # by the converters
@@ -90,14 +86,14 @@ def test_api_prod_to_model_prod_unknown_language():
         "title": {"es": "Poplife - NYE", "en": "Poplife - NYE"},
     }
 
-    prod = api_prod_to_model_prod(test_input, LANG_MAP)
+    prod = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
 
     assert len(prod_infos) == 1
 
     pi = prod_infos[0]
 
-    assert pi.language_id == LANG_MAP["en"]
+    assert pi.language == "en"
 
 
 # Test normal test case from the actual API
