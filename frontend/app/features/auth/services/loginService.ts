@@ -1,5 +1,6 @@
 import { createApiClient } from "~/shared/services/apiClient";
 import type { IAccessTokenResponse, ILoginRequest, ILoginResponse } from "../auth.types";
+import type { AxiosInstance } from "axios";
 
 export async function login(request: ILoginRequest) {
   const apiClient = createApiClient();
@@ -12,8 +13,10 @@ export async function login(request: ILoginRequest) {
   localStorage.setItem("refresh_token", refresh_token);
 }
 
-export async function refreshToken() {
-  const apiClient = createApiClient();
+export async function refreshToken(apiClient?: AxiosInstance) {
+  if (!apiClient) {
+    apiClient = createApiClient();
+  }
   const refresh_token = localStorage.getItem("refresh_token");
   if (refresh_token) {
     const response = await apiClient.post<IAccessTokenResponse>(`/auth/refresh`, {

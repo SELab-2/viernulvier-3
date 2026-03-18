@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axios, { type AxiosInstance } from "axios";
+import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient, getByUrl } from "./apiClient";
 import * as envModule from "~/shared/utils/env";

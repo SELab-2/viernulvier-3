@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
-import { login } from "./loginService";
+import { login, refreshToken } from "./loginService";
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -44,6 +44,39 @@ describe("loginService", () => {
       mockAdapter.onPost("/auth/login").reply(401);
 
       await expect(login({ username: "test", password: "wrong" })).rejects.toThrow();
+    });
+  });
+
+  describe("refreshToken", () => {
+    it("updates access token and Authorization header when refresh token exists", async () => {
+      localStorage.setItem("refresh_token", "refresh123");
+
+      mockAdapter.onPost("/auth/refresh").reply(200, {
+        access_token: "newAccess123",
+      });
+
+      await refreshToken();
+
+      expect(localStorage.getItem("access_token")).toBe("newAccess123");
+
+      const apiClient = createApiClient();
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+    });
+
+    it("does nothing if no refresh token exists", async () => {
+      localStorage.clear();
+
+      await refreshToken();
+
+      expect(localStorage.getItem("access_token")).toBe(null);
+    });
+
+    it("throws if refresh request fails", async () => {
+      localStorage.setItem("refresh_token", "refresh123");
+
+      mockAdapter.onPost("/auth/refresh").reply(401);
+
+      await expect(refreshToken()).rejects.toThrow("Request failed with status code 401");
     });
   });
 });
