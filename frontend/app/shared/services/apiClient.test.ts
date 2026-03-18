@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios, { type AxiosInstance } from "axios";
+import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient, getByUrl } from "./apiClient";
 import * as envModule from "~/shared/utils/env";
 
-vi.mock("axios");
-
 describe("createApiClient", () => {
+  let mockAdapter: AxiosMockAdapter;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -23,10 +24,14 @@ describe("createApiClient", () => {
         Object.keys(store).forEach((k) => delete store[k]);
       },
     });
+
+    const apiClient = axios.create();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+    vi.spyOn(axios, "create").mockReturnValue(apiClient);
   });
 
   it("creates axios instance with correct config", () => {
-    const mockCreate = vi.spyOn(axios, "create").mockReturnValue({} as AxiosInstance);
+    const mockCreate = vi.spyOn(axios, "create");
 
     createApiClient();
 
@@ -42,42 +47,34 @@ describe("createApiClient", () => {
   it("adds Authorization header if token exists", () => {
     localStorage.setItem("access_token", "test_token1234");
 
-    const mockInstance = {
-      defaults: { headers: { common: {} } },
-    } as AxiosInstance;
-
-    vi.spyOn(axios, "create").mockReturnValue(mockInstance);
-
     const client = createApiClient();
-
     expect(client.defaults.headers.common["Authorization"]).toBe("Bearer test_token1234");
   });
 
   it("returns response data on GET request", async () => {
-    const mockGet = vi.fn().mockResolvedValue({ data: { foo: "bar" } });
+    mockAdapter.onGet("/test").reply(200, { foo: "bar" });
 
-    vi.spyOn(axios, "create").mockReturnValue({
-      get: mockGet,
-    } as unknown as AxiosInstance);
+    const apiClient = createApiClient();
+    const response = await apiClient.get("/test");
 
-    const client = createApiClient();
-    const result = await client.get("/test");
-    expect(mockGet).toHaveBeenCalledWith("/test");
-    expect(result).toEqual({ data: { foo: "bar" } });
+    expect(response.data).toEqual({ foo: "bar" });
   });
 });
 
 describe("getByUrl", () => {
-  it("returns response data", async () => {
-    const mockGet = vi.fn().mockResolvedValue({ data: { foo: "bar" } });
+  let mockAdapter: AxiosMockAdapter;
 
-    vi.spyOn(axios, "create").mockReturnValue({
-      get: mockGet,
-    } as unknown as AxiosInstance);
+  beforeEach(() => {
+    const apiClient = axios.create();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+
+    vi.spyOn(axios, "create").mockReturnValue(apiClient);
+  });
+
+  it("returns response data", async () => {
+    mockAdapter.onGet("/test").reply(200, { foo: "bar" });
 
     const result = await getByUrl("/test");
-
-    expect(mockGet).toHaveBeenCalledWith("/test");
     expect(result).toEqual({ foo: "bar" });
   });
 });
