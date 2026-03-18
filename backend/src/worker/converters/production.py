@@ -70,7 +70,7 @@ def csv_prod_to_model_prod(csv_prod: dict, nl_lang_id: int) -> Production:
     )
 
     prod_info = ProdInfo(
-        language_id=2,
+        language_id=nl_lang_id,
         title=csv_prod[0],
         supertitle=csv_prod[1],
         description=(csv_prod[2] + "\n" + csv_prod[3]),
