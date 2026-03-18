@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getEnv } from "../utils/env";
+import { refreshToken } from "~/features/auth";
 
 export function createApiClient() {
   const { API_BASE_URL } = getEnv();
@@ -16,6 +17,16 @@ export function createApiClient() {
   if (access_token) {
     apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
   }
+
+  apiClient.interceptors.response.use(undefined, async (error) => {
+    if (error.response?.status === 401) {
+      await refreshToken();
+      return apiClient(error.config); // Retry original request
+    }
+
+    throw error;
+  });
+
   return apiClient;
 }
 
