@@ -1,6 +1,6 @@
 from src.schemas.production import Pagination
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo, Language
+from src.models import Event, Production, ProdInfo
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
