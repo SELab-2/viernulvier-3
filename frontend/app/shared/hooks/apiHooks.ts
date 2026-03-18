@@ -1,15 +1,6 @@
-import { useState } from "react";
 import { getByUrl } from "../services/apiClient";
+import { useAsyncFetch, type UseAsyncReturn } from "./useAsyncFetch";
 
-export function useGetByUrl<R>(url: string) {
-  const [data, setData] = useState<R | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  getByUrl<R>(url)
-    .then((data) => setData(data))
-    .catch(setError)
-    .finally(() => setLoading(false));
-
-  return { data, loading, error };
+export function useGetByUrl<R>(url: string): UseAsyncReturn<R> {
+  return useAsyncFetch<R>(() => getByUrl(url));
 }
