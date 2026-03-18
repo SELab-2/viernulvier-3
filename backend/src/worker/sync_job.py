@@ -1,8 +1,6 @@
 import logging
 
-from sqlalchemy.orm import Session
 from src.database import SESSION_LOCAL
-from src.models.language import Language
 from src.models.sync_state import ResourceType
 from src.worker.fetchers.event import EventFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
