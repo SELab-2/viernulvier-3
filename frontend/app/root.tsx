@@ -1,5 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-
+import Navbar from "~/shared/components/Navbar"
 import "./styles/app.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -21,5 +21,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <div>
+      <Navbar />
+      <main>
+        <Outlet />
+      </main>
+    </div> 
+  )
 }
