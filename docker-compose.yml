@@ -39,6 +39,15 @@ services:
     profiles:
       - sync
 
+  csv_worker:
+    build: ./bacckend
+    command: python -m src.worker.csv_parser
+    depends_on:
+      database:
+        condition: service_healthy
+    profiles:
+      - csv
+
   database:
     image: postgres:15-alpine
     env_file: .env

@@ -9,8 +9,8 @@ from src.database import SESSION_LOCAL
 
 logger = logging.getLogger(__name__)
 
-prod_file = "src/worker/Productions - output.csv"
-event_file = "src/worker/Events - voorstellingen.csv"
+prod_file = "data/Productions - output.csv"
+event_file = "data/Events - voorstellingen.csv"
 
 producties = dict()
 events = dict()
@@ -19,6 +19,7 @@ logger.info("Loading csvs")
 # Productions
 with open(prod_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
+    # Skip header
     next(reader)
     for row in reader:
         # Sla alle entries met onnuttige data over
@@ -28,6 +29,7 @@ with open(prod_file, newline="", encoding="utf-8") as f:
 # Events
 with open(event_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
+    # Skip header
     next(reader)
     for row in reader:
         # Sla alle entries met onbestaande producties over
