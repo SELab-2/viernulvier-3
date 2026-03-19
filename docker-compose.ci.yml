@@ -31,12 +31,28 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      minio:
+        condition: service_healthy
 
   database:
     image: postgres:15-alpine
     env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    expose:
+      - "9000"
+      - "9001"
+    env_file: .env
+    # No volume: ephemeral storage is fine for CI
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
