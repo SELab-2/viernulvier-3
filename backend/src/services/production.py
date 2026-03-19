@@ -45,11 +45,7 @@ def build_production_response(
             )
             .all()
         )
-        if not production_infos:
-            production_infos = (
-                db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
-            )
-    else:
+    if not production_infos:
         production_infos = (
             db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
         )
