@@ -10,6 +10,7 @@ from src.database import Base, get_db
 from src.main import app
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
+from src.services.language import Languages
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
@@ -87,9 +88,9 @@ def productions_limited(db_session):
     db_session.add_all([prod1, prod2])
     db_session.flush()
 
-    info1_nl = ProdInfo(production_id=prod1.id, language="nl", title="prod1_nl")
-    info1_en = ProdInfo(production_id=prod1.id, language="en", title="prod1_en")
-    info2_nl = ProdInfo(production_id=prod2.id, language="nl", title="prod2_nl")
+    info1_nl = ProdInfo(production_id=prod1.id, language=Languages.NEDERLANDS, title="prod1_nl")
+    info1_en = ProdInfo(production_id=prod1.id, language=Languages.ENGLISH, title="prod1_en")
+    info2_nl = ProdInfo(production_id=prod2.id, language=Languages.NEDERLANDS, title="prod2_nl")
 
     db_session.add_all([info1_nl, info1_en, info2_nl])
     db_session.commit()
@@ -116,8 +117,8 @@ def many_productions(db_session):
         db_session.add(prod)
         db_session.flush()
 
-        info_nl = ProdInfo(production_id=prod.id, language="nl", title=f"prod{i}_nl")
-        info_en = ProdInfo(production_id=prod.id, language="en", title=f"prod{i}_en")
+        info_nl = ProdInfo(production_id=prod.id, language=Languages.NEDERLANDS, title=f"prod{i}_nl")
+        info_en = ProdInfo(production_id=prod.id, language=Languages.ENGLISH, title=f"prod{i}_en")
         db_session.add_all([info_nl, info_en])
         productions.append(prod)
 

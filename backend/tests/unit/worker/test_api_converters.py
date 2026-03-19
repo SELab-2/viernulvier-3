@@ -2,6 +2,7 @@ from datetime import datetime
 from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
+from src.services.language import Languages
 
 
 # Test normal test case from the actual API
@@ -49,27 +50,27 @@ def test_api_prod_to_model_prod():
 
     # Two info's, one per language
     assert len(prod_infos) == 2
-    assert any(prod_info.language == "en" for prod_info in prod_infos)
-    assert any(prod_info.language == "nl" for prod_info in prod_infos)
+    assert any(prod_info.language == Languages.NEDERLANDS for prod_info in prod_infos)
+    assert any(prod_info.language == Languages.ENGLISH for prod_info in prod_infos)
 
     # Extract the info's to more easily test them
-    info_nl = [pi for pi in prod_infos if pi.language == "nl"][0]
-    info_en = [pi for pi in prod_infos if pi.language == "en"][0]
+    info_nl = [pi for pi in prod_infos if pi.language == Languages.NEDERLANDS][0]
+    info_en = [pi for pi in prod_infos if pi.language == Languages.ENGLISH][0]
 
     # Production_id should point to our DB productions, but those are not set
     # by the converters
     assert info_nl.production_id is None
     assert info_en.production_id is None
 
-    assert info_nl.title == test_input["title"]["nl"]
-    assert info_nl.supertitle == test_input["supertitle"]["nl"]
-    assert info_nl.artist == test_input["artist"]["nl"]
+    assert info_nl.title == test_input["title"][Languages.NEDERLANDS]
+    assert info_nl.supertitle == test_input["supertitle"][Languages.NEDERLANDS]
+    assert info_nl.artist == test_input["artist"][Languages.NEDERLANDS]
     assert info_nl.tagline is None
     assert info_nl.teaser is None
-    assert info_nl.description == test_input["description"]["nl"]
-    assert info_nl.info == test_input["info"]["nl"]
+    assert info_nl.description == test_input["description"][Languages.NEDERLANDS]
+    assert info_nl.info == test_input["info"][Languages.NEDERLANDS]
 
-    assert info_en.title == test_input["title"]["en"]
+    assert info_en.title == test_input["title"][Languages.ENGLISH]
     assert info_en.supertitle is None
     assert info_en.artist is None
     assert info_en.tagline is None
@@ -94,7 +95,7 @@ def test_api_prod_to_model_prod_unknown_language():
 
     pi = prod_infos[0]
 
-    assert pi.language == "en"
+    assert pi.language == Languages.ENGLISH
 
 
 # Test normal test case from the actual API
@@ -130,7 +131,7 @@ def test_api_event_to_model_event():
     assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
     assert event.ends_at == datetime.fromisoformat(test_input["ends_at"])
-    assert event.order_url == test_input["external_order_url"]["nl"]
+    assert event.order_url == test_input["external_order_url"][Languages.NEDERLANDS]
 
     assert prod_id == 4129
 

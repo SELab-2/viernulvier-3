@@ -6,6 +6,7 @@ from src.models.user import User
 from src.models.role import Role
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
+from src.services.language import Languages
 
 TAGS_URL = "/api/v1/archive/tags"
 
@@ -58,7 +59,7 @@ def test_create_tag(client: TestClient, create_headers):
         TAGS_URL,
         json={
             "names": [
-                {"language": "nl", "name": "tag1"},
+                {"language": Languages.NEDERLANDS, "name": "tag1"},
             ]
         },
         headers=create_headers,
@@ -76,7 +77,7 @@ def test_create_tag_unauthorized(client: TestClient):
         TAGS_URL,
         json={
             "names": [
-                {"language": "nl", "name": "tag1"},
+                {"language": Languages.NEDERLANDS, "name": "tag1"},
             ]
         },
     )
@@ -88,8 +89,8 @@ def test_get_tag(client: TestClient, create_headers):
         TAGS_URL,
         json={
             "names": [
-                {"language": "nl", "name": "tag1_nl"},
-                {"language": "en", "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_nl"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
         headers=create_headers,
@@ -105,7 +106,7 @@ def test_get_tag(client: TestClient, create_headers):
     assert len(data["names"]) == 2
 
     # Test if nl header only gives nl tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "nl"})
+    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.NEDERLANDS})
     assert response.status_code == 200
 
     data = response.json()
@@ -113,7 +114,7 @@ def test_get_tag(client: TestClient, create_headers):
     assert data["names"][0]["name"] == "tag1_nl"
 
     # Test if en header only gives en tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "en"})
+    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.ENGLISH})
     assert response.status_code == 200
 
     data = response.json()
@@ -128,14 +129,14 @@ def test_get_tags(client: TestClient, create_headers):
             TAGS_URL,
             json={
                 "names": [
-                    {"language": "nl", "name": f"tag{i}_nl"},
-                    {"language": "en", "name": f"tag{i}_en"},
+                    {"language": Languages.NEDERLANDS, "name": f"tag{i}_nl"},
+                    {"language": Languages.ENGLISH, "name": f"tag{i}_en"},
                 ]
             },
             headers=create_headers,
         )
 
-    response = client.get(TAGS_URL, headers={"Accept-Language": "nl"})
+    response = client.get(TAGS_URL, headers={"Accept-Language": Languages.NEDERLANDS})
     assert response.status_code == 200
     data = response.json()
 
@@ -150,7 +151,7 @@ def test_get_tags(client: TestClient, create_headers):
 def test_patch_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language": "nl", "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
     tag_id = created_tag.json()["id"].split("/")[-1]
@@ -162,8 +163,8 @@ def test_patch_tag(client: TestClient, db_session: Session, create_headers):
         f"{TAGS_URL}/{tag_id}",
         json={
             "names": [
-                {"language": "nl", "name": "tag1_updated"},
-                {"language": "en", "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_updated"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
         headers=patch_headers,
@@ -174,14 +175,14 @@ def test_patch_tag(client: TestClient, db_session: Session, create_headers):
     assert len(data["names"]) == 2
 
     names = {n["language"]: n["name"] for n in data["names"]}
-    assert names["nl"] == "tag1_updated"
-    assert names["en"] == "tag1_en"
+    assert names[Languages.NEDERLANDS] == "tag1_updated"
+    assert names[Languages.ENGLISH] == "tag1_en"
 
 
 def test_patch_tag_unauthorized(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language": "nl", "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
     tag_id = created_tag.json()["id"].split("/")[-1]
@@ -190,8 +191,8 @@ def test_patch_tag_unauthorized(client: TestClient, create_headers):
         f"{TAGS_URL}/{tag_id}",
         json={
             "names": [
-                {"language": "nl", "name": "tag1_updated"},
-                {"language": "en", "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_updated"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
     )
@@ -202,13 +203,13 @@ def test_patch_tag_unauthorized(client: TestClient, create_headers):
     assert len(data["names"]) == 1
 
     names = {n["language"]: n["name"] for n in data["names"]}
-    assert names["nl"] == "tag1"
+    assert names[Languages.NEDERLANDS] == "tag1"
 
 
 def test_delete_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language": "nl", "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
 
@@ -227,7 +228,7 @@ def test_delete_tag(client: TestClient, db_session: Session, create_headers):
 def test_delete_unauthorized(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language": "nl", "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
 
@@ -251,7 +252,7 @@ def test_tag_url_contains_full_path(client: TestClient, db_session: Session):
         TAGS_URL,
         json={
             "names": [
-                {"language": "nl", "name": "tag_url_test"},
+                {"language": Languages.NEDERLANDS, "name": "tag_url_test"},
             ]
         },
         headers=create_headers,
