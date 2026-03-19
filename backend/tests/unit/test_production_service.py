@@ -133,7 +133,9 @@ def test_create_production_valid_info(db_session, productions_limited):
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
-        production_info=ProductionInfoCreate(language=Languages.NEDERLANDS, title="nieuw_prod_nl"),
+        production_info=ProductionInfoCreate(
+            language=Languages.NEDERLANDS, title="nieuw_prod_nl"
+        ),
     )
 
     _ = create_production(db_session, new_prod, BASE_URL)

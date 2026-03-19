@@ -106,7 +106,9 @@ def test_get_tag(client: TestClient, create_headers):
     assert len(data["names"]) == 2
 
     # Test if nl header only gives nl tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.NEDERLANDS})
+    response = client.get(
+        f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.NEDERLANDS}
+    )
     assert response.status_code == 200
 
     data = response.json()
@@ -114,7 +116,9 @@ def test_get_tag(client: TestClient, create_headers):
     assert data["names"][0]["name"] == "tag1_nl"
 
     # Test if en header only gives en tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.ENGLISH})
+    response = client.get(
+        f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.ENGLISH}
+    )
     assert response.status_code == 200
 
     data = response.json()
