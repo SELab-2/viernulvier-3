@@ -13,6 +13,8 @@ from src.models.tag import Tag, TagName
 from src.schemas.tag import TagCreate, TagNameBase
 from src.api.exceptions import NotFoundError
 
+from src.services.language import Languages
+
 BASE_URL = "http://test"
 
 
@@ -22,8 +24,8 @@ def tag(db_session):
     db_session.add(tag)
     db_session.flush()
 
-    name_nl = TagName(tag_id=tag.id, language="nl", name="tag_nl")
-    name_en = TagName(tag_id=tag.id, language="en", name="tag_en")
+    name_nl = TagName(tag_id=tag.id, language=Languages.NEDERLANDS, name="tag_nl")
+    name_en = TagName(tag_id=tag.id, language=Languages.ENGLISH, name="tag_en")
 
     db_session.add_all([name_nl, name_en])
     db_session.commit()
@@ -42,7 +44,7 @@ def test_get_tags_list(db_session, tag):
 
 @pytest.mark.usefixtures("tag")
 def test_get_tags_list_language_filter(db_session):
-    result = get_tags_list(db_session, BASE_URL, "nl")
+    result = get_tags_list(db_session, BASE_URL, Languages.NEDERLANDS)
 
     assert len(result) == 1
     assert len(result[0].names) == 1
@@ -57,7 +59,7 @@ def test_get_tag_by_id_success(db_session, tag):
 
 
 def test_get_tag_by_id_language_filter(db_session, tag):
-    result = get_tag_by_id(db_session, tag.id, BASE_URL, "en")
+    result = get_tag_by_id(db_session, tag.id, BASE_URL, Languages.ENGLISH)
 
     assert len(result.names) == 1
     assert result.names[0].name == "tag_en"
@@ -71,8 +73,8 @@ def test_get_tag_by_id_not_found(db_session):
 def test_create_tag(db_session):
     tag_in = TagCreate(
         names=[
-            TagNameBase(language="nl", name="tag_nl"),
-            TagNameBase(language="en", name="tag_en"),
+            TagNameBase(language=Languages.NEDERLANDS, name="tag_nl"),
+            TagNameBase(language=Languages.ENGLISH, name="tag_en"),
         ]
     )
 
@@ -82,15 +84,15 @@ def test_create_tag(db_session):
     assert len(result.names) == 2
 
     names = {n.language: n.name for n in result.names}
-    assert names["nl"] == "tag_nl"
-    assert names["en"] == "tag_en"
+    assert names[Languages.NEDERLANDS] == "tag_nl"
+    assert names[Languages.ENGLISH] == "tag_en"
 
 
 def test_update_tag_existing_and_new_language(db_session, tag):
     tag_in = TagCreate(
         names=[
-            TagNameBase(language="nl", name="updated_nl"),
-            TagNameBase(language="en", name="new_en"),
+            TagNameBase(language=Languages.NEDERLANDS, name="updated_nl"),
+            TagNameBase(language=Languages.ENGLISH, name="new_en"),
         ]
     )
 
@@ -99,12 +101,12 @@ def test_update_tag_existing_and_new_language(db_session, tag):
     assert len(result.names) == 2
 
     names = {n.language: n.name for n in result.names}
-    assert names["nl"] == "updated_nl"
-    assert names["en"] == "new_en"
+    assert names[Languages.NEDERLANDS] == "updated_nl"
+    assert names[Languages.ENGLISH] == "new_en"
 
 
 def test_update_tag_not_found(db_session):
-    tag_in = TagCreate(names=[TagNameBase(language="nl", name="tag")])
+    tag_in = TagCreate(names=[TagNameBase(language=Languages.NEDERLANDS, name="tag")])
 
     with pytest.raises(NotFoundError):
         update_tag(db_session, 999, tag_in, BASE_URL)
@@ -120,7 +122,7 @@ def test_delete_tag_not_found(db_session):
 
 
 def test_get_names_for_language_found(tag):
-    result = get_names_for_language(tag.names, "nl")
+    result = get_names_for_language(tag.names, Languages.NEDERLANDS)
 
     assert len(result) == 1
     assert result[0].name == "tag_nl"
