@@ -67,8 +67,15 @@ Uitvoeren van testen:
 
 ### Applicatie Starten
 
+Build applicatie met:  
+`npm run build`
+
 De frontend kan lokaal gestart worden met:
 `npm run start`
+
+Voor development, kan de frontend lokaal best gestart worden met:  
+`npm run dev`  
+Dit ondersteunt hot reloads.  
 
 De frontend zal dan beschikbaar komen op:
 `http://localhost:5173`
@@ -81,3 +88,5 @@ Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd al
 
 Voor specifieke details zie de documentatie [file-route-conventions](https://reactrouter.com/how-to/file-route-conventions)
 
+## Issues
+Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24.14.0 (LTS)``` met npm versie ```11.9.0```.
