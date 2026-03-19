@@ -213,7 +213,9 @@ def test_patch_production_add_info_success(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"production_infos": [{"language": Languages.ENGLISH, "title": "prod2_en"}]},
+        json={
+            "production_infos": [{"language": Languages.ENGLISH, "title": "prod2_en"}]
+        },
         headers=headers,
     )
 
@@ -270,7 +272,10 @@ def test_create_production_success(client: TestClient, db_session: Session):
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "production_info": {"language": Languages.NEDERLANDS, "title": "Nieuwe productie"},
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
         },
         headers=headers,
     )
@@ -290,7 +295,10 @@ def test_create_production_failure(client: TestClient, db_session: Session):
             "performer_type": "band",
             "attendance_mode": "offline",
             "media_gallery_id": 4,
-            "production_info": {"language": Languages.NEDERLANDS, "title": "Nieuwe productie"},
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
         },
     )
 
