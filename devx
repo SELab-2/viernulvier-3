@@ -1,0 +1,26 @@
+#!/bin/bash
+set -u -o pipefail -o noclobber
+
+
+git_root=$(git rev-parse --show-toplevel 2>/dev/null)
+if [[ "$git_root" == "" ]]; then
+	echo "Not in a git repository, aborting." >&2
+	exit 1
+fi
+
+cd "$git_root" || exit 1
+source ".env"
+source "backend/.venv/bin/activate"
+
+# Start entire stack:
+#   docker compose up -d
+# With build step:
+#   docker compose up --build --wait -d
+# Stop containers:
+#   docker compose down
+# Stop containers and remove the data (wipe DB):
+#   docker compose down -v
+# Run sync worker:
+#   docker compose --profile sync run --rm sync_worker
+# Run csv parser:
+#   docker compose --profile csv run --rm csv_worker
