@@ -36,6 +36,7 @@ def build_production_response(
     language_id: int | None = None,
 ) -> ProductionResponse:
     # If language is provided, only get that specific info if it exists. Otherwise, get all infos.
+    production_infos = None
     if language_id is not None:
         production_infos = (
             db.query(ProdInfo)
@@ -45,7 +46,7 @@ def build_production_response(
             )
             .all()
         )
-    if not production_infos:
+    if production_infos is None:
         production_infos = (
             db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
         )
