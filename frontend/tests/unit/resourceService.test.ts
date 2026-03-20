@@ -8,9 +8,9 @@ import {
   createResource,
   deleteResource,
   editResource,
-} from "./resourceService";
+} from "~/features/_template-feature/services/resourceService";
 import { beforeEach } from "vitest";
-import type { ICreateResource, IUpdateResource } from "../resource.types";
+import type { ICreateResource, IUpdateResource } from "~/features/_template-feature/resource.types";
 
 describe("resourceService", () => {
   let mockAdapter: AxiosMockAdapter;

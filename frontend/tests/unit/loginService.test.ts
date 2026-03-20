@@ -4,7 +4,7 @@ import * as envModule from "~/shared/utils/env";
 import * as apiClientModule from "~/shared/services/apiClient";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
-import { login, refreshToken } from "./loginService";
+import { login, refreshToken } from "~/features/auth/services/loginService";
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;

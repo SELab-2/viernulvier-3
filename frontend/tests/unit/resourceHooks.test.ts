@@ -1,11 +1,14 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { useGetResourceList, useGetResourceById } from "./resourceHooks";
-import * as resourceService from "../services/resourceService";
+import {
+  useGetResourceList,
+  useGetResourceById,
+} from "~/features/_template-feature/hooks/resourceHooks";
+import * as resourceService from "~/features/_template-feature/services/resourceService";
 import { vi, describe, it, expect } from "vitest";
-import type { IResource } from "../resource.types";
+import type { IResource } from "~/features/_template-feature/resource.types";
 import type { UseAsyncReturn } from "~/shared/hooks/useAsyncFetch";
 
-vi.mock("../services/resourceService");
+vi.mock("~/features/_template-feature/services/resourceService");
 
 async function waitForLoad<T>(result: { current: UseAsyncReturn<T> }): Promise<void> {
   await waitFor(() => {

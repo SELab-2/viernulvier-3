@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
-import { useAsyncFetch } from "./useAsyncFetch";
+import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { describe, expect, it, vi } from "vitest";
 
 describe("useAsyncFetch", () => {

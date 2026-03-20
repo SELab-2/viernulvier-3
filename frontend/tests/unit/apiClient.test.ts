@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { createApiClient, getByUrl } from "./apiClient";
+import { createApiClient, getByUrl } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as authModule from "~/features/auth";
 
