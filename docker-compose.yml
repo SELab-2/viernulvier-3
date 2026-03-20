@@ -40,8 +40,9 @@ services:
       - sync
 
   csv_worker:
-    build: ./bacckend
+    build: ./backend
     command: python -m src.worker.csv_parser
+    env_file: .env
     depends_on:
       database:
         condition: service_healthy
