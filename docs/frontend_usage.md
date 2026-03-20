@@ -15,7 +15,6 @@ frontend/app/
 │   │   ├── hooks/              ← Custom React hooks
 │   │   ├── services/           ← Communicatie met de API
 │   │   │   ├── search.api.ts           ← Functies voor API requests
-│   │   │   └── search.api.test.ts      ← Tests voor API functies
 │   │   ├── index.ts            ← Public exports van de feature
 │   │   ├── search.const.ts     ← Constanten
 │   │   └── search.types.ts     ← Types
@@ -25,7 +24,6 @@ frontend/app/
 ├── shared/         ← Gedeelde code die door meerdere features gebruikt wordt
 │   ├── components/     ← Hebruikbare React components
 │   │   ├── Button.tsx
-│   │   └── Button.test.tsx
 │   ├── constants/      ← Globale constanten
 │   │   ├── api.const.ts
 │   │   └── routes.const.ts
@@ -44,9 +42,7 @@ frontend/app/
 
 
 ### Testen
-Testbestanden worden geplaatst in directories genaamd `__tests__` die zich in dezelfde directory bevinden als de bestanden die worden getest, of alternatief staan testbestanden naast hun corresponderende bestanden met de extensie `*.test.ts` / `*.spec.ts`.
-
-De integratie testen bevinden zich in een tests/ folder buiten app/
+Testbestanden bevinden zich in een aparte directory `frontend/tests` en hebben als file extensie `*.test.ts`, dit is nodig zodat vitest deze kan herkennen als test bestanden.
 
 ## Scripts
 
