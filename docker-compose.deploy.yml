@@ -1,0 +1,13 @@
+# Shared override for long-running server deployments.
+services:
+  proxy:
+    restart: unless-stopped
+
+  frontend:
+    restart: unless-stopped
+
+  backend:
+    restart: unless-stopped
+
+  database:
+    restart: unless-stopped

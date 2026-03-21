@@ -2,13 +2,56 @@ name: Continuous Deployment
 
 on:
   push:
-    branches: [main]
+    branches: [dev, main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  deploy:
-    name: Deploy to Server
+  deploy-staging:
+    if: github.ref == 'refs/heads/dev'
+    name: Deploy to Staging
     runs-on: self-hosted
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: true
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+          echo "REFRESH_TOKEN_EXPIRE_MINUTES=${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}" >> .env
+          echo "VIERNULVIER_KEY=${{ secrets.VIERNULVIER_KEY }}" >> .env
+          echo "PROXY_PORT=2002" >> .env
+
+      - name: Build and restart staging containers
+        run: docker compose -f docker-compose.yml -f docker-compose.deploy.yml --project-name viernulvier-staging up --build -d --remove-orphans --wait
+
+      - name: Dump staging logs
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.deploy.yml --project-name viernulvier-staging logs
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    name: Deploy to Production
+    runs-on: self-hosted
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: true
     environment: production
 
     steps:
@@ -29,6 +72,11 @@ jobs:
           echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "REFRESH_TOKEN_EXPIRE_MINUTES=${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "VIERNULVIER_KEY=${{ secrets.VIERNULVIER_KEY }}" >> .env
+          echo "PROXY_PORT=80" >> .env
 
-      - name: Build and Restart Containers
-        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans
+      - name: Build and restart production containers
+        run: docker compose -f docker-compose.yml -f docker-compose.deploy.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans --wait
+
+      - name: Dump production logs
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.deploy.yml -f docker-compose.prod.yml --project-name viernulvier-prod logs

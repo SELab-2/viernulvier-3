@@ -29,13 +29,28 @@ De applicatie is bereikbaar op [http://localhost](http://localhost).
 ## Compose-bestanden
 
 - `docker-compose.yml` is de standaard voor lokaal ontwikkelen via HTTP.
+- `docker-compose.deploy.yml` voegt restart policies toe voor langdurige serverdeployments.
 - `docker-compose.ci.yml` is een aparte CI-stack, zodat tests geen lokale poortbindingen of volumes erven.
-- `docker-compose.prod.yml` is een override die de productie-Nginx-configuratie, TLS en Certbot toevoegt bovenop de basisstack.
+- `docker-compose.prod.yml` is een override die de productie-Nginx-configuratie, TLS en Certbot toevoegt bovenop de deployment-stack.
+
+De proxy gebruikt `PROXY_PORT` uit het `.env` bestand om de publieke hostpoort te bepalen. Lokaal is dat standaard `80`, staging gebruikt `2002`.
+
+## Deployment
+
+- Push naar `dev` deployt automatisch naar de staging-omgeving op poort `2002` via GitHub Actions environment `staging`.
+- Push naar `main` deployt automatisch naar productie via GitHub Actions environment `production`.
+- Beide environments verwachten dezelfde secrets.
+
+Voor een handmatige staging deployment op de server:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.deploy.yml --project-name viernulvier-staging up -d --build
+```
 
 Voor productie gebruik je de basisstack samen met de productie-override:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.deploy.yml -f docker-compose.prod.yml up -d --build
 ```
 
 De productie-setup gaat ervan uit dat de Let's Encrypt-certificaten al een eerste keer zijn uitgegeven; de Compose-configuratie vernieuwt ze daarna automatisch.
@@ -53,7 +68,7 @@ docker compose --profile sync run --rm sync_worker
 Voor productie, stel een cron job in op de server om de worker dagelijks uit te voeren (bijvoorbeeld om 02:00):
 
 ```bash
-0 2 * * * cd /path/to/your/project && docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile sync --project-name viernulvier-prod run --rm sync_worker
+0 2 * * * cd /path/to/your/project && docker compose -f docker-compose.yml -f docker-compose.deploy.yml -f docker-compose.prod.yml --profile sync --project-name viernulvier-prod run --rm sync_worker
 ```
 
 Vervang `/path/to/your/project` door het absolute pad naar de projectdirectory op de server.
