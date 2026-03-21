@@ -3,7 +3,8 @@ import { getEnv } from "../utils/env";
 import { refreshToken } from "~/features/auth";
 
 export function createApiClient() {
-  const { API_BASE_URL } = getEnv();
+  const env = getEnv();
+  const API_BASE_URL = env?.API_BASE_URL || "https://sel2-3.ugent.be";
 
   const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -29,7 +30,7 @@ export function createApiClient() {
       const refresh_token = localStorage.getItem("refresh_token");
       if (refresh_token) {
         await refreshToken(apiClient);
-        return apiClient(request); // Retry original request
+        return apiClient(request);
       }
     }
 
@@ -43,4 +44,27 @@ export async function getByUrl<T>(url: string): Promise<T> {
   const apiClient = createApiClient();
   const data = await apiClient.get<T>(url);
   return data.data;
+}
+
+export async function getFromArchive<T>(url: string): Promise<T> {
+  const apiClient = createApiClient();
+  const data = await apiClient.get<T>(`/api/v1/archive${url}`);
+  return data.data;
+}
+
+export async function postToArchive<T>(url: string, data: unknown): Promise<T> {
+  const apiClient = createApiClient();
+  const response = await apiClient.post<T>(`/api/v1/archive${url}`, data);
+  return response.data;
+}
+
+export async function patchToArchive<T>(url: string, data: unknown): Promise<T> {
+  const apiClient = createApiClient();
+  const response = await apiClient.patch<T>(`/api/v1/archive${url}`, data);
+  return response.data;
+}
+
+export async function deleteFromArchive(url: string): Promise<void> {
+  const apiClient = createApiClient();
+  await apiClient.delete(`/api/v1/archive${url}`);
 }
