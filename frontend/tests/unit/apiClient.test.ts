@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient, getByUrl } from "~/shared/services/apiClient";
@@ -110,5 +110,57 @@ describe("getByUrl", () => {
 
     const result = await getByUrl("/test");
     expect(result).toEqual({ foo: "bar" });
+  });
+});
+
+describe("401 retry token behaviour", () => {
+  let mockAdapter: AxiosMockAdapter;
+  const store: Record<string, string> = {};
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => { store[key] = value; },
+      clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+    });
+    localStorage.clear();
+
+    const apiClient = createApiClient();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+    vi.spyOn(axios, "create").mockReturnValue(apiClient);
+  });
+
+  afterEach(() => {
+    mockAdapter.restore();
+    vi.restoreAllMocks();
+  });
+
+  it("sends the NEW token on retry, not the stale one", async () => {
+    const oldToken = "old-expired-token";
+    const newToken = "new-fresh-token";
+    localStorage.setItem("access_token", oldToken);
+    localStorage.setItem("refresh_token", "refresh123");
+
+    vi.mocked(authModule.refreshToken).mockImplementation(async () => {
+      localStorage.setItem("access_token", newToken);
+    });
+
+    let retryAuthHeader: string | undefined;
+
+    mockAdapter.onGet("/api/v1/archive/token-test").reply((config) => {
+      const token = config.headers?.["Authorization"];
+      if (token === `Bearer ${oldToken}`) return [401, {}];
+
+      retryAuthHeader = config.headers?.["Authorization"] as string;
+
+      return [200, {}];
+    });
+
+    const { getFromArchive } = await import("~/shared/services/apiClient");
+    await getFromArchive("/token-test");
+
+    expect(retryAuthHeader).toBe(`Bearer ${newToken}`);
   });
 });
