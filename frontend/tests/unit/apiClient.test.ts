@@ -4,8 +4,10 @@ import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient, getByUrl } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as authModule from "~/features/auth";
+import { setupLocalStorage } from "tests/globalSetup";
 
 vi.mock("~/features/auth");
+setupLocalStorage();
 
 describe("createApiClient", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -15,17 +17,6 @@ describe("createApiClient", () => {
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
       API_BASE_URL: "http://localhost",
-    });
-
-    const store: Record<string, string> = {};
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
     });
 
     const apiClient = axios.create();
@@ -51,7 +42,9 @@ describe("createApiClient", () => {
     localStorage.setItem("access_token", "test_token1234");
 
     const client = createApiClient();
-    expect(client.defaults.headers.common["Authorization"]).toBe("Bearer test_token1234");
+    expect(client.defaults.headers.common["Authorization"]).toBe(
+      "Bearer test_token1234"
+    );
   });
 
   it("returns response data on GET request", async () => {
@@ -115,17 +108,9 @@ describe("getByUrl", () => {
 
 describe("401 retry token behaviour", () => {
   let mockAdapter: AxiosMockAdapter;
-  const store: Record<string, string> = {};
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => { store[key] = value; },
-      clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
-    });
-    localStorage.clear();
 
     const apiClient = createApiClient();
     mockAdapter = new AxiosMockAdapter(apiClient);

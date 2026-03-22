@@ -10,7 +10,13 @@ import {
   editResource,
 } from "~/features/_template-feature/services/resourceService";
 import { beforeEach } from "vitest";
-import type { ICreateResource, IUpdateResource } from "~/features/_template-feature/resource.types";
+import type {
+  ICreateResource,
+  IUpdateResource,
+} from "~/features/_template-feature/resource.types";
+import { setupLocalStorage } from "tests/globalSetup";
+
+setupLocalStorage();
 
 describe("resourceService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -25,17 +31,6 @@ describe("resourceService", () => {
     const apiClient = axios.create();
     mockAdapter = new AxiosMockAdapter(apiClient);
     vi.spyOn(axios, "create").mockReturnValue(apiClient);
-
-    const store: Record<string, string> = {};
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
-    });
   });
 
   it("getResourceList returns a list of data", async () => {
@@ -54,7 +49,9 @@ describe("resourceService", () => {
 
   it("createResource posts data", async () => {
     const request: ICreateResource = { someData: "testData" };
-    mockAdapter.onPost("/resource", request).reply(201, { id: 1, someData: request.someData });
+    mockAdapter
+      .onPost("/resource", request)
+      .reply(201, { id: 1, someData: request.someData });
 
     const result = await createResource(request);
     expect(result).toEqual({ id: expect.any(Number), someData: request.someData });
@@ -62,7 +59,9 @@ describe("resourceService", () => {
 
   it("editResource edits data", async () => {
     const request: IUpdateResource = { someData: "testData" };
-    mockAdapter.onPatch("/resource/1", request).reply(201, { id: 1, someData: request.someData });
+    mockAdapter
+      .onPatch("/resource/1", request)
+      .reply(201, { id: 1, someData: request.someData });
 
     const result = await editResource(1, request);
     expect(result).toEqual({ id: expect.any(Number), someData: request.someData });

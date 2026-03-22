@@ -3,8 +3,17 @@ import axios from "axios";
 import * as envModule from "~/shared/utils/env";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
-import { getAllHalls, getHall, createHall, updateHall, deleteHall } from "~/features/archive/hallService";
+import {
+  getAllHalls,
+  getHall,
+  createHall,
+  updateHall,
+  deleteHall,
+} from "~/features/archive/hallService";
 import type { Hall, HallResponse, HallUpdate } from "~/features/archive/hallTypes";
+import { setupLocalStorage } from "tests/globalSetup";
+
+setupLocalStorage();
 
 describe("hallService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -145,5 +154,4 @@ describe("hallService", () => {
       await expect(deleteHall(1)).rejects.toThrow();
     });
   });
-
 });
