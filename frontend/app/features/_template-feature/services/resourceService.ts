@@ -1,20 +1,16 @@
-import { createApiClient } from "~/shared/services/apiClient";
+import { getByUrl, createApiClient } from "~/shared/services/apiClient";
 import type { ICreateResource, IResource, IUpdateResource } from "../resource.types";
 
 const ENDPOINT = "/resource";
 
 export async function getResourceList(limit?: number): Promise<IResource[]> {
-  const apiClient = createApiClient();
-  const response = await apiClient.get<IResource[]>(`${ENDPOINT}`, {
-    params: { limit },
-  });
-  return response.data;
+  // Example with query params - if your API supports pagination
+  const url = limit ? `${ENDPOINT}?limit=${limit}` : ENDPOINT;
+  return getByUrl<IResource[]>(url);
 }
 
 export async function getResourceById(id: number): Promise<IResource> {
-  const apiClient = createApiClient();
-  const response = await apiClient.get<IResource>(`${ENDPOINT}/${id}`);
-  return response.data;
+  return getByUrl<IResource>(`${ENDPOINT}/${id}`);
 }
 
 export async function createResource(request: ICreateResource): Promise<IResource> {
@@ -29,8 +25,7 @@ export async function editResource(id: number, request: IUpdateResource): Promis
   return response.data;
 }
 
-export async function deleteResource(id: number) {
+export async function deleteResource(id: number): Promise<void> {
   const apiClient = createApiClient();
-  const response = await apiClient.delete<IResource>(`${ENDPOINT}/${id}`);
-  return response.data;
+  await apiClient.delete(`${ENDPOINT}/${id}`);
 }

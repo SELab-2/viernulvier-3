@@ -2,9 +2,10 @@ import axios from "axios";
 import { getEnv } from "../utils/env";
 import { refreshToken } from "~/features/auth";
 
+const ARCHIVE_PATH: string = '/app/v1/archive';
+
 export function createApiClient() {
-  const env = getEnv();
-  const API_BASE_URL = env?.API_BASE_URL || "https://sel2-3.ugent.be";
+  const { API_BASE_URL } = getEnv();
 
   const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -30,9 +31,7 @@ export function createApiClient() {
       const refresh_token = localStorage.getItem("refresh_token");
       if (refresh_token) {
         await refreshToken(apiClient);
-        const newToken = localStorage.getItem("access_token");
-        request.headers["Authorization"] = `Bearer ${newToken}`;
-        return apiClient(request);
+        return apiClient(request); // Retry original request
       }
     }
 
@@ -50,23 +49,39 @@ export async function getByUrl<T>(url: string): Promise<T> {
 
 export async function getFromArchive<T>(url: string): Promise<T> {
   const apiClient = createApiClient();
-  const data = await apiClient.get<T>(`/api/v1/archive${url}`);
+  const data = await apiClient.get<T>(`${ARCHIVE_PATH}${url}`);
   return data.data;
 }
 
 export async function postToArchive<T>(url: string, data: unknown): Promise<T> {
   const apiClient = createApiClient();
-  const response = await apiClient.post<T>(`/api/v1/archive${url}`, data);
+  const response = await apiClient.post<T>(`${ARCHIVE_PATH}${url}`, data);
   return response.data;
 }
 
 export async function patchToArchive<T>(url: string, data: unknown): Promise<T> {
   const apiClient = createApiClient();
-  const response = await apiClient.patch<T>(`/api/v1/archive${url}`, data);
+  const response = await apiClient.patch<T>(`${ARCHIVE_PATH}${url}`, data);
   return response.data;
 }
 
 export async function deleteFromArchive(url: string): Promise<void> {
   const apiClient = createApiClient();
-  await apiClient.delete(`/api/v1/archive${url}`);
+  await apiClient.delete(`${ARCHIVE_PATH}${url}`);
+}
+
+export interface PaginationParams {
+  limit?: number;
+  cursor?: string;
+}
+
+export async function getFromArchiveList<T>(
+  url: string,
+  params?: PaginationParams
+): Promise<T[]> {
+  const apiClient = createApiClient();
+  const data = await apiClient.get<T[]>(`${ARCHIVE_PATH}${url}`, {
+    params,
+  });
+  return data.data;
 }
