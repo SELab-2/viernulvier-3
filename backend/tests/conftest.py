@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from src.models.language import Language
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
+from src.models.tag import Tag, TagName
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
@@ -78,13 +79,34 @@ def client():
 # Mock data for testing.
 @pytest.fixture
 def productions_limited(db_session, language_nl, language_en):
+    tag1 = Tag()
+    tag1.names = [
+        TagName(language_id=language_nl.id, name="theater"),
+        TagName(language_id=language_en.id, name="theatre"),
+    ]
+    tag2 = Tag()
+    tag2.names = [
+        TagName(language_id=language_nl.id, name="band"),
+        TagName(language_id=language_en.id, name="band"),
+    ]
+    tag3 = Tag()
+    tag3.names = [
+        TagName(language_id=language_nl.id, name="groep"),
+        TagName(language_id=language_en.id, name="group"),
+    ]
+    tag4 = Tag()
+    tag4.names = [
+        TagName(language_id=language_nl.id, name="muziek"),
+        TagName(language_id=language_en.id, name="music"),
+    ]
+
     prod1 = Production(
         performer_type="theater",
         attendance_mode="offline",
+        tags=[tag1, tag3],
     )
     prod2 = Production(
-        performer_type="concert",
-        attendance_mode="online",
+        performer_type="concert", attendance_mode="online", tags=[tag2, tag3, tag4]
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
