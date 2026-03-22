@@ -2,7 +2,7 @@ import axios from "axios";
 import { getEnv } from "../utils/env";
 import { refreshToken } from "~/features/auth";
 
-const ARCHIVE_PATH: string = '/app/v1/archive';
+const ARCHIVE_PATH: string = '/api/v1/archive';
 
 export function createApiClient() {
   const { API_BASE_URL } = getEnv();
@@ -15,10 +15,14 @@ export function createApiClient() {
     },
   });
 
-  const access_token = localStorage.getItem("access_token");
-  if (access_token) {
-    apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-  }
+  // Request interceptor to always use current token from localStorage
+  apiClient.interceptors.request.use((config) => {
+    const access_token = localStorage.getItem("access_token");
+    if (access_token) {
+      config.headers.Authorization = `Bearer ${access_token}`;
+    }
+    return config;
+  });
 
   apiClient.interceptors.response.use(undefined, async (error) => {
     const request = error.config;

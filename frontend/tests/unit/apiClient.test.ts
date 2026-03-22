@@ -38,13 +38,20 @@ describe("createApiClient", () => {
     });
   });
 
-  it("adds Authorization header if token exists", () => {
+  it("adds Authorization header if token exists", async () => {
     localStorage.setItem("access_token", "test_token1234");
 
     const client = createApiClient();
-    expect(client.defaults.headers.common["Authorization"]).toBe(
-      "Bearer test_token1234"
-    );
+    let capturedAuthHeader: string | undefined;
+
+    const mockAdapter = new AxiosMockAdapter(client);
+    mockAdapter.onGet("/test").reply((config) => {
+      capturedAuthHeader = config.headers?.["Authorization"] as string;
+      return [200, {}];
+    });
+
+    await client.get("/test");
+    expect(capturedAuthHeader).toBe("Bearer test_token1234");
   });
 
   it("returns response data on GET request", async () => {
@@ -112,13 +119,15 @@ describe("401 retry token behaviour", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    const apiClient = createApiClient();
-    mockAdapter = new AxiosMockAdapter(apiClient);
-    vi.spyOn(axios, "create").mockReturnValue(apiClient);
+    vi.spyOn(envModule, "getEnv").mockReturnValue({
+      API_BASE_URL: "http://localhost",
+    });
   });
 
   afterEach(() => {
-    mockAdapter.restore();
+    if (mockAdapter) {
+      mockAdapter.restore();
+    }
     vi.restoreAllMocks();
   });
 
@@ -129,23 +138,37 @@ describe("401 retry token behaviour", () => {
     localStorage.setItem("refresh_token", "refresh123");
 
     vi.mocked(authModule.refreshToken).mockImplementation(async () => {
+      // Just update the token in localStorage
+      // The request interceptor will pick up the new token automatically
       localStorage.setItem("access_token", newToken);
     });
 
+    const apiClient = createApiClient();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+
+    let callCount = 0;
     let retryAuthHeader: string | undefined;
 
     mockAdapter.onGet("/api/v1/archive/token-test").reply((config) => {
-      const token = config.headers?.["Authorization"];
-      if (token === `Bearer ${oldToken}`) return [401, {}];
+      callCount++;
 
-      retryAuthHeader = config.headers?.["Authorization"] as string;
+      if (callCount === 1) {
+        // First call with old token -> return 401
+        return [401, {}];
+      }
 
-      return [200, {}];
+      if (callCount === 2) {
+        // Second call (retry) -> capture header and return success
+        retryAuthHeader = config.headers?.["Authorization"] as string;
+        return [200, { success: true }];
+      }
+
+      return [500, {}];
     });
 
-    const { getFromArchive } = await import("~/shared/services/apiClient");
-    await getFromArchive("/token-test");
+    const result = await apiClient.get("/api/v1/archive/token-test");
 
+    expect(result.data).toEqual({ success: true });
     expect(retryAuthHeader).toBe(`Bearer ${newToken}`);
   });
 });
