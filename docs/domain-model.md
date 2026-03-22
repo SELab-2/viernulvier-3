@@ -21,7 +21,7 @@ Table productions {
 
 Table prod_info {
   production_id int [ref: > productions.id]
-  language varchar
+  language varchar [pk]
 
   title varchar
   supertitle varchar
@@ -38,7 +38,7 @@ Table genres {
 
 Table genre_names {
   genre_id int [ref: > genres.id]
-  language varchar
+  language varchar [pk]
   name varchar
 }
 
@@ -49,7 +49,7 @@ Table tags {
 
 Table tag_names {
   tag_id int [ref: > tags.id]
-  language varchar
+  language varchar [pk]
   name varchar
 }
 
