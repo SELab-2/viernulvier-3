@@ -1,5 +1,6 @@
 from src.models.production import ProdInfo, Production
 from src.api.dependencies.language import get_accepted_language
+from src.services.language import Languages
 import logging
 
 
@@ -61,7 +62,7 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
     return production
 
 
-def csv_prod_to_model_prod(csv_prod: dict, nl_lang_id: int) -> Production:
+def csv_prod_to_model_prod(csv_prod: dict) -> Production:
     """
     This function takes care of molding the csv format of a production,
     into a Production object for our archive database.
@@ -71,7 +72,7 @@ def csv_prod_to_model_prod(csv_prod: dict, nl_lang_id: int) -> Production:
     )
 
     prod_info = ProdInfo(
-        language_id=nl_lang_id,
+        language=Languages.NEDERLANDS,
         title=csv_prod[0],
         supertitle=csv_prod[1],
         description=(csv_prod[2] + "\n" + csv_prod[3]),
