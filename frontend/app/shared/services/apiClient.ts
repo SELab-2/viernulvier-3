@@ -30,6 +30,8 @@ export function createApiClient() {
       const refresh_token = localStorage.getItem("refresh_token");
       if (refresh_token) {
         await refreshToken(apiClient);
+        const newToken = localStorage.getItem("access_token");
+        request.headers["Authorization"] = `Bearer ${newToken}`;
         return apiClient(request);
       }
     }
