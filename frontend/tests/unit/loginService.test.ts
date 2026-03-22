@@ -5,6 +5,9 @@ import * as apiClientModule from "~/shared/services/apiClient";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { login, refreshToken } from "~/features/auth/services/loginService";
+import { setupLocalStorage } from "tests/globalSetup";
+
+setupLocalStorage();
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -12,17 +15,6 @@ describe("loginService", () => {
   beforeEach(() => {
     vi.spyOn(envModule, "getEnv").mockReturnValue({
       API_BASE_URL: "http://localhost",
-    });
-
-    const store: Record<string, string> = {};
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
     });
 
     const apiClient = createApiClient();
@@ -43,7 +35,9 @@ describe("loginService", () => {
       expect(localStorage.getItem("refresh_token")).toBe("refresh123");
 
       const apiClient = createApiClient();
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer access123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer access123"
+      );
     });
 
     it("throws when giving incorrect credentials", async () => {
@@ -66,7 +60,9 @@ describe("loginService", () => {
       expect(localStorage.getItem("access_token")).toBe("newAccess123");
 
       const apiClient = createApiClient();
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer newAccess123"
+      );
     });
 
     it("does not create new apiClient when passing client", async () => {
@@ -82,7 +78,9 @@ describe("loginService", () => {
 
       expect(createApiClientSpy).toHaveBeenCalledTimes(1);
       expect(localStorage.getItem("access_token")).toBe("newAccess123");
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer newAccess123"
+      );
     });
 
     it("does nothing if no refresh token exists", async () => {
@@ -98,7 +96,9 @@ describe("loginService", () => {
 
       mockAdapter.onPost("/auth/refresh").reply(401);
 
-      await expect(refreshToken()).rejects.toThrow("Request failed with status code 401");
+      await expect(refreshToken()).rejects.toThrow(
+        "Request failed with status code 401"
+      );
     });
   });
 });
