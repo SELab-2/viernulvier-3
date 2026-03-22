@@ -3,10 +3,12 @@ from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
     get_events_for_production,
+    get_tags_for_production,
     create_production,
     update_production_by_id,
     delete_production_by_id,
 )
+from src.services.tag import get_existing_tags
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
@@ -90,6 +92,19 @@ def test_get_events_for_production(db_session, productions_limited):
         )
 
 
+# Get tags for production: check if correct tag urls are returned.
+def test_get_tags_for_production(db_session, productions_limited):
+    tags1 = get_tags_for_production(db_session, productions_limited[0].id, BASE_URL)
+    assert len(tags1) == 2
+    for i in range(2):
+        assert tags1[i] == f"{BASE_URL}/tags/{productions_limited[0].tags[i].id}"
+
+    tags2 = get_tags_for_production(db_session, productions_limited[1].id, BASE_URL)
+    assert len(tags2) == 3
+    for i in range(3):
+        assert tags2[i] == f"{BASE_URL}/tags/{productions_limited[1].tags[i].id}"
+
+
 # Get production by id (no/invalid language specified): check if correct production is returned with all correct info and events.
 # Invalid language results in all infos, could be changed if desired.
 def test_get_production_by_id_no_language(db_session, productions_limited):
@@ -153,6 +168,30 @@ def test_create_production_invalid_info(db_session, productions_limited):
     )
     with pytest.raises(ValidationError, match="Language 'es' not supported"):
         _ = create_production(db_session, new_prod, BASE_URL)
+
+
+# Create a production with a series of existing tags.
+def test_create_production_with_tags_valid(db_session, productions_limited):
+    result = get_productions_paginated(db_session, BASE_URL)
+    valid_tags = get_existing_tags(db_session)
+    assert len(result.productions) == 2
+    new_prod = ProductionCreate(
+        performer_type="band",
+        attendance_mode="offline",
+        production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
+        tag_ids=[tag.id for tag in valid_tags],
+    )
+
+    response = create_production(db_session, new_prod, BASE_URL)
+    result2 = get_productions_paginated(db_session, BASE_URL)
+    assert len(result2.productions) == 3
+
+    new_id = int(response.id_url.rstrip("/").split("/")[-1])
+    new_prod_from_db = get_production_by_id(db_session, new_id, BASE_URL)
+    new_prod_tag_ids = {
+        int(url.rstrip("/").split("/")[-1]) for url in new_prod_from_db.tags
+    }
+    assert new_prod_tag_ids == {tag.id for tag in valid_tags}
 
 
 # Update an existing production - basic field.
@@ -310,6 +349,11 @@ def test_update_production_info_delete_invalid(db_session, productions_limited):
         db_session, productions_limited[0].id, BASE_URL
     )
     assert len(production_response.production_infos) == 2
+
+
+# Test has to be made.
+def test_update_production_info_delete_multiple(db_session, productions_limited):
+    pass
 
 
 # Delete an existing production.
