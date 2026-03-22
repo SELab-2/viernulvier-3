@@ -16,6 +16,11 @@ def build_tag_response(
     )
 
 
+# Added so db.query is not needed in test files.
+def get_existing_tags(db: Session):
+    return db.query(Tag).all()
+
+
 def get_names_for_language(names, language: str | None):
     if language:
         for name in names:
