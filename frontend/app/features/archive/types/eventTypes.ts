@@ -1,4 +1,4 @@
-import type { Hall } from "~/features/archive/hallTypes";
+import type { Hall } from "~/features/archive/types/hallTypes";
 
 export interface Price {
   id: string;

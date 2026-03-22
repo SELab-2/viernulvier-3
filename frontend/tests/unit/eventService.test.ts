@@ -10,13 +10,13 @@ import {
   deleteEvent,
   getEventPrices,
   getEventPrice,
-} from "~/features/archive/eventService";
+} from "~/features/archive/services/eventService";
 import type {
   Event,
   EventCreate,
   EventUpdate,
   Price,
-} from "~/features/archive/eventTypes";
+} from "~/features/archive/types/eventTypes";
 import { setupLocalStorage } from "tests/globalSetup";
 
 setupLocalStorage();
