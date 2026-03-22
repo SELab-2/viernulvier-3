@@ -183,7 +183,7 @@ describe("eventService", () => {
   describe("getEventPrice", () => {
     it("returns a single price for an event", async () => {
       const mockPrice: Price = {
-        id: "price1",
+        id: "1",
         amount: 25.0,
         available: 100,
         expires_at: "2026-03-20T23:59:59",
@@ -196,7 +196,7 @@ describe("eventService", () => {
       const result = await getEventPrice(1, 1);
 
       expect(result).toEqual(mockPrice);
-      expect(result.id).toBe("price1");
+      expect(result.id).toBe("1");
       expect(result.amount).toBe(25.0);
     });
 
