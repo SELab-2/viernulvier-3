@@ -1,5 +1,5 @@
 import { getFromArchive, postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/apiClient";
-import type { Hall, HallResponse } from "~/features/archive/hallTypes";
+import type { Hall, HallResponse, HallUpdate } from "~/features/archive/hallTypes";
 
 export async function getAllHalls(): Promise<HallResponse[]> {
   return getFromArchive<HallResponse[]>("/halls");
@@ -13,7 +13,7 @@ export async function createHall(hallData: Hall): Promise<HallResponse> {
   return postToArchive<HallResponse>("/halls", hallData);
 }
 
-export async function updateHall(hallId: number, hallData: Hall): Promise<HallResponse> {
+export async function updateHall(hallId: number, hallData: HallUpdate): Promise<HallResponse> {
   return patchToArchive<HallResponse>(`/halls/${hallId}`, hallData);
 }
 

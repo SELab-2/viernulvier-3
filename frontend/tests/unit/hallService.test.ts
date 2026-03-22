@@ -4,7 +4,7 @@ import * as envModule from "~/shared/utils/env";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { getAllHalls, getHall, createHall, updateHall, deleteHall } from "~/features/archive/hallService";
-import type { Hall, HallResponse } from "~/features/archive/hallTypes";
+import type { Hall, HallResponse, HallUpdate } from "~/features/archive/hallTypes";
 
 describe("hallService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -100,14 +100,15 @@ describe("hallService", () => {
 
   describe("updateHall", () => {
     it("updates a hall and returns updated data", async () => {
-      const hallData: Hall = {
+      const hallData: HallUpdate = {
         name: "Updated Hall",
         address: "Updated Street 1",
       };
 
       const mockResponse: HallResponse = {
         id: 1,
-        ...hallData,
+        name: "Updated Hall",
+        address: "Updated Street 1",
       };
 
       mockAdapter.onPatch("/api/v1/archive/halls/1").reply(200, mockResponse);
@@ -120,7 +121,7 @@ describe("hallService", () => {
     });
 
     it("throws when update request fails", async () => {
-      const hallData: Hall = {
+      const hallData: HallUpdate = {
         name: "Updated Hall",
         address: "Updated Street 1",
       };

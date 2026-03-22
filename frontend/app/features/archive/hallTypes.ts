@@ -6,3 +6,8 @@ export interface Hall {
 export interface HallResponse extends Hall {
   id: number;
 }
+
+export interface HallUpdate {
+  name?: string;
+  address?: string;
+}
