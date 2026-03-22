@@ -18,7 +18,7 @@ export interface Event {
   starts_at?: string;
   ends_at?: string;
   order_url?: string;
-  prices: string[];
+  price_ids: string[];
   created_at?: string;
   updated_at?: string;
 }

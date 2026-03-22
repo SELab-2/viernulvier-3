@@ -35,7 +35,7 @@ describe("eventService", () => {
         starts_at: "2026-03-20T19:00:00",
         ends_at: "2026-03-20T22:00:00",
         order_url: "https://example.com/order",
-        prices: ["price1", "price2"],
+        price_ids: ["price1", "price2"],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-20T10:00:00",
       };
@@ -69,7 +69,7 @@ describe("eventService", () => {
       const mockResponse: Event = {
         id: "1",
         ...eventData,
-        prices: [],
+        price_ids: [],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-20T10:00:00",
       };
@@ -106,7 +106,7 @@ describe("eventService", () => {
         production_id: "prod1",
         hall_id: "hall1",
         ...eventData,
-        prices: ["price1"],
+        price_ids: ["price1"],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-21T10:00:00",
       };
