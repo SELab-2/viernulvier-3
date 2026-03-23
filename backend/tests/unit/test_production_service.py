@@ -222,6 +222,70 @@ def test_update_production_basic(db_session, productions_limited):
     )
     assert result.performer_type == "band"
 
+# Update tags of a production (here: switch tags of 2 productions).
+def test_update_production_tags(db_session, productions_limited):
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    production_response2 = get_production_by_id(
+        db_session, productions_limited[1].id, BASE_URL
+    )
+    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
+
+    assert ids1 == {1,2}
+    assert ids2 == {3,2,4}
+
+    production_update1 = ProductionUpdate(tag_ids=ids2)
+    production_update2 = ProductionUpdate(tag_ids=ids1)
+
+    # Correct responses are returned.
+    result = update_production_by_id(
+        db_session, production_update1, productions_limited[0].id, BASE_URL
+    )
+    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in result.tags}
+    result2 = update_production_by_id(
+        db_session, production_update2, productions_limited[1].id, BASE_URL
+    )
+    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in result2.tags}
+
+    assert ids1 == {3,2,4}
+    assert ids2 == {1,2}
+
+    # Updated in database.
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    production_response2 = get_production_by_id(
+        db_session, productions_limited[1].id, BASE_URL
+    )
+    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
+
+    assert ids1 == {3,2,4}
+    assert ids2 == {1,2}
+
+# Update tags of a production with invalid tags.
+def test_update_production_tags_invalid(db_session, productions_limited):
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.tags) == 2
+
+    # Create partly invalid taglist. 
+    ids = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    ids.add(145)
+    ids.add(432)
+    production_update = ProductionUpdate(tag_ids=ids)
+
+    with pytest.raises(ValidationError, match="Tags do not exist: {432, 145}"):
+        update_production_by_id(db_session, production_update, productions_limited[0].id, BASE_URL)
+
+    # Production should not have been updated.
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.tags) == 2
 
 # Update an existing production - production info field.
 def test_update_production_info(db_session, productions_limited):
