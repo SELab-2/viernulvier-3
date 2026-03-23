@@ -1,6 +1,7 @@
 from datetime import datetime
 from src.worker.converters.production import csv_prod_to_model_prod
 from src.worker.converters.event import csv_event_to_model_event
+from src.services.language import Languages
 
 
 # Test normal test case with fake data
@@ -15,7 +16,7 @@ def test_csv_prod_to_model_prod():
         "5678",
     ]
 
-    prod = csv_prod_to_model_prod(test_input, 1)
+    prod = csv_prod_to_model_prod(test_input)
     prod_infos = prod.info
 
     # Check prod
@@ -32,7 +33,7 @@ def test_csv_prod_to_model_prod():
 
     # Only 1 info for nl
     assert len(prod_infos) == 1
-    assert prod_infos[0].language_id == 1
+    assert prod_infos[0].language == Languages.NEDERLANDS
 
     # Extract the info's to more easily test them
     info_nl = prod_infos[0]

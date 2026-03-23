@@ -9,9 +9,7 @@ from src.worker.converters.event import api_event_to_model_event
 logger = logging.getLogger(__name__)
 
 
-def store_new_events(
-    db_session: Session, language_map: dict[str, int], events: list[dict]
-):
+def store_new_events(db_session: Session, events: list[dict]):
     newest_timestamp = None
 
     existing_productions = db_session.execute(

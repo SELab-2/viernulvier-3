@@ -19,9 +19,8 @@ class Tag(Base):
 class TagName(Base):
     __tablename__ = "tag_names"
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-    language_id = Column(Integer, ForeignKey("language.id"), primary_key=True)
+    language = Column(String, primary_key=True)
 
     name = Column(String)
 
     tag = relationship("Tag", back_populates="names")
-    language = relationship("Language")
