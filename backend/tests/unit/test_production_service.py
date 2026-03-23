@@ -173,8 +173,9 @@ def test_create_production_invalid_info(db_session, productions_limited):
 # Create a production with a series of existing tags.
 def test_create_production_with_tags_valid(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
-    valid_tags = get_existing_tags(db_session)
     assert len(result.productions) == 2
+
+    valid_tags = get_existing_tags(db_session)
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
@@ -193,6 +194,21 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
     }
     assert new_prod_tag_ids == {tag.id for tag in valid_tags}
 
+# Create a production with at least one existing tag.
+def test_create_production_with_tags_invalid(db_session, productions_limited):
+    result = get_productions_paginated(db_session, BASE_URL)
+    assert len(result.productions) == 2
+    new_prod = ProductionCreate(
+        performer_type="band",
+        attendance_mode="offline",
+        production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
+        tag_ids=[1,2,164,564],
+    )
+    with pytest.raises(ValidationError, match="Tags do not exist: {164, 564}"):
+        create_production(db_session, new_prod, BASE_URL)
+
+    result2 = get_productions_paginated(db_session, BASE_URL)
+    assert len(result2.productions) == 2
 
 # Update an existing production - basic field.
 def test_update_production_basic(db_session, productions_limited):
