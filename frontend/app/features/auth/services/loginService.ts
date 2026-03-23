@@ -1,5 +1,9 @@
 import { createApiClient } from "~/shared/services/apiClient";
-import type { IAccessTokenResponse, ILoginRequest, ILoginResponse } from "../auth.types";
+import type {
+  IAccessTokenResponse,
+  ILoginRequest,
+  ILoginResponse,
+} from "../auth.types";
 import type { AxiosInstance } from "axios";
 
 export async function login(request: ILoginRequest) {

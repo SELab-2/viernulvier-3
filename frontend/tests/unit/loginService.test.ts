@@ -43,7 +43,9 @@ describe("loginService", () => {
       expect(localStorage.getItem("refresh_token")).toBe("refresh123");
 
       const apiClient = createApiClient();
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer access123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer access123"
+      );
     });
 
     it("throws when giving incorrect credentials", async () => {
@@ -66,7 +68,9 @@ describe("loginService", () => {
       expect(localStorage.getItem("access_token")).toBe("newAccess123");
 
       const apiClient = createApiClient();
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer newAccess123"
+      );
     });
 
     it("does not create new apiClient when passing client", async () => {
@@ -82,7 +86,9 @@ describe("loginService", () => {
 
       expect(createApiClientSpy).toHaveBeenCalledTimes(1);
       expect(localStorage.getItem("access_token")).toBe("newAccess123");
-      expect(apiClient.defaults.headers.common["Authorization"]).toBe("Bearer newAccess123");
+      expect(apiClient.defaults.headers.common["Authorization"]).toBe(
+        "Bearer newAccess123"
+      );
     });
 
     it("does nothing if no refresh token exists", async () => {
@@ -98,7 +104,9 @@ describe("loginService", () => {
 
       mockAdapter.onPost("/auth/refresh").reply(401);
 
-      await expect(refreshToken()).rejects.toThrow("Request failed with status code 401");
+      await expect(refreshToken()).rejects.toThrow(
+        "Request failed with status code 401"
+      );
     });
   });
 });

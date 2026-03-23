@@ -23,7 +23,10 @@ export async function createResource(request: ICreateResource): Promise<IResourc
   return response.data;
 }
 
-export async function editResource(id: number, request: IUpdateResource): Promise<IResource> {
+export async function editResource(
+  id: number,
+  request: IUpdateResource
+): Promise<IResource> {
   const apiClient = createApiClient();
   const response = await apiClient.patch<IResource>(`${ENDPOINT}/${id}`, request);
   return response.data;

@@ -13,9 +13,7 @@ export function ThemeToggle() {
   }, [theme]);
 
   function toggleTheme() {
-    setTheme((currentTheme: Theme) =>
-      currentTheme === "dark" ? "light" : "dark",
-    );
+    setTheme((currentTheme: Theme) => (currentTheme === "dark" ? "light" : "dark"));
   }
 
   return (
@@ -23,7 +21,7 @@ export function ThemeToggle() {
       type="button"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={toggleTheme}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-archive-ink transition-colors duration-150 hover:bg-archive-control-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-archive-accent focus-visible:outline-offset-[3px]"
+      className="text-archive-ink hover:bg-archive-control-hover focus-visible:outline-archive-accent inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px]"
     >
       {isDark ? (
         <LightModeOutlinedIcon className="h-5 w-5" fontSize="small" />

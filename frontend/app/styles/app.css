@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif:
-    "Lora", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif: "Lora", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-sans:
     "Montserrat", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -18,8 +17,7 @@
 
 @font-face {
   font-family: "Lora";
-  src:
-    url("/fonts/lora/Lora-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/lora/Lora-VariableFont_wght.ttf") format("truetype");
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
@@ -27,8 +25,7 @@
 
 @font-face {
   font-family: "Lora";
-  src:
-    url("/fonts/lora/Lora-Italic-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/lora/Lora-Italic-VariableFont_wght.ttf") format("truetype");
   font-style: italic;
   font-weight: 400 700;
   font-display: swap;
@@ -36,8 +33,7 @@
 
 @font-face {
   font-family: "Montserrat";
-  src:
-    url("/fonts/montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
   font-style: normal;
   font-weight: 300 700;
   font-display: swap;
@@ -45,8 +41,8 @@
 
 @font-face {
   font-family: "Montserrat";
-  src:
-    url("/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
+  src: url("/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf")
+    format("truetype");
   font-style: italic;
   font-weight: 300 700;
   font-display: swap;

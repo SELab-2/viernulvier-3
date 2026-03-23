@@ -8,7 +8,7 @@ import {
 
 function stubMatchMedia(matches: boolean) {
   const originalMatchMedia = window.matchMedia;
-  const matchMediaMock = vi.fn(() => ({ matches } as MediaQueryList));
+  const matchMediaMock = vi.fn(() => ({ matches }) as MediaQueryList);
 
   Object.defineProperty(window, "matchMedia", {
     configurable: true,

@@ -19,9 +19,7 @@ describe("ThemeToggle", () => {
   it("toggles the document theme and persists the preference", async () => {
     render(<ThemeToggle />);
 
-    expect(
-      screen.getByRole("button", { name: "Switch to dark mode" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Switch to dark mode" }));
 
@@ -32,9 +30,7 @@ describe("ThemeToggle", () => {
     expect(document.documentElement.style.colorScheme).toBe("dark");
     expect(localStorage.getItem("theme")).toBe("dark");
     expect(document.cookie).toContain("theme=dark");
-    expect(
-      screen.getByRole("button", { name: "Switch to light mode" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Switch to light mode" })).toBeTruthy();
   });
 
   it("renders the dark theme state from storage and toggles back to light", async () => {
@@ -42,9 +38,7 @@ describe("ThemeToggle", () => {
 
     render(<ThemeToggle />);
 
-    expect(
-      screen.getByRole("button", { name: "Switch to light mode" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Switch to light mode" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Switch to light mode" }));
 
@@ -55,8 +49,6 @@ describe("ThemeToggle", () => {
     expect(document.documentElement.style.colorScheme).toBe("light");
     expect(localStorage.getItem("theme")).toBe("light");
     expect(document.cookie).toContain("theme=light");
-    expect(
-      screen.getByRole("button", { name: "Switch to dark mode" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeTruthy();
   });
 });

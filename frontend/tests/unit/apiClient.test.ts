@@ -51,7 +51,9 @@ describe("createApiClient", () => {
     localStorage.setItem("access_token", "test_token1234");
 
     const client = createApiClient();
-    expect(client.defaults.headers.common["Authorization"]).toBe("Bearer test_token1234");
+    expect(client.defaults.headers.common["Authorization"]).toBe(
+      "Bearer test_token1234"
+    );
   });
 
   it("returns response data on GET request", async () => {
