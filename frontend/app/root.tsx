@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { runtimeEnv } from "./shared/utils/env";
+import { getThemeBootstrapScript } from "./shared/utils/theme";
 
 import "./styles/app.css";
 
@@ -14,6 +15,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `window.__ENV__ = ${JSON.stringify(runtimeEnv)};`,
           }}
         />
+        <script dangerouslySetInnerHTML={{ __html: getThemeBootstrapScript() }} />
         <Meta />
         <Links />
       </head>
