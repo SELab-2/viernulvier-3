@@ -430,12 +430,6 @@ def test_update_production_info_delete_invalid(db_session, productions_limited):
     )
     assert len(production_response.production_infos) == 2
 
-
-# Test has to be made.
-def test_update_production_info_delete_multiple(db_session, productions_limited):
-    pass
-
-
 # Delete an existing production.
 def test_delete_production(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
