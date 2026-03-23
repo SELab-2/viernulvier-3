@@ -62,6 +62,7 @@
   --archive-surface-strong: rgba(255, 255, 255, 0.82);
   --archive-control: rgba(45, 40, 37, 0.05);
   --archive-control-hover: rgba(45, 40, 37, 0.08);
+  --archive-logo-filter: brightness(0) saturate(100%);
 }
 
 .dark {
@@ -73,6 +74,7 @@
   --archive-surface-strong: rgba(17, 16, 14, 0.88);
   --archive-control: rgba(240, 228, 211, 0.06);
   --archive-control-hover: rgba(240, 228, 211, 0.1);
+  --archive-logo-filter: none;
 }
 
 html,

@@ -9,10 +9,16 @@ export default function Home() {
         <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
           <Link
             to="/"
-            className="inline-flex items-baseline gap-2 text-[inherit] no-underline"
+            className="inline-flex items-center gap-2 text-[inherit] no-underline"
             aria-label="VIERNULVIER Archief"
           >
-            <img src="/logo.svg" alt="" className="h-8 w-auto md:h-10" />
+            <img
+              src="/logo.svg"
+              alt=""
+              className="h-8 w-auto md:h-10"
+              style={{ filter: "var(--archive-logo-filter)" }}
+            />
+            {/* TODO: Fix deze Archief text, out-of-scope voor deze wijziging */}
             <span aria-hidden="true" className="font-serif text-base italic opacity-50 md:text-[1.125rem]">
               Archief
             </span>
