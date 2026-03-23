@@ -211,8 +211,13 @@ function stack() {
 # Test subcommand
 function test_cmd() {
 	local target="${1:-}"
+	if [[ "$target" == --help || "$target" == -h ]]; then
+		print_test_help
+		exit 0
+	fi
 
-	if [[ -z "$target" ]]; then
+	local targets=(backend frontend)
+	if ! contains "$target" "${targets[@]}"; then
 		choose "Test target?" backend frontend
 		target="$choose_return"
 	fi
@@ -254,6 +259,10 @@ function test_cmd() {
 # Worker subcommand
 function worker() {
 	local type="${1:-}"
+	if [[ "$type" == --help || "$type" == -h ]]; then
+		print_worker_help
+		exit 0
+	fi
 
 	local types=(sync csv)
 	if ! contains "$type" "${types[@]}" ; then
