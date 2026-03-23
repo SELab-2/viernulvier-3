@@ -77,26 +77,26 @@ def client():
 
 # Mock data for testing.
 @pytest.fixture
-def productions_limited(db_session, language_nl, language_en):
+def productions_limited(db_session):
     tag1 = Tag()
     tag1.names = [
-        TagName(language_id=language_nl.id, name="theater"),
-        TagName(language_id=language_en.id, name="theatre"),
+        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.ENGLISH, name="theatre"),
     ]
     tag2 = Tag()
     tag2.names = [
-        TagName(language_id=language_nl.id, name="band"),
-        TagName(language_id=language_en.id, name="band"),
+        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.ENGLISH, name="band"),
     ]
     tag3 = Tag()
     tag3.names = [
-        TagName(language_id=language_nl.id, name="groep"),
-        TagName(language_id=language_en.id, name="group"),
+        TagName(language=Languages.NEDERLANDS, name="groep"),
+        TagName(language=Languages.ENGLISH, name="group"),
     ]
     tag4 = Tag()
     tag4.names = [
-        TagName(language_id=language_nl.id, name="muziek"),
-        TagName(language_id=language_en.id, name="music"),
+        TagName(language=Languages.NEDERLANDS, name="muziek"),
+        TagName(language=Languages.ENGLISH, name="music"),
     ]
 
     prod1 = Production(

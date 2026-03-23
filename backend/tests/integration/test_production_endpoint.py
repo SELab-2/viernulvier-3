@@ -346,7 +346,7 @@ def test_create_production_success(client: TestClient, db_session: Session):
 
 
 def test_create_production_with_tags_success(
-    client: TestClient, db_session: Session, productions_limited, language_nl
+    client: TestClient, db_session: Session, productions_limited,
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -371,7 +371,7 @@ def test_create_production_with_tags_success(
 
 
 def test_create_production_with_tags_failure(
-    client: TestClient, db_session: Session, productions_limited, language_nl
+    client: TestClient, db_session: Session, productions_limited,
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
