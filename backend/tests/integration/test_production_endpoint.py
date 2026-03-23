@@ -238,6 +238,7 @@ def test_patch_production_add_info_invalid_language(
 
     assert response.status_code == 400  # bad request: invalid language
 
+
 # User can change tags of a production if all given tags exist.
 def test_patch_production_tags_success(
     client: TestClient, db_session: Session, productions_limited
@@ -251,17 +252,17 @@ def test_patch_production_tags_success(
     )
 
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1,2}
-    
+    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2}
+
     response = client.patch(
         f"{BASE_URL}/{id}",
-        json={"tag_ids": [1,2,3]},
+        json={"tag_ids": [1, 2, 3]},
         headers=headers,
     )
 
     # Updated in response.
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1,2,3}
+    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2, 3}
 
     response = client.get(
         BASE_URL + f"/{id}",
@@ -269,7 +270,8 @@ def test_patch_production_tags_success(
 
     # Updated in database.
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1,2,3}
+    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2, 3}
+
 
 # User cannot change tags of a production if one or more tags do not exist.
 def test_patch_production_tags_failure(
@@ -284,15 +286,16 @@ def test_patch_production_tags_failure(
     )
 
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1,2}
-    
+    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2}
+
     response = client.patch(
         f"{BASE_URL}/{id}",
-        json={"tag_ids": [1,2,124]},
+        json={"tag_ids": [1, 2, 124]},
         headers=headers,
     )
 
-    assert response.status_code == 400 # bad request: at least one invalid tag
+    assert response.status_code == 400  # bad request: at least one invalid tag
+
 
 # User with permissions can delete an existing info of an existing production.
 def test_patch_production_delete_info_success(
@@ -337,6 +340,7 @@ def test_create_production_success(
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
 
+
 def test_create_production_with_tags_success(
     client: TestClient, db_session: Session, productions_limited, language_nl
 ):
@@ -349,7 +353,7 @@ def test_create_production_with_tags_success(
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
-            "tag_ids": [1, 2]
+            "tag_ids": [1, 2],
         },
         headers=headers,
     )
@@ -359,7 +363,8 @@ def test_create_production_with_tags_success(
     print(data)
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1,2}
+    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2}
+
 
 def test_create_production_with_tags_failure(
     client: TestClient, db_session: Session, productions_limited, language_nl
@@ -373,12 +378,13 @@ def test_create_production_with_tags_failure(
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
-            "tag_ids": [123, 2]
+            "tag_ids": [123, 2],
         },
         headers=headers,
     )
 
-    assert response.status_code == 400 # bad request: at least one invalid tag
+    assert response.status_code == 400  # bad request: at least one invalid tag
+
 
 # User should not be able to create a new production because of permissions.
 def test_create_production_failure(

@@ -194,6 +194,7 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
     }
     assert new_prod_tag_ids == {tag.id for tag in valid_tags}
 
+
 # Create a production with at least one existing tag.
 def test_create_production_with_tags_invalid(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
@@ -202,13 +203,14 @@ def test_create_production_with_tags_invalid(db_session, productions_limited):
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
-        tag_ids=[1,2,164,564],
+        tag_ids=[1, 2, 164, 564],
     )
     with pytest.raises(ValidationError, match="Tags do not exist: {164, 564}"):
         create_production(db_session, new_prod, BASE_URL)
 
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 2
+
 
 # Update an existing production - basic field.
 def test_update_production_basic(db_session, productions_limited):
@@ -222,6 +224,7 @@ def test_update_production_basic(db_session, productions_limited):
     )
     assert result.performer_type == "band"
 
+
 # Update tags of a production (here: switch tags of 2 productions).
 def test_update_production_tags(db_session, productions_limited):
     production_response = get_production_by_id(
@@ -233,8 +236,8 @@ def test_update_production_tags(db_session, productions_limited):
     )
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
 
-    assert ids1 == {1,2}
-    assert ids2 == {3,2,4}
+    assert ids1 == {1, 2}
+    assert ids2 == {3, 2, 4}
 
     production_update1 = ProductionUpdate(tag_ids=ids2)
     production_update2 = ProductionUpdate(tag_ids=ids1)
@@ -249,8 +252,8 @@ def test_update_production_tags(db_session, productions_limited):
     )
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in result2.tags}
 
-    assert ids1 == {3,2,4}
-    assert ids2 == {1,2}
+    assert ids1 == {3, 2, 4}
+    assert ids2 == {1, 2}
 
     # Updated in database.
     production_response = get_production_by_id(
@@ -262,8 +265,9 @@ def test_update_production_tags(db_session, productions_limited):
     )
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
 
-    assert ids1 == {3,2,4}
-    assert ids2 == {1,2}
+    assert ids1 == {3, 2, 4}
+    assert ids2 == {1, 2}
+
 
 # Update tags of a production with invalid tags.
 def test_update_production_tags_invalid(db_session, productions_limited):
@@ -272,20 +276,23 @@ def test_update_production_tags_invalid(db_session, productions_limited):
     )
     assert len(production_response.tags) == 2
 
-    # Create partly invalid taglist. 
+    # Create partly invalid taglist.
     ids = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
     ids.add(145)
     ids.add(432)
     production_update = ProductionUpdate(tag_ids=ids)
 
     with pytest.raises(ValidationError, match="Tags do not exist: {432, 145}"):
-        update_production_by_id(db_session, production_update, productions_limited[0].id, BASE_URL)
+        update_production_by_id(
+            db_session, production_update, productions_limited[0].id, BASE_URL
+        )
 
     # Production should not have been updated.
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
     )
     assert len(production_response.tags) == 2
+
 
 # Update an existing production - production info field.
 def test_update_production_info(db_session, productions_limited):
@@ -429,6 +436,7 @@ def test_update_production_info_delete_invalid(db_session, productions_limited):
         db_session, productions_limited[0].id, BASE_URL
     )
     assert len(production_response.production_infos) == 2
+
 
 # Delete an existing production.
 def test_delete_production(db_session, productions_limited):
