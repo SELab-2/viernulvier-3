@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import * as envModule from "~/shared/utils/env";
@@ -23,6 +23,8 @@ describe("resourceService", () => {
   let mockAdapter: AxiosMockAdapter;
 
   beforeEach(() => {
+    vi.clearAllMocks();
+
     vi.spyOn(envModule, "getEnv").mockReturnValue({
       API_BASE_URL: "http://localhost",
     });
@@ -30,6 +32,11 @@ describe("resourceService", () => {
     const apiClient = createApiClient();
     mockAdapter = new AxiosMockAdapter(apiClient);
     vi.spyOn(axios, "create").mockReturnValue(apiClient);
+  });
+
+  afterEach(() => {
+    mockAdapter.restore();
+    vi.restoreAllMocks();
   });
 
   it("getResourceList returns a list of data", async () => {
@@ -68,8 +75,10 @@ describe("resourceService", () => {
   });
 
   it("editResource throws when trying to patch non-existent data", async () => {
-    // Ensure deleteResource on non-existent resource throws an error with "404" in the error message
-    await expect(deleteResource(999)).rejects.toThrow("404");
+    const request: IUpdateResource = { someData: "testData" };
+    mockAdapter.onPatch("/api/v1/archive/resource/999", request).reply(404);
+
+    await expect(editResource(999, request)).rejects.toThrow("404");
   });
 
   it("deleteResource deletes data", async () => {
@@ -79,7 +88,8 @@ describe("resourceService", () => {
   });
 
   it("deleteResource throws when trying to delete non-existent data", async () => {
-    // Ensure deleteResource on non-existent resource throws an error with "404" in the error message
+    mockAdapter.onDelete("/api/v1/archive/resource/999").reply(404);
+
     await expect(deleteResource(999)).rejects.toThrow("404");
   });
 });
