@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 import * as envModule from "~/shared/utils/env";
 import * as apiClientModule from "~/shared/services/apiClient";
@@ -22,7 +22,7 @@ vi.mock("~/shared/services/apiClient");
 
 describe("resourceService", () => {
   let mockAdapter: AxiosMockAdapter;
-  let mockApiClient: any;
+  let mockApiClient: AxiosInstance;
 
   beforeEach(() => {
     vi.clearAllMocks();
