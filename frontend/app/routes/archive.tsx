@@ -1,11 +1,14 @@
 import Navbar from "~/shared/components/Navbar"
+import FilterSidebar from "~/shared/components/FilterSidebar"
 
 export default function Archive() {
   return (
-    <div>
+    <div className="flex">
       <title>Archief | VIERNULVIER</title>
-      
-      <h1 className="text-3xl font-bold">Archief Pagina</h1>
+	  <FilterSidebar></FilterSidebar>
+	  <div>
+	    <h1 className="text-3xl font-bold">Archief Pagina</h1>
+	  </div>
     </div>
   );
 }
