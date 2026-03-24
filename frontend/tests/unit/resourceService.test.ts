@@ -61,14 +61,14 @@ describe("resourceService", () => {
   });
 
   it("getResourceList returns a list of data", async () => {
-    mockAdapter.onGet(/http:\/\/localhost\/resource.*/).reply(200, [{ id: 1, someData: "testData" }]);
+    mockAdapter.onGet(/\/resource.*/).reply(200, [{ id: 1, someData: "testData" }]);
 
     const result = await getResourceList(10);
     expect(result).toEqual([{ id: 1, someData: "testData" }]);
   });
 
   it("getResourceById returns data of specific resource", async () => {
-    mockAdapter.onGet("http://localhost/resource/1").reply(200, { id: 1, someData: "testData" });
+    mockAdapter.onGet("/resource/1").reply(200, { id: 1, someData: "testData" });
 
     const result = await getResourceById(1);
     expect(result).toEqual({ id: 1, someData: "testData" });
@@ -77,7 +77,7 @@ describe("resourceService", () => {
   it("createResource posts data", async () => {
     const request: ICreateResource = { someData: "testData" };
     mockAdapter
-      .onPost("http://localhost/resource", request)
+      .onPost("/resource", request)
       .reply(201, { id: 1, someData: request.someData });
 
     const result = await createResource(request);
@@ -87,7 +87,7 @@ describe("resourceService", () => {
   it("editResource edits data", async () => {
     const request: IUpdateResource = { someData: "testData" };
     mockAdapter
-      .onPatch("http://localhost/resource/1", request)
+      .onPatch("/resource/1", request)
       .reply(201, { id: 1, someData: request.someData });
 
     const result = await editResource(1, request);
@@ -100,7 +100,7 @@ describe("resourceService", () => {
   });
 
   it("deleteResource deletes data", async () => {
-    mockAdapter.onDelete("http://localhost/resource/1").reply(204);
+    mockAdapter.onDelete("/resource/1").reply(204);
     const result = await deleteResource(1);
     expect(result).toBeUndefined();
   });
