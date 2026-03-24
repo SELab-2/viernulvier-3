@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react"
 
-const FilterSidebar: React.FC = () => {
+interface Props {
+	show: boolean
+}
+
+const FilterSidebar: React.FC<Props> = ({ show }) => {
 	const [activeTag, setActiveTag] = useState<string[]>([])
 	const [tagOpen, setTagOpen] = useState(true)
 	const [artistQuery, setArtistQuery] = useState("")
@@ -66,7 +70,7 @@ const FilterSidebar: React.FC = () => {
 	}, [filteredArtists.length])
 
 	return (
-		<aside ref={sidebarRef} id="archive-sidebar" className="hidden lg:block w-full lg:w-80 lg:sticky lg:top-24 max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto sticky-scroll space-y-6 pr-0 lg:pr-4 mb-10 lg:mb-0">
+		<aside ref={sidebarRef} id="archive-sidebar" className={`${show ? "block" : "hidden"} lg:block w-full lg:w-80 lg:sticky lg:top-24 max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto sticky-scroll space-y-6 pr-0 lg:pr-4 mb-10 lg:mb-0`}>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Zoeken</h3>
