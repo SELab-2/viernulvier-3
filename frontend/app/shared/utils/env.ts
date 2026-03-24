@@ -1,13 +1,16 @@
-export const runtimeEnv = {
-  API_BASE_URL: process.env.VITE_API_BASE_URL,
+// Ensure field exists in .env file and returns its value
+function requireEnv(key: string): string {
+  const value = import.meta.env[key];
+  if (!value) {
+    throw new Error(`[ENV] Missing required env field: ${key}`);
+  }
+  return value;
+}
+
+export const env = {
+  API_URL: requireEnv("VITE_API_BASE_URL"),
 };
 
 export function getEnv() {
-  if (typeof window !== "undefined") {
-    return window.__ENV__;
-  }
-
-  return {
-    API_BASE_URL: process.env.VITE_API_BASE_URL,
-  };
+  return env;
 }
