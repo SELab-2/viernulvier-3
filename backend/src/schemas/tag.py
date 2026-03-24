@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class TagNameBase(BaseModel):
-    language_id: int
+    language: str
     name: str
 
 

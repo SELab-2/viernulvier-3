@@ -21,7 +21,6 @@ STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
 
 def store_new_items(
     db_session: Session,
-    language_map: dict[str, int],
     resource_type: ResourceType,
     items: list[dict],
 ):
@@ -37,12 +36,11 @@ def store_new_items(
     if not store_fn:
         raise ValueError(f"No store function registered for {resource_type}")
 
-    return store_fn(db_session, language_map, items)
+    return store_fn(db_session, items)
 
 
 def sync_new_items(
     db_session: Session,
-    language_map: dict[str, int],
     fetcher: PagedFetcher,
     resource_type: ResourceType,
 ):
@@ -56,7 +54,6 @@ def sync_new_items(
     ---
 
     :param db_session: open database connection
-    :param language_map: dictionary containing lang-code -> lang-id mapping
     :param fetcher: a fetcher inhereting from PagedFetcher for getting new data
     :param resource_type: type of resource to look up in database
     """
@@ -74,7 +71,7 @@ def sync_new_items(
     if not items or len(items) == 0:
         return
 
-    newest_timestamp = store_new_items(db_session, language_map, resource_type, items)
+    newest_timestamp = store_new_items(db_session, resource_type, items)
     if not newest_timestamp:
         newest_timestamp = last_timestamp
 

@@ -46,3 +46,22 @@ def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
     )
 
     return event, production_id
+
+
+def csv_event_to_model_event(prod_id: int, csv_event: list, hall_id: int) -> Event:
+    """
+    This function takes care of molding the csv format of an event,
+    into an Event object for our archive database.
+    """
+    if int(csv_event[0][:4]) < 1970:
+        csv_event[0] = "1970-01-01 00:00:00"
+    if int(csv_event[1][:4]) < 1970:
+        csv_event[1] = "1970-01-01 00:00:00"
+    event = Event(
+        production_id=prod_id,
+        starts_at=datetime.fromisoformat(csv_event[0]),
+        ends_at=datetime.fromisoformat(csv_event[1]),
+        hall_id=hall_id,
+    )
+
+    return event

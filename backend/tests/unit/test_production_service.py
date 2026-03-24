@@ -1,4 +1,3 @@
-from src.models.language import Language
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
@@ -13,6 +12,7 @@ from src.schemas.production import (
     ProductionUpdate,
     ProductionInfoUpdate,
 )
+from src.services.language import Languages
 
 from src.api.exceptions import NotFoundError, ValidationError
 
@@ -111,7 +111,7 @@ def test_get_production_by_id_no_language(db_session, productions_limited):
 # Get production by id for a specific (valid) language.
 def test_get_production_by_id_valid_language(db_session, productions_limited):
     production_response = get_production_by_id(
-        db_session, productions_limited[0].id, BASE_URL, language="en"
+        db_session, productions_limited[0].id, BASE_URL, language=Languages.ENGLISH
     )
     assert (
         production_response.id_url
@@ -120,10 +120,7 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
     assert production_response.performer_type == productions_limited[0].performer_type
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
     assert len(production_response.production_infos) == 1
-    assert (
-        production_response.production_infos[0].language_id_url
-        == f"{BASE_URL}/languages/2"
-    )
+    assert production_response.production_infos[0].language == Languages.ENGLISH
     assert production_response.events == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
     ]
@@ -136,7 +133,9 @@ def test_create_production_valid_info(db_session, productions_limited):
     new_prod = ProductionCreate(
         performer_type="band",
         attendance_mode="offline",
-        production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
+        production_info=ProductionInfoCreate(
+            language=Languages.NEDERLANDS, title="nieuw_prod_nl"
+        ),
     )
 
     _ = create_production(db_session, new_prod, BASE_URL)
@@ -210,39 +209,6 @@ def test_update_production_info(db_session, productions_limited):
 
 
 # Update an existing production - add invalid production info.
-def test_update_production_info_add(db_session, productions_limited):
-    production_response = get_production_by_id(
-        db_session, productions_limited[0].id, BASE_URL
-    )
-    assert len(production_response.production_infos) == 2
-
-    # Add a third language.
-    lang = Language(id=3, language="fr")
-    db_session.add(lang)
-    db_session.commit()
-    db_session.refresh(lang)
-
-    # New info should be added.
-    update = ProductionUpdate(
-        production_infos=[
-            ProductionInfoUpdate(language="fr", title="Une brioche et deux macarons!")
-        ]
-    )
-
-    # Check updated in response.
-    update_response = update_production_by_id(
-        db_session, update, productions_limited[0].id, BASE_URL
-    )
-    assert len(update_response.production_infos) == 3
-
-    # Check updated in database
-    production_response = get_production_by_id(
-        db_session, productions_limited[0].id, BASE_URL
-    )
-    assert len(production_response.production_infos) == 3
-
-
-# Update an existing production - add invalid production info.
 def test_update_production_info_add_invalid(db_session, productions_limited):
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
@@ -274,7 +240,7 @@ def test_update_production_info_delete(db_session, productions_limited):
     assert len(production_response.production_infos) == 2
 
     # New info should be deleted.
-    update = ProductionUpdate(remove_languages=["en"])
+    update = ProductionUpdate(remove_languages=[Languages.ENGLISH])
 
     # Check updated in response.
     update_response = update_production_by_id(
