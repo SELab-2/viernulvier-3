@@ -1,10 +1,14 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 
 const FilterSidebar: React.FC = () => {
 	const [activeTag, setActiveTag] = useState<string[]>([])
 	const [tagOpen, setTagOpen] = useState(true)
 	const [artistQuery, setArtistQuery] = useState("")
 	const [selectedArtists, setSelectedArtists] = useState<string[]>([])
+	const [dropdownAbove, setDropdownAbove] = useState(false)
+
+	const sidebarRef = useRef<HTMLElement>(null)
+	const artistInputRef = useRef<HTMLDivElement>(null)
 
 	const toggleTag = (tag: string) => {
 		setActiveTag(prev =>
@@ -46,8 +50,23 @@ const FilterSidebar: React.FC = () => {
 		)
 		: []
 
+	useEffect(() => {
+		if (filteredArtists.length === 0) return
+
+		const input = artistInputRef.current
+		const sidebar = sidebarRef.current
+		if (!input || !sidebar) return
+
+		const inputRect = input.getBoundingClientRect()
+		const sidebarRect = sidebar.getBoundingClientRect()
+		const estimatedDropdownHeight = filteredArtists.length * 36
+
+		const spaceBelow = sidebarRect.bottom - inputRect.bottom
+		setDropdownAbove(spaceBelow < estimatedDropdownHeight)
+	}, [filteredArtists.length])
+
 	return (
-		<aside id="archive-sidebar" className="hidden lg:block w-full lg:w-80 lg:sticky lg:top-24 max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto sticky-scroll space-y-6 pr-0 lg:pr-4 mb-10 lg:mb-0">
+		<aside ref={sidebarRef} id="archive-sidebar" className="hidden lg:block w-full lg:w-80 lg:sticky lg:top-24 max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto sticky-scroll space-y-6 pr-0 lg:pr-4 mb-10 lg:mb-0">
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Zoeken</h3>
@@ -87,7 +106,7 @@ const FilterSidebar: React.FC = () => {
 								<button
 									key={tag}
 									onClick={() => toggleTag(tag)}
-									className={`px-2 py-1 text-[9px] border rounded transition-all whitespace-nowrap uppercase tracking-wider font-medium ${activeTag.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
+									className={`px-2 py-1 text-[9px] border rounded transition-all whitespace-nowrap uppercase tracking-wider font-medium cursor-pointer ${activeTag.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
 								>
 									{tag}
 								</button>
@@ -102,7 +121,7 @@ const FilterSidebar: React.FC = () => {
 				<div className="space-y-3">
 					{venues.map(venue => (
 						<label key={venue} className="flex items-center space-x-3 group cursor-pointer">
-							<input type="checkbox" className="rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
+							<input type="checkbox" className="cursor-pointer rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
 							<span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity font-medium">{venue}</span>
 						</label>
 					))}
@@ -111,7 +130,7 @@ const FilterSidebar: React.FC = () => {
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Artiesten</h3>
-				<div className="relative">
+				<div className="relative" ref={artistInputRef}>
 					<input
 						type="text"
 						placeholder="Zoek naar artiesten"
@@ -123,7 +142,7 @@ const FilterSidebar: React.FC = () => {
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 					</svg>
 					{filteredArtists.length > 0 && (
-						<ul className="absolute z-10 left-0 right-0 mt-1 bg-white dark:bg-neutral-900 border border-archive-ink/10 dark:border-archive-ink-dark/10 rounded-xl shadow-lg overflow-hidden">
+						<ul className={`absolute z-10 left-0 right-0 bg-white dark:bg-neutral-900 border border-archive-ink/10 dark:border-archive-ink-dark/10 rounded-xl shadow-lg overflow-hidden ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}>
 							{filteredArtists.map(artist => (
 								<li
 									key={artist}
