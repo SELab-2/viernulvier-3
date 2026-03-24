@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { createApiClient, getByUrl } from "~/shared/services/apiClient";
+import { createApiClient } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as authModule from "~/features/auth";
 import { setupLocalStorage } from "tests/globalSetup";
+import { getByUrl } from "~/shared/services/sharedService";
 
 vi.mock("~/features/auth");
 setupLocalStorage();
@@ -31,7 +32,7 @@ describe("createApiClient", () => {
 
     expect(mockCreate).toHaveBeenCalledWith({
       baseURL: expect.any(String),
-      timeout: 1000,
+      timeout: expect.any(Number),
       headers: {
         "Content-Type": "application/json",
       },

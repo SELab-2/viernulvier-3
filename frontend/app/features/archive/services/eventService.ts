@@ -1,4 +1,4 @@
-import { getFromArchive, postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/apiClient";
+import { getFromArchive, postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/sharedService";
 import type { Event, EventCreate, EventUpdate, Price } from "../types/eventTypes";
 
 export async function getEvent(eventId: number): Promise<Event> {

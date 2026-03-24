@@ -1,4 +1,4 @@
-import { getFromArchive, postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/apiClient";
+import { getFromArchive, postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/sharedService";
 import type { Hall, HallResponse, HallUpdate } from "~/features/archive/types/hallTypes";
 
 export async function getAllHalls(): Promise<HallResponse[]> {

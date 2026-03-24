@@ -4,7 +4,7 @@ import {
   postToArchive,
   patchToArchive,
   deleteFromArchive,
-} from "~/shared/services/apiClient";
+} from "~/shared/services/sharedService";
 import type { ICreateResource, IResource, IUpdateResource } from "../resource.types";
 
 const ENDPOINT = "/resource";
