@@ -1,6 +1,6 @@
 import { createApiClient } from "./apiClient";
 
-const ARCHIVE_PATH: string = '/api/v1/archive';
+const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export interface PaginationParams {
   limit?: number;

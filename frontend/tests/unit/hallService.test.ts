@@ -10,7 +10,11 @@ import {
   updateHall,
   deleteHall,
 } from "~/features/archive/services/hallService";
-import type { Hall, HallResponse, HallUpdate } from "~/features/archive/types/hallTypes";
+import type {
+  Hall,
+  HallResponse,
+  HallUpdate,
+} from "~/features/archive/types/hallTypes";
 import { setupLocalStorage } from "tests/globalSetup";
 
 setupLocalStorage();

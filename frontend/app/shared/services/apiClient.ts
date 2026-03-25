@@ -42,4 +42,3 @@ export function createApiClient() {
 
   return apiClient;
 }
-
