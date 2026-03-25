@@ -98,6 +98,7 @@ def productions_limited(db_session):
         TagName(language=Languages.NEDERLANDS, name="muziek"),
         TagName(language=Languages.ENGLISH, name="music"),
     ]
+    db_session.add_all([tag1, tag2, tag3, tag4])
 
     prod1 = Production(
         performer_type="theater",
@@ -137,10 +138,27 @@ def productions_limited(db_session):
 @pytest.fixture
 def many_productions(db_session):
     productions = []
+    tag1 = Tag()
+    tag1.names = [
+        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.ENGLISH, name="theatre"),
+    ]
+    tag2 = Tag()
+    tag2.names = [
+        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.ENGLISH, name="band"),
+    ]
+    db_session.add_all([tag1, tag2])
+
     for i in range(10):
+        add_tags = [tag1]
+        if i%2==0:
+            add_tags = [tag2]
+    
         prod = Production(
             performer_type="theater",
             attendance_mode="offline",
+            tags = add_tags,
         )
         db_session.add(prod)
         db_session.flush()
