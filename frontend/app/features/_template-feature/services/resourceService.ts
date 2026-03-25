@@ -21,7 +21,10 @@ export async function createResource(request: ICreateResource): Promise<IResourc
   return postToArchive<IResource>(`${ENDPOINT}`, request);
 }
 
-export async function editResource(id: number, request: IUpdateResource): Promise<IResource> {
+export async function editResource(
+  id: number,
+  request: IUpdateResource
+): Promise<IResource> {
   return patchToArchive<IResource>(`${ENDPOINT}/${id}`, request);
 }
 

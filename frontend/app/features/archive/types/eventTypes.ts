@@ -9,7 +9,6 @@ export interface Price {
   updated_at?: string;
 }
 
-
 export interface Event {
   id: string;
   production_id: string;
