@@ -21,9 +21,8 @@ class Genre(Base):
 class GenreName(Base):
     __tablename__ = "genre_names"
     genre_id = Column(Integer, ForeignKey("genres.id"), primary_key=True)
-    language_id = Column(Integer, ForeignKey("language.id"), primary_key=True)
+    language = Column(String, primary_key=True)
 
     name = Column(String)
 
     genre = relationship("Genre", back_populates="names")
-    language = relationship("Language")

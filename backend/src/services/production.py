@@ -1,6 +1,7 @@
 from src.schemas.production import Pagination
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo, Language
+from src.models import Event, Production, ProdInfo
+from src.api.dependencies.language import get_accepted_language
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
@@ -18,7 +19,7 @@ def build_production_info_response(
 ) -> ProductionInfoResponse:
     return ProductionInfoResponse(
         production_id_url=f"{base_url}/productions/{production_info.production_id}",
-        language_id_url=f"{base_url}/languages/{production_info.language_id}",
+        language=production_info.language,
         title=production_info.title,
         supertitle=production_info.supertitle,
         artist=production_info.artist,
@@ -33,24 +34,20 @@ def build_production_response(
     db: Session,
     production: Production,
     base_url: str,
-    language_id: int | None = None,
+    language: str | None = None,
 ) -> ProductionResponse:
-    # If language is provided, only get that specific info (if it exists, otherwise error). Otherwise, get all infos.
-    if language_id is not None:
+    # If language is provided, only get that specific info if it exists. Otherwise, get all infos.
+    production_infos = None
+    if language is not None:
         production_infos = (
             db.query(ProdInfo)
             .filter(
                 ProdInfo.production_id == production.id,
-                ProdInfo.language_id == language_id,
+                ProdInfo.language == language,
             )
             .all()
         )
-        if not production_infos:
-            raise NotFoundError(
-                "Production info",
-                f"{production.id}-{language_id}",
-            )
-    else:
+    if production_infos is None:
         production_infos = (
             db.query(ProdInfo).filter(ProdInfo.production_id == production.id).all()
         )
@@ -113,16 +110,15 @@ def get_production_by_id(
     production = db.query(Production).filter(Production.id == production_id).first()
     if not production:
         raise NotFoundError("Production", production_id)
-    language_id = db.query(Language.id).filter(Language.language == language).scalar()
-    return build_production_response(db, production, base_url, language_id)
+    return build_production_response(db, production, base_url, language)
 
 
 def create_production_info(
-    production_info_in: ProductionInfoCreate, production_id: int, language_id: int
+    production_info_in: ProductionInfoCreate, production_id: int, language: str
 ) -> ProdInfo:
     db_production_info = ProdInfo(
         production_id=production_id,
-        language_id=language_id,
+        language=language,
         title=production_info_in.title,
         supertitle=production_info_in.supertitle,
         artist=production_info_in.artist,
@@ -141,12 +137,8 @@ def create_production(
 ) -> ProductionResponse:
     # Given language_id when creating new production should exist in the database.
     production_info_in = production_in.production_info
-    language_id = (
-        db.query(Language.id)
-        .filter(Language.language == production_info_in.language)
-        .scalar()
-    )
-    if not language_id:
+    lang = get_accepted_language(production_info_in.language)
+    if lang is None:
         raise ValidationError(
             f"Language '{production_info_in.language}' not supported."
         )
@@ -163,13 +155,13 @@ def create_production(
     db.flush()
 
     db_production_info = create_production_info(
-        production_info_in, db_production.id, language_id
+        production_info_in, db_production.id, lang
     )
 
     db.add(db_production_info)
     db.commit()
     db.refresh(db_production)
-    return build_production_response(db, db_production, base_url, language_id)
+    return build_production_response(db, db_production, base_url, lang)
 
 
 # Updates the production and all related production infos.
@@ -189,27 +181,22 @@ def update_production_by_id(
     # Check if info is provided.
     if production_in.production_infos:
         for production_info_in in production_in.production_infos:
-            language_id = (
-                db.query(Language.id)
-                .filter(Language.language == production_info_in.language)
-                .scalar()
-            )
-            if language_id is None:
+            lang = get_accepted_language(production_info_in.language)
+            if lang is None:
                 raise ValidationError(
                     f"Language '{production_info_in.language}' not supported."
                 )
+
             production_info = (
                 db.query(ProdInfo)
                 .filter(
                     ProdInfo.production_id == production_id,
-                    ProdInfo.language_id == language_id,
+                    ProdInfo.language == lang,
                 )
                 .first()
             )
             if not production_info:
-                production_info = ProdInfo(
-                    production_id=production_id, language_id=language_id
-                )
+                production_info = ProdInfo(production_id=production_id, language=lang)
                 db.add(production_info)
             update_info = production_info_in.model_dump(
                 exclude_unset=True, exclude={"language"}
@@ -219,14 +206,10 @@ def update_production_by_id(
 
     if production_in.remove_languages:
         for lang in production_in.remove_languages:
-            language_id = (
-                db.query(Language.id).filter(Language.language == lang).scalar()
-            )
-            if language_id:
-                db.query(ProdInfo).filter(
-                    ProdInfo.production_id == production_id,
-                    ProdInfo.language_id == language_id,
-                ).delete()
+            db.query(ProdInfo).filter(
+                ProdInfo.production_id == production_id,
+                ProdInfo.language == lang,
+            ).delete()
 
     db.commit()
     # Refreshes the whole production with eager loading (simplest).

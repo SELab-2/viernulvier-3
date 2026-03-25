@@ -3,7 +3,6 @@ from datetime import datetime
 
 from sqlalchemy import select
 from src.models.event import Event, EventPrice
-from src.models.language import Language
 from src.models.production import ProdInfo, Production
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
@@ -12,14 +11,6 @@ from src.worker.sync.store.production import store_new_productions
 
 # Test storing a list of productions from the API into our database
 def test_store_new_productions(db_session):
-    # Set up DB with
-    lang_nl = Language(id=1, language="nl")
-    lang_en = Language(id=2, language="en")
-    db_session.add_all([lang_nl, lang_en])
-    db_session.commit()
-
-    language_map = {"nl": 1, "en": 2}
-
     # Data from actual API, removed some unused fields, that already gets
     # tested in 'test_converters.py'
     productions = [
@@ -62,7 +53,7 @@ def test_store_new_productions(db_session):
     ]
 
     # Store in database
-    newest = store_new_productions(db_session, language_map, productions)
+    newest = store_new_productions(db_session, productions)
     db_session.commit()
 
     # Check
@@ -90,7 +81,7 @@ def test_store_new_productions(db_session):
 
 # Quick sanity check that we get None when no production was received
 def test_store_new_productions_empty_list(db_session):
-    newest = store_new_productions(db_session, {}, [])
+    newest = store_new_productions(db_session, [])
     assert newest is None
 
 
@@ -155,7 +146,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
     ]
 
     # Try to store the events
-    newest = store_new_events(db_session, {}, events)
+    newest = store_new_events(db_session, events)
     db_session.commit()
 
     # Assert that only one event was stored
@@ -190,7 +181,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
 
 # Quick sanity check that we get None when no event was received
 def test_store_new_events_empty_list(db_session):
-    newest = store_new_events(db_session, {}, [])
+    newest = store_new_events(db_session, [])
     assert newest is None
 
 
@@ -244,7 +235,7 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     ]
 
     # Try to store the eventprices
-    newest = store_new_eventprices(db_session, {}, eventprices)
+    newest = store_new_eventprices(db_session, eventprices)
     db_session.commit()
 
     # Assert that only one eventprice was stored
