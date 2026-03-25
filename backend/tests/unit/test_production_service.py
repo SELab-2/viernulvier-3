@@ -84,7 +84,7 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert result.pagination.next_cursor is None
 
     # Get productions, given multiple tags.
-    result = get_productions_paginated(db_session, BASE_URL, limit=10, tags=[1,2])
+    result = get_productions_paginated(db_session, BASE_URL, limit=10, tags=[1, 2])
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None

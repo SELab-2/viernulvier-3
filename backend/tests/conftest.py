@@ -152,13 +152,13 @@ def many_productions(db_session):
 
     for i in range(10):
         add_tags = [tag1]
-        if i%2==0:
+        if i % 2 == 0:
             add_tags = [tag2]
-    
+
         prod = Production(
             performer_type="theater",
             attendance_mode="offline",
-            tags = add_tags,
+            tags=add_tags,
         )
         db_session.add(prod)
         db_session.flush()

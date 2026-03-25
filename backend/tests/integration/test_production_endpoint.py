@@ -61,7 +61,9 @@ def test_get_productions_success(
     assert next_cursor is not None
     assert data["pagination"]["has_more"]
 
-    response = client.get(BASE_URL + "/productions", params={"cursor": next_cursor, "limit": 5})
+    response = client.get(
+        BASE_URL + "/productions", params={"cursor": next_cursor, "limit": 5}
+    )
     assert response.status_code == 200
 
     # Check second (last) page.
@@ -70,19 +72,24 @@ def test_get_productions_success(
     assert data["pagination"]["next_cursor"] is None
     assert not data["pagination"]["has_more"]
 
+
 def test_get_productions_with_tag(
     client: TestClient, db_session: Session, many_productions
 ):
     tag_id1 = many_productions[0].tags[0].id
     tag_id2 = many_productions[1].tags[0].id
-    
+
     # Only asking tag_id1 gives 5 productions.
-    response = client.get(BASE_URL + "/productions", params={"limit": 10, "tags": [tag_id1]})
+    response = client.get(
+        BASE_URL + "/productions", params={"limit": 10, "tags": [tag_id1]}
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["productions"]) == 5
     assert all(
-        all(int(url.rstrip("/").split("/")[-1]) == tag_id1 for url in production["tags"])
+        all(
+            int(url.rstrip("/").split("/")[-1]) == tag_id1 for url in production["tags"]
+        )
         for production in data["productions"]
     )
 
@@ -91,17 +98,23 @@ def test_get_productions_with_tag(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
-    response = client.get(BASE_URL + "/", params={"cursor": next_cursor, "limit": 10, "tags": [tag_id1]})
+    response = client.get(
+        BASE_URL + "/", params={"cursor": next_cursor, "limit": 10, "tags": [tag_id1]}
+    )
     assert response.status_code == 404
-    
+
     # Only asking tag_id2 gives 5 productions.
-    response = client.get(BASE_URL + "/productions", params={"limit": 10, "tags": [tag_id2]})
+    response = client.get(
+        BASE_URL + "/productions", params={"limit": 10, "tags": [tag_id2]}
+    )
     assert response.status_code == 200
-    
+
     data = response.json()
     assert len(data["productions"]) == 5
     assert all(
-        all(int(url.rstrip("/").split("/")[-1]) == tag_id2 for url in production["tags"])
+        all(
+            int(url.rstrip("/").split("/")[-1]) == tag_id2 for url in production["tags"]
+        )
         for production in data["productions"]
     )
     # Asking the following would result in a 404 because there aren't any.
@@ -109,7 +122,9 @@ def test_get_productions_with_tag(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
-    response = client.get(BASE_URL + "/", params={"cursor": next_cursor, "limit": 10, "tags": [tag_id2]})
+    response = client.get(
+        BASE_URL + "/", params={"cursor": next_cursor, "limit": 10, "tags": [tag_id2]}
+    )
     assert response.status_code == 404
 
 
@@ -481,7 +496,9 @@ def test_delete_production_success(
     headers = create_user_and_login(
         client, db_session, "delete_production_user", [Permissions.ARCHIVE_DELETE]
     )
-    response = client.delete(f"{BASE_URL}/productions/{productions_limited[0].id}", headers=headers)
+    response = client.delete(
+        f"{BASE_URL}/productions/{productions_limited[0].id}", headers=headers
+    )
     assert response.status_code == 204
 
 
@@ -492,7 +509,9 @@ def test_delete_production_failure(
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
     )  # User can only create.
-    response = client.delete(f"{BASE_URL}/productions/{productions_limited[0].id}", headers=headers)
+    response = client.delete(
+        f"{BASE_URL}/productions/{productions_limited[0].id}", headers=headers
+    )
     assert response.status_code == 403
 
 
