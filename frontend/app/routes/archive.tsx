@@ -11,7 +11,7 @@ export default function Archive() {
   const [dateTo, setDateTo] =
 	  useState(
 		  `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`)
-  const [activeTag, setActiveTag] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedVenues, setSelectedVenues] = useState<string[]>([])
   const [selectedArtists, setSelectedArtists] = useState<string[]>([])
 
@@ -42,8 +42,8 @@ export default function Archive() {
 			setDateTo={setDateTo}
 			dateFrom={dateFrom}
 			setDateFrom={setDateFrom}
-			activeTag={activeTag}
-			setActiveTag={setActiveTag}
+			selectedTags={selectedTags}
+			setSelectedTags={setSelectedTags}
 			selectedVenues={selectedVenues}
 			setSelectedVenues={setSelectedVenues}
 			selectedArtists={selectedArtists}
@@ -52,7 +52,7 @@ export default function Archive() {
 		<div>
           <p>Search: {searchQuery}</p>
           <p>From: {dateFrom} - To: {dateTo}</p>
-          <p>Tags: {activeTag.join(", ")}</p>
+          <p>Tags: {selectedTags.join(", ")}</p>
           <p>Venues: {selectedVenues.join(", ")}</p>
           <p>Artists: {selectedArtists.join(", ")}</p>
         </div>

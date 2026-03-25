@@ -8,8 +8,8 @@ interface Props {
 	setDateFrom: React.Dispatch<React.SetStateAction<string>>
 	dateTo: string
 	setDateTo: React.Dispatch<React.SetStateAction<string>>
-	activeTag: string[]
-	setActiveTag: React.Dispatch<React.SetStateAction<string[]>>
+	selectedTags: string[]
+	setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>
 	selectedVenues: string[]
 	setSelectedVenues: React.Dispatch<React.SetStateAction<string[]>>
 	selectedArtists: string[]
@@ -24,8 +24,8 @@ const FilterSidebar: React.FC<Props> = ({
 	setDateFrom,
 	dateTo,
 	setDateTo,
-	activeTag,
-	setActiveTag,
+	selectedTags,
+	setSelectedTags,
 	selectedVenues,
 	setSelectedVenues,
 	selectedArtists,
@@ -42,7 +42,7 @@ const FilterSidebar: React.FC<Props> = ({
 	const artistInputRef = useRef<HTMLDivElement>(null)
 
 	const toggleTag = (tag: string) => {
-		setActiveTag(prev =>
+		setSelectedTags(prev =>
 			prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
 		)
 	}
@@ -159,7 +159,7 @@ const FilterSidebar: React.FC<Props> = ({
 								<button
 									key={tag}
 									onClick={() => toggleTag(tag)}
-									className={`px-2 py-1 text-[9px] border rounded transition-all whitespace-nowrap uppercase tracking-wider font-medium cursor-pointer ${activeTag.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
+									className={`px-2 py-1 text-[9px] border rounded transition-all whitespace-nowrap uppercase tracking-wider font-medium cursor-pointer ${selectedTags.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
 								>
 									{tag}
 								</button>
