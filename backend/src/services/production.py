@@ -87,7 +87,14 @@ def get_productions_paginated(
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
     if tags:
-        query = query.filter(Production.tags.any(Tag.id.in_(tags)))
+        subq = (
+            db.query(Production.id)
+            .join(Production.tags)
+            .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
 
     if cursor is not None:
         query = query.filter(Production.id > cursor)
