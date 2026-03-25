@@ -50,11 +50,11 @@ export default function Archive() {
 			setSelectedArtists={setSelectedArtists}
 		/>
 		<div>
-            <p>Search: {searchQuery}</p>
-            <p>From: {dateFrom} - To: {dateTo}</p>
-            <p>Tags: {activeTag.join(", ")}</p>
-            <p>Venues: {selectedVenues.join(", ")}</p>
-            <p>Artists: {selectedArtists.join(", ")}</p>
+          <p>Search: {searchQuery}</p>
+          <p>From: {dateFrom} - To: {dateTo}</p>
+          <p>Tags: {activeTag.join(", ")}</p>
+          <p>Venues: {selectedVenues.join(", ")}</p>
+          <p>Artists: {selectedArtists.join(", ")}</p>
         </div>
 	  </div>
 

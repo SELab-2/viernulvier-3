@@ -31,7 +31,10 @@ const FilterSidebar: React.FC<Props> = ({
 	selectedArtists,
 	setSelectedArtists
 }) => {
-	const [tagOpen, setTagOpen] = useState(true)
+	const [tagOpen, setTagOpen] = useState(false)
+	const [dateOpen, setDateOpen] = useState(false)
+	const [venuesOpen, setVenuesOpen] = useState(false)
+	const [artistsOpen, setArtistsOpen] = useState(false)
 	const [artistQuery, setArtistQuery] = useState("")
 	const [dropdownAbove, setDropdownAbove] = useState(false)
 
@@ -122,21 +125,28 @@ const FilterSidebar: React.FC<Props> = ({
 			</div>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
-				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Periode</h3>
-				<div className="grid grid-cols-1 gap-4">
-					<div>
-						<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Van</label>
-						<input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="archive-filter-input" />
-					</div>
-					<div>
-						<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Tot</label>
-						<input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="archive-filter-input" />
-					</div>
+				<div className={`flex justify-between items-center group cursor-pointer ${dateOpen ? "mb-6" : ""}`} onClick={() => setDateOpen(prev => !prev)}>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Periode</h3>
+					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${dateOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+					</svg>
 				</div>
+				{dateOpen && (
+					<div className="grid grid-cols-1 gap-4">
+						<div>
+							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Van</label>
+							<input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="archive-filter-input" />
+						</div>
+						<div>
+							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Tot</label>
+							<input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="archive-filter-input" />
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
-				<div className="flex justify-between items-center group cursor-pointer mb-6" onClick={() => setTagOpen(prev => !prev)}>
+				<div className={`flex justify-between items-center group cursor-pointer ${tagOpen ? "mb-6" : ""}`} onClick={() => setTagOpen(prev => !prev)}>
 					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Tags</h3>
 					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${tagOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -160,62 +170,62 @@ const FilterSidebar: React.FC<Props> = ({
 			</div>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
-				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Locatie</h3>
-				<div className="space-y-3">
-					{venues.map(venue => (
-						<label key={venue} className="flex items-center space-x-3 group cursor-pointer">
-							<input type="checkbox" checked={selectedVenues.includes(venue)} onChange={() => toggleVenue(venue)} className="cursor-pointer rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
-							<span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity font-medium">{venue}</span>
-						</label>
-					))}
+				<div className={`flex justify-between items-center group cursor-pointer ${venuesOpen ? "mb-6" : ""}`} onClick={() => setVenuesOpen(prev => !prev)}>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Locaties</h3>
+					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${venuesOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+					</svg>
 				</div>
+				{venuesOpen && (
+					<div className="space-y-3">
+						{venues.map(venue => (
+							<label key={venue} className="flex items-center space-x-3 group cursor-pointer">
+								<input type="checkbox" checked={selectedVenues.includes(venue)} onChange={() => toggleVenue(venue)} className="cursor-pointer rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
+								<span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity font-medium">{venue}</span>
+							</label>
+						))}
+					</div>
+				)}
 			</div>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
-				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Artiesten</h3>
-				<div className="relative" ref={artistInputRef}>
-					<input
-						type="text"
-						placeholder="Zoek naar artiesten"
-						className="archive-filter-input pr-9"
-						value={artistQuery}
-						onChange={e => setArtistQuery(e.target.value)}
-					/>
-					<svg className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 opacity-25 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+				<div className={`flex justify-between items-center group cursor-pointer ${artistsOpen ? "mb-6" : ""}`} onClick={() => setArtistsOpen(prev => !prev)}>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Artiesten</h3>
+					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${artistsOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
-					{filteredArtists.length > 0 && (
-						<ul className={`absolute z-10 left-0 right-0 bg-white dark:bg-neutral-900 border border-archive-ink/10 dark:border-archive-ink-dark/10 rounded-xl shadow-lg overflow-hidden ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}>
-							{filteredArtists.map(artist => (
-								<li
-									key={artist}
-									onMouseDown={() => selectArtist(artist)}
-									className="px-4 py-2 text-[11px] font-medium cursor-pointer hover:bg-archive-accent hover:text-white transition-colors"
-								>
-									{artist}
-								</li>
-							))}
-						</ul>
-					)}
 				</div>
-				{selectedArtists.length > 0 && (
-					<div className="flex flex-wrap gap-2 mt-4">
-						{selectedArtists.map(artist => (
-							<span
-								key={artist}
-								className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-archive-accent text-white text-[9px] uppercase tracking-wider font-medium rounded"
-							>
-								{artist}
-								<button
-									onClick={() => removeArtist(artist)}
-									className="opacity-70 hover:opacity-100 transition-opacity leading-none"
-								>
-									<svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-									</svg>
-								</button>
-							</span>
-						))}
+				{artistsOpen && (
+					<div>
+						<div className="relative" ref={artistInputRef}>
+							<input type="text" placeholder="Zoek naar artiesten" className="archive-filter-input pr-9" value={artistQuery} onChange={e => setArtistQuery(e.target.value)}/>
+							<svg className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 opacity-25 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+							</svg>
+							{filteredArtists.length > 0 && (
+								<ul className={`absolute z-10 left-0 right-0 bg-white dark:bg-neutral-900 border border-archive-ink/10 dark:border-archive-ink-dark/10 rounded-xl shadow-lg overflow-hidden ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}>
+									{filteredArtists.map(artist => (
+										<li	key={artist} onMouseDown={() => selectArtist(artist)} className="px-4 py-2 text-[11px] font-medium cursor-pointer hover:bg-archive-accent hover:text-white transition-colors">
+											{artist}
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+						{selectedArtists.length > 0 && (
+							<div className="flex flex-wrap gap-2 mt-4">
+								{selectedArtists.map(artist => (
+									<span key={artist} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-archive-accent text-white text-[9px] uppercase tracking-wider font-medium rounded">
+										{artist}
+										<button onClick={() => removeArtist(artist)} className="opacity-70 hover:opacity-100 transition-opacity leading-none">
+											<svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+											</svg>
+										</button>
+									</span>
+								))}
+							</div>
+						)}
 					</div>
 				)}
 			</div>
