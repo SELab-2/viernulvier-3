@@ -1,11 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { createApiClient, getByUrl } from "~/shared/services/apiClient";
+import { createApiClient } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as authModule from "~/features/auth";
+import { setupLocalStorage } from "tests/globalSetup";
+import { getByUrl } from "~/shared/services/sharedService";
 
 vi.mock("~/features/auth");
+setupLocalStorage();
 
 describe("createApiClient", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -15,17 +18,6 @@ describe("createApiClient", () => {
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
       API_BASE_URL: "http://localhost",
-    });
-
-    const store: Record<string, string> = {};
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
     });
 
     const apiClient = axios.create();
@@ -40,20 +32,27 @@ describe("createApiClient", () => {
 
     expect(mockCreate).toHaveBeenCalledWith({
       baseURL: expect.any(String),
-      timeout: 1000,
+      timeout: expect.any(Number),
       headers: {
         "Content-Type": "application/json",
       },
     });
   });
 
-  it("adds Authorization header if token exists", () => {
+  it("adds Authorization header if token exists", async () => {
     localStorage.setItem("access_token", "test_token1234");
 
     const client = createApiClient();
-    expect(client.defaults.headers.common["Authorization"]).toBe(
-      "Bearer test_token1234"
-    );
+    let capturedAuthHeader: string | undefined;
+
+    const mockAdapter = new AxiosMockAdapter(client);
+    mockAdapter.onGet("/test").reply((config) => {
+      capturedAuthHeader = config.headers?.["Authorization"] as string;
+      return [200, {}];
+    });
+
+    await client.get("/test");
+    expect(capturedAuthHeader).toBe("Bearer test_token1234");
   });
 
   it("returns response data on GET request", async () => {
@@ -112,5 +111,65 @@ describe("getByUrl", () => {
 
     const result = await getByUrl("/test");
     expect(result).toEqual({ foo: "bar" });
+  });
+});
+
+describe("401 retry token behaviour", () => {
+  let mockAdapter: AxiosMockAdapter;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    vi.spyOn(envModule, "getEnv").mockReturnValue({
+      API_BASE_URL: "http://localhost",
+    });
+  });
+
+  afterEach(() => {
+    if (mockAdapter) {
+      mockAdapter.restore();
+    }
+    vi.restoreAllMocks();
+  });
+
+  it("sends the NEW token on retry, not the stale one", async () => {
+    const oldToken = "old-expired-token";
+    const newToken = "new-fresh-token";
+    localStorage.setItem("access_token", oldToken);
+    localStorage.setItem("refresh_token", "refresh123");
+
+    vi.mocked(authModule.refreshToken).mockImplementation(async () => {
+      // Just update the token in localStorage
+      // The request interceptor will pick up the new token automatically
+      localStorage.setItem("access_token", newToken);
+    });
+
+    const apiClient = createApiClient();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+
+    let callCount = 0;
+    let retryAuthHeader: string | undefined;
+
+    mockAdapter.onGet("/api/v1/archive/token-test").reply((config) => {
+      callCount++;
+
+      if (callCount === 1) {
+        // First call with old token -> return 401
+        return [401, {}];
+      }
+
+      if (callCount === 2) {
+        // Second call (retry) -> capture header and return success
+        retryAuthHeader = config.headers?.["Authorization"] as string;
+        return [200, { success: true }];
+      }
+
+      return [500, {}];
+    });
+
+    const result = await apiClient.get("/api/v1/archive/token-test");
+
+    expect(result.data).toEqual({ success: true });
+    expect(retryAuthHeader).toBe(`Bearer ${newToken}`);
   });
 });

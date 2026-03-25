@@ -5,6 +5,9 @@ import * as apiClientModule from "~/shared/services/apiClient";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { login, refreshToken } from "~/features/auth/services/loginService";
+import { setupLocalStorage } from "tests/globalSetup";
+
+setupLocalStorage();
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -12,17 +15,6 @@ describe("loginService", () => {
   beforeEach(() => {
     vi.spyOn(envModule, "getEnv").mockReturnValue({
       API_BASE_URL: "http://localhost",
-    });
-
-    const store: Record<string, string> = {};
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => store[key] ?? null,
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
     });
 
     const apiClient = createApiClient();

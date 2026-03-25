@@ -1,8 +1,10 @@
 from src.models.production import ProdInfo, Production
+from src.api.dependencies.language import get_accepted_language
+from src.services.language import Languages
 import logging
 
 
-def api_prod_to_model_prod(json_prod: dict, language_map: dict[str, int]) -> Production:
+def api_prod_to_model_prod(json_prod: dict) -> Production:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.
@@ -37,15 +39,15 @@ def api_prod_to_model_prod(json_prod: dict, language_map: dict[str, int]) -> Pro
         return _item.get(lang_code) if _item else None
 
     for lang_code in appearing_languages:
-        lang_id = language_map.get(lang_code)
-        if not lang_id:
+        lang = get_accepted_language(lang_code)
+        if lang is None:
             logging.warning(
                 f"ignoring language {lang_code} for Production(id={production_id})"
             )
             continue
 
         prod_info = ProdInfo(
-            language_id=lang_id,
+            language=lang,
             title=getty("title", lang_code),
             supertitle=getty("supertitle", lang_code),
             artist=getty("artist", lang_code),
@@ -56,5 +58,26 @@ def api_prod_to_model_prod(json_prod: dict, language_map: dict[str, int]) -> Pro
         )
 
         production.info.append(prod_info)
+
+    return production
+
+
+def csv_prod_to_model_prod(csv_prod: dict) -> Production:
+    """
+    This function takes care of molding the csv format of a production,
+    into a Production object for our archive database.
+    """
+    production = Production(
+        viernulvier_id=int(csv_prod[5]),
+    )
+
+    prod_info = ProdInfo(
+        language=Languages.NEDERLANDS,
+        title=csv_prod[0],
+        supertitle=csv_prod[1],
+        description=(csv_prod[2] + "\n" + csv_prod[3]),
+    )
+
+    production.info.append(prod_info)
 
     return production
