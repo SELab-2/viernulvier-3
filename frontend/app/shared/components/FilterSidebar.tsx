@@ -2,13 +2,37 @@ import React, { useState, useRef, useEffect } from "react"
 
 interface Props {
 	show: boolean
+	searchQuery: string
+	setSearchQuery: React.Dispatch<React.SetStateAction<string>>
+	dateFrom: string
+	setDateFrom: React.Dispatch<React.SetStateAction<string>>
+	dateTo: string
+	setDateTo: React.Dispatch<React.SetStateAction<string>>
+	activeTag: string[]
+	setActiveTag: React.Dispatch<React.SetStateAction<string[]>>
+	selectedVenues: string[]
+	setSelectedVenues: React.Dispatch<React.SetStateAction<string[]>>
+	selectedArtists: string[]
+	setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const FilterSidebar: React.FC<Props> = ({ show }) => {
-	const [activeTag, setActiveTag] = useState<string[]>([])
+const FilterSidebar: React.FC<Props> = ({
+	show,
+	searchQuery,
+	setSearchQuery,
+	dateFrom,
+	setDateFrom,
+	dateTo,
+	setDateTo,
+	activeTag,
+	setActiveTag,
+	selectedVenues,
+	setSelectedVenues,
+	selectedArtists,
+	setSelectedArtists
+}) => {
 	const [tagOpen, setTagOpen] = useState(true)
 	const [artistQuery, setArtistQuery] = useState("")
-	const [selectedArtists, setSelectedArtists] = useState<string[]>([])
 	const [dropdownAbove, setDropdownAbove] = useState(false)
 
 	const sidebarRef = useRef<HTMLElement>(null)
@@ -17,6 +41,12 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 	const toggleTag = (tag: string) => {
 		setActiveTag(prev =>
 			prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+		)
+	}
+
+	const toggleVenue = (venue: string) => {
+		setSelectedVenues(prev =>
+			prev.includes(venue) ? prev.filter(v => v !== venue) : [...prev, venue]
 		)
 	}
 
@@ -31,6 +61,7 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 		setSelectedArtists(prev => prev.filter(a => a !== artist))
 	}
 
+	// Get tags from service
 	const tags = [
 		"Archief", "Atmosfeer", "Beeldende Kunst", "Cinema", "Cultuur",
 		"Debat", "Drama", "Gent", "Geschiedenis", "Kennis", "Live",
@@ -38,8 +69,10 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 		"Underground", "Visueel"
 	]
 
-	const venues = ["Balzaal", "Café", "Domzaal", "Filmzaal", "Theaterzaal"]
+	// Hardcoded as most popular venues, but maybe only the ids and use service to get them
+	const venues = ["Balzaal", "Café", "Domzaal", "Filmzaal", "Theaterzaal", "Andere locaties"]
 
+	// Get artists from service
 	const artists = [
 		"Alain Platel", "Anne Teresa De Keersmaeker", "FC Bergman",
 		"Jan Decorte", "Josse De Pauw", "Luc Tuymans", "Meg Stuart",
@@ -53,6 +86,12 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 			!selectedArtists.includes(a)
 		)
 		: []
+
+	useEffect(() => {
+		if (sidebarRef.current && selectedArtists.length > 0) {
+			sidebarRef.current.scrollTop = sidebarRef.current.scrollHeight
+		}
+	}, [selectedArtists.length])
 
 	useEffect(() => {
 		if (filteredArtists.length === 0) return
@@ -75,7 +114,7 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Zoeken</h3>
 				<div className="relative">
-					<input type="text" placeholder="Zoek in de collectie" className="archive-filter-input pr-9" />
+					<input type="text" placeholder="Zoek in de collectie" className="archive-filter-input pr-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}/>
 					<svg className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 opacity-25 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 					</svg>
@@ -87,11 +126,11 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 				<div className="grid grid-cols-1 gap-4">
 					<div>
 						<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Van</label>
-						<input type="date" defaultValue="1982-01-01" className="archive-filter-input" />
+						<input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="archive-filter-input" />
 					</div>
 					<div>
 						<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Tot</label>
-						<input type="date" defaultValue="2026-12-31" className="archive-filter-input" />
+						<input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="archive-filter-input" />
 					</div>
 				</div>
 			</div>
@@ -125,7 +164,7 @@ const FilterSidebar: React.FC<Props> = ({ show }) => {
 				<div className="space-y-3">
 					{venues.map(venue => (
 						<label key={venue} className="flex items-center space-x-3 group cursor-pointer">
-							<input type="checkbox" className="cursor-pointer rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
+							<input type="checkbox" checked={selectedVenues.includes(venue)} onChange={() => toggleVenue(venue)} className="cursor-pointer rounded border-archive-ink/20 text-archive-accent focus:ring-archive-accent" />
 							<span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity font-medium">{venue}</span>
 						</label>
 					))}
