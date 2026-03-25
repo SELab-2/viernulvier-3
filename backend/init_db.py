@@ -6,15 +6,15 @@ Dit script wordt automatisch uitgevoerd vóór de start van de API-server
 """
 
 import os
+from datetime import datetime
 
 from src.database import SESSION_LOCAL, init_db
 from src.models.permission import Permission
 from src.models.role import Role
+from src.models.sync_state import ResourceType, SyncState, SyncType
 from src.models.user import User
-from src.models.language import Language
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
-from src.services.language import Languages
 
 
 def seed_db():
@@ -30,15 +30,6 @@ def seed_db():
                 db.commit()
                 db.refresh(perm)
             db_perms.append(perm)
-
-        all_langs = Languages.all()
-        for lang_name in all_langs:
-            lang = db.query(Language).filter(Language.language == lang_name).first()
-            if not lang:
-                lang = Language(language=lang_name)
-                db.add(lang)
-                db.commit()
-                db.refresh(lang)
 
         admin_role = db.query(Role).filter(Role.name == "admin").first()
         if not admin_role:
@@ -56,7 +47,11 @@ def seed_db():
         admin_user = db.query(User).filter(User.username == admin_username).first()
         if not admin_user:
             hashed_password = get_password_hash(admin_password)
-            admin_user = User(username=admin_username, hashed_password=hashed_password)
+            admin_user = User(
+                username=admin_username,
+                hashed_password=hashed_password,
+                super_user=True,
+            )
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
@@ -64,10 +59,35 @@ def seed_db():
                 f"Created default admin user: '{admin_username}' / '{admin_password}'"
             )
 
+        if not admin_user.super_user:
+            admin_user.super_user = True
+            db.commit()
+            db.refresh(admin_user)
+            print("Promoted the default admin user to protected super user.")
+
         if admin_role not in admin_user.roles:
             admin_user.roles.append(admin_role)
             db.commit()
             print("Successfully assigned the 'admin' role to the default admin user.")
+
+        start_sync_date = datetime.fromisocalendar(2024, 1, 1)
+        for sync_type in SyncType:
+            for resource_type in ResourceType:
+                sync_state = (
+                    db.query(SyncState)
+                    .filter(SyncState.sync_type == sync_type)
+                    .filter(SyncState.resource == resource_type)
+                    .first()
+                )
+                if not sync_state:
+                    sync_state = SyncState(
+                        resource=resource_type,
+                        sync_type=sync_type,
+                        last_timestamp=start_sync_date,
+                    )
+                    db.add(sync_state)
+                    db.commit()
+                    db.refresh(sync_state)
 
     finally:
         db.close()

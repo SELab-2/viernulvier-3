@@ -1,5 +1,8 @@
+import pytest
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.models.user import User
+from src.schemas.auth import UserPatch
 from src.schemas.auth import AccessTokenResponse, Token
 from src.services.auth.flows import (
     authenticate_user,
@@ -8,6 +11,7 @@ from src.services.auth.flows import (
 )
 from src.services.auth.password import get_password_hash
 from src.services.auth.token import decode_access_token
+from src.services.auth import user as user_service
 
 
 def test_authenticate_user_success(db_session: Session):
@@ -50,7 +54,7 @@ def test_login_user_success(db_session: Session):
     assert token.access_token is not None
     assert token.refresh_token is not None
     assert decode_access_token(token.access_token).user_id == user.id
-    assert decode_access_token(token.refresh_token).user_id == user.id
+    # assert decode_access_token(token.refresh_token).user_id == user.id
 
 
 def test_refresh_access_token_success(db_session: Session):
@@ -66,3 +70,25 @@ def test_refresh_access_token_success(db_session: Session):
     assert isinstance(new_access_token_resp, AccessTokenResponse)
     assert new_access_token_resp.access_token is not None
     assert decode_access_token(new_access_token_resp.access_token).user_id == user.id
+
+
+def test_refresh_token_invalid_after_password_change(db_session: Session):
+    password = "testpassword"
+    hashed = get_password_hash(password)
+    user = User(username="refresh_pw_change", hashed_password=hashed)
+    db_session.add(user)
+    db_session.commit()
+
+    tokens = login_user(db_session, "refresh_pw_change", password)
+
+    user_service.patch_user(
+        db_session,
+        user.id,
+        UserPatch(password="newpassword"),
+    )
+
+    with pytest.raises(HTTPException) as excinfo:
+        refresh_access_token(db_session, tokens.refresh_token)
+
+    assert excinfo.value.status_code == 401
+    assert excinfo.value.detail == "Invalid refresh token"

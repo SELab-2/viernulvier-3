@@ -2,8 +2,8 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from src.models.tag import Tag, TagName
-from src.models.language import Language
 from src.schemas.tag import TagCreate, TagResponse
+from src.api.exceptions import NotFoundError
 
 
 def build_tag_response(
@@ -18,7 +18,7 @@ def build_tag_response(
 def get_names_for_language(names, language: str | None):
     if language:
         for name in names:
-            if name.language.language == language:
+            if name.language == language:
                 return [name]
         return names
     else:
@@ -42,7 +42,7 @@ def get_tag_by_id(
 ) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise ValueError("Tag not found")
+        raise NotFoundError("Tag", tag_id)
 
     return build_tag_response(
         tag, get_names_for_language(tag.names, language), base_url
@@ -50,11 +50,6 @@ def get_tag_by_id(
 
 
 def create_tag(db: Session, tag_in: TagCreate, base_url: str):
-    language_ids = [name.language_id for name in tag_in.names]
-    languages = db.query(Language).filter(Language.id.in_(language_ids)).all()
-    if len(languages) != len(language_ids):
-        raise ValueError("One or more languages not found")
-
     db_tag = Tag()
     db.add(db_tag)
     db.flush()
@@ -63,9 +58,7 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 
     db_tag_names = []
     for name in tag_in.names:
-        db_tag_name = TagName(
-            tag_id=db_tag.id, language_id=name.language_id, name=name.name
-        )
+        db_tag_name = TagName(tag_id=db_tag.id, language=name.language, name=name.name)
         db_tag_names.append(db_tag_name)
         db.add(db_tag_name)
 
@@ -78,17 +71,17 @@ def create_tag(db: Session, tag_in: TagCreate, base_url: str):
 def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResponse:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        raise ValueError("Tag not found")
+        raise NotFoundError("Tag", tag_id)
 
     # Get a list of names that already exist (these will need to be adjusted instead of added)
-    existing_names = {name.language_id: name for name in tag.names}
+    existing_names = {name.language: name for name in tag.names}
     for name in tag_in.names:
-        if name.language_id in existing_names:
-            existing_names[name.language_id].name = name.name
+        if name.language in existing_names:
+            existing_names[name.language].name = name.name
         else:
             db_tag_name = TagName(
                 tag_id=tag.id,
-                language_id=name.language_id,
+                language=name.language,
                 name=name.name,
             )
             db.add(db_tag_name)
@@ -102,12 +95,10 @@ def update_tag(db: Session, tag_id, tag_in: TagCreate, base_url: str) -> TagResp
 def delete_tag_by_id(db: Session, tag_id) -> bool:
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
-        return False
+        raise NotFoundError("Tag", tag_id)
 
     for tagname in tag.names:
         db.delete(tagname)
 
     db.delete(tag)
     db.commit()
-
-    return True

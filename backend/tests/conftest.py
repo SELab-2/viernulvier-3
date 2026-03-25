@@ -8,6 +8,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
+from src.models.production import ProdInfo, Production
+from src.models.event import Event
+from src.services.language import Languages
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
@@ -69,3 +72,65 @@ def client():
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+# Mock data for testing.
+@pytest.fixture
+def productions_limited(db_session):
+    prod1 = Production(
+        performer_type="theater",
+        attendance_mode="offline",
+    )
+    prod2 = Production(
+        performer_type="concert",
+        attendance_mode="online",
+    )
+    db_session.add_all([prod1, prod2])
+    db_session.flush()
+
+    info1_nl = ProdInfo(
+        production_id=prod1.id, language=Languages.NEDERLANDS, title="prod1_nl"
+    )
+    info1_en = ProdInfo(
+        production_id=prod1.id, language=Languages.ENGLISH, title="prod1_en"
+    )
+    info2_nl = ProdInfo(
+        production_id=prod2.id, language=Languages.NEDERLANDS, title="prod2_nl"
+    )
+
+    db_session.add_all([info1_nl, info1_en, info2_nl])
+    db_session.commit()
+
+    events1 = [Event(production_id=prod1.id) for _ in range(2)]
+    events2 = [Event(production_id=prod2.id) for _ in range(4)]
+
+    db_session.add_all(events1 + events2)
+    db_session.commit()
+
+    db_session.refresh(prod1)
+    db_session.refresh(prod2)
+    return [prod1, prod2]
+
+
+@pytest.fixture
+def many_productions(db_session):
+    productions = []
+    for i in range(10):
+        prod = Production(
+            performer_type="theater",
+            attendance_mode="offline",
+        )
+        db_session.add(prod)
+        db_session.flush()
+
+        info_nl = ProdInfo(
+            production_id=prod.id, language=Languages.NEDERLANDS, title=f"prod{i}_nl"
+        )
+        info_en = ProdInfo(
+            production_id=prod.id, language=Languages.ENGLISH, title=f"prod{i}_en"
+        )
+        db_session.add_all([info_nl, info_en])
+        productions.append(prod)
+
+    db_session.commit()
+    return productions

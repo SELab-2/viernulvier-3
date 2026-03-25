@@ -15,6 +15,7 @@ services:
     build: ./frontend
     expose:
       - "3000"
+    env_file: .env
     depends_on:
       backend:
         condition: service_started
@@ -39,6 +40,16 @@ services:
         condition: service_healthy
     profiles:
       - sync
+
+  csv_worker:
+    build: ./backend
+    command: python -m src.worker.csv_parser
+    env_file: .env
+    depends_on:
+      database:
+        condition: service_healthy
+    profiles:
+      - csv
 
   database:
     image: postgres:15-alpine

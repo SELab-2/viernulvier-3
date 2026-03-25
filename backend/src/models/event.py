@@ -2,21 +2,29 @@
 
 from sqlalchemy import DECIMAL, TIMESTAMP, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from src.database import Base
 
 
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+
     production_id = Column(Integer, ForeignKey("productions.id"))
-    hall_id = Column(Integer, ForeignKey("halls.id"))
+
+    # hall_id = Column(Integer, ForeignKey("halls.id"))
+    hall_id = Column(Integer, ForeignKey("halls.id"), nullable=True)
     starts_at = Column(TIMESTAMP)
     ends_at = Column(TIMESTAMP)
     order_url = Column(String)
-    external_order_url = Column(String)
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
+    )
 
     production = relationship("Production", back_populates="events")
     hall = relationship("Hall", back_populates="events")
@@ -26,13 +34,18 @@ class Event(Base):
 class EventPrice(Base):
     __tablename__ = "event_prices"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+
     event_id = Column(Integer, ForeignKey("events.id"))
-    label = Column(String)
+
     amount = Column(DECIMAL)
     available = Column(Integer)
     expires_at = Column(TIMESTAMP)
-    created_at = Column(TIMESTAMP)
-    updated_at = Column(TIMESTAMP)
+
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
+    )
 
     event = relationship("Event", back_populates="prices")
