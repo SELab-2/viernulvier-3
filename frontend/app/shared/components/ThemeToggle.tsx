@@ -5,8 +5,12 @@ import { useEffect, useState } from "react";
 import { applyTheme, readInitialTheme, type Theme } from "../utils/theme";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState(readInitialTheme);
+  const [theme, setTheme] = useState<Theme>("light");
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    setTheme(readInitialTheme());
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
