@@ -69,6 +69,27 @@ def test_get_productions_paginated(db_session, many_productions):
         assert len(result.productions[i - 5].production_infos) == 2
 
 
+# Only get productions with a certain tag (in total 10 productions).
+def test_get_productions_with_tag(db_session, many_productions):
+    # 5 productions should have the same tag (id=1).
+    result = get_productions_paginated(db_session, BASE_URL, limit=5, tags=[1])
+    assert len(result.productions) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+    # 5 productions should have the same tag (id=2).
+    result = get_productions_paginated(db_session, BASE_URL, limit=5, tags=[2])
+    assert len(result.productions) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+    # Get productions, given multiple tags.
+    result = get_productions_paginated(db_session, BASE_URL, limit=10, tags=[1,2])
+    assert len(result.productions) == 10
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+
 # Get events for production: check if correct event urls are returned.
 def test_get_events_for_production(db_session, productions_limited):
     events_prod1 = get_events_for_production(
@@ -234,8 +255,7 @@ def test_update_production_tags(db_session, productions_limited):
         db_session, productions_limited[1].id, BASE_URL
     )
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
-
-    assert ids1 == {1, 2}
+    assert ids1 == {1, 3}
     assert ids2 == {3, 2, 4}
 
     production_update1 = ProductionUpdate(tag_ids=ids2)
@@ -252,7 +272,7 @@ def test_update_production_tags(db_session, productions_limited):
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in result2.tags}
 
     assert ids1 == {3, 2, 4}
-    assert ids2 == {1, 2}
+    assert ids2 == {1, 3}
 
     # Updated in database.
     production_response = get_production_by_id(
@@ -265,7 +285,7 @@ def test_update_production_tags(db_session, productions_limited):
     ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
 
     assert ids1 == {3, 2, 4}
-    assert ids2 == {1, 2}
+    assert ids2 == {1, 3}
 
 
 # Update tags of a production with invalid tags.
