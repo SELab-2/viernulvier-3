@@ -4,6 +4,7 @@ from src.models.user import User
 from src.models.role import Role
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
+from src.services.language import Languages
 
 BASE_URL = "/api/v1/archive/productions"
 
@@ -103,7 +104,7 @@ def test_get_production_by_id_valid_language(
     id = productions_limited[0].id
     response = client.get(
         BASE_URL + f"/{id}",
-        headers={"Accept-Language": "nl"},
+        headers={"Accept-Language": Languages.NEDERLANDS},
     )
     assert response.status_code == 200
     data = response.json()
@@ -212,7 +213,9 @@ def test_patch_production_add_info_success(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"production_infos": [{"language": "en", "title": "prod2_en"}]},
+        json={
+            "production_infos": [{"language": Languages.ENGLISH, "title": "prod2_en"}]
+        },
         headers=headers,
     )
 
@@ -250,7 +253,7 @@ def test_patch_production_delete_info_success(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"remove_languages": ["en"]},
+        json={"remove_languages": [Languages.ENGLISH]},
         headers=headers,
     )
 
@@ -260,9 +263,7 @@ def test_patch_production_delete_info_success(
 
 
 # User should be able to create a new production.
-def test_create_production_success(
-    client: TestClient, db_session: Session, language_nl
-):
+def test_create_production_success(client: TestClient, db_session: Session):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
     )
@@ -271,7 +272,10 @@ def test_create_production_success(
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
         },
         headers=headers,
     )
@@ -284,16 +288,17 @@ def test_create_production_success(
 
 
 # User should not be able to create a new production because of permissions.
-def test_create_production_failure(
-    client: TestClient, db_session: Session, language_nl
-):
+def test_create_production_failure(client: TestClient, db_session: Session):
     response = client.post(
         BASE_URL + "/",
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
             "media_gallery_id": 4,
-            "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
         },
     )
 
@@ -302,7 +307,7 @@ def test_create_production_failure(
 
 # User should not be able to create a new production because of unsupported language.
 def test_create_production_unsupported_language(
-    client: TestClient, db_session: Session, language_nl
+    client: TestClient, db_session: Session
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -313,7 +318,7 @@ def test_create_production_unsupported_language(
             "performer_type": "band",
             "attendance_mode": "offline",
             "media_gallery_id": 4,
-            "production_info": {"language": "en", "title": "new production"},
+            "production_info": {"language": "es", "title": "new production"},
         },
         headers=headers,
     )

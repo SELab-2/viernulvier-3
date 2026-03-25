@@ -34,7 +34,7 @@ class ProdInfo(Base):
     __tablename__ = "prod_info"
 
     production_id = Column(Integer, ForeignKey("productions.id"), primary_key=True)
-    language_id = Column(Integer, ForeignKey("language.id"), primary_key=True)
+    language = Column(String, primary_key=True)
     title = Column(String)
     supertitle = Column(String)
     artist = Column(String)
@@ -44,4 +44,3 @@ class ProdInfo(Base):
     info = Column(String)
 
     production = relationship("Production", back_populates="info")
-    language = relationship("Language")
