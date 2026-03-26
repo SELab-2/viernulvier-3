@@ -87,8 +87,11 @@ jobs:
       - name: Build Docker Environment
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
 
-      - name: Run Tests
+      - name: Run Backend Tests
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci exec -T backend pytest tests/
+
+      - name: Run Frontend Tests
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci exec -T frontend npm run test
 
       - name: Dump Docker Logs
         if: failure()
