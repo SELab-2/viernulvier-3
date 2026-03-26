@@ -12,7 +12,9 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: test-env
     expose:
       - "3000"
     depends_on:
