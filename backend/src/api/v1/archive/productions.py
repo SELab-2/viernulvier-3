@@ -35,9 +35,10 @@ async def get_productions(
     db: Session = Depends(get_db),
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
+    tags: list[int] | None = Query(None),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
-    return get_productions_paginated(db, base_url, cursor, limit)
+    return get_productions_paginated(db, base_url, cursor, limit, tags=tags)
 
 
 @router.post(
@@ -53,7 +54,6 @@ async def post_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
-
     base_url = get_base_url(str(request.url))
     production_data = create_production(db, production_in, base_url)
     return production_data
@@ -71,7 +71,6 @@ async def get_production(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
-
     base_url = get_base_url(str(request.url), 2)
     production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
@@ -109,5 +108,4 @@ async def delete_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-
     delete_production_by_id(db, production_id)
