@@ -533,7 +533,7 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
 
     production_url = prod_data.get("id_url")
     assert production_url is not None
-    assert "/api/v1/archive" in production_url
+    assert BASE_URL in production_url
 
     events_urls = prod_data.get("events", [])
     assert len(events_urls) == 2
