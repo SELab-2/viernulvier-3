@@ -85,4 +85,4 @@ Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd al
 Voor specifieke details zie de documentatie [file-route-conventions](https://reactrouter.com/how-to/file-route-conventions)
 
 ## Issues
-Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24.14.0 (LTS)``` met npm versie ```11.9.0```.
+Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24``` met npm versie ```11.9.0```.
