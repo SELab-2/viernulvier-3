@@ -7,16 +7,20 @@ export function createApiClient() {
 
   const apiClient = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 1000,
+    timeout: 5000,
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-  const access_token = localStorage.getItem("access_token");
-  if (access_token) {
-    apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-  }
+  // Request interceptor to always use current token from localStorage
+  apiClient.interceptors.request.use((config) => {
+    const access_token = localStorage.getItem("access_token");
+    if (access_token) {
+      config.headers.Authorization = `Bearer ${access_token}`;
+    }
+    return config;
+  });
 
   apiClient.interceptors.response.use(undefined, async (error) => {
     const request = error.config;
@@ -37,10 +41,4 @@ export function createApiClient() {
   });
 
   return apiClient;
-}
-
-export async function getByUrl<T>(url: string): Promise<T> {
-  const apiClient = createApiClient();
-  const data = await apiClient.get<T>(url);
-  return data.data;
 }
