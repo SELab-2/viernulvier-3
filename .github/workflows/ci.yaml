@@ -51,6 +51,7 @@ jobs:
           echo "ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
           echo "REFRESH_TOKEN_EXPIRE_MINUTES=43200" >> .env
           echo "VIERNULVIER_KEY=viernulvier_test_api_key" >> .env
+          echo "VITE_API_BASE_URL"=http://localhost/ >> .env
 
       - name: Build Docker Environment
         run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
