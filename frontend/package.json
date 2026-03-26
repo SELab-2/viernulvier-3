@@ -8,7 +8,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "lint": "eslint",
     "format": "prettier --write .",
-    "test": "NODE_OPTIONS='--no-experimental-webstorage' vitest run --coverage",
+    "test": "vitest run --coverage",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
