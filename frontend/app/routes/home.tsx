@@ -1,9 +1,11 @@
 import { Link } from "react-router";
-import LanguageSwitcher from "~/shared/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
+import LanguageSwitcher from "~/shared/components/LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
 export default function Home() {
+  const { t } = useTranslation();
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <header className="border-archive-border bg-archive-surface sticky top-0 z-50 border-b backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
@@ -24,16 +26,16 @@ export default function Home() {
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-              Archief
+			{t('nav.archive')}
             </span>
           </Link>
 		  <div>
-			  <LanguageSwitcher />
-			  <ThemeToggle />
+		    <LanguageSwitcher />
+			<ThemeToggle />
 		  </div>
         </div>
       </header>
-      <h1 className="text-3xl font-bold">Home pagina</h1>
+      <h1 className="text-3xl font-bold">{t('nav.home')}</h1>
     </div>
   );
 }

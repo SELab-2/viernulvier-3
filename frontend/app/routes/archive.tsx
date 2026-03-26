@@ -1,9 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 export default function Archive() {
+  const { t } = useTranslation();
   return (
     <div>
-      <title>Archief | VIERNULVIER</title>
+      <title>{`${t('nav.archive')} | VIERNULVIER`}</title>
 
-      <h1 className="text-3xl font-bold">Archief pagina</h1>
+      <h1 className="text-3xl font-bold">{t('nav.archive')}</h1>
     </div>
   );
 }
