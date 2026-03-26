@@ -17,6 +17,7 @@ services:
       target: test-env
     expose:
       - "3000"
+    env_file: .env
     depends_on:
       backend:
         condition: service_started
