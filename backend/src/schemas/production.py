@@ -27,7 +27,6 @@ class ProductionResponse(BaseModel):
     id_url: str
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -62,7 +61,6 @@ class ProductionInfoCreate(BaseModel):
 class ProductionCreate(BaseModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     production_info: ProductionInfoCreate
@@ -83,7 +81,6 @@ class ProductionInfoUpdate(BaseModel):
 class ProductionUpdate(BaseModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

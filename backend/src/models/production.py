@@ -16,8 +16,6 @@ class Production(Base):
 
     performer_type = Column(String)
     attendance_mode = Column(String)
-    # media_gallery_id = Column(Integer, ForeignKey("gallery.id"))
-    media_gallery_id = Column(Integer, ForeignKey("gallery.id"), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), server_onupdate=func.now()

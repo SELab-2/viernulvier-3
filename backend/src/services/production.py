@@ -64,7 +64,6 @@ def build_production_response(
         id_url=f"{base_url}/productions/{production.id}",
         performer_type=production.performer_type,
         attendance_mode=production.attendance_mode,
-        media_gallery_id=production.media_gallery_id,
         created_at=production.created_at,
         updated_at=production.updated_at,
         production_infos=production_infos,
@@ -146,7 +145,6 @@ def create_production(
     db_production = Production(
         performer_type=production_in.performer_type,
         attendance_mode=production_in.attendance_mode,
-        media_gallery_id=production_in.media_gallery_id,
         created_at=production_in.created_at,
         updated_at=production_in.updated_at,
     )
