@@ -2,15 +2,20 @@
 import os
 
 import pytest
+from datetime import datetime, timezone
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
 from src.services.language import Languages
+from src.models import Media
+
+
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
@@ -134,3 +139,49 @@ def many_productions(db_session):
 
     db_session.commit()
     return productions
+
+
+@pytest.fixture
+def production_with_no_media(db_session: Session) -> Production:
+    prod = Production(
+        performer_type="band",
+        attendance_mode="offline",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db_session.add(prod)
+    db_session.commit()
+    db_session.refresh(prod)
+    return prod
+
+
+@pytest.fixture
+def media_item(db_session, production_with_no_media):
+    media = Media(
+        production_id=production_with_no_media.id,
+        object_key="gallery-{}/example.jpg".format(production_with_no_media.id),
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(media)
+    db_session.commit()
+    db_session.refresh(media)
+    return media
+
+
+@pytest.fixture
+def media_items_for_production(db_session, production_with_no_media):
+    items = []
+    for idx in range(3):
+        m = Media(
+            production_id=production_with_no_media.id,
+            object_key=f"gallery-{production_with_no_media.id}/file-{idx}.jpg",
+            content_type="image/jpeg",
+            uploaded_at=datetime.now(timezone.utc),
+        )
+        db_session.add(m)
+        items.append(m)
+    db_session.commit()
+    for m in items:
+        db_session.refresh(m)
+    return items
