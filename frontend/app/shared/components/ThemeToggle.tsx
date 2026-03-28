@@ -1,24 +1,10 @@
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import { useEffect, useState } from "react";
-
-import { applyTheme, readInitialTheme, type Theme } from "../utils/theme";
+import { useTheme } from "~/shared/components/ThemeContext";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
-
-  useEffect(() => {
-    setTheme(readInitialTheme());
-  }, []);
-
-  useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
-
-  function toggleTheme() {
-    setTheme((currentTheme: Theme) => (currentTheme === "dark" ? "light" : "dark"));
-  }
 
   return (
     <button
