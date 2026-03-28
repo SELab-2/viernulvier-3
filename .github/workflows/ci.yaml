@@ -49,10 +49,12 @@ jobs:
         working-directory: frontend
 
       - name: Check Formatting
-        run: npx prettier --check frontend/
+        run: npx prettier --check
+        working-directory: frontend
 
       - name: Run Linter check
-        run: npx eslint --max-warnings=0 frontend/
+        run: npx eslint --max-warnings=0
+        working-directory: frontend
 
   smoke-test:
     name: Docker Smoke Test
