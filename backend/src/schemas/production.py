@@ -27,7 +27,7 @@ class ProductionResponse(BaseModel):
     id_url: str
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
+    media_gallery_id: Optional[int] = None # Update after merge media pr.
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
