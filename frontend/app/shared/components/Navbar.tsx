@@ -4,6 +4,7 @@ import { ThemeToggle } from  "~/shared/components/ThemeToggle"
 
 
 const Navbar: React.FC = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [activePage, setActivePage] = useState<"home" | "archive" | "history">("home");
   const [language, setLanguage] = useState<"NL" | "EN">("NL");
 
@@ -18,14 +19,14 @@ const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-archive-ink/10 dark:border-archive-ink-dark/10 bg-archive-paper/80 dark:bg-archive-paper-dark/80 backdrop-blur-md transition-all duration-300">
       <div className="max-w-[1800px] mx-auto px-6 md:px-24 h-20 flex items-center justify-between">
-        <header className="border-archive-border bg-archive-surface sticky top-0 z-50 border-b backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
+        <header className="bg-archive-surface sticky top-0 z-50 backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
           <div className="group flex items-center space-x-2">
             <img
                 src="/logo.svg"
                 alt=""
                 className="h-8 w-auto md:h-10"
                 style={{ filter: "var(--archive-logo-filter)" }}
-              />
+            />
             <span
                 aria-hidden="true"
                 className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
@@ -93,7 +94,42 @@ const Navbar: React.FC = () => {
           </div>
           <ThemeToggle></ThemeToggle>
         </div>
-      </div>  
+        <button className="md:hidden flex flex-col space-y-1 md:hidden ml-auto" onClick={() => setMenuOpen(!menuOpen)}>
+              <span className="w-6 h-0.5 bg-current"></span>
+              <span className="w-6 h-0.5 bg-current"></span>
+              <span className="w-6 h-0.5 bg-current"></span>
+        </button>
+      </div>
+      {menuOpen && (
+        <div className="md:hidden absolute top-20 left-0 w-full bg-archive-paper dark:bg-archive-paper-dark border-t border-archive-ink/10 dark:border-archive-ink-dark/10">
+          <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium uppercase tracking-widest">
+            <li>
+              <NavLink to="/" onClick={() => setMenuOpen(false)}>
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/archive" onClick={() => setMenuOpen(false)}>
+                Archief
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/history" onClick={() => setMenuOpen(false)}>
+                History
+              </NavLink>
+            </li>
+
+            {/* Language switch */}
+            <div className="flex space-x-2">
+              <button onClick={() => toggleLanguage("EN")}>EN</button>
+              <button onClick={() => toggleLanguage("NL")}>NL</button>
+            </div>
+
+            {/* Theme toggle */}
+            <ThemeToggle />
+          </ul>
+        </div>
+      )}  
     </nav>
   );
 };
