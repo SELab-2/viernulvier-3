@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import datetime
 from src.schemas.tag import TagResponse
 
+
 class Pagination(BaseModel):
     next_cursor: int | None = None
     has_more: bool = False
@@ -36,7 +37,7 @@ class ProductionResponse(BaseModel):
     # A production has a list of tags.
     production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
-    tags: list[TagResponse] = Field(default_factory=list) # tag_object
+    tags: list[TagResponse] = Field(default_factory=list)  # tag_object
 
     model_config = ConfigDict(from_attributes=True)
 
