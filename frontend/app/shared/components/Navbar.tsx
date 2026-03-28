@@ -99,37 +99,36 @@ const Navbar: React.FC = () => {
               <span className="w-6 h-0.5 bg-current"></span>
               <span className="w-6 h-0.5 bg-current"></span>
         </button>
-      </div>
-      {menuOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-archive-paper dark:bg-archive-paper-dark border-t border-archive-ink/10 dark:border-archive-ink-dark/10">
-          <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium uppercase tracking-widest">
-            <li>
-              <NavLink to="/" onClick={() => setMenuOpen(false)}>
-                Home
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/archive" onClick={() => setMenuOpen(false)}>
-                Archief
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/history" onClick={() => setMenuOpen(false)}>
-                History
-              </NavLink>
-            </li>
+        {menuOpen && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-archive-paper dark:bg-archive-paper-dark border-t border-archive-ink/10 dark:border-archive-ink-dark/10">
+            <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium uppercase tracking-widest">
+              <li>
+                <NavLink to="/" onClick={() => setMenuOpen(false)}>
+                  Home
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/archive" onClick={() => setMenuOpen(false)}>
+                  Archief
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/history" onClick={() => setMenuOpen(false)}>
+                  History
+                </NavLink>
+              </li>
 
-            {/* Language switch */}
-            <div className="flex space-x-2">
-              <button onClick={() => toggleLanguage("EN")}>EN</button>
-              <button onClick={() => toggleLanguage("NL")}>NL</button>
-            </div>
+              <div className="flex space-x-2">
+                <button onClick={() => toggleLanguage("EN")}>EN</button>
+                <button onClick={() => toggleLanguage("NL")}>NL</button>
+              </div>
 
-            {/* Theme toggle */}
-            <ThemeToggle />
-          </ul>
-        </div>
-      )}  
+              <ThemeToggle />
+            </ul>
+            <div className="h-px bg-archive-ink/10 dark:bg-archive-ink-dark/10" />
+          </div>
+        )}
+      </div>  
     </nav>
   );
 };
