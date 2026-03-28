@@ -84,7 +84,7 @@ def test_get_productions_with_tag(
     assert len(data["productions"]) == 5
     assert all(
         all(
-            int(url.rstrip("/").split("/")[-1]) == tag_id1 for url in production["tags"]
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id1 for tag_response in production["tags"]
         )
         for production in data["productions"]
     )
@@ -102,7 +102,7 @@ def test_get_productions_with_tag(
     assert len(data["productions"]) == 5
     assert all(
         all(
-            int(url.rstrip("/").split("/")[-1]) == tag_id2 for url in production["tags"]
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id2 for tag_response in production["tags"]
         )
         for production in data["productions"]
     )
@@ -297,7 +297,7 @@ def test_patch_production_tags_success(
     )
 
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 3}
+    assert {int(tag_response["id"].rstrip("/").split("/")[-1]) for tag_response in data["tags"]} == {1, 3}
 
     response = client.patch(
         f"{BASE_URL}/{id}",
@@ -307,7 +307,7 @@ def test_patch_production_tags_success(
 
     # Updated in response.
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2, 3}
+    assert {int(tag_response["id"].rstrip("/").split("/")[-1]) for tag_response in data["tags"]} == {1, 2, 3}
 
     response = client.get(
         BASE_URL + f"/{id}",
@@ -315,7 +315,7 @@ def test_patch_production_tags_success(
 
     # Updated in database.
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2, 3}
+    assert {int(tag_response["id"].rstrip("/").split("/")[-1]) for tag_response in data["tags"]} == {1, 2, 3}
 
 
 # User cannot change tags of a production if one or more tags do not exist.
@@ -331,7 +331,7 @@ def test_patch_production_tags_failure(
     )
 
     data = response.json()
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 3}
+    assert {int(tag_response["id"].rstrip("/").split("/")[-1]) for tag_response in data["tags"]} == {1, 3}
 
     response = client.patch(
         f"{BASE_URL}/{id}",
@@ -410,7 +410,7 @@ def test_create_production_with_tags_success(
     data = response.json()
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
-    assert {int(url.rstrip("/").split("/")[-1]) for url in data["tags"]} == {1, 2}
+    assert {int(tag_response["id"].rstrip("/").split("/")[-1]) for tag_response in data["tags"]} == {1, 2}
 
 
 # User should not be able to create a new production with tags if one is not existing in database.

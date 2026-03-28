@@ -118,12 +118,12 @@ def test_get_tags_for_production(db_session, productions_limited):
     tags1 = get_tags_for_production(db_session, productions_limited[0].id, BASE_URL)
     assert len(tags1) == 2
     for i in range(2):
-        assert tags1[i] == f"{BASE_URL}/tags/{productions_limited[0].tags[i].id}"
+        assert tags1[i].id == f"{BASE_URL}/tags/{productions_limited[0].tags[i].id}"
 
     tags2 = get_tags_for_production(db_session, productions_limited[1].id, BASE_URL)
     assert len(tags2) == 3
     for i in range(3):
-        assert tags2[i] == f"{BASE_URL}/tags/{productions_limited[1].tags[i].id}"
+        assert tags2[i].id == f"{BASE_URL}/tags/{productions_limited[1].tags[i].id}"
 
 
 # Get production by id (no/invalid language specified): check if correct production is returned with all correct info and events.
@@ -210,7 +210,7 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
     new_id = int(response.id_url.rstrip("/").split("/")[-1])
     new_prod_from_db = get_production_by_id(db_session, new_id, BASE_URL)
     new_prod_tag_ids = {
-        int(url.rstrip("/").split("/")[-1]) for url in new_prod_from_db.tags
+        int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in new_prod_from_db.tags
     }
     assert new_prod_tag_ids == {tag.id for tag in valid_tags}
 
@@ -250,11 +250,11 @@ def test_update_production_tags(db_session, productions_limited):
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
     )
-    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    ids1 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in production_response.tags}
     production_response2 = get_production_by_id(
         db_session, productions_limited[1].id, BASE_URL
     )
-    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
+    ids2 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in production_response2.tags}
     assert ids1 == {1, 3}
     assert ids2 == {3, 2, 4}
 
@@ -265,11 +265,11 @@ def test_update_production_tags(db_session, productions_limited):
     result = update_production_by_id(
         db_session, production_update1, productions_limited[0].id, BASE_URL
     )
-    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in result.tags}
+    ids1 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in result.tags}
     result2 = update_production_by_id(
         db_session, production_update2, productions_limited[1].id, BASE_URL
     )
-    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in result2.tags}
+    ids2 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in result2.tags}
 
     assert ids1 == {3, 2, 4}
     assert ids2 == {1, 3}
@@ -278,11 +278,11 @@ def test_update_production_tags(db_session, productions_limited):
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
     )
-    ids1 = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    ids1 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in production_response.tags}
     production_response2 = get_production_by_id(
         db_session, productions_limited[1].id, BASE_URL
     )
-    ids2 = {int(url.rstrip("/").split("/")[-1]) for url in production_response2.tags}
+    ids2 = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in production_response2.tags}
 
     assert ids1 == {3, 2, 4}
     assert ids2 == {1, 3}
@@ -296,7 +296,7 @@ def test_update_production_tags_invalid(db_session, productions_limited):
     assert len(production_response.tags) == 2
 
     # Create partly invalid taglist.
-    ids = {int(url.rstrip("/").split("/")[-1]) for url in production_response.tags}
+    ids = {int(tag_response.id.rstrip("/").split("/")[-1]) for tag_response in production_response.tags}
     ids.add(145)
     ids.add(432)
     production_update = ProductionUpdate(tag_ids=ids)
