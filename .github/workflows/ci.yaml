@@ -49,7 +49,7 @@ jobs:
         working-directory: frontend
 
       - name: Check Formatting
-        run: npx prettier --check
+        run: npx prettier --check .
         working-directory: frontend
 
       - name: Run Linter check
