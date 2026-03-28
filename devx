@@ -86,7 +86,14 @@ cd "$git_root" || exit 1
 
 # Source the necessary files
 source ".env"
-source "backend/.venv/bin/activate"
+venv_file=$(find ./ -wholename "*bin/activate")
+if [[ -z "$venv_file" ]]; then
+	echo "No venv-activate file found under 'backend/', exiting." >&2
+	exit 2
+fi
+# Disable shellcheck for a 'source-file' it does not know:
+# shellcheck source=/dev/null
+source "$venv_file"
 
 
 # Helper function to select one thing from options
