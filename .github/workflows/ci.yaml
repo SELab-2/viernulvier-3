@@ -31,7 +31,7 @@ jobs:
         run: ruff check backend/
 
   lint-frontend:
-    name: Lint Frontend Code Base with Ruff
+    name: Lint Frontend Code Base with Prettier and Eslint
     runs-on: self-hosted
     steps:
       - name: Checkout Code
@@ -57,8 +57,8 @@ jobs:
   smoke-test:
     name: Docker Smoke Test
     needs:
-      - job: lint-backend
-      - job: lint-frontend
+      - lint-backend
+      - lint-frontend
     runs-on: self-hosted
 
     steps:
