@@ -56,7 +56,9 @@ jobs:
 
   smoke-test:
     name: Docker Smoke Test
-    needs: lint-backend, lint-frontend
+    needs:
+      - job: lint-backend
+      - job: lint-frontend
     runs-on: self-hosted
 
     steps:
