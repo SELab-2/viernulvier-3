@@ -34,9 +34,9 @@ cat <<END_HELP
    all, backend, frontend, database, proxy, sync_worker
 
  Examples:
-  ./devx up build
-  ./devx down no-remove
-  ./devx logs no backend
+  ./devx stack up build
+  ./devx stack down no-remove
+  ./devx stack logs no backend
 END_HELP
 }
 
@@ -86,7 +86,7 @@ cd "$git_root" || exit 1
 
 # Source the necessary files
 source ".env"
-venv_file=$(find ./ -wholename "*bin/activate")
+venv_file=$(find ./backend -wholename "*bin/activate" | head -n1)
 if [[ -z "$venv_file" ]]; then
 	echo "No venv-activate file found under 'backend/', exiting." >&2
 	exit 2
@@ -103,6 +103,7 @@ function choose() {
 	shift
 	local options=("$@")
 
+	echo ""             # Newline before prompt
 	echo "$prompt"
 	PS3="Select a number: "
 	select opt in "${options[@]}"; do
@@ -164,8 +165,9 @@ function stack() {
 		exit 0
 	fi
 
-	if [[ -z "$action" ]]; then
-		choose "Stack action?" up down logs
+	local actions=(up down logs)
+	if ! contains "$action" "${actions[@]}"; then
+		choose "Stack action?" "${actions[@]}"
 		action="$choose_return"
 	fi
 
@@ -223,44 +225,43 @@ function test_cmd() {
 		exit 0
 	fi
 
-	local targets=(backend frontend)
+	local targets=(both backend frontend)
 	if ! contains "$target" "${targets[@]}"; then
-		choose "Test target?" backend frontend
+		choose "Test target?" "${targets[@]}"
 		target="$choose_return"
 	fi
 
-	case "$target" in
-		backend)
-			local mode="${2:-}"
-			local modes=(normal coverage ci)
-			if ! contains "$mode" "${modes[@]}"; then
-				choose "Mode?" "${modes[@]}"
-				mode="$choose_return"
-			fi
+	if [[ "$target" == backend || "$target" == both ]]; then
+		local mode="${2:-}"
+		local modes=(normal coverage ci)
+		if ! contains "$mode" "${modes[@]}"; then
+			choose "Backend test mode?" "${modes[@]}"
+			mode="$choose_return"
+		fi
 
-			case "$mode" in
-				normal)
-					run cd backend && run pytest
-					;;
-				coverage)
-					(
-						run cd backend \
-							&& run coverage run -m pytest \
-							&& run coverage html \
-							&& run xdg-open htmlcov/index.html >/dev/null 2>&1
-					)
-					;;
-				ci)
-					run docker compose -f docker-compose.ci.yml \
-						--project-name viernulvier-ci \
-						exec -T backend pytest tests/
-					;;
-				esac
+		case "$mode" in
+			normal)
+				# Run in (subshell) so that the 'cd' does not persist
+				(run cd backend && run pytest)
 				;;
-			frontend)
-				run cd frontend && run npm test
+			coverage)
+				(
+					run cd backend \
+						&& run coverage run -m pytest \
+						&& run coverage html \
+						&& run xdg-open htmlcov/index.html >/dev/null 2>&1
+				)
 				;;
-		esac
+			ci)
+				run docker compose -f docker-compose.ci.yml \
+					--project-name viernulvier-ci \
+					exec -T backend pytest tests/
+				;;
+			esac
+	fi
+	if [[ "$target" == frontend || "$target" == both ]]; then
+		(run cd frontend && run npm test)
+	fi
 }
 
 # Worker subcommand
@@ -299,9 +300,14 @@ function worker() {
 # Main entrypoint
 main() {
 	local cmd="${1:-}"
+	if [[ "$cmd" == --help || "$cmd" == -h ]]; then
+		print_help
+		exit 0
+	fi
 
-	if [[ -z "$cmd" ]]; then
-		choose "What do you want to do?" stack test worker
+	local cmds=(dev stack test worker)
+	if ! contains "$cmd" "${cmds[@]}"; then
+		choose "What do you want to do?" "${cmds[@]}"
 		cmd="$choose_return"
 	fi
 
@@ -309,12 +315,9 @@ main() {
 		stack) shift; stack "$@" ;;
 		test) shift; test_cmd "$@" ;;
 		worker) shift; worker "$@" ;;
-		--help|-h)
-			print_help
-			exit 0
-			;;
 		*)
 			echo "Unknown command: $cmd" >&2
+			print_help
 			exit 1
 			;;
 	esac
