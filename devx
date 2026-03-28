@@ -11,11 +11,28 @@ cat <<END_HELP
  the subcommands for this command!
 
  Subcommands:
+   dev               All the local dev commands
    stack             Working with the "real" services/containers
    test              Running tests
    worker            Working with the short-lived scripts/containers
 
  Each subcommand has its own '--help' command.
+END_HELP
+}
+
+function print_dev_help() {
+cat <<END_HELP
+ All the dev commands for frontend and backend together.
+
+ Subcommands:
+   format  [both|frontend|backend]
+   install [both|frontend|backend]
+   run               Only runs frontend (run backend in docker with 'stack')
+
+ Examples:
+  ./devx dev format both
+  ./devx dev install backend
+  ./devx dev run
 END_HELP
 }
 
@@ -152,6 +169,54 @@ function yes_no() {
 		*)
 			choose "$prompt" yes no
 			yes_no_return="$choose_return"
+			;;
+	esac
+}
+
+
+# Dev subcommand
+function dev() {
+	local action="$1"
+	if [[ "$action" == --help || "$action" == -h ]]; then
+		print_dev_help
+		exit 0
+	fi
+
+	local actions=(format install run)
+	if ! contains "$action" "${actions[@]}"; then
+		choose "Dev action?" "${actions[@]}"
+		action="$choose_return"
+	fi
+
+	# Target is for all but 'run'
+	local target="$2"
+	local targets=(both frontend backend)
+	if ! [[ "$action" == run ]]; then
+		if ! contains "$target" "${targets[@]}"; then
+			choose "Dev ${action} target?" "${targets[@]}"
+			target="$choose_return"
+		fi
+	fi
+
+	case "$action" in
+		format)
+			if [[ "$target" == backend || "$target" == both ]]; then
+				(run cd backend && run ruff format)
+			fi
+			if [[ "$target" == frontend || "$target" == both ]]; then
+				(run cd frontend && run npm run format && run npm run lint)
+			fi
+			;;
+		install)
+			if [[ "$target" == backend || "$target" == both ]]; then
+				(run cd backend && run pip install -r requirements-dev.txt)
+			fi
+			if [[ "$target" == frontend || "$target" == both ]]; then
+				(run cd frontend && run npm ci)
+			fi
+			;;
+		run)
+			(run cd frontend && run npm run dev)
 			;;
 	esac
 }
@@ -312,6 +377,7 @@ main() {
 	fi
 
 	case "$cmd" in
+		dev) shift; dev "$@" ;;
 		stack) shift; stack "$@" ;;
 		test) shift; test_cmd "$@" ;;
 		worker) shift; worker "$@" ;;
