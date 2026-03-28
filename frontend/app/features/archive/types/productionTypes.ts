@@ -1,7 +1,4 @@
-export interface Pagination {
-  next_cursor?: number;
-  has_more: boolean;
-}
+import type {  PaginationParams } from "~/shared/services/sharedService";
 
 export interface ProductionInfo {
   id_url: string;
@@ -32,7 +29,7 @@ export interface Production {
 
 export interface ProductionList {
   productions: Production[];
-  pagination: Pagination;
+  pagination: PaginationParams;
 }
 
 export interface ProductionInfoCreate {
