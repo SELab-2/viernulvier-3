@@ -22,8 +22,6 @@ from src.services.archive import get_base_url
 
 router = APIRouter()
 
-
-# TODO: Add filter options (after merge tags-branch).
 @router.get(
     "/",
     response_model=ProductionListResponse,
