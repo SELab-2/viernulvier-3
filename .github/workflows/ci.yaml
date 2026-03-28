@@ -7,8 +7,8 @@ on:
     branches: ["dev", "main"]
 
 jobs:
-  lint:
-    name: Lint Code Base with Ruff
+  lint-backend:
+    name: Lint Backend Code Base with Ruff
     runs-on: self-hosted
     steps:
       - name: Checkout Code
@@ -30,9 +30,33 @@ jobs:
       - name: Run Ruff Linter
         run: ruff check backend/
 
+  lint-frontend:
+    name: Lint Frontend Code Base with Ruff
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Check Formatting
+        run: npx prettier --check frontend/
+
+      - name: Run Linter check
+        run: npx eslint --max-warnings=0 frontend/
+
   smoke-test:
     name: Docker Smoke Test
-    needs: lint
+    needs: lint-backend, lint-frontend
     runs-on: self-hosted
 
     steps:
