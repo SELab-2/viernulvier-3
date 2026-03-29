@@ -9,7 +9,7 @@ import {
   deleteTag,
   editTag,
   getTagById,
-  getTagList,
+  getAllTags,
 } from "~/features/archive/services/tagService";
 
 describe("tagService", () => {
@@ -48,11 +48,11 @@ describe("tagService", () => {
     vi.restoreAllMocks();
   });
 
-  describe("getTagList", () => {
+  describe("getAllTags", () => {
     it("returns a list of tags on success", async () => {
       mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
 
-      const result = await getTagList();
+      const result = await getAllTags();
       expect(result).toEqual([mockTag1, mockTag2]);
     });
   });

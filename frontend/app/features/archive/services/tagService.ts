@@ -9,7 +9,7 @@ import type { TagCreate, Tag, TagUpdate } from "../types/tagTypes";
 
 const ENDPOINT = "/tags";
 
-export async function getTagList(): Promise<Tag[]> {
+export async function getAllTags(): Promise<Tag[]> {
   return getFromArchiveList<Tag>(ENDPOINT);
 }
 
