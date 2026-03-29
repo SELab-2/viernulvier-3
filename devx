@@ -176,7 +176,7 @@ function yes_no() {
 
 # Dev subcommand
 function dev() {
-	local action="$1"
+	local action="${1:-}"
 	if [[ "$action" == --help || "$action" == -h ]]; then
 		print_dev_help
 		exit 0
@@ -189,7 +189,7 @@ function dev() {
 	fi
 
 	# Target is for all but 'run'
-	local target="$2"
+	local target="${2:-}"
 	local targets=(both frontend backend)
 	if ! [[ "$action" == run ]]; then
 		if ! contains "$target" "${targets[@]}"; then
