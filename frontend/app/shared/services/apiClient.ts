@@ -3,10 +3,10 @@ import { getEnv } from "../utils/env";
 import { refreshToken } from "~/features/auth";
 
 export function createApiClient() {
-  const { API_BASE_URL } = getEnv();
+  const { API_URL } = getEnv();
 
   const apiClient = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_URL,
     timeout: 5000,
     headers: {
       "Content-Type": "application/json",
