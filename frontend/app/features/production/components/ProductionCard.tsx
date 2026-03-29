@@ -10,7 +10,8 @@ import {
   Typography,
 } from "@mui/material";
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
+const DEFAULT_IMAGE =
+  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
 const DEFAULT_CARD_VALUES = {
   title: "Onbekende productie",
@@ -21,12 +22,12 @@ const DEFAULT_CARD_VALUES = {
 } as const;
 
 const CARD_COLORS = {
-  surfaceStart: "var(--color-brand-surface-start)",
-  surfaceEnd: "var(--color-brand-surface-end)",
-  textPrimary: "var(--color-brand-text-primary)",
-  textSecondary: "var(--color-brand-text-secondary)",
-  accent: "var(--color-brand-accent)",
-  ink: "var(--color-brand-ink)",
+  surfaceStart: "var(--color-archive-surface-strong)",
+  surfaceEnd: "var(--color-archive-surface)",
+  textPrimary: "var(--color-archive-ink)",
+  textSecondary: "var(--color-archive-ink)",
+  accent: "var(--color-archive-accent)",
+  ink: "var(--color-archive-ink)",
 } as const;
 
 const CARD_MOTION = {
@@ -112,29 +113,38 @@ export function ProductionCard({
   onDetailClick,
   preferredLanguage = "nl",
 }: ProductionCardProps) {
-  const primaryInfo = getProductionInfoByLanguage(production.production_infos, preferredLanguage);
+  const primaryInfo = getProductionInfoByLanguage(
+    production.production_infos,
+    preferredLanguage
+  );
   const title = getTextOrDefault(primaryInfo?.title, DEFAULT_CARD_VALUES.title);
   const supertitle = getOptionalText(primaryInfo?.supertitle);
   const artist = getOptionalText(primaryInfo?.artist);
   const tagline = getOptionalText(primaryInfo?.tagline);
-  const dateLabel = getTextOrDefault(production.starts_at, DEFAULT_CARD_VALUES.dateLabel);
-  const venueLabel = getTextOrDefault(production.hall_name, DEFAULT_CARD_VALUES.venueLabel);
+  const dateLabel = getTextOrDefault(
+    production.starts_at,
+    DEFAULT_CARD_VALUES.dateLabel
+  );
+  const venueLabel = getTextOrDefault(
+    production.hall_name,
+    DEFAULT_CARD_VALUES.venueLabel
+  );
   const imageUrl = getTextOrDefault(production.image_url, DEFAULT_CARD_VALUES.imageUrl);
   const tagNames = getListOrDefault(production.tag_names, DEFAULT_CARD_VALUES.tagNames);
 
   return (
     <Card
       sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: 4,
-        overflow: "hidden",
-        background: `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
-        color: CARD_COLORS.textPrimary,
-        border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
-        boxShadow: `0 16px 40px ${colorWithOpacity(CARD_COLORS.ink, 0.38)}`,
-        transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+        "height": "100%",
+        "display": "flex",
+        "flexDirection": "column",
+        "borderRadius": 4,
+        "overflow": "hidden",
+        "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
+        "color": CARD_COLORS.textPrimary,
+        "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
+        "boxShadow": `0 16px 40px ${colorWithOpacity(CARD_COLORS.ink, 0.38)}`,
+        "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
           boxShadow: `0 22px 50px ${colorWithOpacity(CARD_COLORS.ink, 0.45)}`,
@@ -180,10 +190,10 @@ export function ProductionCard({
               left: 12,
               height: 28,
               borderRadius: 999,
-              backgroundColor: colorWithOpacity(CARD_COLORS.ink, 0.88),
-              color: CARD_COLORS.textPrimary,
-              fontWeight: "var(--weight-ui-bold)",
-              letterSpacing: "var(--tracking-ui-label)",
+              backgroundColor: "var(--color-archive-ink)",
+              color: "var(--color-archive-paper)",
+              fontWeight: "var(--weight-archive-bold)",
+              letterSpacing: "var(--tracking-archive-label)",
               border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
             }}
           />
@@ -195,7 +205,7 @@ export function ProductionCard({
         sx={{
           flexGrow: 1,
           px: 2.5,
-          py: 2,
+          py: 1.5,
           display: "flex",
           flexDirection: "column",
           transform: "translateY(0)",
@@ -203,14 +213,14 @@ export function ProductionCard({
           willChange: "transform",
         }}
       >
-        <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.5 }}>
+        <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
           <Typography
             className="production-card-text"
             sx={{
               color: CARD_COLORS.accent,
-              fontSize: "var(--text-ui-meta)",
-              letterSpacing: "var(--tracking-ui-meta)",
-              fontWeight: "var(--weight-ui-semibold)",
+              fontSize: "var(--text-archive-meta)",
+              letterSpacing: "var(--tracking-archive-meta)",
+              fontWeight: "var(--weight-archive-semibold)",
               textTransform: "uppercase",
             }}
           >
@@ -221,8 +231,8 @@ export function ProductionCard({
             className="production-card-text"
             sx={{
               color: colorWithOpacity(CARD_COLORS.accent, 0.92),
-              fontSize: "var(--text-ui-meta)",
-              letterSpacing: "var(--tracking-ui-label)",
+              fontSize: "var(--text-archive-meta)",
+              letterSpacing: "var(--tracking-archive-label)",
               textTransform: "uppercase",
             }}
           >
@@ -230,15 +240,15 @@ export function ProductionCard({
           </Typography>
         </Stack>
 
-        <Box sx={{ minHeight: { xs: 192, md: 208 }, mb: 1.8 }}>
+        <Box sx={{ minHeight: { xs: 188, md: 204 }, mb: 1.2 }}>
           <Typography
             className="production-card-text"
             component="h3"
             sx={{
-              mb: 1,
-              fontFamily: "var(--font-brand-display)",
-              fontSize: "var(--text-ui-title-lg)",
-              lineHeight: "var(--leading-ui-title)",
+              mb: 0.7,
+              fontFamily: "var(--font-serif)",
+              fontSize: "var(--text-archive-title-lg)",
+              lineHeight: "var(--leading-archive-title)",
               color: CARD_COLORS.textPrimary,
               minHeight: { xs: "3.7rem", md: "4rem" },
               display: "-webkit-box",
@@ -254,9 +264,9 @@ export function ProductionCard({
             <Typography
               className="production-card-text"
               sx={{
-                mb: 0.8,
+                mb: 0.5,
                 color: colorWithOpacity(CARD_COLORS.textSecondary, 0.95),
-                fontSize: "var(--text-ui-body)",
+                fontSize: "var(--text-archive-body)",
                 letterSpacing: "0.02em",
                 minHeight: "1.35rem",
                 display: "-webkit-box",
@@ -268,7 +278,7 @@ export function ProductionCard({
               {artist}
             </Typography>
           ) : (
-            <Box sx={{ minHeight: "1.35rem", mb: 0.8 }} />
+            <Box sx={{ minHeight: "0.7rem", mb: 0.3 }} />
           )}
 
           {tagline ? (
@@ -276,9 +286,12 @@ export function ProductionCard({
               className="production-card-text"
               sx={{
                 color: CARD_COLORS.textSecondary,
-                fontSize: "var(--text-ui-body)",
-                lineHeight: "var(--leading-ui-body)",
-                minHeight: "4.2rem",
+                fontSize: "var(--text-archive-body)",
+                lineHeight: "var(--leading-archive-body)",
+                height:
+                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 3)",
+                maxHeight:
+                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 3)",
                 display: "-webkit-box",
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
@@ -288,13 +301,26 @@ export function ProductionCard({
               {tagline}
             </Typography>
           ) : (
-            <Box sx={{ minHeight: "4.2rem" }} />
+            <Box
+              sx={{
+                minHeight:
+                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 1)",
+              }}
+            />
           )}
         </Box>
 
-        <Divider sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mb: 1.4 }} />
+        <Divider
+          sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mb: 1.1 }}
+        />
 
-        <Stack direction="row" spacing={0.8} useFlexGap flexWrap="wrap" sx={{ mb: 1.2 }}>
+        <Stack
+          direction="row"
+          spacing={0.8}
+          useFlexGap
+          flexWrap="wrap"
+          sx={{ mb: 1.2 }}
+        >
           {tagNames.map((tag) => (
             <Chip
               className="production-card-text"
@@ -306,7 +332,7 @@ export function ProductionCard({
                 background: "transparent",
                 border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.24)}`,
                 color: colorWithOpacity(CARD_COLORS.textSecondary, 0.86),
-                letterSpacing: "var(--tracking-ui-label)",
+                letterSpacing: "var(--tracking-archive-label)",
                 height: 22,
               }}
             />
@@ -318,8 +344,8 @@ export function ProductionCard({
             className="production-card-text"
             sx={{
               color: colorWithOpacity(CARD_COLORS.textSecondary, 0.76),
-              fontSize: "var(--text-ui-meta)",
-              letterSpacing: "var(--tracking-ui-meta)",
+              fontSize: "var(--text-archive-meta)",
+              letterSpacing: "var(--tracking-archive-meta)",
             }}
           >
             ID: {production.id_url}
@@ -336,10 +362,10 @@ export function ProductionCard({
             underline="none"
             sx={{
               color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-              fontWeight: "var(--weight-ui-bold)",
+              fontWeight: "var(--weight-archive-bold)",
               textTransform: "uppercase",
-              letterSpacing: "var(--tracking-ui-label)",
-              fontSize: "var(--text-ui-meta)",
+              letterSpacing: "var(--tracking-archive-label)",
+              fontSize: "var(--text-archive-meta)",
               cursor: "pointer",
             }}
           >
@@ -365,7 +391,7 @@ export const mockProductions: ProductionCardData[] = [
         title: "Open Archiefnacht",
         supertitle: "Ephemera",
         tagline:
-          "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
+          "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
       },
     ],
     tag_names: ["Archief", "Open Huis", "Performance", "Gent"],
