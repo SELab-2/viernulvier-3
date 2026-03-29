@@ -8,5 +8,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     reporters: ["default", "hanging-process"],
+    globalSetup: ["./tests/globalSetup.ts"],
+	env: {
+		NODE_OPTIONS: "--no-experimental-webstorage"
+	}
   },
 });
