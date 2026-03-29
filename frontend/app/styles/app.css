@@ -4,6 +4,26 @@
   --font-sans:
     "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Global brand palette (available as Tailwind utilities like text-brand-accent) */
+  --color-brand-surface-start: #201d1a;
+  --color-brand-surface-end: #171513;
+  --color-brand-text-primary: #f9ead4;
+  --color-brand-text-secondary: #bfa481;
+  --color-brand-accent: #c8ae8f;
+  --color-brand-ink: #0f0f0f;
+
+  /* Global typography tokens */
+  --font-brand-display: "Cormorant Garamond", Georgia, serif;
+  --text-ui-meta: 0.77rem;
+  --text-ui-body: 0.85rem;
+  --text-ui-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
+  --leading-ui-title: 1.04;
+  --leading-ui-body: 1.48;
+  --tracking-ui-meta: 0.1em;
+  --tracking-ui-label: 0.05em;
+  --weight-ui-semibold: 600;
+  --weight-ui-bold: 700;
 }
 
 html,

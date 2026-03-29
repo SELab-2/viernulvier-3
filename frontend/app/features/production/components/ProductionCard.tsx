@@ -1,5 +1,4 @@
 import {
-  alpha,
   Box,
   Card,
   CardContent,
@@ -22,36 +21,12 @@ const DEFAULT_CARD_VALUES = {
 } as const;
 
 const CARD_COLORS = {
-  surfaceStart: "#201d1a",
-  surfaceEnd: "#171513",
-  textPrimary: "#f9ead4",
-  textSecondary: "#bfa481",
-  accent: "#c8ae8f",
-  ink: "#0f0f0f",
-} as const;
-
-const CARD_TYPOGRAPHY = {
-  titleFontFamily: '"Cormorant Garamond", Georgia, serif',
-  dateFontSize: "0.755rem",
-  venueFontSize: "0.715rem",
-  titleFontSizeXs: "1.875rem",
-  titleFontSizeMd: "2.075rem",
-  titleLineHeight: 1.04,
-  artistFontSize: "0.835rem",
-  taglineFontSize: "0.875rem",
-  taglineLineHeight: 1.48,
-  idFontSize: "0.735rem",
-  detailsFontSize: "0.805rem",
-  dateLetterSpacing: "0.14em",
-  venueLetterSpacing: "0.08em",
-  badgeLetterSpacing: "0.08em",
-  artistLetterSpacing: "0.02em",
-  tagLetterSpacing: "0.04em",
-  idLetterSpacing: "0.11em",
-  detailsLetterSpacing: "0.08em",
-  dateFontWeight: 600,
-  badgeFontWeight: 700,
-  detailsFontWeight: 700,
+  surfaceStart: "var(--color-brand-surface-start)",
+  surfaceEnd: "var(--color-brand-surface-end)",
+  textPrimary: "var(--color-brand-text-primary)",
+  textSecondary: "var(--color-brand-text-secondary)",
+  accent: "var(--color-brand-accent)",
+  ink: "var(--color-brand-ink)",
 } as const;
 
 const CARD_MOTION = {
@@ -61,6 +36,10 @@ const CARD_MOTION = {
   transitionDuration: "750ms",
   transitionEasing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
 } as const;
+
+function colorWithOpacity(color: string, opacity: number): string {
+  return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
+}
 
 interface ProductionInfoData {
   language: string;
@@ -85,6 +64,7 @@ export interface ProductionCardData {
 interface ProductionCardProps {
   production: ProductionCardData;
   onOpen?: (productionId: string) => void;
+  onDetailClick?: (productionId: string) => void;
   preferredLanguage?: string;
 }
 
@@ -122,9 +102,14 @@ function getListOrDefault<T>(value: T[] | null | undefined, fallback: T[]): T[] 
   return Array.isArray(value) ? value : fallback;
 }
 
+function onClickDetailPlaceholder(productionId: string) {
+  console.log("PlaceHolderFunction", productionId);
+}
+
 export function ProductionCard({
   production,
   onOpen,
+  onDetailClick,
   preferredLanguage = "nl",
 }: ProductionCardProps) {
   const primaryInfo = getProductionInfoByLanguage(production.production_infos, preferredLanguage);
@@ -147,12 +132,12 @@ export function ProductionCard({
         overflow: "hidden",
         background: `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         color: CARD_COLORS.textPrimary,
-        border: `1px solid ${alpha(CARD_COLORS.accent, 0.12)}`,
-        boxShadow: `0 16px 40px ${alpha(CARD_COLORS.ink, 0.38)}`,
+        border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
+        boxShadow: `0 16px 40px ${colorWithOpacity(CARD_COLORS.ink, 0.38)}`,
         transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
-          boxShadow: `0 22px 50px ${alpha(CARD_COLORS.ink, 0.45)}`,
+          boxShadow: `0 22px 50px ${colorWithOpacity(CARD_COLORS.ink, 0.45)}`,
         },
         "&:hover .production-card-image": {
           transform: `translateY(${CARD_MOTION.imageTranslateYOnHover}) scale(${CARD_MOTION.imageScaleOnHover})`,
@@ -195,11 +180,11 @@ export function ProductionCard({
               left: 12,
               height: 28,
               borderRadius: 999,
-              backgroundColor: alpha(CARD_COLORS.ink, 0.88),
+              backgroundColor: colorWithOpacity(CARD_COLORS.ink, 0.88),
               color: CARD_COLORS.textPrimary,
-              fontWeight: CARD_TYPOGRAPHY.badgeFontWeight,
-              letterSpacing: CARD_TYPOGRAPHY.badgeLetterSpacing,
-              border: `1px solid ${alpha(CARD_COLORS.accent, 0.25)}`,
+              fontWeight: "var(--weight-ui-bold)",
+              letterSpacing: "var(--tracking-ui-label)",
+              border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
             }}
           />
         ) : null}
@@ -223,9 +208,9 @@ export function ProductionCard({
             className="production-card-text"
             sx={{
               color: CARD_COLORS.accent,
-              fontSize: CARD_TYPOGRAPHY.dateFontSize,
-              letterSpacing: CARD_TYPOGRAPHY.dateLetterSpacing,
-              fontWeight: CARD_TYPOGRAPHY.dateFontWeight,
+              fontSize: "var(--text-ui-meta)",
+              letterSpacing: "var(--tracking-ui-meta)",
+              fontWeight: "var(--weight-ui-semibold)",
               textTransform: "uppercase",
             }}
           >
@@ -235,9 +220,9 @@ export function ProductionCard({
           <Typography
             className="production-card-text"
             sx={{
-              color: alpha(CARD_COLORS.accent, 0.92),
-              fontSize: CARD_TYPOGRAPHY.venueFontSize,
-              letterSpacing: CARD_TYPOGRAPHY.venueLetterSpacing,
+              color: colorWithOpacity(CARD_COLORS.accent, 0.92),
+              fontSize: "var(--text-ui-meta)",
+              letterSpacing: "var(--tracking-ui-label)",
               textTransform: "uppercase",
             }}
           >
@@ -251,9 +236,9 @@ export function ProductionCard({
             component="h3"
             sx={{
               mb: 1,
-              fontFamily: CARD_TYPOGRAPHY.titleFontFamily,
-              fontSize: { xs: CARD_TYPOGRAPHY.titleFontSizeXs, md: CARD_TYPOGRAPHY.titleFontSizeMd },
-              lineHeight: CARD_TYPOGRAPHY.titleLineHeight,
+              fontFamily: "var(--font-brand-display)",
+              fontSize: "var(--text-ui-title-lg)",
+              lineHeight: "var(--leading-ui-title)",
               color: CARD_COLORS.textPrimary,
               minHeight: { xs: "3.7rem", md: "4rem" },
               display: "-webkit-box",
@@ -270,9 +255,9 @@ export function ProductionCard({
               className="production-card-text"
               sx={{
                 mb: 0.8,
-                color: alpha(CARD_COLORS.textSecondary, 0.95),
-                fontSize: CARD_TYPOGRAPHY.artistFontSize,
-                letterSpacing: CARD_TYPOGRAPHY.artistLetterSpacing,
+                color: colorWithOpacity(CARD_COLORS.textSecondary, 0.95),
+                fontSize: "var(--text-ui-body)",
+                letterSpacing: "0.02em",
                 minHeight: "1.35rem",
                 display: "-webkit-box",
                 WebkitLineClamp: 1,
@@ -291,8 +276,8 @@ export function ProductionCard({
               className="production-card-text"
               sx={{
                 color: CARD_COLORS.textSecondary,
-                fontSize: CARD_TYPOGRAPHY.taglineFontSize,
-                lineHeight: CARD_TYPOGRAPHY.taglineLineHeight,
+                fontSize: "var(--text-ui-body)",
+                lineHeight: "var(--leading-ui-body)",
                 minHeight: "4.2rem",
                 display: "-webkit-box",
                 WebkitLineClamp: 3,
@@ -307,7 +292,7 @@ export function ProductionCard({
           )}
         </Box>
 
-        <Divider sx={{ borderColor: alpha(CARD_COLORS.accent, 0.15), mb: 1.4 }} />
+        <Divider sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mb: 1.4 }} />
 
         <Stack direction="row" spacing={0.8} useFlexGap flexWrap="wrap" sx={{ mb: 1.2 }}>
           {tagNames.map((tag) => (
@@ -319,9 +304,9 @@ export function ProductionCard({
               sx={{
                 borderRadius: 1,
                 background: "transparent",
-                border: `1px solid ${alpha(CARD_COLORS.accent, 0.24)}`,
-                color: alpha(CARD_COLORS.textSecondary, 0.86),
-                letterSpacing: CARD_TYPOGRAPHY.tagLetterSpacing,
+                border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.24)}`,
+                color: colorWithOpacity(CARD_COLORS.textSecondary, 0.86),
+                letterSpacing: "var(--tracking-ui-label)",
                 height: 22,
               }}
             />
@@ -332,9 +317,9 @@ export function ProductionCard({
           <Typography
             className="production-card-text"
             sx={{
-              color: alpha(CARD_COLORS.textSecondary, 0.76),
-              fontSize: CARD_TYPOGRAPHY.idFontSize,
-              letterSpacing: CARD_TYPOGRAPHY.idLetterSpacing,
+              color: colorWithOpacity(CARD_COLORS.textSecondary, 0.76),
+              fontSize: "var(--text-ui-meta)",
+              letterSpacing: "var(--tracking-ui-meta)",
             }}
           >
             ID: {production.id_url}
@@ -343,14 +328,18 @@ export function ProductionCard({
           <Link
             className="production-card-text"
             component="button"
-            onClick={() => onOpen?.(production.id_url)}
+            onClick={(event) => {
+              event.preventDefault();
+              (onDetailClick ?? onClickDetailPlaceholder)(production.id_url);
+              onOpen?.(production.id_url);
+            }}
             underline="none"
             sx={{
-              color: alpha(CARD_COLORS.accent, 0.98),
-              fontWeight: CARD_TYPOGRAPHY.detailsFontWeight,
+              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
+              fontWeight: "var(--weight-ui-bold)",
               textTransform: "uppercase",
-              letterSpacing: CARD_TYPOGRAPHY.detailsLetterSpacing,
-              fontSize: CARD_TYPOGRAPHY.detailsFontSize,
+              letterSpacing: "var(--tracking-ui-label)",
+              fontSize: "var(--text-ui-meta)",
               cursor: "pointer",
             }}
           >
@@ -438,8 +427,8 @@ export function ProductionCardDemoGrid() {
       <Box
         sx={{
           borderRadius: 3,
-          border: `1px dashed ${alpha(CARD_COLORS.accent, 0.35)}`,
-          backgroundColor: alpha(CARD_COLORS.ink, 0.2),
+          border: `1px dashed ${colorWithOpacity(CARD_COLORS.accent, 0.35)}`,
+          backgroundColor: colorWithOpacity(CARD_COLORS.ink, 0.2),
           p: 2.5,
           minHeight: { xs: 120, lg: 240 },
         }}
