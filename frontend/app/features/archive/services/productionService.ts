@@ -4,14 +4,13 @@ import {
   patchToArchive,
   deleteFromArchive,
 } from "~/shared/services/sharedService";
-import type { PaginationParams } from "~/shared/services/sharedService";
-import type { Production, ProductionList, ProductionCreate, ProductionUpdate } from "../types/productionTypes";
+import type { Production, ProductionList, ProductionCreate, ProductionUpdate, PaginationRequest } from "../types/productionTypes";
 import { createApiClient } from "~/shared/services/apiClient";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getProductionsPaginated(
-  params?: PaginationParams & { tags?: number[] }
+  params?: PaginationRequest & { tags?: number[] }
 ): Promise<ProductionList> {
   const apiClient = createApiClient();
 

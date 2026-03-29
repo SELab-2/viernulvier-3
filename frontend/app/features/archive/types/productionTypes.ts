@@ -1,7 +1,15 @@
-import type {  PaginationParams } from "~/shared/services/sharedService";
+export interface PaginationRequest {
+  cursor?: number;
+  limit?: number;
+}
+
+export interface PaginationResponse {
+  next_cursor?: number;
+  has_more: boolean;
+}
 
 export interface ProductionInfo {
-  id_url: string;
+  prod_id: string;
   language: string;
   
   title?: string;
@@ -14,7 +22,7 @@ export interface ProductionInfo {
 }
 
 export interface Production {
-  id_url: string;
+  id: string;
   
   performer_type?: string;
   attendance_mode?: string;
@@ -29,7 +37,7 @@ export interface Production {
 
 export interface ProductionList {
   productions: Production[];
-  pagination: PaginationParams;
+  pagination: PaginationResponse;
 }
 
 export interface ProductionInfoCreate {
