@@ -17,7 +17,7 @@ describe("createApiClient", () => {
     vi.clearAllMocks();
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_BASE_URL: "http://localhost",
+      API_URL: "http://localhost",
     });
 
     const apiClient = axios.create();
@@ -121,7 +121,7 @@ describe("401 retry token behaviour", () => {
     vi.clearAllMocks();
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_BASE_URL: "http://localhost",
+      API_URL: "http://localhost",
     });
   });
 
