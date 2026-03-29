@@ -56,6 +56,10 @@ jobs:
         run: npx eslint --max-warnings=0
         working-directory: frontend
 
+      - name: Run Typecheck
+        run: npx react-router typegen && npx tsc
+        working-directory: frontend
+
   smoke-test:
     name: Docker Smoke Test
     needs:
