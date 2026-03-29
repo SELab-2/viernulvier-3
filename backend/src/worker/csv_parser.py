@@ -1,7 +1,6 @@
 import csv
 import logging
 
-from src.models.language import Language
 from src.models.hall import Hall
 from src.worker.converters.production import csv_prod_to_model_prod
 from src.worker.converters.event import csv_event_to_model_event
@@ -56,16 +55,10 @@ for hall in hall_models:
 
 try:
     nl_lang_id = None
-    languages = db.query(Language).all()
-    for lang in languages:
-        if lang.language == "nl":
-            nl_lang_id = lang.id
-    if nl_lang_id is None:
-        raise RuntimeError("Language 'nl' not found.")
     logger.info("Start adding data")
     production_count, event_count, hall_count = 0, 0, 0
     for prod_id, productie in producties.items():
-        production_model = csv_prod_to_model_prod(productie, nl_lang_id)
+        production_model = csv_prod_to_model_prod(productie)
         db.add(production_model)
         production_count += 1
         db.flush()
