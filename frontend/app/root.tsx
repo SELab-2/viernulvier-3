@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
+import { AuthSessionProvider } from "./features/auth";
 import { getThemeBootstrapScript } from "./shared/utils/theme";
 import "./styles/app.css";
 
@@ -23,5 +24,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <AuthSessionProvider>
+      <Outlet />
+    </AuthSessionProvider>
+  );
 }

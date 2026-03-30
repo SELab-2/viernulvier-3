@@ -1,6 +1,19 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
+
+import { refreshAccessToken } from "~/features/auth/services/tokenRefresh";
+import {
+  clearStoredAuthTokens,
+  getStoredAccessToken,
+  hasStoredRefreshToken,
+} from "~/features/auth/services/tokenStorage";
+
 import { getEnv } from "../utils/env";
-import { refreshToken } from "~/features/auth";
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
+
+let activeRefreshRequest: Promise<string> | null = null;
 
 export function createApiClient() {
   const { API_URL } = getEnv();
@@ -13,31 +26,45 @@ export function createApiClient() {
     },
   });
 
-  // Request interceptor to always use current token from localStorage
   apiClient.interceptors.request.use((config) => {
-    const access_token = localStorage.getItem("access_token");
-    if (access_token) {
-      config.headers.Authorization = `Bearer ${access_token}`;
+    const accessToken = getStoredAccessToken();
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
     return config;
   });
 
   apiClient.interceptors.response.use(undefined, async (error) => {
-    const request = error.config;
+    const request = error.config as RetryableRequestConfig | undefined;
+
     if (
-      error.response?.status === 401 &&
-      !request._retry &&
-      !request.url?.includes("/auth/refresh")
+      !request ||
+      error.response?.status !== 401 ||
+      request._retry ||
+      request.url?.includes("/auth/refresh") ||
+      !hasStoredRefreshToken()
     ) {
-      request._retry = true;
-      const refresh_token = localStorage.getItem("refresh_token");
-      if (refresh_token) {
-        await refreshToken(apiClient);
-        return apiClient(request); // Retry original request
-      }
+      throw error;
     }
 
-    throw error;
+    request._retry = true;
+
+    const refreshRequest = activeRefreshRequest ?? refreshAccessToken();
+    activeRefreshRequest = refreshRequest;
+
+    try {
+      await refreshRequest;
+      return apiClient(request);
+    } catch (refreshError) {
+      clearStoredAuthTokens();
+      throw refreshError;
+    } finally {
+      if (activeRefreshRequest === refreshRequest) {
+        activeRefreshRequest = null;
+      }
+    }
   });
 
   return apiClient;
