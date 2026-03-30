@@ -268,10 +268,7 @@ describe("AuthSessionProvider", () => {
       expect(restoreSessionSpy).toHaveBeenCalled();
     });
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      "storage",
-      expect.any(Function)
-    );
+    expect(addEventListenerSpy).toHaveBeenCalledWith("storage", expect.any(Function));
 
     unmount();
 
