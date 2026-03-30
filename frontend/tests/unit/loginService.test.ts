@@ -64,6 +64,23 @@ describe("loginService", () => {
 
       await expect(login({ username: "test", password: "wrong" })).rejects.toThrow();
     });
+
+    it("clears stored tokens if fetching the profile returns 401 after login", async () => {
+      mockAdapter.onPost("/api/v1/auth/login").reply(200, {
+        access_token: "access123",
+        refresh_token: "refresh123",
+        token_type: "bearer",
+      });
+      mockAdapter.onGet("/api/v1/auth/users/me").reply(401);
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(401);
+
+      await expect(login({ username: "test", password: "test" })).rejects.toThrow(
+        "Request failed with status code 401"
+      );
+
+      expect(localStorage.getItem("access_token")).toBe(null);
+      expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
   });
 
   describe("getCurrentUser", () => {
@@ -178,6 +195,17 @@ describe("loginService", () => {
       await expect(restoreSession()).resolves.toBeNull();
       expect(localStorage.getItem("access_token")).toBe(null);
       expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
+
+    it("rethrows non-401 errors while restoring a session", async () => {
+      localStorage.setItem("access_token", "access123");
+      mockAdapter.onGet("/api/v1/auth/users/me").reply(500);
+
+      await expect(restoreSession()).rejects.toThrow(
+        "Request failed with status code 500"
+      );
+
+      expect(localStorage.getItem("access_token")).toBe("access123");
     });
   });
 
