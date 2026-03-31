@@ -29,6 +29,7 @@ jobs:
           echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "REFRESH_TOKEN_EXPIRE_MINUTES=${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "VIERNULVIER_KEY=${{ secrets.VIERNULVIER_KEY }}" >> .env
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
 
       - name: Build and Restart Containers
         run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans
