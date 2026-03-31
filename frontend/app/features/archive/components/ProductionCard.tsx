@@ -1,3 +1,4 @@
+import { ArrowRightAlt } from "@mui/icons-material";
 import {
   Box,
   Card,
@@ -132,14 +133,30 @@ export function ProductionCard({
   const imageUrl = getTextOrDefault(production.image_url, DEFAULT_CARD_VALUES.imageUrl);
   const tagNames = getListOrDefault(production.tag_names, DEFAULT_CARD_VALUES.tagNames);
 
+  const handleOpenDetails = () => {
+    (onDetailClick ?? onClickDetailPlaceholder)(production.id_url);
+    onOpen?.(production.id_url);
+  };
+
   return (
     <Card
+      onClick={handleOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleOpenDetails();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open details for ${title}`}
       sx={{
         "height": "100%",
         "display": "flex",
         "flexDirection": "column",
         "borderRadius": 4,
         "overflow": "hidden",
+        "cursor": "pointer",
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         "color": CARD_COLORS.textPrimary,
         "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
@@ -345,12 +362,7 @@ export function ProductionCard({
         <Stack direction="row" alignItems="center" justifyContent="flex-end">
           <Link
             className="production-card-text"
-            component="button"
-            onClick={(event) => {
-              event.preventDefault();
-              (onDetailClick ?? onClickDetailPlaceholder)(production.id_url);
-              onOpen?.(production.id_url);
-            }}
+            component="span"
             underline="none"
             sx={{
               color: colorWithOpacity(CARD_COLORS.accent, 0.98),
@@ -361,7 +373,7 @@ export function ProductionCard({
               cursor: "pointer",
             }}
           >
-            Details {"->"}
+            Details <ArrowRightAlt/>
           </Link>
         </Stack>
       </CardContent>
