@@ -79,20 +79,22 @@ def test_get_media_by_id_not_found_raises(db_session):
 
 def test_list_media_for_production_empty(db_session, production_with_no_media):
     result = list_media_for_production(db_session, production_with_no_media.id, BASE_URL)
-    assert result.total == 0
-    assert result.items == []
-    assert result.pages == 0
+    assert result.media == []
+    assert result.pagination.has_more is False
+    assert result.pagination.next_cursor is None
 
 
 def test_list_media_for_production_multiple(db_session, media_items_for_production):
     production_id = media_items_for_production[0].production_id
     result = list_media_for_production(db_session, production_id, BASE_URL)
 
-    assert result.total == len(media_items_for_production)
-    assert len(result.items) == len(media_items_for_production)
+    assert len(result.media) == len(media_items_for_production)
+    assert result.pagination.has_more is False
+    assert result.pagination.next_cursor is None
     ids = {m.id for m in media_items_for_production}
-    resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result.items}
+    resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result.media}
     assert resp_ids == ids
+
 
 
 def test_upload_media_creates_db_row_and_puts_object(db_session, production_with_no_media, monkeypatch):
@@ -230,3 +232,25 @@ def test_delete_media_rethrows_other_s3_errors(db_session, media_items_for_produ
 
     with pytest.raises(FakeOtherS3Error):
         delete_media(db_session, media.id, fake_minio)
+
+
+def test_list_media_cursor_pagination(db_session, media_items_for_production):
+    # fetch page 1, then use returned cursor to fetch page 2
+    production_id = media_items_for_production[0].production_id
+
+    page1 = list_media_for_production(db_session, production_id, BASE_URL, limit=2)
+    assert len(page1.media) == 2
+    assert page1.pagination.has_more is True
+    assert page1.pagination.next_cursor is not None
+
+    page2 = list_media_for_production(
+        db_session, production_id, BASE_URL, cursor=page1.pagination.next_cursor, limit=2
+    )
+    assert len(page2.media) == 1
+    assert page2.pagination.has_more is False
+    assert page2.pagination.next_cursor is None
+
+    # No overlap between pages
+    page1_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in page1.media}
+    page2_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in page2.media}
+    assert page1_ids.isdisjoint(page2_ids)
