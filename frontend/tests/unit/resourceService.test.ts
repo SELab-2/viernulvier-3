@@ -26,7 +26,7 @@ describe("resourceService", () => {
     vi.clearAllMocks();
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_BASE_URL: "http://localhost",
+      API_URL: "http://localhost",
     });
 
     const apiClient = createApiClient();
