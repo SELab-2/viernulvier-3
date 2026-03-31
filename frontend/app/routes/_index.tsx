@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { ProductionCardDemoGrid } from "~/features/production/components/ProductionCard";
+import { ProductionCardDemoGrid } from "~/features/archive/components/ProductionCard";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
 export default function Home() {

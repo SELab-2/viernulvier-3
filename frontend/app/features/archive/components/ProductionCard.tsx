@@ -161,6 +161,9 @@ export function ProductionCard({
         "&:hover .production-card-text": {
           color: `${CARD_COLORS.textSecondary} !important`,
         },
+        "&:hover .production-card-supertitle": {
+          color: "var(--color-archive-paper) !important",
+        },
       }}
       elevation={0}
     >
@@ -181,7 +184,7 @@ export function ProductionCard({
 
         {supertitle ? (
           <Chip
-            className="production-card-text"
+            className="production-card-text production-card-supertitle"
             label={supertitle.toUpperCase()}
             size="small"
             sx={{
