@@ -8,15 +8,15 @@ export default function LanguageWrapper() {
   const { lang } = useParams();
   const { i18n } = useTranslation();
 
-  if (!lang || !SUPPORTED_LANGS.includes(lang)) {
-    return <Navigate to="/en" replace />;
-  }
-
   useEffect(() => {
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang);
     }
   }, [lang]);
+
+  if (!lang || !SUPPORTED_LANGS.includes(lang)) {
+    return <Navigate to="/en" replace />;
+  }
 
   return <Outlet />;
 }
