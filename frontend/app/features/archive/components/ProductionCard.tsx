@@ -381,6 +381,62 @@ export function ProductionCard({
   );
 }
 
+export interface ProductionCardGridProps {
+  productions: ProductionCardData[];
+}
+
+// TODO Now the grid has more than it should for production for local UI development
+export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+        gap: 3,
+        gridTemplateColumns: {
+          xs: "1fr",
+          lg: "minmax(240px, 1fr) minmax(0, 3fr)",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          borderRadius: 3,
+          border: `1px dashed ${colorWithOpacity(CARD_COLORS.accent, 0.35)}`,
+          backgroundColor: colorWithOpacity(CARD_COLORS.ink, 0.2),
+          p: 2.5,
+          minHeight: { xs: 120, lg: 240 },
+        }}
+      >
+        <Typography sx={{ color: CARD_COLORS.textPrimary, fontWeight: 700, mb: 1 }}>
+          Filters
+        </Typography>
+        <Typography sx={{ color: CARD_COLORS.textSecondary }}>
+          Placeholder voor filterlijst
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          gap: 2.5,
+          width: "100%",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, minmax(0, 1fr))",
+            lg: "repeat(auto-fit, minmax(310px, 1fr))",
+          },
+        }}
+      >
+        {productions.map((production) => (
+          <ProductionCard key={production.id_url} production={production} />
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+export const ProductionCardDemoGrid = ProductionCardGrid;
+
 // Temporary mock data for local UI development.
 export const mockProductions: ProductionCardData[] = [
   {
@@ -441,52 +497,3 @@ export const mockProductions: ProductionCardData[] = [
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
   },
 ];
-
-export function ProductionCardDemoGrid() {
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gap: 3,
-        gridTemplateColumns: {
-          xs: "1fr",
-          lg: "minmax(240px, 1fr) minmax(0, 3fr)",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          borderRadius: 3,
-          border: `1px dashed ${colorWithOpacity(CARD_COLORS.accent, 0.35)}`,
-          backgroundColor: colorWithOpacity(CARD_COLORS.ink, 0.2),
-          p: 2.5,
-          minHeight: { xs: 120, lg: 240 },
-        }}
-      >
-        <Typography sx={{ color: CARD_COLORS.textPrimary, fontWeight: 700, mb: 1 }}>
-          Filters
-        </Typography>
-        <Typography sx={{ color: CARD_COLORS.textSecondary }}>
-          Placeholder voor filterlijst
-        </Typography>
-      </Box>
-
-      <Box
-        sx={{
-          display: "grid",
-          gap: 2.5,
-          width: "100%",
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, minmax(0, 1fr))",
-            lg: "repeat(auto-fit, minmax(310px, 1fr))",
-          },
-        }}
-      >
-        {mockProductions.map((production) => (
-          <ProductionCard key={production.id_url} production={production} />
-        ))}
-      </Box>
-    </Box>
-  );
-}

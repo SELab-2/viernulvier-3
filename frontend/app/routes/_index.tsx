@@ -1,6 +1,9 @@
 import { Link } from "react-router";
 
-import { ProductionCardDemoGrid } from "~/features/archive/components/ProductionCard";
+import {
+  ProductionCardGrid,
+  mockProductions,
+} from "~/features/archive/components/ProductionCard";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
 export default function Home() {
@@ -32,7 +35,7 @@ export default function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-[1800px] px-6 py-8 md:px-24 md:py-12">
-        <ProductionCardDemoGrid />
+        <ProductionCardGrid productions={mockProductions} />
       </main>
     </div>
   );
