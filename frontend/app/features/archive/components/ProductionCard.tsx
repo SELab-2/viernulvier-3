@@ -373,7 +373,7 @@ export function ProductionCard({
               cursor: "pointer",
             }}
           >
-            Details <ArrowRightAlt/>
+            Details <ArrowRightAlt />
           </Link>
         </Stack>
       </CardContent>
