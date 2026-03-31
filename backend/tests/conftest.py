@@ -15,6 +15,9 @@ from src.models.event import Event
 from src.services.language import Languages
 from src.models import Media
 
+from unittest.mock import Mock
+from src.services.media import get_minio_client
+
 
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
@@ -73,10 +76,22 @@ def db_session():
 
 @pytest.fixture(scope="session")
 def client():
+    import os
+    os.environ["TESTING"] = "1"  # Skip MinIO
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+    del os.environ["TESTING"]  # Clean up
+
+@pytest.fixture(autouse=True)
+def mock_minio_dependency():
+    """Mock for all media tests."""
+    mock_client = Mock()
+    mock_client.bucket_exists.return_value = True
+    mock_client.put_object.return_value = Mock()
+    mock_client.remove_object.return_value = None
+    app.dependency_overrides[get_minio_client] = lambda: mock_client
 
 
 # Mock data for testing.
