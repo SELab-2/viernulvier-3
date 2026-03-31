@@ -2,7 +2,7 @@
 
 ## Overzicht
 
-Dit project is gebouwd met React en maakt gebruik van React Router in framework mode met file based routing.
+Dit project is gebouwd met React en maakt gebruik van React Router in framework mode met manual based routing.
 
 ## Projectstructuur
 
@@ -32,7 +32,8 @@ frontend/app/
 │   ├── types/          ← Globale types
 │   └── utils/          ← Utility functions
 ├── routes/     ← React Router route components
-│   ├── _index.tsx      ← Homepagina route
+│   ├── _index.tsx      ← Talen rerouter route
+│   ├── home.tsx        ← Home route
 │   ├── search.tsx      ← Search pagina
 │   └── item.$id.tsx    ← Voorbeeld van een route "/item/{id}"
 ├── styles/     ← Globale CSS
@@ -52,7 +53,7 @@ Installeren van packages:
 Package toevoegen:
 `npm install [package naam]`
 
-Uitvoeren van ESLint: 
+Uitvoeren van ESLint:
 `npm run lint`
 
 Formatteren van alle files:
