@@ -1,6 +1,6 @@
-import { useParams } from 'react-router';
+import { useParams } from "react-router";
 
 export function useLocalizedPath() {
   const { lang } = useParams();
-  return (path: string) => `/${lang}${path.startsWith('/') ? path : `/${path}`}`;
+  return (path: string) => `/${lang}${path.startsWith("/") ? path : `/${path}`}`;
 }

@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { useParams, Navigate, Outlet } from 'react-router';
-import { useTranslation } from 'react-i18next';
+import { useEffect } from "react";
+import { useParams, Navigate, Outlet } from "react-router";
+import { useTranslation } from "react-i18next";
 
-const SUPPORTED_LANGS = ['en', 'nl'];
+const SUPPORTED_LANGS = ["en", "nl"];
 
 export default function LanguageWrapper() {
   const { lang } = useParams();

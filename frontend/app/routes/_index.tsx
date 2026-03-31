@@ -1,7 +1,7 @@
-import { redirect } from 'react-router';
+import { redirect } from "react-router";
 
 export function loader() {
-  return redirect('/en');
+  return redirect("/en");
 }
 
 export default function Index() {

@@ -26,16 +26,16 @@ export default function Home() {
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-			{t('nav.archive')}
+              {t("nav.archive")}
             </span>
           </Link>
-		  <div>
-		    <LanguageSwitcher />
-			<ThemeToggle />
-		  </div>
+          <div>
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
-      <h1 className="text-3xl font-bold">{t('nav.home')}</h1>
+      <h1 className="text-3xl font-bold">{t("nav.home")}</h1>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { getThemeBootstrapScript } from "./shared/utils/theme";
 import "./styles/app.css";
-import "./i18n"
+import "./i18n";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,8 +1,8 @@
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useLocation } from "react-router";
 
 const LANGUAGES = [
-  { code: 'en', label: 'EN' },
-  { code: 'nl', label: 'NL' },
+  { code: "en", label: "EN" },
+  { code: "nl", label: "NL" },
 ];
 
 export default function LanguageSwitcher() {
@@ -16,17 +16,17 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div className="hidden sm:flex items-center bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-full p-1 text-[10px] font-bold">
+    <div className="bg-archive-ink/5 dark:bg-archive-ink-dark/5 hidden items-center rounded-full p-1 text-[10px] font-bold sm:flex">
       {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
           onClick={() => switchLanguage(code)}
           disabled={code === lang}
           className={`px-3 py-1 ${
-			  code === lang
-				  ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark rounded-full"
-				  : "opacity-50"
-		  }`}
+            code === lang
+              ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark rounded-full"
+              : "opacity-50"
+          }`}
         >
           {label}
         </button>

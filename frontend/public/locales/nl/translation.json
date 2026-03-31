@@ -1,7 +1,7 @@
 {
-	"nav": {
-		"home": "Home",
-		"archive": "Archief",
-		"history": "Geschiedenis"
-	}
+  "nav": {
+    "home": "Home",
+    "archive": "Archief",
+    "history": "Geschiedenis"
+  }
 }
