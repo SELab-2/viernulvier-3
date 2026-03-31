@@ -10,7 +10,11 @@ import {
   updateHall,
   deleteHall,
 } from "~/features/archive/services/hallService";
-import type { Hall, HallResponse, HallUpdate } from "~/features/archive/types/hallTypes";
+import type {
+  Hall,
+  HallResponse,
+  HallUpdate,
+} from "~/features/archive/types/hallTypes";
 import { setupLocalStorage } from "tests/globalSetup";
 
 setupLocalStorage();
@@ -20,7 +24,7 @@ describe("hallService", () => {
 
   beforeEach(() => {
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_BASE_URL: "http://localhost",
+      API_URL: "http://localhost",
     });
 
     const apiClient = createApiClient();

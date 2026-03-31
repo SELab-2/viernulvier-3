@@ -12,6 +12,7 @@ from src.database import Base, get_db
 from src.main import app
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
+from src.models.tag import Tag, TagName
 from src.services.language import Languages
 from src.models import Media
 
@@ -97,13 +98,35 @@ def mock_minio_dependency():
 # Mock data for testing.
 @pytest.fixture
 def productions_limited(db_session):
+    tag1 = Tag()
+    tag1.names = [
+        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.ENGLISH, name="theatre"),
+    ]
+    tag2 = Tag()
+    tag2.names = [
+        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.ENGLISH, name="band"),
+    ]
+    tag3 = Tag()
+    tag3.names = [
+        TagName(language=Languages.NEDERLANDS, name="groep"),
+        TagName(language=Languages.ENGLISH, name="group"),
+    ]
+    tag4 = Tag()
+    tag4.names = [
+        TagName(language=Languages.NEDERLANDS, name="muziek"),
+        TagName(language=Languages.ENGLISH, name="music"),
+    ]
+    db_session.add_all([tag1, tag2, tag3, tag4])
+
     prod1 = Production(
         performer_type="theater",
         attendance_mode="offline",
+        tags=[tag1, tag3],
     )
     prod2 = Production(
-        performer_type="concert",
-        attendance_mode="online",
+        performer_type="concert", attendance_mode="online", tags=[tag2, tag3, tag4]
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
@@ -135,10 +158,27 @@ def productions_limited(db_session):
 @pytest.fixture
 def many_productions(db_session):
     productions = []
+    tag1 = Tag()
+    tag1.names = [
+        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.ENGLISH, name="theatre"),
+    ]
+    tag2 = Tag()
+    tag2.names = [
+        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.ENGLISH, name="band"),
+    ]
+    db_session.add_all([tag1, tag2])
+
     for i in range(10):
+        add_tags = [tag1]
+        if i % 2 == 0:
+            add_tags = [tag2]
+
         prod = Production(
             performer_type="theater",
             attendance_mode="offline",
+            tags=add_tags,
         )
         db_session.add(prod)
         db_session.flush()

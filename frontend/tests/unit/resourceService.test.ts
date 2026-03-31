@@ -26,7 +26,7 @@ describe("resourceService", () => {
     vi.clearAllMocks();
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_BASE_URL: "http://localhost",
+      API_URL: "http://localhost",
     });
 
     const apiClient = createApiClient();
@@ -41,14 +41,18 @@ describe("resourceService", () => {
 
   it("getResourceList returns a list of data", async () => {
     const mockResources: IResource[] = [{ id: 1, someData: "testData" }];
-    mockAdapter.onGet("/api/v1/archive/resource", { params: { limit: 10 } }).reply(200, mockResources);
+    mockAdapter
+      .onGet("/api/v1/archive/resource", { params: { limit: 10 } })
+      .reply(200, mockResources);
 
     const result = await getResourceList(10);
     expect(result).toEqual(mockResources);
   });
 
   it("getResourceById returns data of specific resource", async () => {
-    mockAdapter.onGet("/api/v1/archive/resource/1").reply(200, { id: 1, someData: "testData" });
+    mockAdapter
+      .onGet("/api/v1/archive/resource/1")
+      .reply(200, { id: 1, someData: "testData" });
 
     const result = await getResourceById(1);
     expect(result).toEqual({ id: 1, someData: "testData" });

@@ -1,6 +1,6 @@
 from src.schemas.pagination import Pagination
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo
+from src.models import Event, Production, ProdInfo, Tag
 from src.api.dependencies.language import get_accepted_language
 from src.schemas.production import (
     ProductionCreate,
@@ -59,7 +59,10 @@ def build_production_response(
     ]
 
     # Get events of this production.
+    # Get tags of this productoin.
     events = get_events_for_production(db, production.id, base_url)
+    tags = get_tags_for_production(db, production.id, base_url)
+
     return ProductionResponse(
         id_url=f"{base_url}/productions/{production.id}",
         performer_type=production.performer_type,
@@ -68,14 +71,30 @@ def build_production_response(
         updated_at=production.updated_at,
         production_infos=production_infos,
         events=events,
+        tags=tags,
     )
 
 
 # Uses pagination to return a part of all productions.
+# A list of tags can be given as a paramter to filter.
 def get_productions_paginated(
-    db: Session, base_url: str, cursor: int | None = None, limit: int = 20
+    db: Session,
+    base_url: str,
+    cursor: int | None = None,
+    limit: int = 20,
+    tags: list[int] | None = None,
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
+    if tags:
+        subq = (
+            db.query(Production.id)
+            .join(Production.tags)
+            .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
     if cursor is not None:
         query = query.filter(Production.id > cursor)
 
@@ -100,6 +119,15 @@ def get_events_for_production(
 ) -> list[str]:
     events = db.query(Event).filter(Event.production_id == production_id).all()
     return [f"{base_url}/events/{event.id}" for event in events]
+
+
+# Returns all tags for a given productoin.
+def get_tags_for_production(
+    db: Session, production_id: int, base_url: str
+) -> list[str]:
+    production = db.query(Production).get(production_id)
+    tags = production.tags
+    return [f"{base_url}/tags/{tag.id}" for tag in tags]
 
 
 # Returns a production with given id.
@@ -142,11 +170,19 @@ def create_production(
             f"Language '{production_info_in.language}' not supported."
         )
 
+    tag_ids = production_in.tag_ids or []
+    existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+    existing_tag_ids = {t.id for t in existing_tags}
+    missing_tag_ids = set(tag_ids) - existing_tag_ids
+    if missing_tag_ids:
+        raise ValidationError(f"Tags do not exist: {missing_tag_ids}")
+
     db_production = Production(
         performer_type=production_in.performer_type,
         attendance_mode=production_in.attendance_mode,
         created_at=production_in.created_at,
         updated_at=production_in.updated_at,
+        tags=existing_tags or [],
     )
 
     db.add(db_production)
@@ -175,6 +211,16 @@ def update_production_by_id(
     )
     for field, value in update_data.items():
         setattr(production, field, value)
+
+    # Check for tags.
+    if production_in.tag_ids is not None:
+        tag_ids = production_in.tag_ids or []
+        existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+        existing_tag_ids = {t.id for t in existing_tags}
+        missing_tag_ids = set(tag_ids) - existing_tag_ids
+        if missing_tag_ids:
+            raise ValidationError(f"Tags do not exist: {missing_tag_ids}")
+        production.tags = existing_tags
 
     # Check if info is provided.
     if production_in.production_infos:

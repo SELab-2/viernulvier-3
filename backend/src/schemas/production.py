@@ -28,8 +28,10 @@ class ProductionResponse(BaseModel):
 
     # A production has a list of event urls (for the different events of that production).
     # A production has a list of infos (for different languages).
+    # A production has a list of tags.
     production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -60,6 +62,7 @@ class ProductionCreate(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     production_info: ProductionInfoCreate
+    tag_ids: list[int] = []
 
 
 class ProductionInfoUpdate(BaseModel):
@@ -81,4 +84,5 @@ class ProductionUpdate(BaseModel):
     updated_at: Optional[datetime] = None
 
     production_infos: Optional[list[ProductionInfoUpdate]] = None
+    tag_ids: Optional[list[int]] = None
     remove_languages: list[str] | None = None
