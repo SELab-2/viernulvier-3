@@ -15,17 +15,18 @@ from src.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import os
+
     if os.getenv("TESTING"):  # Skip MinIO in tests
         yield
         return
-        
+
     client = Minio(
         settings.MINIO_ENDPOINT,
         access_key=settings.MINIO_ROOT_USER,
         secret_key=settings.MINIO_ROOT_PASSWORD,
         secure=False,
     )
-    
+
     if not client.bucket_exists(settings.MINIO_BUCKET):
         client.make_bucket(settings.MINIO_BUCKET)
         policy = (

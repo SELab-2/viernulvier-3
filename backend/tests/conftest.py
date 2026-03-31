@@ -20,7 +20,6 @@ from unittest.mock import Mock
 from src.services.media import get_minio_client
 
 
-
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
 # Val terug op in-memory SQLite voor snelle, lokale developer testen.
@@ -78,12 +77,14 @@ def db_session():
 @pytest.fixture(scope="session")
 def client():
     import os
+
     os.environ["TESTING"] = "1"  # Skip MinIO
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
     del os.environ["TESTING"]  # Clean up
+
 
 @pytest.fixture(autouse=True)
 def mock_minio_dependency():
@@ -94,6 +95,7 @@ def mock_minio_dependency():
     app.dependency_overrides[get_minio_client] = lambda: mock_client
     yield
     app.dependency_overrides.pop(get_minio_client, None)
+
 
 # Mock data for testing.
 @pytest.fixture

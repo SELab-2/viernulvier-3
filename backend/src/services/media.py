@@ -17,6 +17,7 @@ from src.api.exceptions import NotFoundError
 MEDIA_DEFAULT_PAGE_SIZE = 20
 MEDIA_MAX_PAGE_SIZE = 100
 
+
 def build_media_response(media: Media, base_url: str) -> MediaResponse:
     parsed = urlparse(base_url)
     host_url = f"{parsed.scheme}://{parsed.netloc}"
@@ -28,6 +29,7 @@ def build_media_response(media: Media, base_url: str) -> MediaResponse:
         uploaded_at=media.uploaded_at,
     )
 
+
 def get_minio_client() -> Minio:
     """FastAPI dependency, kan overschreven worden in testen."""
     return Minio(
@@ -37,11 +39,13 @@ def get_minio_client() -> Minio:
         secure=False,
     )
 
+
 def get_media_by_id(db: Session, media_id: int, base_url: str) -> MediaResponse:
     media = db.query(Media).filter(Media.id == media_id).first()
     if not media:
         raise NotFoundError("Media", media_id)
     return build_media_response(media, base_url)
+
 
 def list_media_for_production(
     db: Session,
@@ -69,6 +73,7 @@ def list_media_for_production(
             has_more=has_more,
         ),
     )
+
 
 def upload_media(
     db: Session,
@@ -100,6 +105,7 @@ def upload_media(
     db.refresh(media)
 
     return build_media_response(media, base_url)
+
 
 def delete_media(db: Session, media_id: int, minio_client: Minio) -> bool:
     media = db.query(Media).filter(Media.id == media_id).first()

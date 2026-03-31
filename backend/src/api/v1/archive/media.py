@@ -1,4 +1,13 @@
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from minio import Minio
 from sqlalchemy.orm import Session
 
@@ -37,6 +46,7 @@ async def get_media_for_production(
 ) -> MediaListResponse:
     base_url = get_base_url(str(request.url), 3)
     return list_media_for_production(db, production_id, base_url, cursor, limit)
+
 
 @router.post(
     "/{production_id}/media/",

@@ -24,9 +24,7 @@ class DummyMinioClient:
 
     def put_object(self, bucket, object_key, data, length, content_type):
         # Record arguments for assertions
-        self.put_calls.append(
-            (bucket, object_key, length, content_type)
-        )
+        self.put_calls.append((bucket, object_key, length, content_type))
         # Consume the stream so tests detect bugs like length mismatch
         data.read()
 
@@ -47,7 +45,10 @@ def test_build_media_response_basic(db_session, media_item):
     """
     resp = build_media_response(media_item, BASE_URL)
 
-    assert resp.id_url == f"{BASE_URL}/productions/{media_item.production_id}/media/{media_item.id}"
+    assert (
+        resp.id_url
+        == f"{BASE_URL}/productions/{media_item.production_id}/media/{media_item.id}"
+    )
     assert resp.production == f"{BASE_URL}/productions/{media_item.production_id}"
     # Note: host-only URL for actual media file
     assert resp.url == f"http://test/media/{media_item.object_key}"
@@ -75,7 +76,9 @@ def test_get_media_by_id_not_found_raises(db_session):
 
 
 def test_list_media_for_production_empty(db_session, production_with_no_media):
-    result = list_media_for_production(db_session, production_with_no_media.id, BASE_URL)
+    result = list_media_for_production(
+        db_session, production_with_no_media.id, BASE_URL
+    )
     assert result.media == []
     assert result.pagination.has_more is False
     assert result.pagination.next_cursor is None
@@ -93,8 +96,9 @@ def test_list_media_for_production_multiple(db_session, media_items_for_producti
     assert resp_ids == ids
 
 
-
-def test_upload_media_creates_db_row_and_puts_object(db_session, production_with_no_media, monkeypatch):
+def test_upload_media_creates_db_row_and_puts_object(
+    db_session, production_with_no_media, monkeypatch
+):
     prod = production_with_no_media
 
     fake_minio = DummyMinioClient()
@@ -131,7 +135,11 @@ def test_upload_media_creates_db_row_and_puts_object(db_session, production_with
 
     # Check DB row was created and matches response
 
-    db_media = db_session.query(Media).filter(Media.id == int(resp.id_url.split("/")[-1])).first()
+    db_media = (
+        db_session.query(Media)
+        .filter(Media.id == int(resp.id_url.split("/")[-1]))
+        .first()
+    )
     assert db_media is not None
     assert db_media.production_id == prod.id
     assert db_media.object_key == object_key
@@ -141,7 +149,9 @@ def test_upload_media_creates_db_row_and_puts_object(db_session, production_with
     assert resp.url.endswith(f"/media/{object_key}")
 
 
-def test_upload_media_preserves_original_extension_case_insensitive(db_session, production_with_no_media, monkeypatch):
+def test_upload_media_preserves_original_extension_case_insensitive(
+    db_session, production_with_no_media, monkeypatch
+):
     prod = production_with_no_media
     fake_minio = DummyMinioClient()
 
@@ -239,7 +249,11 @@ def test_list_media_cursor_pagination(db_session, media_items_for_production):
     assert page1.pagination.next_cursor is not None
 
     page2 = list_media_for_production(
-        db_session, production_id, BASE_URL, cursor=page1.pagination.next_cursor, limit=2
+        db_session,
+        production_id,
+        BASE_URL,
+        cursor=page1.pagination.next_cursor,
+        limit=2,
     )
     assert len(page2.media) == 1
     assert page2.pagination.has_more is False

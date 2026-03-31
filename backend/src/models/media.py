@@ -11,7 +11,9 @@ class Media(Base):
     __tablename__ = "media"
 
     id = Column(Integer, primary_key=True)
-    production_id = Column(Integer, ForeignKey("productions.id"), nullable=False, index=True)
+    production_id = Column(
+        Integer, ForeignKey("productions.id"), nullable=False, index=True
+    )
     object_key = Column(Text, nullable=False, unique=True)
     content_type = Column(Text, nullable=False)
     uploaded_at = Column(
