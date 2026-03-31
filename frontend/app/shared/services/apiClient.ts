@@ -19,7 +19,9 @@ function shouldRetryUnauthorized(request: RetryableRequestConfig | undefined): b
     return false;
   }
 
-  return !UNAUTHORIZED_RETRY_EXCLUDED_PATHS.some((path) => request.url?.includes(path));
+  return !UNAUTHORIZED_RETRY_EXCLUDED_PATHS.some(
+    (path) => request.url === path || request.url?.endsWith(path)
+  );
 }
 
 let activeRefreshRequest: Promise<string> | null = null;

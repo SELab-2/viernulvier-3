@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -102,39 +103,47 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     };
   }, [bootstrapSession]);
 
-  const login = async (request: ILoginRequest) => {
-    const user = await loginRequest(request);
+  const login = useCallback(
+    async (request: ILoginRequest) => {
+      const operationId = ++sessionOperationIdRef.current;
 
-    sessionOperationIdRef.current += 1;
-    updateAuthState(user);
+      const user = await loginRequest(request);
 
-    return user;
-  };
+      if (sessionOperationIdRef.current === operationId) {
+        updateAuthState(user);
+      }
 
-  const logout = () => {
+      return user;
+    },
+    [updateAuthState]
+  );
+
+  const logout = useCallback(() => {
     sessionOperationIdRef.current += 1;
     clearSession();
     updateAuthState(null);
-  };
+  }, [updateAuthState]);
 
-  const refreshSession = async () => {
-    return runSessionOperation(refreshSessionRequest);
-  };
+  const refreshSession = useCallback(
+    () => runSessionOperation(refreshSessionRequest),
+    [runSessionOperation]
+  );
+
+  const value = useMemo(
+    () => ({
+      status: authState.status,
+      isAuthenticated: authState.status === "authenticated",
+      isLoading: authState.status === "loading",
+      user: authState.user,
+      login,
+      logout,
+      refreshSession,
+    }),
+    [authState, login, logout, refreshSession]
+  );
 
   return (
-    <AuthSessionContext.Provider
-      value={{
-        status: authState.status,
-        isAuthenticated: authState.status === "authenticated",
-        isLoading: authState.status === "loading",
-        user: authState.user,
-        login,
-        logout,
-        refreshSession,
-      }}
-    >
-      {children}
-    </AuthSessionContext.Provider>
+    <AuthSessionContext.Provider value={value}>{children}</AuthSessionContext.Provider>
   );
 }
 
