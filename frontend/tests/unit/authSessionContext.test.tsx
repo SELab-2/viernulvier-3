@@ -247,9 +247,7 @@ describe("AuthSessionProvider", () => {
   });
 
   it("ignores stale bootstrap results after a successful login", async () => {
-    let resolveRestoreSession:
-      | ((value: IAuthUser | null) => void)
-      | null = null;
+    let resolveRestoreSession: ((value: IAuthUser | null) => void) | null = null;
 
     vi.spyOn(loginServiceModule, "restoreSession").mockImplementation(
       () =>
