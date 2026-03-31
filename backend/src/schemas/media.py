@@ -1,5 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+from src.schemas.pagination import Pagination
 
 
 class MediaResponse(BaseModel):
@@ -12,9 +13,6 @@ class MediaResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class PaginatedMediaResponse(BaseModel):
-    items: list[MediaResponse]
-    total: int
-    page: int
-    limit: int
-    pages: int
+class MediaListResponse(BaseModel):
+    media: list[MediaResponse] = Field(default_factory=list)
+    pagination: Pagination = Field(default_factory=Pagination)

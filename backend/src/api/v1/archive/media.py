@@ -6,7 +6,7 @@ from src.api.dependencies import RequirePermissions
 from src.api.exceptions import NotFoundError
 from src.database import get_db
 from src.models.user import User
-from src.schemas.media import MediaResponse, PaginatedMediaResponse
+from src.schemas.media import MediaResponse, MediaListResponse
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.media import (
@@ -24,19 +24,19 @@ router = APIRouter()
 
 @router.get(
     "/{production_id}/media/",
-    response_model=PaginatedMediaResponse,
+    response_model=MediaListResponse,
     summary="Get media for production",
     description="Returns paginated media linked to a production.",
 )
 async def get_media_for_production(
     production_id: int,
     request: Request,
-    page: int = Query(1, ge=1, description="Page number"),
-    limit: int = Query(MEDIA_DEFAULT_PAGE_SIZE, ge=1, description="Items per page"),
+    cursor: int | None = Query(None),
+    limit: int = Query(MEDIA_DEFAULT_PAGE_SIZE, ge=1),
     db: Session = Depends(get_db),
-) -> PaginatedMediaResponse:
+) -> MediaListResponse:
     base_url = get_base_url(str(request.url), 3)
-    return list_media_for_production(db, production_id, base_url, page, limit)
+    return list_media_for_production(db, production_id, base_url, cursor, limit)
 
 @router.post(
     "/{production_id}/media/",

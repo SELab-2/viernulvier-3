@@ -11,7 +11,8 @@ from urllib.parse import urlparse
 
 from src.config import settings
 from src.models.media import Media
-from src.schemas.media import MediaResponse, PaginatedMediaResponse
+from src.schemas.media import MediaResponse, MediaListResponse
+from src.schemas.pagination import Pagination
 from src.api.exceptions import NotFoundError
 
 MEDIA_DEFAULT_PAGE_SIZE = 20
@@ -47,22 +48,27 @@ def list_media_for_production(
     db: Session,
     production_id: int,
     base_url: str,
-    page: int = 1,
+    cursor: int | None = None,
     limit: int = MEDIA_DEFAULT_PAGE_SIZE,
-) -> PaginatedMediaResponse:
+) -> MediaListResponse:
     limit = min(limit, MEDIA_MAX_PAGE_SIZE)
-    offset = (page - 1) * limit
 
     query = db.query(Media).filter(Media.production_id == production_id)
-    total = query.count()
-    items = query.order_by(Media.uploaded_at.desc()).offset(offset).limit(limit).all()
 
-    return PaginatedMediaResponse(
-        items=[build_media_response(m, base_url) for m in items],
-        total=total,
-        page=page,
-        limit=limit,
-        pages=math.ceil(total / limit),
+    if cursor is not None:
+        query = query.filter(Media.id > cursor)
+
+    items = query.order_by(Media.id.asc()).limit(limit + 1).all()
+
+    has_more = len(items) > limit
+    items = items[:limit]
+
+    return MediaListResponse(
+        media=[build_media_response(m, base_url) for m in items],
+        pagination=Pagination(
+            next_cursor=items[-1].id if has_more else None,
+            has_more=has_more,
+        ),
     )
 
 def upload_media(
