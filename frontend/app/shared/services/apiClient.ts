@@ -2,7 +2,6 @@ import axios, { type InternalAxiosRequestConfig } from "axios";
 
 import { refreshAccessToken } from "~/features/auth/services/tokenRefresh";
 import {
-  clearStoredAuthTokens,
   getStoredAccessToken,
   hasStoredRefreshToken,
 } from "~/features/auth/services/tokenStorage";
@@ -12,6 +11,16 @@ import { getEnv } from "../utils/env";
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
+
+const UNAUTHORIZED_RETRY_EXCLUDED_PATHS = ["/auth/login", "/auth/refresh"] as const;
+
+function shouldRetryUnauthorized(request: RetryableRequestConfig | undefined): boolean {
+  if (!request || request._retry || !request.url || !hasStoredRefreshToken()) {
+    return false;
+  }
+
+  return !UNAUTHORIZED_RETRY_EXCLUDED_PATHS.some((path) => request.url?.includes(path));
+}
 
 let activeRefreshRequest: Promise<string> | null = null;
 
@@ -40,11 +49,9 @@ export function createApiClient() {
     const request = error.config as RetryableRequestConfig | undefined;
 
     if (
-      !request ||
       error.response?.status !== 401 ||
-      request._retry ||
-      request.url?.includes("/auth/refresh") ||
-      !hasStoredRefreshToken()
+      !request ||
+      !shouldRetryUnauthorized(request)
     ) {
       throw error;
     }
@@ -57,9 +64,6 @@ export function createApiClient() {
     try {
       await refreshRequest;
       return apiClient(request);
-    } catch (refreshError) {
-      clearStoredAuthTokens();
-      throw refreshError;
     } finally {
       if (activeRefreshRequest === refreshRequest) {
         activeRefreshRequest = null;

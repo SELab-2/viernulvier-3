@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -10,12 +11,11 @@ import {
 import { AUTH_STORAGE_KEYS } from "../auth.constants";
 import type { IAuthSessionContextValue, IAuthUser, ILoginRequest } from "../auth.types";
 import {
-  getCurrentUser,
   login as loginRequest,
   logout as clearSession,
+  refreshSession as refreshSessionRequest,
   restoreSession,
 } from "../services/loginService";
-import { refreshAccessToken } from "../services/tokenRefresh";
 
 type AuthState = {
   status: IAuthSessionContextValue["status"];
@@ -37,16 +37,46 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     status: "loading",
     user: null,
   });
+  const sessionOperationIdRef = useRef(0);
+
+  const updateAuthState = useCallback((user: IAuthUser | null) => {
+    setAuthState(user ? toAuthenticatedState(user) : toAnonymousState());
+  }, []);
+
+  const runSessionOperation = useCallback(
+    async (
+      loadSession: () => Promise<IAuthUser | null>,
+      fallbackToAnonymous = false
+    ) => {
+      const operationId = sessionOperationIdRef.current + 1;
+      sessionOperationIdRef.current = operationId;
+
+      try {
+        const user = await loadSession();
+
+        if (sessionOperationIdRef.current === operationId) {
+          updateAuthState(user);
+        }
+
+        return user;
+      } catch (error) {
+        if (fallbackToAnonymous && sessionOperationIdRef.current === operationId) {
+          updateAuthState(null);
+        }
+
+        throw error;
+      }
+    },
+    [updateAuthState]
+  );
 
   const bootstrapSession = useCallback(async () => {
     try {
-      const user = await restoreSession();
-
-      setAuthState(user ? toAuthenticatedState(user) : toAnonymousState());
+      await runSessionOperation(restoreSession, true);
     } catch {
-      setAuthState(toAnonymousState());
+      return;
     }
-  }, []);
+  }, [runSessionOperation]);
 
   useEffect(() => {
     void bootstrapSession();
@@ -74,26 +104,21 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
   const login = async (request: ILoginRequest) => {
     const user = await loginRequest(request);
-    setAuthState(toAuthenticatedState(user));
+
+    sessionOperationIdRef.current += 1;
+    updateAuthState(user);
+
     return user;
   };
 
   const logout = () => {
+    sessionOperationIdRef.current += 1;
     clearSession();
-    setAuthState(toAnonymousState());
+    updateAuthState(null);
   };
 
   const refreshSession = async () => {
-    try {
-      await refreshAccessToken();
-      const user = await getCurrentUser();
-      setAuthState(toAuthenticatedState(user));
-      return user;
-    } catch {
-      clearSession();
-      setAuthState(toAnonymousState());
-      return null;
-    }
+    return runSessionOperation(refreshSessionRequest);
   };
 
   return (

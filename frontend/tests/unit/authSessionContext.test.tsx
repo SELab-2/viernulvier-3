@@ -2,8 +2,8 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { AuthSessionProvider, useAuthSession } from "~/features/auth";
+import type { IAuthUser } from "~/features/auth/auth.types";
 import * as loginServiceModule from "~/features/auth/services/loginService";
-import * as tokenRefreshModule from "~/features/auth/services/tokenRefresh";
 import { setupLocalStorage } from "tests/globalSetup";
 
 setupLocalStorage();
@@ -148,8 +148,7 @@ describe("AuthSessionProvider", () => {
 
   it("refreshes the session successfully", async () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(null);
-    vi.spyOn(tokenRefreshModule, "refreshAccessToken").mockResolvedValue("fresh-token");
-    vi.spyOn(loginServiceModule, "getCurrentUser").mockResolvedValue({
+    vi.spyOn(loginServiceModule, "refreshSession").mockResolvedValue({
       id: 8,
       username: "admin",
       isSuperUser: true,
@@ -190,9 +189,7 @@ describe("AuthSessionProvider", () => {
       createdAt: "2026-03-30T10:00:00",
       lastLoginAt: null,
     });
-    vi.spyOn(tokenRefreshModule, "refreshAccessToken").mockRejectedValue(
-      new Error("expired")
-    );
+    vi.spyOn(loginServiceModule, "refreshSession").mockResolvedValue(null);
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <AuthSessionProvider>{children}</AuthSessionProvider>
@@ -213,6 +210,83 @@ describe("AuthSessionProvider", () => {
     });
 
     expect(result.current.user).toBeNull();
+  });
+
+  it("keeps the current session when refresh fails transiently", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue({
+      id: 1,
+      username: "editor",
+      isSuperUser: false,
+      roles: ["editor"],
+      permissions: [],
+      createdAt: "2026-03-30T10:00:00",
+      lastLoginAt: null,
+    });
+    vi.spyOn(loginServiceModule, "refreshSession").mockRejectedValue(
+      new Error("temporary outage")
+    );
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthSessionProvider>{children}</AuthSessionProvider>
+    );
+
+    const { result } = renderHook(() => useAuthSession(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("authenticated");
+    });
+
+    await expect(
+      act(async () => {
+        await result.current.refreshSession();
+      })
+    ).rejects.toThrow("temporary outage");
+
+    expect(result.current.status).toBe("authenticated");
+    expect(result.current.user?.username).toBe("editor");
+  });
+
+  it("ignores stale bootstrap results after a successful login", async () => {
+    let resolveRestoreSession:
+      | ((value: IAuthUser | null) => void)
+      | null = null;
+
+    vi.spyOn(loginServiceModule, "restoreSession").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRestoreSession = resolve;
+        })
+    );
+    vi.spyOn(loginServiceModule, "login").mockResolvedValue({
+      id: 2,
+      username: "admin",
+      isSuperUser: true,
+      roles: ["admin"],
+      permissions: ["users:update"],
+      createdAt: "2026-03-30T10:00:00",
+      lastLoginAt: "2026-03-30T11:00:00",
+    });
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthSessionProvider>{children}</AuthSessionProvider>
+    );
+
+    const { result } = renderHook(() => useAuthSession(), { wrapper });
+
+    await act(async () => {
+      await result.current.login({ username: "admin", password: "secret" });
+    });
+
+    expect(result.current.status).toBe("authenticated");
+    expect(result.current.user?.username).toBe("admin");
+
+    await act(async () => {
+      resolveRestoreSession?.(null);
+      await Promise.resolve();
+    });
+
+    expect(result.current.status).toBe("authenticated");
+    expect(result.current.user?.username).toBe("admin");
   });
 
   it("re-runs bootstrap on auth storage changes and ignores unrelated keys", async () => {

@@ -187,4 +187,23 @@ describe("401 retry token behaviour", () => {
     await expect(apiClient.get("/no-refresh-available")).rejects.toBeTruthy();
     expect(refreshSpy).not.toHaveBeenCalled();
   });
+
+  it("does not attempt refresh for login endpoint 401 responses", async () => {
+    localStorage.setItem("refresh_token", "refresh123");
+
+    const refreshSpy = vi.spyOn(tokenRefreshModule, "refreshAccessToken");
+    const apiClient = createApiClient();
+    mockAdapter = new AxiosMockAdapter(apiClient);
+
+    mockAdapter.onPost("/api/v1/auth/login").reply(401);
+
+    await expect(
+      apiClient.post("/api/v1/auth/login", {
+        username: "wrong",
+        password: "wrong",
+      })
+    ).rejects.toBeTruthy();
+
+    expect(refreshSpy).not.toHaveBeenCalled();
+  });
 });

@@ -33,6 +33,15 @@ function isUnauthorizedError(error: unknown): boolean {
   return axios.isAxiosError(error) && error.response?.status === 401;
 }
 
+function clearSessionForUnauthorizedError(error: unknown): boolean {
+  if (!isUnauthorizedError(error)) {
+    return false;
+  }
+
+  clearStoredAuthTokens();
+  return true;
+}
+
 export async function getCurrentUser(apiClient: AxiosInstance = createApiClient()) {
   const response = await apiClient.get<IAuthUserResponse>(`${AUTH_API_PATH}/users/me`);
   return mapAuthUser(response.data);
@@ -52,10 +61,7 @@ export async function login(
   try {
     return await getCurrentUser(apiClient);
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      clearStoredAuthTokens();
-    }
-
+    clearSessionForUnauthorizedError(error);
     throw error;
   }
 }
@@ -63,19 +69,38 @@ export async function login(
 export async function restoreSession(
   apiClient: AxiosInstance = createApiClient()
 ): Promise<IAuthUser | null> {
-  if (!getStoredAccessToken()) {
-    if (!hasStoredRefreshToken()) {
+  try {
+    if (!getStoredAccessToken()) {
+      if (!hasStoredRefreshToken()) {
+        return null;
+      }
+
+      await refreshAccessToken();
+    }
+
+    return await getCurrentUser(apiClient);
+  } catch (error) {
+    if (clearSessionForUnauthorizedError(error)) {
       return null;
     }
 
-    await refreshAccessToken();
+    throw error;
+  }
+}
+
+export async function refreshSession(
+  apiClient: AxiosInstance = createApiClient()
+): Promise<IAuthUser | null> {
+  if (!hasStoredRefreshToken()) {
+    clearStoredAuthTokens();
+    return null;
   }
 
   try {
+    await refreshAccessToken();
     return await getCurrentUser(apiClient);
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      clearStoredAuthTokens();
+    if (clearSessionForUnauthorizedError(error)) {
       return null;
     }
 

@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   login,
   logout,
+  refreshSession,
   refreshToken,
   restoreSession,
 } from "~/features/auth/services/loginService";
@@ -63,6 +64,22 @@ describe("loginService", () => {
       mockAdapter.onPost("/api/v1/auth/login").reply(401);
 
       await expect(login({ username: "test", password: "wrong" })).rejects.toThrow();
+    });
+
+    it("does not mutate the active session when login credentials are rejected", async () => {
+      localStorage.setItem("access_token", "active-access");
+      localStorage.setItem("refresh_token", "active-refresh");
+
+      mockAdapter.onPost("/api/v1/auth/login").reply(401);
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(200, {
+        access_token: "new-access",
+        token_type: "bearer",
+      });
+
+      await expect(login({ username: "test", password: "wrong" })).rejects.toThrow();
+
+      expect(localStorage.getItem("access_token")).toBe("active-access");
+      expect(localStorage.getItem("refresh_token")).toBe("active-refresh");
     });
 
     it("clears stored tokens if fetching the profile returns 401 after login", async () => {
@@ -151,6 +168,20 @@ describe("loginService", () => {
       );
       expect(localStorage.getItem("refresh_token")).toBe(null);
     });
+
+    it("preserves stored tokens when refresh fails with a transient error", async () => {
+      localStorage.setItem("access_token", "access123");
+      localStorage.setItem("refresh_token", "refresh123");
+
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(500);
+
+      await expect(refreshToken()).rejects.toThrow(
+        "Request failed with status code 500"
+      );
+
+      expect(localStorage.getItem("access_token")).toBe("access123");
+      expect(localStorage.getItem("refresh_token")).toBe("refresh123");
+    });
   });
 
   describe("restoreSession", () => {
@@ -218,6 +249,32 @@ describe("loginService", () => {
 
       expect(localStorage.getItem("access_token")).toBe(null);
       expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
+  });
+
+  describe("refreshSession", () => {
+    it("returns null and clears tokens when the refresh token is invalid", async () => {
+      localStorage.setItem("access_token", "access123");
+      localStorage.setItem("refresh_token", "refresh123");
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(401);
+
+      await expect(refreshSession()).resolves.toBeNull();
+
+      expect(localStorage.getItem("access_token")).toBe(null);
+      expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
+
+    it("rethrows transient refresh failures without clearing the session", async () => {
+      localStorage.setItem("access_token", "access123");
+      localStorage.setItem("refresh_token", "refresh123");
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(500);
+
+      await expect(refreshSession()).rejects.toThrow(
+        "Request failed with status code 500"
+      );
+
+      expect(localStorage.getItem("access_token")).toBe("access123");
+      expect(localStorage.getItem("refresh_token")).toBe("refresh123");
     });
   });
 });
