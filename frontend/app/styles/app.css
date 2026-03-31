@@ -24,6 +24,15 @@
   --weight-archive-bold: var(--archive-weight-bold);
 }
 
+@utility archive-artist-chic {
+  font-family:
+    "Snell Roundhand", "Apple Chancery", "Segoe Script", "URW Chancery L",
+    "Brush Script MT", cursive;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+}
+
 @font-face {
   font-family: "Lora";
   src: url("/fonts/lora/Lora-VariableFont_wght.ttf") format("truetype");

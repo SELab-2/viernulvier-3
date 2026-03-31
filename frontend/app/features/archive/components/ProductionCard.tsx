@@ -260,7 +260,12 @@ export function ProductionCard({
           </Typography>
         </Stack>
 
-        <Box sx={{ minHeight: { xs: 188, md: 204 }, mb: 1.2 }}>
+        <Box
+          sx={{
+            mb: 1.2,
+            minHeight: { xs: 188, md: 204 },
+          }}
+        >
           <Typography
             className="production-card-text"
             component="h3"
@@ -270,7 +275,6 @@ export function ProductionCard({
               fontSize: "var(--text-archive-title-lg)",
               lineHeight: "var(--leading-archive-title)",
               color: CARD_COLORS.textPrimary,
-              minHeight: { xs: "3.7rem", md: "4rem" },
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
@@ -282,13 +286,11 @@ export function ProductionCard({
 
           {artist ? (
             <Typography
-              className="production-card-text"
+              className="production-card-text archive-artist-chic"
               sx={{
                 mb: 0.5,
                 color: colorWithOpacity(CARD_COLORS.textSecondary, 0.95),
                 fontSize: "var(--text-archive-body)",
-                letterSpacing: "0.02em",
-                minHeight: "1.35rem",
                 display: "-webkit-box",
                 WebkitLineClamp: 1,
                 WebkitBoxOrient: "vertical",
@@ -297,38 +299,37 @@ export function ProductionCard({
             >
               {artist}
             </Typography>
-          ) : (
-            <Box sx={{ minHeight: "0.7rem", mb: 0.3 }} />
-          )}
+          ) : null}
 
           {tagline ? (
-            <Typography
-              className="production-card-text"
-              sx={{
-                color: CARD_COLORS.textSecondary,
-                fontSize: "var(--text-archive-body)",
-                lineHeight: "var(--leading-archive-body)",
-                height:
-                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 3)",
-                maxHeight:
-                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 3)",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {tagline}
-            </Typography>
-          ) : (
             <Box
               sx={{
                 minHeight:
-                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 1)",
+                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 6)",
+                display: "flex",
+                alignItems: "center",
               }}
-            />
-          )}
+            >
+              <Typography
+                className="production-card-text"
+                sx={{
+                  width: "100%",
+                  color: CARD_COLORS.textSecondary,
+                  fontSize: "var(--text-archive-body)",
+                  lineHeight: "var(--leading-archive-body)",
+                  display: "-webkit-box",
+                  WebkitLineClamp: artist ? 5 : 6,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {tagline}
+              </Typography>
+            </Box>
+          ) : null}
         </Box>
+
 
         <Divider
           sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mb: 1.1 }}
@@ -421,8 +422,9 @@ export const mockProductions: ProductionCardData[] = [
         language: "nl",
         title: "Open Archiefnacht",
         supertitle: "Ephemera",
+        artist: "Zwangere guy",
         tagline:
-          "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+          "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren."
       },
     ],
     tag_names: ["Archief", "Open Huis", "Performance", "Gent"],
