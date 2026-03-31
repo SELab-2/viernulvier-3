@@ -342,18 +342,7 @@ export function ProductionCard({
           ))}
         </Stack>
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography
-            className="production-card-text"
-            sx={{
-              color: colorWithOpacity(CARD_COLORS.textSecondary, 0.76),
-              fontSize: "var(--text-archive-meta)",
-              letterSpacing: "var(--tracking-archive-meta)",
-            }}
-          >
-            ID: {production.id_url}
-          </Typography>
-
+        <Stack direction="row" alignItems="center" justifyContent="flex-end">
           <Link
             className="production-card-text"
             component="button"
