@@ -1,4 +1,4 @@
-from src.schemas.production import Pagination
+from src.schemas.pagination import Pagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo
 from src.api.dependencies.language import get_accepted_language

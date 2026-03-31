@@ -1,11 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
-
-
-class Pagination(BaseModel):
-    next_cursor: int | None = None
-    has_more: bool = False
+from src.schemas.pagination import Pagination
 
 
 # The response for a production info in a specific language.
