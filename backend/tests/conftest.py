@@ -86,13 +86,13 @@ def client():
 
 @pytest.fixture(autouse=True)
 def mock_minio_dependency():
-    """Mock for all media tests."""
     mock_client = Mock()
     mock_client.bucket_exists.return_value = True
     mock_client.put_object.return_value = Mock()
     mock_client.remove_object.return_value = None
     app.dependency_overrides[get_minio_client] = lambda: mock_client
-
+    yield
+    app.dependency_overrides.pop(get_minio_client, None)
 
 # Mock data for testing.
 @pytest.fixture

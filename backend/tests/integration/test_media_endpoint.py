@@ -119,15 +119,18 @@ def test_upload_media_no_permission(
     assert response.status_code == 403
 
 def test_list_media(client: TestClient, media_items_for_production):
-    """Test list media - each item matches MediaResponse schema."""
     prod_id = media_items_for_production[0].production_id
     response = client.get(f"{BASE_URL}/{prod_id}/media/")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 3  
-    
+
+    assert data["total"] == 3
+    assert data["page"] == 1
+    assert data["pages"] == 1
+    assert len(data["items"]) == 3
+
     prod_path = f"productions/{prod_id}"
-    for item in data:
+    for item in data["items"]:
         assert "content_type" in item
         assert "id_url" in item
         assert "production" in item
@@ -176,3 +179,23 @@ def test_delete_media_not_found(
     )
     assert response.status_code == 404
     assert "Media" in response.json()["detail"]
+
+def test_list_media_pagination(client: TestClient, media_items_for_production):
+    prod_id = media_items_for_production[0].production_id
+
+    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=1&limit=2")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["items"]) == 2
+    assert data["total"] == 3
+    assert data["pages"] == 2
+
+    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=2&limit=2")
+    data = response.json()
+    assert len(data["items"]) == 1
+
+
+def test_list_media_invalid_page(client: TestClient, media_items_for_production):
+    prod_id = media_items_for_production[0].production_id
+    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=0")
+    assert response.status_code == 422  # FastAPI rejects page < 1 via Query(ge=1)

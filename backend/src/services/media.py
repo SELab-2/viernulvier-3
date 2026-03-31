@@ -2,6 +2,8 @@
 
 import uuid
 import os
+import io
+import math
 from sqlalchemy.orm import Session
 from minio import Minio
 from minio.error import S3Error
@@ -9,9 +11,11 @@ from urllib.parse import urlparse
 
 from src.config import settings
 from src.models.media import Media
-from src.schemas.media import MediaResponse
+from src.schemas.media import MediaResponse, PaginatedMediaResponse
 from src.api.exceptions import NotFoundError
 
+MEDIA_DEFAULT_PAGE_SIZE = 20
+MEDIA_MAX_PAGE_SIZE = 100
 
 def build_media_response(media: Media, base_url: str) -> MediaResponse:
     parsed = urlparse(base_url)
@@ -40,10 +44,26 @@ def get_media_by_id(db: Session, media_id: int, base_url: str) -> MediaResponse:
     return build_media_response(media, base_url)
 
 def list_media_for_production(
-    db: Session, production_id: int, base_url: str
-) -> list[MediaResponse]:
-    media_items = db.query(Media).filter(Media.production_id == production_id).all()
-    return [build_media_response(m, base_url) for m in media_items]
+    db: Session,
+    production_id: int,
+    base_url: str,
+    page: int = 1,
+    limit: int = MEDIA_DEFAULT_PAGE_SIZE,
+) -> PaginatedMediaResponse:
+    limit = min(limit, MEDIA_MAX_PAGE_SIZE)
+    offset = (page - 1) * limit
+
+    query = db.query(Media).filter(Media.production_id == production_id)
+    total = query.count()
+    items = query.order_by(Media.uploaded_at.desc()).offset(offset).limit(limit).all()
+
+    return PaginatedMediaResponse(
+        items=[build_media_response(m, base_url) for m in items],
+        total=total,
+        page=page,
+        limit=limit,
+        pages=math.ceil(total / limit),
+    )
 
 def upload_media(
     db: Session,
@@ -60,7 +80,7 @@ def upload_media(
     minio_client.put_object(
         settings.MINIO_BUCKET,
         object_key,
-        __import__("io").BytesIO(data),
+        io.BytesIO(data),
         length=len(data),
         content_type=content_type,
     )

@@ -10,3 +10,11 @@ class MediaResponse(BaseModel):
     uploaded_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedMediaResponse(BaseModel):
+    items: list[MediaResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int

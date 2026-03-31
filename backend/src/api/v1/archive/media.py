@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from minio import Minio
 from sqlalchemy.orm import Session
 
@@ -6,10 +6,11 @@ from src.api.dependencies import RequirePermissions
 from src.api.exceptions import NotFoundError
 from src.database import get_db
 from src.models.user import User
-from src.schemas.media import MediaResponse
+from src.schemas.media import MediaResponse, PaginatedMediaResponse
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.media import (
+    MEDIA_DEFAULT_PAGE_SIZE,
     delete_media,
     get_minio_client,
     list_media_for_production,
@@ -23,18 +24,19 @@ router = APIRouter()
 
 @router.get(
     "/{production_id}/media/",
-    response_model=list[MediaResponse],
+    response_model=PaginatedMediaResponse,
     summary="Get media for production",
-    description="Returns all media linked to a production.",
+    description="Returns paginated media linked to a production.",
 )
 async def get_media_for_production(
     production_id: int,
     request: Request,
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(MEDIA_DEFAULT_PAGE_SIZE, ge=1, description="Items per page"),
     db: Session = Depends(get_db),
-) -> list[MediaResponse]:
+) -> PaginatedMediaResponse:
     base_url = get_base_url(str(request.url), 3)
-    return list_media_for_production(db, production_id, base_url)
-
+    return list_media_for_production(db, production_id, base_url, page, limit)
 
 @router.post(
     "/{production_id}/media/",

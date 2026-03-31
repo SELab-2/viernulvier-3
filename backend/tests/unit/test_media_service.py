@@ -78,20 +78,20 @@ def test_get_media_by_id_not_found_raises(db_session):
 
 
 def test_list_media_for_production_empty(db_session, production_with_no_media):
-    result = list_media_for_production(
-        db_session, production_with_no_media.id, BASE_URL
-    )
-    assert result == []
+    result = list_media_for_production(db_session, production_with_no_media.id, BASE_URL)
+    assert result.total == 0
+    assert result.items == []
+    assert result.pages == 0
 
 
 def test_list_media_for_production_multiple(db_session, media_items_for_production):
     production_id = media_items_for_production[0].production_id
-
     result = list_media_for_production(db_session, production_id, BASE_URL)
 
-    assert len(result) == len(media_items_for_production)
+    assert result.total == len(media_items_for_production)
+    assert len(result.items) == len(media_items_for_production)
     ids = {m.id for m in media_items_for_production}
-    resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result}
+    resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result.items}
     assert resp_ids == ids
 
 
