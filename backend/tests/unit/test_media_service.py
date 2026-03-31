@@ -1,11 +1,8 @@
 import uuid
 import pytest
-from datetime import datetime
 
-from datetime import timezone
 
 from src.models.media import Media
-from src.models import Production
 
 from src.services.media import (
     build_media_response,
@@ -133,7 +130,6 @@ def test_upload_media_creates_db_row_and_puts_object(db_session, production_with
     assert object_key.endswith(".jpg")  # extension is lowercased
 
     # Check DB row was created and matches response
-    from src.models.media import Media
 
     db_media = db_session.query(Media).filter(Media.id == int(resp.id_url.split("/")[-1])).first()
     assert db_media is not None
@@ -172,7 +168,6 @@ def test_upload_media_preserves_original_extension_case_insensitive(db_session, 
 
 
 def test_delete_media_existing(db_session, media_items_for_production):
-    from src.models.media import Media
 
     media = media_items_for_production[0]
     fake_minio = DummyMinioClient()

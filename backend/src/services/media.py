@@ -3,7 +3,6 @@
 import uuid
 import os
 import io
-import math
 from sqlalchemy.orm import Session
 from minio import Minio
 from minio.error import S3Error
