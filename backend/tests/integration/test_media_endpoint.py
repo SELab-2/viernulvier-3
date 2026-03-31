@@ -124,13 +124,12 @@ def test_list_media(client: TestClient, media_items_for_production):
     assert response.status_code == 200
     data = response.json()
 
-    assert data["total"] == 3
-    assert data["page"] == 1
-    assert data["pages"] == 1
-    assert len(data["items"]) == 3
+    assert len(data["media"]) == 3
+    assert data["pagination"]["has_more"] is False
+    assert data["pagination"]["next_cursor"] is None
 
     prod_path = f"productions/{prod_id}"
-    for item in data["items"]:
+    for item in data["media"]:
         assert "content_type" in item
         assert "id_url" in item
         assert "production" in item
@@ -183,19 +182,24 @@ def test_delete_media_not_found(
 def test_list_media_pagination(client: TestClient, media_items_for_production):
     prod_id = media_items_for_production[0].production_id
 
-    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=1&limit=2")
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data["items"]) == 2
-    assert data["total"] == 3
-    assert data["pages"] == 2
+    page1 = client.get(f"{BASE_URL}/{prod_id}/media/?limit=2").json()
+    assert len(page1["media"]) == 2
+    assert page1["pagination"]["has_more"] is True
+    next_cursor = page1["pagination"]["next_cursor"]
+    assert next_cursor is not None
 
-    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=2&limit=2")
-    data = response.json()
-    assert len(data["items"]) == 1
+    page2 = client.get(f"{BASE_URL}/{prod_id}/media/?cursor={next_cursor}&limit=2").json()
+    assert len(page2["media"]) == 1
+    assert page2["pagination"]["has_more"] is False
 
 
-def test_list_media_invalid_page(client: TestClient, media_items_for_production):
+def test_list_media_invalid_cursor(client: TestClient, media_items_for_production):
     prod_id = media_items_for_production[0].production_id
-    response = client.get(f"{BASE_URL}/{prod_id}/media/?page=0")
-    assert response.status_code == 422  # FastAPI rejects page < 1 via Query(ge=1)
+    response = client.get(f"{BASE_URL}/{prod_id}/media/?cursor=notanumber")
+    assert response.status_code == 422
+
+
+def test_list_media_invalid_limit(client: TestClient, media_items_for_production):
+    prod_id = media_items_for_production[0].production_id
+    response = client.get(f"{BASE_URL}/{prod_id}/media/?limit=0")
+    assert response.status_code == 422
