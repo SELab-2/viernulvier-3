@@ -100,7 +100,7 @@ describe("tagService", () => {
   describe("deleteTag", () => {
     it("deletes a tag", async () => {
       mockAdapter.onDelete("/api/v1/archive/tags/1").reply(204);
-      deleteTag(1);
+      await deleteTag(1);
     });
   });
 });
