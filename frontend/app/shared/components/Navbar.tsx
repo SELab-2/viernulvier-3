@@ -77,7 +77,7 @@ const Navbar: React.FC = () => {
             <div className="hidden sm:flex items-center bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-full p-1 text-[10px] font-bold">
               <button
                 onClick={() => toggleLanguage("EN")}
-                className={`px-3 py-1 rounded-full transition-colors ${
+                className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
                   language === "EN" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
                 }`}
               >
@@ -85,7 +85,7 @@ const Navbar: React.FC = () => {
               </button>
               <button
                 onClick={() => toggleLanguage("NL")}
-                className={`px-3 py-1 rounded-full transition-colors ${
+                className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
                   language === "NL" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
                 }`}
               >
@@ -119,8 +119,22 @@ const Navbar: React.FC = () => {
               </li>
 
               <div className="flex space-x-2">
-                <button onClick={() => toggleLanguage("EN")}>EN</button>
-                <button onClick={() => toggleLanguage("NL")}>NL</button>
+                <button
+                  onClick={() => toggleLanguage("EN")}
+                  className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
+                    language === "EN" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => toggleLanguage("NL")}
+                  className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
+                    language === "NL" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                  }`}
+                >
+                  NL
+                </button>
               </div>
 
               <ThemeToggle />
