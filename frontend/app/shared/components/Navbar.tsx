@@ -4,12 +4,7 @@ import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activePage, setActivePage] = useState<"home" | "archive" | "history">("home");
   const [language, setLanguage] = useState<"NL" | "EN">("NL");
-
-  const showPage = (page: "home" | "archive" | "history") => {
-    setActivePage(page);
-  };
 
   const toggleLanguage = (lang: "NL" | "EN") => {
     setLanguage(lang);
