@@ -74,11 +74,11 @@ const Navbar: React.FC = () => {
           </li>
         </ul>
         <div className="hidden md:flex items-center space-x-8 text-sm font-medium uppercase tracking-widest">
-            <div className="hidden sm:flex items-center bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-full p-1 text-[10px] font-bold">
+            <div className="hidden sm:flex items-center bg-archive-ink/5 rounded-full p-1 text-[10px] font-bold">
               <button
                 onClick={() => toggleLanguage("EN")}
                 className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
-                  language === "EN" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                  language === "EN" ? "bg-archive-ink text-archive-paper" : "opacity-50"
                 }`}
               >
                 EN
@@ -86,7 +86,7 @@ const Navbar: React.FC = () => {
               <button
                 onClick={() => toggleLanguage("NL")}
                 className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
-                  language === "NL" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                  language === "NL" ? "bg-archive-ink text-archive-paper" : "opacity-50"
                 }`}
               >
                 NL
@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
               <span className="w-6 h-0.5 bg-current"></span>
         </button>
         {menuOpen && (
-          <div className="md:hidden absolute top-20 left-0 w-full bg-archive-paper dark:bg-archive-paper-dark border-t border-archive-ink/10 dark:border-archive-ink-dark/10">
+          <div className="md:hidden absolute top-20 left-0 w-full bg-archive-paper border-t border-archive-ink/10">
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium uppercase tracking-widest">
               <li>
                 <NavLink to="/" onClick={() => setMenuOpen(false)}>
@@ -122,7 +122,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleLanguage("EN")}
                   className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
-                    language === "EN" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                    language === "EN" ? "bg-archive-ink text-archive-paper" : "opacity-50"
                   }`}
                 >
                   EN
@@ -130,7 +130,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={() => toggleLanguage("NL")}
                   className={`px-3 py-1 cursor-pointer rounded-full transition-colors ${
-                    language === "NL" ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark" : "opacity-50"
+                    language === "NL" ? "bg-archive-ink text-archive-paper" : "opacity-50"
                   }`}
                 >
                   NL
@@ -139,7 +139,7 @@ const Navbar: React.FC = () => {
 
               <ThemeToggle />
             </ul>
-            <div className="h-px bg-archive-ink/10 dark:bg-archive-ink-dark/10" />
+            <div className="h-px bg-archive-ink/10" />
           </div>
         )}
       </div>  
