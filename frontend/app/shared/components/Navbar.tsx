@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
+import { useLocalizedPath } from "../hooks/useLocalizedPath";
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [language, setLanguage] = useState<"NL" | "EN">("NL");
 
-  const toggleLanguage = (lang: "NL" | "EN") => {
-    setLanguage(lang);
-  };
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+	`hover:text-archive-accent transition-colors ${
+	  isActive
+		? "border-archive-accent border-b-2"
+		: "border-b-2 border-transparent opacity-60"
+	}`;
+
+
+  const lp = useLocalizedPath();
 
   return (
     <nav className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md">
@@ -31,67 +38,23 @@ const Navbar: React.FC = () => {
         </header>
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
           <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `hover:text-archive-accent transition-colors ${
-                  isActive
-                    ? "border-archive-accent border-b-2"
-                    : "border-b-2 border-transparent opacity-60"
-                }`
-              }
-            >
+            <NavLink to={lp("/")} className={navLinkClass} end>
               Home
             </NavLink>
           </li>
           <li>
-            <NavLink
-              to="/archive"
-              className={({ isActive }) =>
-                `hover:text-archive-accent transition-colors ${
-                  isActive
-                    ? "border-archive-accent border-b-2"
-                    : "border-b-2 border-transparent opacity-60"
-                }`
-              }
-            >
+            <NavLink to={lp("/archive")} className={navLinkClass}>
               Archief
             </NavLink>
           </li>
           <li>
-            <NavLink
-              to="/history"
-              className={({ isActive }) =>
-                `hover:text-archive-accent transition-colors ${
-                  isActive
-                    ? "border-archive-accent border-b-2"
-                    : "border-b-2 border-transparent opacity-60"
-                }`
-              }
-            >
+            <NavLink to={lp("/history")} className={navLinkClass}>
               History
             </NavLink>
           </li>
         </ul>
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-          <div className="bg-archive-ink/5 hidden items-center rounded-full p-1 text-[10px] font-bold sm:flex">
-            <button
-              onClick={() => toggleLanguage("EN")}
-              className={`cursor-pointer rounded-full px-3 py-1 transition-colors ${
-                language === "EN" ? "bg-archive-ink text-archive-paper" : "opacity-50"
-              }`}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => toggleLanguage("NL")}
-              className={`cursor-pointer rounded-full px-3 py-1 transition-colors ${
-                language === "NL" ? "bg-archive-ink text-archive-paper" : "opacity-50"
-              }`}
-            >
-              NL
-            </button>
-          </div>
+		  <LanguageSwitcher />
           <ThemeToggle></ThemeToggle>
         </div>
         <button
@@ -106,44 +69,22 @@ const Navbar: React.FC = () => {
           <div className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden">
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <li>
-                <NavLink to="/" onClick={() => setMenuOpen(false)}>
+                <NavLink to={lp("/")} onClick={() => setMenuOpen(false)}>
                   Home
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/archive" onClick={() => setMenuOpen(false)}>
+                <NavLink to={lp("/archive")} onClick={() => setMenuOpen(false)}>
                   Archief
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/history" onClick={() => setMenuOpen(false)}>
+                <NavLink to={lp("/history")} onClick={() => setMenuOpen(false)}>
                   History
                 </NavLink>
               </li>
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => toggleLanguage("EN")}
-                  className={`cursor-pointer rounded-full px-3 py-1 transition-colors ${
-                    language === "EN"
-                      ? "bg-archive-ink text-archive-paper"
-                      : "opacity-50"
-                  }`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => toggleLanguage("NL")}
-                  className={`cursor-pointer rounded-full px-3 py-1 transition-colors ${
-                    language === "NL"
-                      ? "bg-archive-ink text-archive-paper"
-                      : "opacity-50"
-                  }`}
-                >
-                  NL
-                </button>
-              </div>
-
+			  <LanguageSwitcher />
               <ThemeToggle />
             </ul>
             <div className="bg-archive-ink/10 h-px" />
