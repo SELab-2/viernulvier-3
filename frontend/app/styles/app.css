@@ -13,6 +13,24 @@
   --color-archive-surface-strong: var(--archive-surface-strong);
   --color-archive-control: var(--archive-control);
   --color-archive-control-hover: var(--archive-control-hover);
+  --text-archive-meta: var(--archive-text-meta);
+  --text-archive-body: var(--archive-text-body);
+  --text-archive-title-lg: var(--archive-text-title-lg);
+  --tracking-archive-meta: var(--archive-tracking-meta);
+  --tracking-archive-label: var(--archive-tracking-label);
+  --leading-archive-title: var(--archive-leading-title);
+  --leading-archive-body: var(--archive-leading-body);
+  --weight-archive-semibold: var(--archive-weight-semibold);
+  --weight-archive-bold: var(--archive-weight-bold);
+}
+
+@utility archive-artist-chic {
+  font-family:
+    "Snell Roundhand", "Apple Chancery", "Segoe Script", "URW Chancery L",
+    "Brush Script MT", cursive;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.015em;
 }
 
 @font-face {
@@ -59,6 +77,15 @@
   --archive-control: rgba(45, 40, 37, 0.05);
   --archive-control-hover: rgba(45, 40, 37, 0.08);
   --archive-logo-filter: brightness(0) saturate(100%);
+  --archive-text-meta: 0.77rem;
+  --archive-text-body: 0.85rem;
+  --archive-text-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
+  --archive-tracking-meta: 0.1em;
+  --archive-tracking-label: 0.05em;
+  --archive-leading-title: 1.04;
+  --archive-leading-body: 1.48;
+  --archive-weight-semibold: 600;
+  --archive-weight-bold: 700;
 }
 
 .dark {
