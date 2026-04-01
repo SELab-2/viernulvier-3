@@ -71,6 +71,50 @@ def test_get_productions_success(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_tag(
+    client: TestClient, db_session: Session, many_productions
+):
+    tag_id1 = many_productions[0].tags[0].id
+    tag_id2 = many_productions[1].tags[0].id
+
+    # Only asking tag_id1 gives 5 productions.
+    response = client.get(BASE_URL + "/", params={"limit": 10, "tags": [tag_id1]})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id1
+            for tag_response in production["tags"]
+        )
+        for production in data["productions"]
+    )
+
+    # There are no productions left.
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    # Only asking tag_id2 gives 5 productions.
+    response = client.get(BASE_URL + "/", params={"limit": 10, "tags": [tag_id2]})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id2
+            for tag_response in production["tags"]
+        )
+        for production in data["productions"]
+    )
+
+    # There are no productions left.
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
     response = client.get(BASE_URL + "/", params={"limit": 5})
@@ -239,7 +283,77 @@ def test_patch_production_add_info_invalid_language(
         headers=headers,
     )
 
-    assert response.status_code == 400  # bad request
+    assert response.status_code == 400  # bad request: invalid language
+
+
+# User can change tags of a production if all given tags exist.
+def test_patch_production_tags_success(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    id = productions_limited[0].id
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 3}
+
+    response = client.patch(
+        f"{BASE_URL}/{id}",
+        json={"tag_ids": [1, 2, 3]},
+        headers=headers,
+    )
+
+    # Updated in response.
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2, 3}
+
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    # Updated in database.
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2, 3}
+
+
+# User cannot change tags of a production if one or more tags do not exist.
+def test_patch_production_tags_failure(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    id = productions_limited[0].id
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 3}
+
+    response = client.patch(
+        f"{BASE_URL}/{id}",
+        json={"tag_ids": [1, 2, 124]},
+        headers=headers,
+    )
+
+    assert response.status_code == 400  # bad request: at least one invalid tag
 
 
 # User with permissions can delete an existing info of an existing production.
@@ -282,9 +396,61 @@ def test_create_production_success(client: TestClient, db_session: Session):
 
     assert response.status_code == 201
     data = response.json()
-    print(data)
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
+
+
+# User should be able to create a new production with tags.
+def test_create_production_with_tags_success(
+    client: TestClient,
+    db_session: Session,
+    productions_limited,
+):
+    headers = create_user_and_login(
+        client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
+    )
+    response = client.post(
+        BASE_URL + "/",
+        json={
+            "performer_type": "band",
+            "attendance_mode": "offline",
+            "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "tag_ids": [1, 2],
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["performer_type"] == "band"
+    assert data["attendance_mode"] == "offline"
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2}
+
+
+# User should not be able to create a new production with tags if one is not existing in database.
+def test_create_production_with_tags_failure(
+    client: TestClient,
+    db_session: Session,
+    productions_limited,
+):
+    headers = create_user_and_login(
+        client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
+    )
+    response = client.post(
+        BASE_URL + "/",
+        json={
+            "performer_type": "band",
+            "attendance_mode": "offline",
+            "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "tag_ids": [123, 2],
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 400  # bad request: at least one invalid tag
 
 
 # User should not be able to create a new production because of permissions.
@@ -373,7 +539,7 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
     db_session.add_all([event1, event2])
     db_session.commit()
 
-    response = client.get("/api/v1/archive/productions/")
+    response = client.get(BASE_URL)
     assert response.status_code == 200
     data = response.json()
 
@@ -384,7 +550,7 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
 
     production_url = prod_data.get("id_url")
     assert production_url is not None
-    assert "/api/v1/archive/productions" in production_url
+    assert BASE_URL in production_url
 
     events_urls = prod_data.get("events", [])
     assert len(events_urls) == 2
