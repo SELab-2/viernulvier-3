@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import {
   ProductionCardGrid,
@@ -7,6 +7,17 @@ import {
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
 export default function Home() {
+  const navigate = useNavigate();
+  const previewProductionId = mockProductions[0]?.id_url;
+
+  const handleOpenProductionDetail = (productionId: string) => {
+    if (!previewProductionId || productionId !== previewProductionId) {
+      return;
+    }
+
+    navigate(`/productions/${encodeURIComponent(productionId)}`);
+  };
+
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <header className="border-archive-border bg-archive-surface sticky top-0 z-50 border-b backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
@@ -35,7 +46,10 @@ export default function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-[1800px] px-6 py-8 md:px-24 md:py-12">
-        <ProductionCardGrid productions={mockProductions} />
+        <ProductionCardGrid
+          productions={mockProductions}
+          onDetailClick={handleOpenProductionDetail}
+        />
       </main>
     </div>
   );

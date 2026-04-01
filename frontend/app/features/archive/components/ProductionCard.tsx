@@ -60,7 +60,7 @@ export interface ProductionCardData {
   starts_at?: string;
   hall_name?: string;
   tag_names?: string[];
-  image_url?: string;
+  image_url?: string[];
 }
 
 interface ProductionCardProps {
@@ -130,7 +130,10 @@ export function ProductionCard({
     production.hall_name,
     DEFAULT_CARD_VALUES.venueLabel
   );
-  const imageUrl = getTextOrDefault(production.image_url, DEFAULT_CARD_VALUES.imageUrl);
+  const imageUrl = getTextOrDefault(
+    production.image_url?.[0],
+    DEFAULT_CARD_VALUES.imageUrl
+  );
   const tagNames = getListOrDefault(production.tag_names, DEFAULT_CARD_VALUES.tagNames);
 
   const handleOpenDetails = () => {
@@ -383,9 +386,15 @@ export function ProductionCard({
 
 export interface ProductionCardGridProps {
   productions: ProductionCardData[];
+  onDetailClick?: (productionId: string) => void;
+  preferredLanguage?: string;
 }
 
-export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
+export function ProductionCardGrid({
+  productions,
+  onDetailClick,
+  preferredLanguage,
+}: ProductionCardGridProps) {
   return (
     <Box
       sx={{
@@ -400,7 +409,12 @@ export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
       }}
     >
       {productions.map((production) => (
-        <ProductionCard key={production.id_url} production={production} />
+        <ProductionCard
+          key={production.id_url}
+          production={production}
+          onDetailClick={onDetailClick}
+          preferredLanguage={preferredLanguage}
+        />
       ))}
     </Box>
   );
@@ -427,8 +441,12 @@ export const mockProductions: ProductionCardData[] = [
       },
     ],
     tag_names: ["Archief", "Open Huis", "Performance", "Gent"],
-    image_url:
+    image_url: [
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
+    ],
   },
   {
     id_url: "VV-2024-10-M1",
@@ -446,8 +464,11 @@ export const mockProductions: ProductionCardData[] = [
       },
     ],
     tag_names: ["Underground", "Mockup"],
-    image_url:
+    image_url: [
       "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1521417531039-582e6f0c93f0?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1503095396549-807759245b35?q=80&w=1600&auto=format&fit=crop",
+    ],
   },
   {
     id_url: "VV-2024-10-M2",
@@ -465,7 +486,10 @@ export const mockProductions: ProductionCardData[] = [
       },
     ],
     tag_names: ["Geschiedenis", "Mockup"],
-    image_url:
+    image_url: [
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=1600&auto=format&fit=crop",
+    ],
   },
 ];
