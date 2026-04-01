@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-archive-ink/10 bg-archive-paper/80 backdrop-blur-md">
       <div className="max-w-[1800px] mx-auto px-6 md:px-24 h-20 flex items-center justify-between">
-        <header className="bg-archive-surface sticky top-0 z-50 backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
+        <header className="sticky top-0 z-50">
           <div className="group flex items-center space-x-2">
             <img
                 src="/logo.svg"
