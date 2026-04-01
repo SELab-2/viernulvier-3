@@ -55,7 +55,7 @@ De productie-aanpak rond TLS-terminatie en certificaatbeheer is vastgelegd in
 
 ### 3.2 Frontend
 
-De frontend draait als een aparte **Node.js 20** container.
+De frontend draait als een aparte **Node.js 24** container.
 
 - De image wordt gebouwd via een multi-stage Dockerfile.
 - De container start via `npm run start` en luistert intern op poort `3000`.
