@@ -94,7 +94,7 @@ const Navbar: React.FC = () => {
           </div>
           <ThemeToggle></ThemeToggle>
         </div>
-        <button className="md:hidden flex flex-col space-y-1 md:hidden ml-auto" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="md:hidden flex flex-col space-y-1 md:hidden ml-auto cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
               <span className="w-6 h-0.5 bg-current"></span>
               <span className="w-6 h-0.5 bg-current"></span>
               <span className="w-6 h-0.5 bg-current"></span>
