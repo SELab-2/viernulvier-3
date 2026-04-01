@@ -9,12 +9,11 @@ const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-	`hover:text-archive-accent transition-colors ${
-	  isActive
-		? "border-archive-accent border-b-2"
-		: "border-b-2 border-transparent opacity-60"
-	}`;
-
+    `hover:text-archive-accent transition-colors ${
+      isActive
+        ? "border-archive-accent border-b-2"
+        : "border-b-2 border-transparent opacity-60"
+    }`;
 
   const lp = useLocalizedPath();
 
@@ -35,29 +34,29 @@ const Navbar: React.FC = () => {
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-			  {`${t("nav.archive")}`}
+              {`${t("nav.archive")}`}
             </span>
           </div>
         </header>
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
           <li>
             <NavLink to={lp("/")} className={navLinkClass} end>
-			  {`${t("nav.home")}`}
+              {`${t("nav.home")}`}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/archive")} className={navLinkClass}>
-			  {`${t("nav.archive")}`}
+              {`${t("nav.archive")}`}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/history")} className={navLinkClass}>
-			  {`${t("nav.history")}`}
+              {`${t("nav.history")}`}
             </NavLink>
           </li>
         </ul>
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-		  <LanguageSwitcher />
+          <LanguageSwitcher />
           <ThemeToggle></ThemeToggle>
         </div>
         <button
@@ -73,21 +72,21 @@ const Navbar: React.FC = () => {
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <li>
                 <NavLink to={lp("/")} onClick={() => setMenuOpen(false)}>
-			      {`${t("nav.home")}`}
+                  {`${t("nav.home")}`}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/archive")} onClick={() => setMenuOpen(false)}>
-			  	  {`${t("nav.archive")}`}
+                  {`${t("nav.archive")}`}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/history")} onClick={() => setMenuOpen(false)}>
-			      {`${t("nav.history")}`}
+                  {`${t("nav.history")}`}
                 </NavLink>
               </li>
 
-			  <LanguageSwitcher />
+              <LanguageSwitcher />
               <ThemeToggle />
             </ul>
             <div className="bg-archive-ink/10 h-px" />

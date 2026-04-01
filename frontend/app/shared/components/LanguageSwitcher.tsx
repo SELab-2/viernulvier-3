@@ -19,12 +19,12 @@ export default function LanguageSwitcher() {
   return (
     <div
       onClick={toggleLanguage}
-      className="bg-archive-ink/5 bg-archive-ink-dark/5 hidden items-center rounded-full p-1 text-[10px] font-bold cursor-pointer sm:flex"
+      className="bg-archive-ink/5 bg-archive-ink-dark/5 hidden cursor-pointer items-center rounded-full p-1 text-[10px] font-bold sm:flex"
     >
       {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
-          className={`px-3 py-1 cursor-pointer ${
+          className={`cursor-pointer px-3 py-1 ${
             code === lang
               ? "bg-archive-ink bg-archive-ink-dark text-archive-paper text-archive-paper-dark rounded-full"
               : "opacity-50"
