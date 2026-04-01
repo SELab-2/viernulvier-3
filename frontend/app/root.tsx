@@ -1,7 +1,7 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { getThemeBootstrapScript } from "./shared/utils/theme";
-import Navbar from "~/shared/components/Navbar"
+import Navbar from "~/shared/components/Navbar";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
 import "./styles/app.css";
 
@@ -29,10 +29,10 @@ export default function App() {
     <div>
       <ThemeProvider>
         <Navbar />
-          <main>
-            <Outlet />
-      </main>
+        <main>
+          <Outlet />
+        </main>
       </ThemeProvider>
-    </div> 
-  )
+    </div>
+  );
 }
