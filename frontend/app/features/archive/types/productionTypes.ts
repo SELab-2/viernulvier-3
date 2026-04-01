@@ -13,7 +13,7 @@ export interface PaginationResponse {
 export interface ProductionInfo {
   prod_id: string;
   language: string;
-  
+
   title?: string;
   supertitle?: string;
   artist?: string;
@@ -25,13 +25,13 @@ export interface ProductionInfo {
 
 export interface Production {
   id: string;
-  
+
   performer_type?: string;
   attendance_mode?: string;
   media_gallery_id?: number; // Maybe update after merge media pr.
   created_at?: string;
   updated_at?: string;
-  
+
   production_infos: ProductionInfo[];
   events: string[];
   tags: Tag[];
@@ -47,7 +47,7 @@ export interface ProductionInfoCreate {
 
   title?: string;
   supertitle?: string;
-  artist?: string; 
+  artist?: string;
   tagline?: string;
   teaser?: string;
   description?: string;
@@ -72,15 +72,15 @@ export interface ProductionInfoUpdate {
   tagline?: string;
   teaser?: string;
   description?: string;
-  info?: string; 
+  info?: string;
 }
 
 export interface ProductionUpdate {
   performer_type?: string;
-  attendance_mode?: string; 
+  attendance_mode?: string;
   media_gallery_id?: number; // Maybe update after merge media pr.
 
   production_infos?: ProductionInfoUpdate[];
   tag_ids?: number[];
-  remove_languages?: string[]; 
+  remove_languages?: string[];
 }

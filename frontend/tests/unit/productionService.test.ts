@@ -20,7 +20,7 @@ import type {
   ProductionList,
   ProductionCreate,
   ProductionUpdate,
-  PaginationResponse
+  PaginationResponse,
 } from "~/features/archive/types/productionTypes";
 
 import { setupLocalStorage } from "tests/globalSetup";
@@ -33,13 +33,13 @@ describe("productionService", () => {
   // Mock tags
   const tag1: Tag = {
     id: "/api/v1/archive/tags/1",
-    names: []
-  }
+    names: [],
+  };
 
   const tag2: Tag = {
     id: "/api/v1/archive/tags/2",
-    names: []
-  }
+    names: [],
+  };
 
   // Mock productions (+ info)
   const mockProductionInfo1NL: ProductionInfo = {
@@ -47,7 +47,8 @@ describe("productionService", () => {
     language: "nl",
     title: "De Simpsons: Achter de schermen...",
     artist: "Homer Simpson",
-    description: "Een kijkje achter de schermen van de wereldbenoemde serie: De Simpsons, rechtstreeks uit de ogen van Homer Simpson!",
+    description:
+      "Een kijkje achter de schermen van de wereldbenoemde serie: De Simpsons, rechtstreeks uit de ogen van Homer Simpson!",
   };
 
   const mockProductionInfo1EN: ProductionInfo = {
@@ -55,7 +56,8 @@ describe("productionService", () => {
     language: "en",
     title: "De Simpsons: Behind the schenes...",
     artist: "Homer Simpson",
-    description: "A peek behind the scenes of the world-famous series: The Simpsons, straight from Homer Simpson’s perspective!",
+    description:
+      "A peek behind the scenes of the world-famous series: The Simpsons, straight from Homer Simpson’s perspective!",
   };
 
   const mockProductionInfo2NL: ProductionInfo = {
@@ -72,10 +74,10 @@ describe("productionService", () => {
     attendance_mode: "online",
     created_at: "2026-03-29T14:00:00",
     updated_at: "2026-03-29T14:00:00",
-    
+
     production_infos: [mockProductionInfo1NL, mockProductionInfo1EN],
     events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
-    tags: [tag1, tag2]
+    tags: [tag1, tag2],
   };
 
   const mockProduction2: Production = {
@@ -84,10 +86,10 @@ describe("productionService", () => {
     attendance_mode: "on stage",
     created_at: "2026-03-29T14:00:00",
     updated_at: "2026-03-29T14:00:00",
-    
+
     production_infos: [mockProductionInfo2NL],
     events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
-    tags: [tag2]
+    tags: [tag2],
   };
 
   beforeEach(() => {
@@ -106,12 +108,12 @@ describe("productionService", () => {
     it("returns productions list", async () => {
       const pagination: PaginationResponse = {
         has_more: false,
-      } 
-      
+      };
+
       const mockProductionList: ProductionList = {
         productions: [mockProduction1, mockProduction2],
-        pagination: pagination
-      }
+        pagination: pagination,
+      };
 
       mockAdapter.onGet("/api/v1/archive/productions").reply(200, mockProductionList);
       const result = await getProductionsPaginated();
@@ -150,21 +152,21 @@ describe("productionService", () => {
         prod_id: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
-        artist: "William Shatner"
-      }
+        artist: "William Shatner",
+      };
       const productionData: ProductionCreate = {
         performer_type: "singer",
         attendance_mode: "online",
         production_info: production_info,
         tag_ids: [1, 2],
-      }
+      };
 
       const mockResponse: Production = {
         id: "/api/v1/archive/productions/3",
         production_infos: [production_info],
         events: [],
-        tags: [tag1]
-      }
+        tags: [tag1],
+      };
 
       mockAdapter.onPost("/api/v1/archive/productions").reply(201, mockResponse);
       const result = await createProduction(productionData);
@@ -177,14 +179,14 @@ describe("productionService", () => {
         prod_id: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
-        artist: "William Shatner"
-      }
+        artist: "William Shatner",
+      };
       const productionData: ProductionCreate = {
         performer_type: "singer",
         attendance_mode: "online",
         production_info: production_info,
         tag_ids: [1, 2],
-      }
+      };
 
       mockAdapter.onPost("/api/v1/archive/productions").reply(400);
 
@@ -194,8 +196,8 @@ describe("productionService", () => {
   describe("updateProduction", () => {
     it("updates a production and returns updated data", async () => {
       const productionUpdate: ProductionUpdate = {
-        attendance_mode: "online"
-      }
+        attendance_mode: "online",
+      };
 
       const mockProduction2_updated: Production = {
         id: "/api/v1/archive/productions/2",
@@ -203,14 +205,16 @@ describe("productionService", () => {
         attendance_mode: "online",
         created_at: "2026-03-29T14:00:00",
         updated_at: "2026-03-29T14:00:00",
-        
+
         production_infos: [mockProductionInfo2NL],
         events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
-        tags: [tag1]
+        tags: [tag1],
       };
 
-      mockAdapter.onPatch("/api/v1/archive/productions/2").reply(200, mockProduction2_updated);
-      
+      mockAdapter
+        .onPatch("/api/v1/archive/productions/2")
+        .reply(200, mockProduction2_updated);
+
       const result = await updateProduction(2, productionUpdate);
 
       expect(result).toEqual(mockProduction2_updated);
@@ -220,8 +224,8 @@ describe("productionService", () => {
 
     it("throws when update request fails", async () => {
       const productionUpdate: ProductionUpdate = {
-        attendance_mode: "online"
-      }
+        attendance_mode: "online",
+      };
 
       mockAdapter.onPatch("/api/v1/archive/productions/2").reply(400);
       await expect(updateProduction(1, productionUpdate)).rejects.toThrow();
