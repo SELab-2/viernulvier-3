@@ -264,7 +264,6 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
 
 
 def test_event_url_contains_full_path(client: TestClient, db_session: Session):
-
     from src.models.hall import Hall
     from src.models.production import Production
     from src.models.event import Event
@@ -294,7 +293,6 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
 
 
 def test_event_price_url_contains_full_path(client: TestClient, db_session: Session):
-
     # setup
     hall = Hall(name="Hall Price Test", address="Street Price Test")
     production = Production()

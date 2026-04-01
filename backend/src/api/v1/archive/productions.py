@@ -22,6 +22,7 @@ from src.services.archive import get_base_url
 
 router = APIRouter()
 
+
 @router.get(
     "/",
     response_model=ProductionListResponse,
