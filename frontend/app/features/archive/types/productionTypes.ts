@@ -1,3 +1,5 @@
+import type { Tag } from "./tagTypes";
+
 export interface PaginationRequest {
   cursor?: number;
   limit?: number;
@@ -32,7 +34,7 @@ export interface Production {
   
   production_infos: ProductionInfo[];
   events: string[];
-  tags: string[]; // ToDo: change after pr.
+  tags: Tag[];
 }
 
 export interface ProductionList {
