@@ -10,21 +10,23 @@ export default function LanguageSwitcher() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const switchLanguage = (newLang: string) => {
+  const toggleLanguage = () => {
+    const newLang = lang === "en" ? "nl" : "en";
     const newPath = location.pathname.replace(`/${lang}`, `/${newLang}`);
     navigate(newPath);
   };
 
   return (
-    <div className="bg-archive-ink/5 dark:bg-archive-ink-dark/5 hidden items-center rounded-full p-1 text-[10px] font-bold sm:flex">
+    <div
+      onClick={toggleLanguage}
+      className="bg-archive-ink/5 bg-archive-ink-dark/5 hidden items-center rounded-full p-1 text-[10px] font-bold cursor-pointer sm:flex"
+    >
       {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
-          onClick={() => switchLanguage(code)}
-          disabled={code === lang}
-          className={`px-3 py-1 ${
+          className={`px-3 py-1 cursor-pointer ${
             code === lang
-              ? "bg-archive-ink dark:bg-archive-ink-dark text-archive-paper dark:text-archive-paper-dark rounded-full"
+              ? "bg-archive-ink bg-archive-ink-dark text-archive-paper text-archive-paper-dark rounded-full"
               : "opacity-50"
           }`}
         >

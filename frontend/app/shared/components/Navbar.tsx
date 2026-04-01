@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
+import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
@@ -17,6 +18,8 @@ const Navbar: React.FC = () => {
 
   const lp = useLocalizedPath();
 
+  const { t } = useTranslation();
+
   return (
     <nav className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
@@ -32,24 +35,24 @@ const Navbar: React.FC = () => {
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-              Archief
+			  {`${t("nav.archive")}`}
             </span>
           </div>
         </header>
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
           <li>
             <NavLink to={lp("/")} className={navLinkClass} end>
-              Home
+			  {`${t("nav.home")}`}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/archive")} className={navLinkClass}>
-              Archief
+			  {`${t("nav.archive")}`}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/history")} className={navLinkClass}>
-              History
+			  {`${t("nav.history")}`}
             </NavLink>
           </li>
         </ul>
@@ -70,17 +73,17 @@ const Navbar: React.FC = () => {
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <li>
                 <NavLink to={lp("/")} onClick={() => setMenuOpen(false)}>
-                  Home
+			      {`${t("nav.home")}`}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/archive")} onClick={() => setMenuOpen(false)}>
-                  Archief
+			  	  {`${t("nav.archive")}`}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/history")} onClick={() => setMenuOpen(false)}>
-                  History
+			      {`${t("nav.history")}`}
                 </NavLink>
               </li>
 
