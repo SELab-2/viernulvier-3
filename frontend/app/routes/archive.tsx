@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import FilterSidebar from "~/shared/components/FilterSidebar"
 
 export default function Archive() {
@@ -18,11 +19,14 @@ export default function Archive() {
     setShowFilters(prev => !prev)
   }
 
+  const { t } = useTranslation();
+
+  // De div met getoonde filters is tijdelijk en heeft dus geen i18n
   return (
     <div>
-      <title>Archief | VIERNULVIER</title>
+      <title>{t("nav.archive")} | VIERNULVIER</title>
       <div>
-        <h1 className="text-3xl font-bold">Archief Pagina</h1>
+        <h1 className="text-3xl font-bold">{t("nav.archive")}</h1>
       </div>
 
       <button

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 interface Props {
 	show: boolean
@@ -111,13 +112,15 @@ const FilterSidebar: React.FC<Props> = ({
 		setDropdownAbove(spaceBelow < estimatedDropdownHeight)
 	}, [filteredArtists.length])
 
+	const { t } = useTranslation();
+
 	return (
 		<aside ref={sidebarRef} id="archive-sidebar" className={`${show ? "block" : "hidden"} lg:block w-full lg:w-80 lg:sticky lg:top-24 max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto sticky-scroll space-y-6 pr-0 lg:pr-4 mb-10 lg:mb-0`}>
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
-				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">Zoeken</h3>
+				<h3 className="text-xs uppercase tracking-[0.2em] font-bold mb-4 md:mb-6 opacity-40">{t("filter.search")}</h3>
 				<div className="relative">
-					<input type="text" placeholder="Zoek in de collectie" className="archive-filter-input pr-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}/>
+					<input type="text" placeholder={t("filter.search_in_collection")} className="archive-filter-input pr-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}/>
 					<svg className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 opacity-25 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 					</svg>
@@ -126,7 +129,7 @@ const FilterSidebar: React.FC<Props> = ({
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<div className={`flex justify-between items-center group cursor-pointer ${dateOpen ? "mb-6" : ""}`} onClick={() => setDateOpen(prev => !prev)}>
-					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Periode</h3>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">{t("filter.period")}</h3>
 					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${dateOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
@@ -134,11 +137,11 @@ const FilterSidebar: React.FC<Props> = ({
 				{dateOpen && (
 					<div className="grid grid-cols-1 gap-4">
 						<div>
-							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Van</label>
+							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">{t("filter.from")}</label>
 							<input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="archive-filter-input" />
 						</div>
 						<div>
-							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">Tot</label>
+							<label className="text-[10px] uppercase tracking-widest opacity-40 block mb-2 font-bold">{t("filter.to")}</label>
 							<input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="archive-filter-input" />
 						</div>
 					</div>
@@ -147,7 +150,7 @@ const FilterSidebar: React.FC<Props> = ({
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<div className={`flex justify-between items-center group cursor-pointer ${tagOpen ? "mb-6" : ""}`} onClick={() => setTagOpen(prev => !prev)}>
-					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Tags</h3>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">{t("filter.tags")}</h3>
 					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${tagOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
@@ -171,7 +174,7 @@ const FilterSidebar: React.FC<Props> = ({
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<div className={`flex justify-between items-center group cursor-pointer ${venuesOpen ? "mb-6" : ""}`} onClick={() => setVenuesOpen(prev => !prev)}>
-					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Locaties</h3>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">{t("filter.venues")}</h3>
 					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${venuesOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
@@ -190,7 +193,7 @@ const FilterSidebar: React.FC<Props> = ({
 
 			<div className="p-6 bg-archive-ink/5 dark:bg-archive-ink-dark/5 rounded-2xl border border-archive-ink/5 dark:border-archive-ink-dark/5 shadow-sm">
 				<div className={`flex justify-between items-center group cursor-pointer ${artistsOpen ? "mb-6" : ""}`} onClick={() => setArtistsOpen(prev => !prev)}>
-					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">Artiesten</h3>
+					<h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-40 cursor-pointer">{t("filter.artists")}</h3>
 					<svg className={`w-3 h-3 opacity-30 group-hover:opacity-100 transition-transform ${artistsOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
@@ -198,7 +201,7 @@ const FilterSidebar: React.FC<Props> = ({
 				{artistsOpen && (
 					<div>
 						<div className="relative" ref={artistInputRef}>
-							<input type="text" placeholder="Zoek naar artiesten" className="archive-filter-input pr-9" value={artistQuery} onChange={e => setArtistQuery(e.target.value)}/>
+							<input type="text" placeholder={t("filter.search_artists")} className="archive-filter-input pr-9" value={artistQuery} onChange={e => setArtistQuery(e.target.value)}/>
 							<svg className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 opacity-25 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 							</svg>
