@@ -5,7 +5,6 @@ import LanguageWrapper from "~/shared/components/LanguageWrapper";
 const mockChangeLanguage = vi.fn();
 let mockLang: string | undefined = "en";
 let mockI18nLanguage = "en";
-let mockNavigateTo = "";
 
 vi.mock("react-router", () => ({
   useParams: () => ({ lang: mockLang }),
@@ -16,7 +15,6 @@ vi.mock("react-router", () => ({
     },
   }),
   Navigate: ({ to }: { to: string }) => {
-    mockNavigateTo = to;
     return <div data-testid="navigate" data-to={to} />;
   },
   Outlet: () => <div data-testid="outlet" />,
@@ -35,7 +33,6 @@ describe("LanguageWrapper", () => {
   afterEach(() => {
     cleanup();
     mockChangeLanguage.mockReset();
-    mockNavigateTo = "";
   });
 
   beforeEach(() => {
