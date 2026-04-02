@@ -216,7 +216,7 @@ def production_with_no_media(db_session: Session) -> Production:
 def media_item(db_session, production_with_no_media):
     media = Media(
         production_id=production_with_no_media.id,
-        object_key="gallery-{}/example.jpg".format(production_with_no_media.id),
+        object_key=f"gallery-{production_with_no_media.id}/example.jpg",
         content_type="image/jpeg",
         uploaded_at=datetime.now(timezone.utc),
     )
