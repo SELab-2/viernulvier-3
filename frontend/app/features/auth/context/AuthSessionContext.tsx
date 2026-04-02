@@ -105,7 +105,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (request: ILoginRequest) => {
-      const operationId = ++sessionOperationIdRef.current;
+      sessionOperationIdRef.current += 1;
+      const operationId = sessionOperationIdRef.current;
 
       const user = await loginRequest(request);
 
