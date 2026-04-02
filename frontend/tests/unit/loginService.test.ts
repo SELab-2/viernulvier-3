@@ -253,6 +253,16 @@ describe("loginService", () => {
   });
 
   describe("refreshSession", () => {
+    it("returns null and clears tokens when no refresh token exists", async () => {
+      localStorage.setItem("access_token", "someToken");
+      localStorage.removeItem("refresh_token");
+
+      await expect(refreshSession()).resolves.toBeNull();
+
+      expect(localStorage.getItem("access_token")).toBe(null);
+      expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
+
     it("returns null and clears tokens when the refresh token is invalid", async () => {
       localStorage.setItem("access_token", "access123");
       localStorage.setItem("refresh_token", "refresh123");
@@ -262,6 +272,36 @@ describe("loginService", () => {
 
       expect(localStorage.getItem("access_token")).toBe(null);
       expect(localStorage.getItem("refresh_token")).toBe(null);
+    });
+
+    it("calls getCurrentUser and returns the user after a successful refresh", async () => {
+      localStorage.setItem("refresh_token", "refresh123");
+
+      mockAdapter.onPost("/api/v1/auth/refresh").reply(200, {
+        access_token: "newAccess123",
+        token_type: "bearer",
+      });
+      mockAdapter.onGet("/api/v1/auth/users/me").reply(200, {
+        id: 1,
+        username: "test",
+        super_user: false,
+        roles: [],
+        permissions: [],
+        created_at: "2026-01-01T00:00:00",
+        last_login_at: null,
+      });
+
+      await expect(refreshSession()).resolves.toEqual({
+        id: 1,
+        username: "test",
+        isSuperUser: false,
+        roles: [],
+        permissions: [],
+        createdAt: "2026-01-01T00:00:00",
+        lastLoginAt: null,
+      });
+
+      expect(localStorage.getItem("access_token")).toBe("newAccess123");
     });
 
     it("rethrows transient refresh failures without clearing the session", async () => {
