@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { redirect } from "react-router";
 
 import {
   ProductionCardGrid,
@@ -39,4 +39,10 @@ export default function Home() {
       </main>
     </div>
   );
+export function loader() {
+  return redirect("/en");
+}
+
+export default function Index() {
+  return null;
 }

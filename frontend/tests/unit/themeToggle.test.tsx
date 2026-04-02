@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
+import { ThemeProvider } from "~/shared/components/ThemeContext";
 
 describe("ThemeToggle", () => {
   afterEach(() => {
@@ -17,7 +18,11 @@ describe("ThemeToggle", () => {
   });
 
   it("toggles the document theme and persists the preference", async () => {
-    render(<ThemeToggle />);
+    render(
+      <ThemeProvider>
+        <ThemeToggle />
+      </ThemeProvider>
+    );
 
     expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeTruthy();
 
@@ -36,7 +41,11 @@ describe("ThemeToggle", () => {
   it("renders the dark theme state from storage and toggles back to light", async () => {
     localStorage.setItem("theme", "dark");
 
-    render(<ThemeToggle />);
+    render(
+      <ThemeProvider>
+        <ThemeToggle />
+      </ThemeProvider>
+    );
 
     expect(screen.getByRole("button", { name: "Switch to light mode" })).toBeTruthy();
 
