@@ -5,6 +5,7 @@ import { ThemeProvider } from "~/shared/components/ThemeContext";
 import { AuthSessionProvider } from "./features/auth";
 import { getThemeBootstrapScript } from "./shared/utils/theme";
 import "./styles/app.css";
+import "./i18n";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
