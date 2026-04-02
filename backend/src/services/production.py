@@ -1,6 +1,8 @@
 from src.schemas.pagination import Pagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo, Tag
+from src.services.tag import build_tag_response, get_names_for_language
+from src.schemas.tag import TagResponse
 from src.api.dependencies.language import get_accepted_language
 from src.schemas.production import (
     ProductionCreate,
@@ -124,10 +126,14 @@ def get_events_for_production(
 # Returns all tags for a given productoin.
 def get_tags_for_production(
     db: Session, production_id: int, base_url: str
-) -> list[str]:
+) -> list[TagResponse]:
     production = db.query(Production).get(production_id)
     tags = production.tags
-    return [f"{base_url}/tags/{tag.id}" for tag in tags]
+    responses = []
+    for tag in tags:
+        names = get_names_for_language(tag.names, language=None)
+        responses.append(build_tag_response(tag, names, base_url))
+    return responses
 
 
 # Returns a production with given id.
