@@ -80,10 +80,12 @@ De frontend zal dan beschikbaar komen op:
 
 ## Routing
 
-Voor routing wordt gebruik gemaakt van file-based routing, hierbij worden routes gedefiniëerd aan de hand van de namen van de bestanden in `frontend/app/routes/`
-Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd als `frontend/app/routes/archive.productions.$id.tsx`.
+Voor routing wordt gebruik gemaakt van manuele routeconfiguratie, hierbij worden routes gedefiniëerd met gebruik van de `route` functie in `routes.ts`. 
+Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd via de lijn
+```js
+route("archive/productions/:id", "routes/productionPage.tsx")
+```
 
-Voor specifieke details zie de documentatie [file-route-conventions](https://reactrouter.com/how-to/file-route-conventions)
 
 ## Issues
 Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24``` met npm versie ```11.9.0```.
