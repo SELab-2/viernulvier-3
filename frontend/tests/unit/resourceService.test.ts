@@ -15,9 +15,6 @@ import type {
   ICreateResource,
   IUpdateResource,
 } from "~/features/_template-feature/resource.types";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("resourceService", () => {
   let mockAdapter: AxiosMockAdapter;

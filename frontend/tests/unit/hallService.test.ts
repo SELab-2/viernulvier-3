@@ -15,9 +15,6 @@ import type {
   HallResponse,
   HallUpdate,
 } from "~/features/archive/types/hallTypes";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("hallService", () => {
   let mockAdapter: AxiosMockAdapter;

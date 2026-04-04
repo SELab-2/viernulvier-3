@@ -6,6 +6,7 @@ import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
 
 const Navbar: React.FC = () => {
+  // Mobile dropdown state
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -15,8 +16,10 @@ const Navbar: React.FC = () => {
         : "border-b-2 border-transparent opacity-60"
     }`;
 
+  // "/archive" -> "/[en|nl]/archive"
   const lp = useLocalizedPath();
 
+  // i18n
   const { t } = useTranslation();
 
   return (
