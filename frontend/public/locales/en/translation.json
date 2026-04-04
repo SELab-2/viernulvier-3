@@ -3,5 +3,30 @@
     "home": "Home",
     "archive": "Archive",
     "history": "History"
+  },
+  "productionPage": {
+    "fallback": {
+      "unknownProduction": "Unknown production",
+      "archive": "Archive",
+      "defaultArtist": "viernulvier",
+      "noDescription": "No additional description is available for this production.",
+      "dateTbd": "Date to be determined",
+      "locationTbd": "Location to be determined"
+    },
+    "headerBrandAria": "VIERNULVIER Archive",
+    "archiveLabel": "Archive",
+    "backToCollection": "← Back to the collection",
+    "body": {
+      "referenceAndContext": "This production is included in the archive under reference {{reference}}. From this page, we bundle key information, metadata and context in a readable way.",
+      "exploreSimilar": "Use the tags and the venue on the right to explore similar items in the collection."
+    },
+    "archiveSchema": "Archive schema",
+    "startTime": "Start",
+    "visualEvidence": "Visual evidence",
+    "archiveFragments_one": "{{count}} archive fragment",
+    "archiveFragments_other": "{{count}} archive fragments",
+    "archivePhotoAlt": "{{title}} - archive photo {{index}}",
+    "archivePhotoCaption": "{{title}} - archive photo {{index}}"
+  }
   }
 }

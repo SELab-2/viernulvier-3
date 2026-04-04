@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 
@@ -43,20 +44,38 @@ function getListOrDefault<T>(value: T[] | null | undefined, fallback: T[]): T[] 
 }
 
 export function ProductionPage({ production, preferredLanguage = "nl" }: ProductionPageProps) {
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? preferredLanguage;
+
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
-    preferredLanguage
+    language
   );
 
-  const title = getTextOrDefault(productionInfo?.title, "Onbekende productie");
-  const supertitle = getTextOrDefault(productionInfo?.supertitle, "Archief");
-  const artist = getTextOrDefault(productionInfo?.artist, "viernulvier");
+  const title = getTextOrDefault(
+    productionInfo?.title,
+    t("productionPage.fallback.unknownProduction")
+  );
+  const supertitle = getTextOrDefault(
+    productionInfo?.supertitle,
+    t("productionPage.fallback.archive")
+  );
+  const artist = getTextOrDefault(
+    productionInfo?.artist,
+    t("productionPage.fallback.defaultArtist")
+  );
   const tagline = getTextOrDefault(
     productionInfo?.tagline,
-    "Geen extra beschrijving beschikbaar voor deze productie."
+    t("productionPage.fallback.noDescription")
   );
-  const startsAt = getTextOrDefault(production.starts_at, "Datum nog te bepalen");
-  const hallName = getTextOrDefault(production.hall_name, "Locatie nog te bepalen");
+  const startsAt = getTextOrDefault(
+    production.starts_at,
+    t("productionPage.fallback.dateTbd")
+  );
+  const hallName = getTextOrDefault(
+    production.hall_name,
+    t("productionPage.fallback.locationTbd")
+  );
   const imageUrls = getListOrDefault(production.image_url, []);
   const imageUrl = getTextOrDefault(
     imageUrls[0],
@@ -71,7 +90,7 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-[inherit] no-underline"
-            aria-label="VIERNULVIER Archief"
+            aria-label={t("productionPage.headerBrandAria")}
           >
             <img
               src="/logo.svg"
@@ -83,7 +102,7 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-              Archief
+              {t("productionPage.archiveLabel")}
             </span>
           </Link>
           <ThemeToggle />
@@ -95,7 +114,7 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           to="/"
           className="font-sans text-[0.68rem] uppercase tracking-[0.24em] opacity-70 no-underline transition hover:opacity-100"
         >
-          &larr; Terug Naar De Collectie
+          {t("productionPage.backToCollection")}
         </Link>
 
         <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30">
@@ -133,19 +152,18 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <p>{tagline}</p>
             <p>
-              Deze productie is opgenomen in het archief onder referentie {production.id_url}.
-              Vanuit deze pagina bundelen we kerninfo, metadata en context op een leesbare
-              manier.
+              {t("productionPage.body.referenceAndContext", {
+                reference: production.id_url,
+              })}
             </p>
             <p>
-              Gebruik de tags en de locatie rechts om gelijkaardige items in de collectie te
-              verkennen.
+              {t("productionPage.body.exploreSimilar")}
             </p>
           </article>
 
           <aside className="border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] bg-archive-surface-strong h-fit rounded-[1.75rem] border p-6">
             <h2 className="text-[0.68rem] uppercase tracking-[0.25em] opacity-70">
-              Archief Schema
+              {t("productionPage.archiveSchema")}
             </h2>
 
             <div className="mt-6 space-y-4">
@@ -154,7 +172,9 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
                   <span className="font-serif text-[1.35rem] leading-tight italic">
                     {startsAt}
                   </span>
-                  <span className="text-xs tracking-[0.16em] opacity-72">Aanvang</span>
+                  <span className="text-xs tracking-[0.16em] opacity-72">
+                    {t("productionPage.startTime")}
+                  </span>
                 </div>
                 <p className="mt-2 text-xs uppercase tracking-[0.2em] opacity-62">
                   {hallName}
@@ -167,10 +187,10 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
         <section className="border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] mt-16 border-t pt-14">
           <div className="mb-8 flex items-end justify-between gap-6">
             <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
-              Visueel Bewijsmateriaal
+              {t("productionPage.visualEvidence")}
             </h2>
             <p className="text-[0.68rem] uppercase tracking-[0.22em] opacity-60">
-              {imageUrls.length} Archieffragmenten
+              {t("productionPage.archiveFragments", { count: imageUrls.length })}
             </p>
           </div>
 
@@ -182,12 +202,18 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
               >
                 <img
                   src={url}
-                  alt={`${title} - archieffoto ${index + 1}`}
+                  alt={t("productionPage.archivePhotoAlt", {
+                    title,
+                    index: index + 1,
+                  })}
                   loading="lazy"
                   className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
                 <figcaption className="px-4 py-3 text-sm opacity-85">
-                  {title} - archieffoto {index + 1}
+                  {t("productionPage.archivePhotoCaption", {
+                    title,
+                    index: index + 1,
+                  })}
                 </figcaption>
               </figure>
             ))}
