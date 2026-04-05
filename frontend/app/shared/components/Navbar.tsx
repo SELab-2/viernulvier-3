@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
           </li>
         </ul>
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-          <LanguageSwitcher className="hidden sm:flex cursor-pointer items-center rounded-full bg-archive-ink/5 p-1 text-[10px] font-bold" />
+          <LanguageSwitcher className="bg-archive-ink/5 hidden cursor-pointer items-center rounded-full p-1 text-[10px] font-bold sm:flex" />
           <ThemeToggle></ThemeToggle>
         </div>
         <button
@@ -86,7 +86,7 @@ const Navbar: React.FC = () => {
                 </NavLink>
               </li>
 
-              <LanguageSwitcher className="flex cursor-pointer items-center rounded-full bg-archive-ink/5 p-1 text-[10px] font-bold" />
+              <LanguageSwitcher className="bg-archive-ink/5 flex cursor-pointer items-center rounded-full p-1 text-[10px] font-bold" />
               <ThemeToggle />
             </ul>
             <div className="bg-archive-ink/10 h-px" />
