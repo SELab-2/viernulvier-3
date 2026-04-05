@@ -12,9 +12,9 @@ export function Footer() {
   const { t } = useTranslation();
   return (
     <footer className="border-archive-ink/10 mt-20 items-center border-t py-12 text-center">
-      <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3">
+      <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-3">
         {/* Left Column */}
-        <address className="flex-col not-italic md:ml-20 md:text-left">
+        <address className="flex-col text-center not-italic md:ml-20 md:text-left">
           <p>Kunstencentrum VIERNULVIER vzw.</p>
           <p>Sint-Pietersnieuwstraat 23 9000 Gent</p>
           <p>T. 09 267 28 20 </p>
@@ -33,7 +33,7 @@ export function Footer() {
         </div>
 
         {/* Socials */}
-        <div className="flex justify-center gap-2 [&_svg]:h-6 [&_svg]:w-6">
+        <div className="flex justify-center gap-2 md:mr-20 md:justify-end [&_svg]:h-6 [&_svg]:w-6">
           <a aria-label="Facebook" href="https://www.facebook.com/VIERNULVIER.gent/">
             <FaFacebook />
           </a>
