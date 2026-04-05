@@ -3,8 +3,9 @@ import { createApiClient } from "./apiClient";
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export interface PaginationParams {
+  cursor?: number;
+  has_more?: boolean;
   limit?: number;
-  cursor?: string;
 }
 
 export async function getByUrl<T>(url: string): Promise<T> {
