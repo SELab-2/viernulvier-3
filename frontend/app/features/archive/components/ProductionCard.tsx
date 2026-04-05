@@ -10,6 +10,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import type { Production, ProductionInfo } from "../types/productionTypes";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -43,25 +44,13 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-interface ProductionInfoData {
-  language: string;
-  title?: string;
-  supertitle?: string;
-  artist?: string;
-  tagline?: string;
-}
-
-export interface ProductionCardData {
-  id_url: string;
-  performer_type?: string;
-  attendance_mode?: string;
-  media_gallery_id?: number | null;
-  production_infos?: ProductionInfoData[];
+export type ProductionCardData = Production & {
   starts_at?: string;
   hall_name?: string;
   tag_names?: string[];
   image_url?: string;
-}
+  id_url?: string;
+};
 
 interface ProductionCardProps {
   production: ProductionCardData;
@@ -71,9 +60,9 @@ interface ProductionCardProps {
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfoData[] | undefined,
+  productionInfos: ProductionInfo[] | undefined,
   language: string
-): ProductionInfoData | undefined {
+): ProductionInfo | undefined {
   if (!productionInfos || productionInfos.length === 0) {
     return undefined;
   }
@@ -108,6 +97,26 @@ function onClickDetailPlaceholder(productionId: string) {
   console.log("PlaceHolderFunction", productionId);
 }
 
+function getTagNamesByLanguage(
+  production: ProductionCardData,
+  language: string
+): string[] {
+  if (production.tag_names && production.tag_names.length > 0) {
+    return production.tag_names;
+  }
+
+  if (!production.tags || production.tags.length === 0) {
+    return DEFAULT_CARD_VALUES.tagNames;
+  }
+
+  return production.tags
+    .map((tag) => {
+      const languageMatch = tag.names.find((name) => name.language === language);
+      return languageMatch?.name ?? tag.names[0]?.name;
+    })
+    .filter((name): name is string => typeof name === "string" && name.length > 0);
+}
+
 export function ProductionCard({
   production,
   onOpen,
@@ -131,11 +140,12 @@ export function ProductionCard({
     DEFAULT_CARD_VALUES.venueLabel
   );
   const imageUrl = getTextOrDefault(production.image_url, DEFAULT_CARD_VALUES.imageUrl);
-  const tagNames = getListOrDefault(production.tag_names, DEFAULT_CARD_VALUES.tagNames);
+  const tagNames = getTagNamesByLanguage(production, preferredLanguage);
+  const productionId = production.id_url ?? production.id;
 
   const handleOpenDetails = () => {
-    (onDetailClick ?? onClickDetailPlaceholder)(production.id_url);
-    onOpen?.(production.id_url);
+    (onDetailClick ?? onClickDetailPlaceholder)(productionId);
+    onOpen?.(productionId);
   };
 
   return (
@@ -400,7 +410,7 @@ export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
       }}
     >
       {productions.map((production) => (
-        <ProductionCard key={production.id_url} production={production} />
+        <ProductionCard key={production.id} production={production} />
       ))}
     </Box>
   );
@@ -411,13 +421,17 @@ export const ProductionCardDemoGrid = ProductionCardGrid;
 // Temporary mock data for local UI development.
 export const mockProductions: ProductionCardData[] = [
   {
-    id_url: "VV-2024-10-OPEN-ARCHIVE",
+    id: "VV-2024-10-OPEN-ARCHIVE",
     performer_type: "group",
     attendance_mode: "offline",
+    media_gallery_id: 1,
+    created_at: "2024-10-01T10:00:00Z",
+    updated_at: "2024-10-01T10:00:00Z",
     starts_at: "3 oktober 2024",
     hall_name: "Balzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-OPEN-ARCHIVE",
         language: "nl",
         title: "Open Archiefnacht",
         supertitle: "Ephemera",
@@ -426,18 +440,28 @@ export const mockProductions: ProductionCardData[] = [
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },
     ],
-    tag_names: ["Archief", "Open Huis", "Performance", "Gent"],
+    events: [],
+    tags: [
+      { id: "1", names: [{ language: "nl", name: "Archief" }] },
+      { id: "2", names: [{ language: "nl", name: "Open Huis" }] },
+      { id: "3", names: [{ language: "nl", name: "Performance" }] },
+      { id: "4", names: [{ language: "nl", name: "Gent" }] },
+    ],
     image_url:
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop",
   },
   {
-    id_url: "VV-2024-10-M1",
+    id: "VV-2024-10-M1",
     performer_type: "ensemble",
     attendance_mode: "hybrid",
+    media_gallery_id: 2,
+    created_at: "2024-10-02T10:00:00Z",
+    updated_at: "2024-10-02T10:00:00Z",
     starts_at: "5 oktober 2024",
     hall_name: "Domzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-M1",
         language: "nl",
         title: "Film Hoge Dichtheid #2",
         supertitle: "Theater",
@@ -445,18 +469,26 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    tag_names: ["Underground", "Mockup"],
+    events: [],
+    tags: [
+      { id: "5", names: [{ language: "nl", name: "Underground" }] },
+      { id: "6", names: [{ language: "nl", name: "Mockup" }] },
+    ],
     image_url:
       "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1600&auto=format&fit=crop",
   },
   {
-    id_url: "VV-2024-10-M2",
+    id: "VV-2024-10-M2",
     performer_type: "duo",
     attendance_mode: "online",
+    media_gallery_id: 3,
+    created_at: "2024-10-03T10:00:00Z",
+    updated_at: "2024-10-03T10:00:00Z",
     starts_at: "21 oktober 2024",
     hall_name: "Filmzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-M2",
         language: "nl",
         title: "Ephemera Hoge Dichtheid #3",
         supertitle: "Film",
@@ -464,7 +496,11 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    tag_names: ["Geschiedenis", "Mockup"],
+    events: [],
+    tags: [
+      { id: "7", names: [{ language: "nl", name: "Geschiedenis" }] },
+      { id: "8", names: [{ language: "nl", name: "Mockup" }] },
+    ],
     image_url:
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
   },
