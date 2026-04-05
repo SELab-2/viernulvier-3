@@ -14,7 +14,6 @@ def extract_id(url: str | None) -> int | None:
 
 
 def build_event_response(db: Session, event: Event, base_url: str) -> EventResponse:
-
     hall = db.query(Hall).filter(Hall.id == event.hall_id).first()
 
     prices_db = db.query(EventPrice).filter(EventPrice.event_id == event.id).all()
@@ -64,7 +63,6 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
 
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
-
     try:
         production_id = extract_id(event_in.production_id)
         hall_id = extract_id(event_in.hall_id)
@@ -101,7 +99,6 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
 def update_event(
     db: Session, event_id: int, update_data: EventUpdate, base_url: str
 ) -> EventResponse:
-
     event = db.query(Event).filter(Event.id == event_id).first()
 
     if not event:
@@ -159,7 +156,6 @@ def update_event(
 def get_prices_for_event(
     db: Session, event_id: int, base_url: str
 ) -> list[PriceResponse]:
-
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise NotFoundError("Event", event_id)
@@ -186,7 +182,6 @@ def get_prices_for_event(
 def get_event_price(
     db: Session, event_id: int, price_id: int, base_url: str
 ) -> PriceResponse:
-
     price = (
         db.query(EventPrice)
         .filter(EventPrice.id == price_id)
