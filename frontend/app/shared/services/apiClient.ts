@@ -27,10 +27,10 @@ function shouldRetryUnauthorized(request: RetryableRequestConfig | undefined): b
 let activeRefreshRequest: Promise<string> | null = null;
 
 export function createApiClient() {
-  const { API_URL } = getEnv();
+  const { API_BASE_URL } = getEnv();
 
   const apiClient = axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     timeout: 5000,
     headers: {
       "Content-Type": "application/json",

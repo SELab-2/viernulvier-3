@@ -34,7 +34,7 @@ describe("tagService", () => {
     vi.clearAllMocks();
 
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_URL: "http://localhost",
+      API_BASE_URL: "http://localhost",
     });
 
     // Create a single mocked api client and use this client in all subsequent creations
