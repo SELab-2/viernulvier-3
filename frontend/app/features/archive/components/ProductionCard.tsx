@@ -160,11 +160,10 @@ export function ProductionCard({
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         "color": CARD_COLORS.textPrimary,
         "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
-        "boxShadow": `0 16px 40px ${colorWithOpacity(CARD_COLORS.ink, 0.38)}`,
         "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
-          boxShadow: `0 22px 50px ${colorWithOpacity(CARD_COLORS.ink, 0.45)}`,
+          boxShadow: `0 16px 36px ${colorWithOpacity(CARD_COLORS.ink, 0.1)}`,
         },
         "&:hover .production-card-image": {
           transform: `translateY(${CARD_MOTION.imageTranslateYOnHover}) scale(${CARD_MOTION.imageScaleOnHover})`,
@@ -271,6 +270,7 @@ export function ProductionCard({
             component="h3"
             sx={{
               mb: 0.7,
+              pb: "0.09em",
               fontFamily: "var(--font-serif)",
               fontSize: "var(--text-archive-title-lg)",
               lineHeight: "var(--leading-archive-title)",
