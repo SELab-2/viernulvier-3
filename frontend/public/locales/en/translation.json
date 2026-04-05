@@ -4,6 +4,10 @@
     "archive": "Archive",
     "history": "History"
   },
+  "footer": {
+    "website": "Our official website"
+  },
+
   "filter": {
     "search": "Search",
     "search_in_collection": "Search in our collection",
