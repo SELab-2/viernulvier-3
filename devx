@@ -204,7 +204,12 @@ function dev() {
 				(run cd backend && run ruff format)
 			fi
 			if [[ "$target" == frontend || "$target" == both ]]; then
-				(run cd frontend && run npm run format && run npm run lint)
+				(
+					run cd frontend \
+					&& run npm run format \
+					&& run npm run lint \
+					&& run npm run typecheck
+				)
 			fi
 			;;
 		install)
