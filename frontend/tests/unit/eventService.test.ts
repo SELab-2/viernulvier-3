@@ -23,7 +23,7 @@ describe("eventService", () => {
 
   beforeEach(() => {
     vi.spyOn(envModule, "getEnv").mockReturnValue({
-      API_URL: "http://localhost",
+      API_BASE_URL: "http://localhost",
     });
 
     const apiClient = createApiClient();

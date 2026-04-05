@@ -460,7 +460,6 @@ def test_create_production_failure(client: TestClient, db_session: Session):
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "media_gallery_id": 4,
             "production_info": {
                 "language": Languages.NEDERLANDS,
                 "title": "Nieuwe productie",
@@ -483,7 +482,6 @@ def test_create_production_unsupported_language(
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "media_gallery_id": 4,
             "production_info": {"language": "es", "title": "new production"},
         },
         headers=headers,

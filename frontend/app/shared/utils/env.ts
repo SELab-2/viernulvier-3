@@ -8,7 +8,7 @@ function requireEnv(key: string): string {
 }
 
 export const env = {
-  API_URL: requireEnv("VITE_API_BASE_URL"),
+  API_BASE_URL: requireEnv("VITE_API_BASE_URL"),
 };
 
 export function getEnv() {
