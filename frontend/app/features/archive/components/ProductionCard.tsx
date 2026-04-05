@@ -89,10 +89,6 @@ function getOptionalText(value: string | null | undefined): string | undefined {
   return trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
-function getListOrDefault<T>(value: T[] | null | undefined, fallback: T[]): T[] {
-  return Array.isArray(value) ? value : fallback;
-}
-
 function onClickDetailPlaceholder(productionId: string) {
   console.log("PlaceHolderFunction", productionId);
 }
