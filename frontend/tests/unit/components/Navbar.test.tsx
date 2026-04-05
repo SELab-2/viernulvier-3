@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import Navbar from "~/shared/components/Navbar";
 import { MemoryRouter } from "react-router";
@@ -52,5 +52,26 @@ describe("Navbar", () => {
     await userEvent.click(button);
 
     expect(screen.queryByTestId("mobile-menu")).not.toBeInTheDocument();
+  });
+
+  it("renders navigation links when menu is opened", async () => {
+    renderWithRouterAndTheme(<Navbar />);
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+
+    // menu not present initially
+    expect(screen.queryByTestId("mobile-menu")).not.toBeInTheDocument();
+
+    await userEvent.click(button);
+
+    // menu is rendered
+    const menu = screen.getByTestId("mobile-menu");
+    expect(menu).toBeInTheDocument();
+
+    // now query inside the menu
+    expect(within(menu).getByText("I18N_Home")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_Archive")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_History")).toBeInTheDocument();
+    await userEvent.click(button);
   });
 });
