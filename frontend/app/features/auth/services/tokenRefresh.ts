@@ -11,10 +11,10 @@ import {
 } from "./tokenStorage";
 
 function createRefreshClient() {
-  const { API_URL } = getEnv();
+  const { API_BASE_URL } = getEnv();
 
   return axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     timeout: 5000,
     headers: {
       "Content-Type": "application/json",
