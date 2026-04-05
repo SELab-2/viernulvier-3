@@ -32,6 +32,12 @@ class Settings(BaseSettings):
 
     VIERNULVIER_KEY: str
 
+    # MinIO
+    MINIO_ROOT_USER: str
+    MINIO_ROOT_PASSWORD: str
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_BUCKET: str = "media"
+
     @computed_field
     def database_url(self) -> str:
         return (
