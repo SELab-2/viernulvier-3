@@ -4,6 +4,7 @@ import { getThemeBootstrapScript } from "./shared/utils/theme";
 import Navbar from "~/shared/components/Navbar";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
 import "./styles/app.css";
+import "./i18n";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

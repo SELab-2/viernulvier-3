@@ -15,3 +15,8 @@ def test_no_trailing_slash():
 def test_root_url():
     url = "https://example.com/"
     assert get_base_url(url, 1) == "https://example.com"
+
+
+def test_with_query_params_and_deep_path():
+    url = "https://example.com/api/v1/archive/productions/?cursor=1&limit=20"
+    assert get_base_url(url, 1) == "https://example.com/api/v1/archive"
