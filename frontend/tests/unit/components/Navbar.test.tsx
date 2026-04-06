@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import Navbar from "~/shared/components/Navbar";
-import { MemoryRouter } from "react-router";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
 import userEvent from "@testing-library/user-event";
 
@@ -18,17 +18,56 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-function renderWithRouterAndTheme(component: React.ReactNode) {
-  render(
-    <MemoryRouter>
-      <ThemeProvider>{component}</ThemeProvider>
-    </MemoryRouter>
+vi.mock("~/shared/hooks/useLocalizedPath", () => ({
+  useLocalizedPath: () => (path: string) => path,
+}));
+
+function renderWithRouterAndTheme() {
+  const router = createMemoryRouter(
+    [
+      {
+        path: "/",
+        element: (
+          <>
+            <Navbar />
+            <div>TEST_HOME_PAGE</div>
+          </>
+        ),
+      },
+      {
+        path: "/archive",
+        element: (
+          <>
+            <Navbar />
+            <div>TEST_ARCHIVE_PAGE</div>
+          </>
+        ),
+      },
+      {
+        path: "/history",
+        element: (
+          <>
+            <Navbar />
+            <div>TEST_HISTORY_PAGE</div>
+          </>
+        ),
+      },
+    ],
+    {
+      initialEntries: ["/"],
+    }
+  );
+
+  return render(
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }
 
 describe("Navbar", () => {
   it("renders navigation links", () => {
-    renderWithRouterAndTheme(<Navbar />);
+    renderWithRouterAndTheme();
 
     expect(screen.getByText("I18N_Home")).toBeInTheDocument();
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
@@ -37,7 +76,7 @@ describe("Navbar", () => {
   });
 
   it("toggles mobile menu when clicking hamburger button", async () => {
-    renderWithRouterAndTheme(<Navbar />);
+    renderWithRouterAndTheme();
 
     // After 2h I don't see why the tests have the Navbar rendered twice,
     // so let's just get this first one...
@@ -55,7 +94,7 @@ describe("Navbar", () => {
   });
 
   it("renders navigation links when menu is opened", async () => {
-    renderWithRouterAndTheme(<Navbar />);
+    renderWithRouterAndTheme();
 
     const button = screen.getAllByTestId("hamburger-menu-button")[0];
 
@@ -73,5 +112,77 @@ describe("Navbar", () => {
     expect(within(menu).getByText("I18N_Archive")).toBeInTheDocument();
     expect(within(menu).getByText("I18N_History")).toBeInTheDocument();
     await userEvent.click(button);
+  });
+
+  it("navigates to archive page when clicking Home link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Home" });
+    await user.click(links[0]);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("navigates to archive page when clicking Archive link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Archive" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
+  });
+
+  it("navigates to archive page when clicking History link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_History" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to archive page when clicking Home link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const link = within(menu).getByRole("link", { name: "I18N_Home" });
+    await user.click(link);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("mobile - navigates to archive page when clicking Archive link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_Archive" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to archive page when clicking History link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme();
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_History" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
   });
 });
