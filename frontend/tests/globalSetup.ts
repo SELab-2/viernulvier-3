@@ -11,6 +11,9 @@ export function setupLocalStorage() {
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
     clear: () => {
       Object.keys(store).forEach((k) => delete store[k]);
     },
