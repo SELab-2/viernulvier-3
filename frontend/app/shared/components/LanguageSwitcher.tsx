@@ -23,7 +23,7 @@ export function LanguageSwitcher({ className }: Props) {
   return (
     <div
       onClick={toggleLanguage}
-      className={`bg-archive-ink/5 cursor-pointer items-center rounded-full p-1 text-[10px] font-bold ${className ?? "hidden sm:flex"}`}
+      className={`bg-archive-ink/5 cursor-pointer items-center rounded-full p-1 text-[10px] font-bold ${className ?? ""}`}
     >
       {LANGUAGES.map(({ code, label }) => (
         <button
