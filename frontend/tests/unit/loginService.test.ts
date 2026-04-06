@@ -5,9 +5,6 @@ import * as apiClientModule from "~/shared/services/apiClient";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import { login, refreshToken } from "~/features/auth/services/loginService";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;

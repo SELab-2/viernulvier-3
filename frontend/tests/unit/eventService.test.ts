@@ -17,9 +17,6 @@ import type {
   EventUpdate,
   Price,
 } from "~/features/archive/types/eventTypes";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("eventService", () => {
   let mockAdapter: AxiosMockAdapter;
