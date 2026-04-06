@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
           </li>
         </ul>
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-          <LanguageSwitcher className="hidden sm:flex"/>
+          <LanguageSwitcher className="hidden sm:flex" />
           <ThemeToggle></ThemeToggle>
         </div>
         <button
