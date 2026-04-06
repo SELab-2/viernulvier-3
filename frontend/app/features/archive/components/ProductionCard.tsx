@@ -10,15 +10,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
 const DEFAULT_CARD_VALUES = {
-  title: "Onbekende productie",
-  dateLabel: "5 oktober 2024",
-  venueLabel: "Domzaal",
   imageUrl: DEFAULT_IMAGE,
   tagNames: [] as string[],
 } as const;
@@ -119,23 +117,26 @@ export function ProductionCard({
   onDetailClick,
   preferredLanguage = "nl",
 }: ProductionCardProps) {
+  const { t } = useTranslation();
+  const defaultCardValues = {
+    title: t("archive.card.defaults.title"),
+    dateLabel: t("archive.card.defaults.dateLabel"),
+    venueLabel: t("archive.card.defaults.venueLabel"),
+    imageUrl: DEFAULT_CARD_VALUES.imageUrl,
+    tagNames: DEFAULT_CARD_VALUES.tagNames,
+  };
+
   const primaryInfo = getProductionInfoByLanguage(
     production.production_infos,
     preferredLanguage
   );
-  const title = getTextOrDefault(primaryInfo?.title, DEFAULT_CARD_VALUES.title);
+  const title = getTextOrDefault(primaryInfo?.title, defaultCardValues.title);
   const supertitle = getOptionalText(primaryInfo?.supertitle);
   const artist = getOptionalText(primaryInfo?.artist);
   const tagline = getOptionalText(primaryInfo?.tagline);
-  const dateLabel = getTextOrDefault(
-    production.starts_at,
-    DEFAULT_CARD_VALUES.dateLabel
-  );
-  const venueLabel = getTextOrDefault(
-    production.hall_name,
-    DEFAULT_CARD_VALUES.venueLabel
-  );
-  const imageUrl = getTextOrDefault(production.image_url, DEFAULT_CARD_VALUES.imageUrl);
+  const dateLabel = getTextOrDefault(production.starts_at, defaultCardValues.dateLabel);
+  const venueLabel = getTextOrDefault(production.hall_name, defaultCardValues.venueLabel);
+  const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
   const productionId = production.id_url ?? production.id;
 
@@ -429,9 +430,9 @@ export const mockProductions: ProductionCardData[] = [
       {
         prod_id: "VV-2024-10-OPEN-ARCHIVE",
         language: "nl",
-        title: "Open Archiefnacht",
+        title: undefined,
         supertitle: "Ephemera",
-        artist: "Zwangere guy",
+        artist: undefined,
         tagline:
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },

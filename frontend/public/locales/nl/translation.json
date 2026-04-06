@@ -3,5 +3,14 @@
     "home": "Home",
     "archive": "Archief",
     "history": "Geschiedenis"
+  },
+  "archive": {
+    "card": {
+      "defaults": {
+        "title": "Onbekende productie",
+        "dateLabel": "Onbekend",
+        "venueLabel": "Onbekend"
+      }
+    }
   }
 }
