@@ -85,12 +85,7 @@ function getProductionInfoByLanguage(
 }
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
+  return getOptionalText(value) ?? fallback;
 }
 
 function getOptionalText(value: string | null | undefined): string | undefined {
