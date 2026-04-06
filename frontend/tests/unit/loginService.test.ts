@@ -13,7 +13,6 @@ import {
   restoreSession,
 } from "~/features/auth/services/loginService";
 
-
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;
 
