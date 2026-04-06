@@ -85,9 +85,12 @@ const Navbar: React.FC = () => {
                   {t("nav.history")}
                 </NavLink>
               </li>
-
-              <LanguageSwitcher />
-              <ThemeToggle />
+              <li>
+                <LanguageSwitcher />
+              </li>
+              <li>
+                <ThemeToggle />
+              </li>
             </ul>
             <div className="bg-archive-ink/10 h-px" />
           </div>
