@@ -39,9 +39,13 @@ describe("Home", () => {
   });
 
   it("renders buttons with correct labels and links", () => {
-    renderWithRouterAndTheme()
-    expect(screen.getByRole("link", { name: "I18N_Home_Button_Explore" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "I18N_Home_Button_History" }  )).toBeInTheDocument();
+    renderWithRouterAndTheme();
+    expect(
+      screen.getByRole("link", { name: "I18N_Home_Button_Explore" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "I18N_Home_Button_History" })
+    ).toBeInTheDocument();
   });
 
   it("explorebutton navigates to archive page", async () => {
@@ -64,4 +68,3 @@ describe("Home", () => {
     expect(screen.getByText("I18N_History_Title")).toBeInTheDocument();
   });
 });
-    

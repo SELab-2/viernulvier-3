@@ -14,12 +14,12 @@
       "events": "Evenementen",
       "genres": "Genres"
     },
-     "buttons": {
+    "buttons": {
       "explore": "Ontdek de Collectie",
       "history": "Onze Geschiedenis"
     }
   },
-  
+
   "archive": {
     "title": "De Collectie"
   },
