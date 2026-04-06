@@ -53,7 +53,6 @@ export type ProductionCardData = Production & {
 interface ProductionCardProps {
   production: ProductionCardData;
   onOpen?: (productionId: string) => void;
-  onDetailClick?: (productionId: string) => void;
   preferredLanguage?: string;
 }
 
@@ -87,10 +86,6 @@ function getOptionalText(value: string | null | undefined): string | undefined {
   return trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
-function onClickDetailPlaceholder(productionId: string) {
-  console.log("PlaceHolderFunction", productionId);
-}
-
 function getTagNamesByLanguage(
   production: ProductionCardData,
   language: string
@@ -114,7 +109,6 @@ function getTagNamesByLanguage(
 export function ProductionCard({
   production,
   onOpen,
-  onDetailClick,
   preferredLanguage = "nl",
 }: ProductionCardProps) {
   const { t } = useTranslation();
@@ -141,7 +135,6 @@ export function ProductionCard({
   const productionId = production.id_url ?? production.id;
 
   const handleOpenDetails = () => {
-    (onDetailClick ?? onClickDetailPlaceholder)(productionId);
     onOpen?.(productionId);
   };
 
@@ -412,6 +405,10 @@ export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
     </Box>
   );
 }
+
+
+
+
 
 export const ProductionCardDemoGrid = ProductionCardGrid;
 
