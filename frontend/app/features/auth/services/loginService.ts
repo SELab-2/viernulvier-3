@@ -1,34 +1,117 @@
+import axios, { type AxiosInstance } from "axios";
+
 import { createApiClient } from "~/shared/services/apiClient";
+
+import { AUTH_API_PATH } from "../auth.constants";
 import type {
-  IAccessTokenResponse,
+  IAuthUser,
+  IAuthUserResponse,
   ILoginRequest,
   ILoginResponse,
 } from "../auth.types";
-import type { AxiosInstance } from "axios";
+import {
+  clearStoredAuthTokens,
+  getStoredAccessToken,
+  hasStoredRefreshToken,
+  storeAuthTokens,
+} from "./tokenStorage";
+import { refreshAccessToken } from "./tokenRefresh";
 
-export async function login(request: ILoginRequest) {
-  const apiClient = createApiClient();
-  const response = await apiClient.post<ILoginResponse>(`/auth/login`, request);
-
-  const { access_token, refresh_token } = response.data;
-
-  apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-  localStorage.setItem("access_token", access_token);
-  localStorage.setItem("refresh_token", refresh_token);
+function mapAuthUser(response: IAuthUserResponse): IAuthUser {
+  return {
+    id: response.id,
+    username: response.username,
+    isSuperUser: response.super_user,
+    roles: response.roles,
+    permissions: response.permissions,
+    createdAt: response.created_at,
+    lastLoginAt: response.last_login_at,
+  };
 }
 
-export async function refreshToken(apiClient?: AxiosInstance) {
-  if (!apiClient) {
-    apiClient = createApiClient();
-  }
-  const refresh_token = localStorage.getItem("refresh_token");
-  if (refresh_token) {
-    const response = await apiClient.post<IAccessTokenResponse>(`/auth/refresh`, {
-      refresh_token,
-    });
+function isUnauthorizedError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 401;
+}
 
-    const { access_token } = response.data;
-    localStorage.setItem("access_token", access_token);
-    apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+function clearSessionForUnauthorizedError(error: unknown): boolean {
+  if (!isUnauthorizedError(error)) {
+    return false;
   }
+
+  clearStoredAuthTokens();
+  return true;
+}
+
+export async function getCurrentUser(apiClient: AxiosInstance = createApiClient()) {
+  const response = await apiClient.get<IAuthUserResponse>(`${AUTH_API_PATH}/users/me`);
+  return mapAuthUser(response.data);
+}
+
+export async function login(
+  request: ILoginRequest,
+  apiClient: AxiosInstance = createApiClient()
+): Promise<IAuthUser> {
+  const response = await apiClient.post<ILoginResponse>(
+    `${AUTH_API_PATH}/login`,
+    request
+  );
+
+  storeAuthTokens(response.data);
+
+  try {
+    return await getCurrentUser(apiClient);
+  } catch (error) {
+    clearSessionForUnauthorizedError(error);
+    throw error;
+  }
+}
+
+export async function restoreSession(
+  apiClient: AxiosInstance = createApiClient()
+): Promise<IAuthUser | null> {
+  try {
+    if (!getStoredAccessToken()) {
+      if (!hasStoredRefreshToken()) {
+        return null;
+      }
+
+      await refreshAccessToken();
+    }
+
+    return await getCurrentUser(apiClient);
+  } catch (error) {
+    if (clearSessionForUnauthorizedError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export async function refreshSession(
+  apiClient: AxiosInstance = createApiClient()
+): Promise<IAuthUser | null> {
+  if (!hasStoredRefreshToken()) {
+    clearStoredAuthTokens();
+    return null;
+  }
+
+  try {
+    await refreshAccessToken();
+    return await getCurrentUser(apiClient);
+  } catch (error) {
+    if (clearSessionForUnauthorizedError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export function logout(): void {
+  clearStoredAuthTokens();
+}
+
+export async function refreshToken(apiClient?: AxiosInstance): Promise<string> {
+  return refreshAccessToken(apiClient);
 }

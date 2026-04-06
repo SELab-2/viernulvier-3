@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import LanguageSwitcher from "~/shared/components/LanguageSwitcher";
+import { LanguageSwitcher } from "~/shared/components/LanguageSwitcher";
 
 const mockNavigate = vi.fn();
 let mockPathname = "/en/archive";
