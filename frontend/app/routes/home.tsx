@@ -33,7 +33,7 @@ function HomeButton({
   };
 
   return (
-    <NavLink to={lp(location)} className={`${base} ${styles[variant]}`}>
+    <NavLink to={lp(location)} data-testid={`home-button-${name}`} className={`${base} ${styles[variant]}`}>
       {name}
     </NavLink>
   );
@@ -43,10 +43,10 @@ export default function Home() {
   const { t } = useTranslation();
   
   return (
-    <div>
+    <main>
       <title>{`${t("nav.home")} | VIERNULVIER`}</title>
         <div className="py-12 md:py-24 text-center max-w-4xl mx-auto">
-          <h1 className="font-serif text-5xl md:text-8xl mb-6 md:mb-12 italic">{t("home.welcome")}</h1>
+          <h1 className="font-serif text-5xl md:text-8xl mb-6 md:mb-12 italic">{t("home.title")}</h1>
           <p className="text-lg md:text-2xl opacity-70 font-light leading-relaxed mb-10 md:mb-16">
               {t("home.description")}
           </p>
@@ -63,6 +63,6 @@ export default function Home() {
               <HomeButton location="history" name={t("home.buttons.history")} variant="secondary" />
           </div>
       </div>
-    </div>
+    </main>
   );
 }

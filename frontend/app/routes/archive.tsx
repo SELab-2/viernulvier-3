@@ -6,7 +6,7 @@ export default function Archive() {
     <div>
       <title>{`${t("nav.archive")} | VIERNULVIER`}</title>
 
-      <h1 className="text-3xl font-bold">{t("nav.archive")}</h1>
+      <h1 className="text-3xl font-bold">{t("archive.title")}</h1>
     </div>
   );
 }
