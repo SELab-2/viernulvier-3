@@ -64,8 +64,24 @@ function getProductionInfoByLanguage(
     return undefined;
   }
 
-  const languageMatch = productionInfos.find((info) => info.language === language);
-  return languageMatch ?? productionInfos[0];
+  const normalizedLanguage = language.toLowerCase();
+  const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
+
+  const preferredLanguages = Array.from(
+    new Set([normalizedLanguage, baseLanguage, "nl", "en"])
+  );
+
+  for (const preferred of preferredLanguages) {
+    const languageMatch = productionInfos.find(
+      (info) => info.language.toLowerCase() === preferred
+    );
+
+    if (languageMatch) {
+      return languageMatch;
+    }
+  }
+
+  return productionInfos[0];
 }
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
@@ -129,7 +145,10 @@ export function ProductionCard({
   const artist = getOptionalText(primaryInfo?.artist);
   const tagline = getOptionalText(primaryInfo?.tagline);
   const dateLabel = getTextOrDefault(production.starts_at, defaultCardValues.dateLabel);
-  const venueLabel = getTextOrDefault(production.hall_name, defaultCardValues.venueLabel);
+  const venueLabel = getTextOrDefault(
+    production.hall_name,
+    defaultCardValues.venueLabel
+  );
   const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
   const productionId = production.id_url ?? production.id;
@@ -405,10 +424,6 @@ export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
     </Box>
   );
 }
-
-
-
-
 
 export const ProductionCardDemoGrid = ProductionCardGrid;
 
