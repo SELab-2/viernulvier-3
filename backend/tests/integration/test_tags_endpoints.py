@@ -247,7 +247,6 @@ def test_delete_unauthorized(client: TestClient, create_headers):
 
 
 def test_tag_url_contains_full_path(client: TestClient, db_session: Session):
-
     create_headers = create_user_and_login(
         client, db_session, "tag_url_user", permissions=[Permissions.ARCHIVE_CREATE]
     )

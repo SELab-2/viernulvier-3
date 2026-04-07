@@ -12,7 +12,10 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     expose:
       - "3000"
     env_file: .env
@@ -27,6 +30,8 @@ services:
     env_file: .env
     depends_on:
       database:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   sync_worker:
@@ -60,5 +65,21 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file: .env
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
+  minio_data:

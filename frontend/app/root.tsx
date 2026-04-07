@@ -1,7 +1,9 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import { getThemeBootstrapScript } from "./shared/utils/theme";
+
 import Navbar from "~/shared/components/Navbar";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
+import { AuthSessionProvider } from "./features/auth";
+import { getThemeBootstrapScript } from "./shared/utils/theme";
 import "./styles/app.css";
 import "./i18n";
 
@@ -26,13 +28,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <div>
+    <AuthSessionProvider>
       <ThemeProvider>
         <Navbar />
         <main>
           <Outlet />
         </main>
       </ThemeProvider>
-    </div>
+    </AuthSessionProvider>
   );
 }
