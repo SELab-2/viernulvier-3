@@ -5,7 +5,7 @@ from src.schemas.hall import HallSchema
 
 
 class PriceResponse(BaseModel):
-    id: str
+    id_url: str
     amount: Optional[float] = None
     available: Optional[int] = None
     expires_at: Optional[datetime] = None
@@ -17,9 +17,9 @@ class PriceResponse(BaseModel):
 
 
 class EventResponse(BaseModel):
-    id: str  # ids are url's
-    production_id: str
-    hall_id: str
+    id_url: str
+    production_id_url: str
+    hall_id_url: str
 
     hall: Optional[HallSchema] = None
 
@@ -28,7 +28,7 @@ class EventResponse(BaseModel):
 
     order_url: Optional[str] = None
 
-    prices: List[str] = []  # list of price urls
+    price_urls: List[str] = []
 
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -37,15 +37,15 @@ class EventResponse(BaseModel):
 
 
 class EventCreate(BaseModel):
-    production_id: str
-    hall_id: str
+    production_id_url: str
+    hall_id_url: str
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
 
 
 class EventUpdate(BaseModel):
-    hall_id: Optional[str] = None
+    hall_id_url: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None

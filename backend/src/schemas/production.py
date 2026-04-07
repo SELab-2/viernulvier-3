@@ -63,7 +63,7 @@ class ProductionCreate(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     production_info: ProductionInfoCreate
-    tag_ids: list[int] = []
+    tag_id_urls: list[str] = []
 
 
 class ProductionInfoUpdate(BaseModel):
@@ -85,5 +85,5 @@ class ProductionUpdate(BaseModel):
     updated_at: Optional[datetime] = None
 
     production_infos: Optional[list[ProductionInfoUpdate]] = None
-    tag_ids: Optional[list[int]] = None
+    tag_id_urls: Optional[list[str]] = None
     remove_languages: list[str] | None = None

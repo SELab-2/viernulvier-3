@@ -92,15 +92,15 @@ def test_roles_crud(client: TestClient, db_session: Session):
         headers=headers,
     )
     assert response.status_code == 201
-    role_id = response.json()["id"]
+    role_id = response.json()["id_url"]
 
-    response = client.get(f"/api/v1/auth/roles/{role_id}", headers=headers)
+    response = client.get(role_id, headers=headers)
     assert response.status_code == 200
     assert response.json()["name"] == "testrole"
     assert response.json()["permissions"] == [Permissions.USERS_READ]
 
     response = client.put(
-        f"/api/v1/auth/roles/{role_id}",
+        role_id,
         json={"name": "updatedrole", "permissions": [Permissions.USERS_READ]},
         headers=headers,
     )
@@ -111,7 +111,7 @@ def test_roles_crud(client: TestClient, db_session: Session):
     assert response.status_code == 200
     assert any(r["name"] == "updatedrole" for r in response.json())
 
-    response = client.delete(f"/api/v1/auth/roles/{role_id}", headers=headers)
+    response = client.delete(role_id, headers=headers)
     assert response.status_code == 204
 
 

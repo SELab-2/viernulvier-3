@@ -56,7 +56,7 @@ async def get_media_for_production(
     description="Upload an image or video file linked to a production.",
 )
 async def post_media(
-    production_id: int,
+    production_id_url: str,
     request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -75,7 +75,7 @@ async def post_media(
     base_url = get_base_url(str(request.url), 3)
     return upload_media(
         db=db,
-        production_id=production_id,
+        production_id_url=production_id_url,
         filename=file.filename or "upload",
         content_type=file.content_type,
         data=data,

@@ -6,7 +6,7 @@ from src.schemas.pagination import Pagination
 class MediaResponse(BaseModel):
     id_url: str
     url: str
-    production: str
+    production_id_url: str
     content_type: str
     uploaded_at: datetime
 

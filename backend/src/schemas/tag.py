@@ -12,7 +12,7 @@ class TagNameResponse(TagNameBase):
 
 
 class TagBase(BaseModel):
-    id: str
+    id_url: str
 
 
 class TagResponse(TagBase):

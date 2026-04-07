@@ -219,8 +219,9 @@ def update_production_by_id(
         setattr(production, field, value)
 
     # Check for tags.
-    if production_in.tag_ids is not None:
-        tag_ids = production_in.tag_ids or []
+    if production_in.tag_id_urls is not None:
+        tag_id_urls = production_in.tag_id_urls or []
+        tag_ids = [id_url.rstrip("/").split("/")[-1] for id_url in tag_id_urls]
         existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
         existing_tag_ids = {t.id for t in existing_tags}
         missing_tag_ids = set(tag_ids) - existing_tag_ids

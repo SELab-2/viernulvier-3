@@ -65,8 +65,8 @@ def test_create_event_success(client: TestClient, db_session: Session):
 
     assert response.status_code == 201
     data = response.json()
-    assert data["production_id"].endswith(str(production.id))
-    assert data["hall_id"].endswith(str(hall.id))
+    assert data["production_id_url"].endswith(str(production.id))
+    assert data["hall_id_url"].endswith(str(hall.id))
     assert data["order_url"] == "http://order.url"
 
 
@@ -84,9 +84,9 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
     response = client.get(f"{BASE_URL}/{event.id}")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"].endswith(str(event.id))
-    assert data["hall_id"].endswith(str(hall.id))
-    assert data["production_id"].endswith(str(production.id))
+    assert data["id_url"].endswith(str(event.id))
+    assert data["hall_id_url"].endswith(str(hall.id))
+    assert data["production_id_url"].endswith(str(production.id))
 
 
 def test_get_event_not_found(client: TestClient):
@@ -241,7 +241,7 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
 
-    assert data["id"].endswith(str(price.id))
+    assert data["id_url"].endswith(str(price.id))
     assert float(data["amount"]) == 15.0
 
 
@@ -281,7 +281,7 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
 
-    event_url = data.get("id")
+    event_url = data.get("id_url")
     assert event_url is not None
 
     assert "/api/v1/archive/events" in event_url
@@ -309,7 +309,7 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
     assert response.status_code == 200
     data = response.json()
 
-    price_url = data.get("id")
+    price_url = data.get("id_url")
     assert price_url is not None
 
     assert f"/api/v1/archive/events/{event.id}/prices/{price.id}" in price_url
