@@ -20,7 +20,7 @@ function Logo({ nav_name }: LogoProps) {
       <div className="group flex items-center space-x-2">
         <img
           src="/logo.svg"
-          alt=""
+          alt={`${nav_name} logo`}
           className="h-8 w-auto md:h-10"
           style={{ filter: "var(--archive-logo-filter)" }}
         />
@@ -78,6 +78,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
     <button
       aria-label="Toggle navigation menu"
       aria-expanded={isOpen}
+      aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
       className="ml-auto flex cursor-pointer flex-col space-y-1 md:hidden"
       onClick={onToggle}
@@ -97,7 +98,10 @@ function Navbar(): JSX.Element {
   const { t } = useTranslation();
 
   return (
-    <nav className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md">
+    <nav
+      aria-label="Main navigation bar"
+      className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md"
+    >
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
@@ -114,6 +118,7 @@ function Navbar(): JSX.Element {
         {menuOpen && (
           <div
             data-testid="mobile-menu"
+            id="mobile-menu"
             className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden"
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
