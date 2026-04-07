@@ -45,7 +45,7 @@ export default function LoginPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
-        <span className="text-xs uppercase tracking-widest opacity-40">
+        <span className="text-xs tracking-widest uppercase opacity-40">
           {t("auth.login.loading")}
         </span>
       </div>
@@ -84,19 +84,21 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif mb-2 text-3xl italic">{t("auth.login.formTitle")}</h1>
-        <p className="mb-8 text-sm leading-relaxed opacity-60">{t("auth.login.formDescription")}</p>
+        <h1 className="mb-2 font-serif text-3xl italic">{t("auth.login.formTitle")}</h1>
+        <p className="mb-8 text-sm leading-relaxed opacity-60">
+          {t("auth.login.formDescription")}
+        </p>
 
         {errorMessage ? (
           <Alert
             severity="error"
             variant="outlined"
             sx={{
-              mb: 3,
-              fontFamily: "var(--font-sans)",
-              fontSize: "0.875rem",
-              borderColor: "rgba(196, 164, 132, 0.4)",
-              color: "var(--archive-ink)",
+              "mb": 3,
+              "fontFamily": "var(--font-sans)",
+              "fontSize": "0.875rem",
+              "borderColor": "rgba(196, 164, 132, 0.4)",
+              "color": "var(--archive-ink)",
               "& .MuiAlert-icon": { color: "var(--archive-accent)" },
             }}
           >
@@ -144,11 +146,13 @@ export default function LoginPage() {
                       size="small"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={
-                        showPassword ? t("auth.login.hidePassword") : t("auth.login.showPassword")
+                        showPassword
+                          ? t("auth.login.hidePassword")
+                          : t("auth.login.showPassword")
                       }
                       sx={{
-                        color: "var(--archive-ink)",
-                        opacity: 0.45,
+                        "color": "var(--archive-ink)",
+                        "opacity": 0.45,
                         "&:hover": {
                           opacity: 1,
                           backgroundColor: "var(--archive-control-hover)",
@@ -187,7 +191,7 @@ export default function LoginPage() {
 
         <a
           href={homePath}
-          className="mt-8 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest opacity-40 transition-opacity hover:opacity-100"
+          className="mt-8 inline-flex items-center gap-2 text-xs font-medium tracking-widest uppercase opacity-40 transition-opacity hover:opacity-100"
         >
           <span>←</span>
           <span>{t("auth.login.backToSite")}</span>
@@ -207,10 +211,10 @@ const fieldSx = {
     color: "var(--archive-accent)",
   },
   "& .MuiOutlinedInput-root": {
-    fontFamily: "var(--font-sans)",
-    fontSize: "0.875rem",
-    color: "var(--archive-ink)",
-    borderRadius: "0.5rem",
+    "fontFamily": "var(--font-sans)",
+    "fontSize": "0.875rem",
+    "color": "var(--archive-ink)",
+    "borderRadius": "0.5rem",
     "& fieldset": {
       borderColor: "var(--archive-border)",
     },
@@ -225,16 +229,16 @@ const fieldSx = {
 };
 
 const submitSx = {
-  py: 1.25,
-  borderRadius: "999px",
-  textTransform: "none" as const,
-  fontFamily: "var(--font-sans)",
-  fontSize: "0.75rem",
-  fontWeight: 700,
-  letterSpacing: "0.2em",
-  boxShadow: "none",
-  backgroundColor: "var(--archive-ink)",
-  color: "var(--archive-paper)",
+  "py": 1.25,
+  "borderRadius": "999px",
+  "textTransform": "none" as const,
+  "fontFamily": "var(--font-sans)",
+  "fontSize": "0.75rem",
+  "fontWeight": 700,
+  "letterSpacing": "0.2em",
+  "boxShadow": "none",
+  "backgroundColor": "var(--archive-ink)",
+  "color": "var(--archive-paper)",
   "&:hover": {
     backgroundColor: "var(--archive-ink)",
     boxShadow: "none",
