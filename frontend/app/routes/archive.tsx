@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 
 export default function Archive() {
   const [showFilters, setShowFilters] = useState(false);
@@ -25,9 +26,7 @@ export default function Archive() {
   return (
     <div>
       <title>{t("nav.archive")} | VIERNULVIER</title>
-      <div>
-        <h1 className="text-3xl font-bold">{t("nav.archive")}</h1>
-      </div>
+      <h1 className="text-3xl font-bold">{t("archive.title")}</h1>
 
       <button
         onClick={toggleMobileFilters}
@@ -75,6 +74,7 @@ export default function Archive() {
           <p>Artists: {selectedArtists.join(", ")}</p>
         </div>
       </div>
+      <ProductionTimeline productions={[]} />
     </div>
   );
 }
