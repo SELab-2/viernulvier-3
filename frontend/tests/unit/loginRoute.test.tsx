@@ -132,4 +132,41 @@ describe("LoginPage", () => {
 
     expect(mockNavigate).not.toHaveBeenCalled();
   });
+
+  it("shows the generic error message for non-401 failures", async () => {
+    mockLogin.mockRejectedValue(new Error("boom"));
+
+    render(<LoginPage />);
+
+    fireEvent.change(screen.getByLabelText("auth.login.usernameLabel"), {
+      target: { value: "editor" },
+    });
+    fireEvent.change(screen.getByLabelText("auth.login.passwordLabel"), {
+      target: { value: "secret" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "auth.login.submit" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("auth.login.errors.generic")).toBeTruthy();
+    });
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("toggles password visibility", () => {
+    render(<LoginPage />);
+
+    expect(screen.getByLabelText("auth.login.passwordLabel").getAttribute("type")).toBe(
+      "password"
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "auth.login.showPassword" }));
+
+    expect(screen.getByLabelText("auth.login.passwordLabel").getAttribute("type")).toBe(
+      "text"
+    );
+    expect(
+      screen.getByRole("button", { name: "auth.login.hidePassword" })
+    ).toBeTruthy();
+  });
 });
