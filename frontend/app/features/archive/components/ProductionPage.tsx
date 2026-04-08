@@ -19,7 +19,12 @@ function getProductionInfoByLanguage(
   }
 
   const languageMatch = productionInfos.find((info) => info.language === language);
-  return languageMatch ?? productionInfos[0];
+  if (languageMatch) {
+    return languageMatch;
+  }
+
+  const dutchMatch = productionInfos.find((info) => info.language === "nl");
+  return dutchMatch ?? productionInfos[0];
 }
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
@@ -31,6 +36,7 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
+// search for given language, if not found fall back to "nl", if "nl" not just take first translation
 function getTagNamesByLanguage(
   production: ProductionCardData,
   language: string
@@ -46,7 +52,12 @@ function getTagNamesByLanguage(
   return production.tags
     .map((tag) => {
       const languageMatch = tag.names.find((name) => name.language === language);
-      return languageMatch?.name ?? tag.names[0]?.name;
+      if (languageMatch?.name) {
+        return languageMatch.name;
+      }
+
+      const defaultMatch = tag.names.find((name) => name.language === "nl");
+      return defaultMatch?.name ?? tag.names[0]?.name;
     })
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
