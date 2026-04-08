@@ -1,22 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import Navbar from "~/shared/components/Navbar";
 import { MemoryRouter } from "react-router";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
 import userEvent from "@testing-library/user-event";
-
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const map: Record<string, string> = {
-        "nav.home": "I18N_Home",
-        "nav.archive": "I18N_Archive",
-        "nav.history": "I18N_History",
-      };
-      return map[key] || key;
-    },
-  }),
-}));
 
 function renderWithRouterAndTheme(component: React.ReactNode) {
   render(

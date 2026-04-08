@@ -1,27 +1,7 @@
 import { screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
-
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const map: Record<string, string> = {
-        "home.title": "I18N_Title",
-        "home.description": "I18N_Description",
-        "home.stats.productions": "I18N_Home_Stats_Productions",
-        "home.stats.events": "I18N_Home_Stats_Events",
-        "home.stats.artists": "I18N_Home_Stats_Artists",
-        "home.stats.genres": "I18N_Home_Stats_Genres",
-        "home.buttons.explore": "I18N_Home_Button_Explore",
-        "home.buttons.history": "I18N_Home_Button_History",
-        "archive.title": "I18N_Archive_Title",
-        "history.title": "I18N_History_Title",
-      };
-      return map[key] || key;
-    },
-  }),
-}));
 
 describe("Home", () => {
   it("renders title and description correctly", () => {
