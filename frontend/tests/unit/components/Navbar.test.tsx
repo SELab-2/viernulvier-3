@@ -52,7 +52,7 @@ describe("Navbar", () => {
     await userEvent.click(button);
   });
 
-  it("navigates to archive page when clicking Home link", async () => {
+  it("navigates to home page when clicking Home link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
 
@@ -72,7 +72,7 @@ describe("Navbar", () => {
     expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
   });
 
-  it("navigates to archive page when clicking History link", async () => {
+  it("navigates to history page when clicking History link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
 
@@ -82,7 +82,7 @@ describe("Navbar", () => {
     expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
   });
 
-  it("mobile - navigates to archive page when clicking Home link", async () => {
+  it("mobile - navigates to home page when clicking Home link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
 
@@ -110,7 +110,7 @@ describe("Navbar", () => {
     expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
   });
 
-  it("mobile - navigates to archive page when clicking History link", async () => {
+  it("mobile - navigates to history page when clicking History link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
 
