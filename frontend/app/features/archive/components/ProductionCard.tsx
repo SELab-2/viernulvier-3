@@ -147,7 +147,7 @@ export function ProductionCard({
   const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
-  // NOTE: update this after id_url becomes standard 
+  // NOTE: update this after id_url becomes standard
   // const productionId = production.id_url;
   const productionId = production.id_url ?? production.id;
 
