@@ -4,6 +4,30 @@
     "archive": "Archief",
     "history": "Geschiedenis"
   },
+
+  "home": {
+    "title": "Vensters naar het Verleden",
+    "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
+    "stats": {
+      "productions": "Producties",
+      "artists": "Artiesten",
+      "events": "Evenementen",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
+  },
+
+  "archive": {
+    "title": "De Collectie"
+  },
+
+  "history": {
+    "title": "De Echo's van het Gebouw"
+  },
+
   "auth": {
     "login": {
       "formTitle": "Welkom terug",
