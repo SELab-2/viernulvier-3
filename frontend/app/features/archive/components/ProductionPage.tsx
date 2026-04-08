@@ -85,57 +85,37 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
-      <header className="border-archive-border bg-archive-surface sticky top-0 z-50 border-b backdrop-blur-[14px] [backdrop-filter:blur(14px)]">
-        <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
+      
+
+      <main className="mx-auto w-full max-w-[1400px] px-6 pb-16 pt-10 md:px-12">
+        <div className="flex flex-col gap-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-[inherit] no-underline"
-            aria-label={t("productionPage.headerBrandAria")}
+            className="font-sans text-[0.68rem] uppercase tracking-[0.24em] opacity-70 no-underline transition hover:opacity-100"
           >
-            <img
-              src="/logo.svg"
-              alt=""
-              className="h-8 w-auto md:h-10"
-              style={{ filter: "var(--archive-logo-filter)" }}
-            />
-            <span
-              aria-hidden="true"
-              className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
-            >
-              {t("productionPage.archiveLabel")}
-            </span>
+            {t("productionPage.backToCollection")}
           </Link>
-          <ThemeToggle />
+
+          <section className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30">
+            <img
+              src={imageUrl}
+              alt={title}
+              className="h-[280px] w-full object-cover object-center md:h-[360px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+            <div className="absolute bottom-8 left-7 right-7 md:bottom-10 md:left-12 md:right-12">
+              <p className="font-sans text-[0.65rem] uppercase tracking-[0.28em] text-white/72">
+                {supertitle}
+              </p>
+              <h1 className="font-serif mt-2 text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl">
+                {title}
+              </h1>
+              <p className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl">
+                {artist}
+              </p>
+            </div>
+          </section>
         </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-[1200px] px-6 pb-16 pt-10 md:px-12">
-        <Link
-          to="/"
-          className="font-sans text-[0.68rem] uppercase tracking-[0.24em] opacity-70 no-underline transition hover:opacity-100"
-        >
-          {t("productionPage.backToCollection")}
-        </Link>
-
-        <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30">
-          <img
-            src={imageUrl}
-            alt={title}
-            className="h-[320px] w-full object-cover object-center md:h-[430px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-          <div className="absolute bottom-8 left-7 right-7 md:bottom-10 md:left-12 md:right-12">
-            <p className="font-sans text-[0.65rem] uppercase tracking-[0.28em] text-white/72">
-              {supertitle}
-            </p>
-            <h1 className="font-serif mt-2 text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl">
-              {title}
-            </h1>
-            <p className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl">
-              {artist}
-            </p>
-          </div>
-        </section>
 
         <ul className="mt-6 flex flex-wrap gap-2">
           {tags.map((tag) => (

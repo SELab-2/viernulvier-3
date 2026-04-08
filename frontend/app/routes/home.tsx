@@ -5,10 +5,12 @@ import {
   ProductionCardGrid,
   mockProductions,
 } from "~/features/archive/components/ProductionCard";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 export default function Archive() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const lp = useLocalizedPath();
   const previewProductionId = mockProductions[0]?.id_url;
 
   const handleOpenProductionDetail = (productionId: string) => {
@@ -16,7 +18,7 @@ export default function Archive() {
       return;
     }
 
-    navigate(`/productions/${encodeURIComponent(productionId)}`);
+    navigate(lp(`/productions/${encodeURIComponent(productionId)}`));
   };
 
   return (
