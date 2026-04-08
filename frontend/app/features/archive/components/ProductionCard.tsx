@@ -54,6 +54,7 @@ interface ProductionCardProps {
   production: ProductionCardData;
   onOpen?: (productionId: string) => void;
   preferredLanguage?: string;
+  className: string;
 }
 
 function getProductionInfoByLanguage(
@@ -121,6 +122,7 @@ export function ProductionCard({
   production,
   onOpen,
   preferredLanguage = "nl",
+  className,
 }: ProductionCardProps) {
   const { t } = useTranslation();
   const defaultCardValues = {
@@ -167,6 +169,7 @@ export function ProductionCard({
       role="button"
       tabIndex={0}
       aria-label={`Open details for ${title}`}
+      className={className}
       sx={{
         "height": "100%",
         "display": "flex",

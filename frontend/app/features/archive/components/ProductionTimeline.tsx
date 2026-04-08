@@ -1,4 +1,11 @@
+import { useParams } from "react-router";
 import { ProductionCard, type ProductionCardData } from "./ProductionCard";
+
+// Get the name of the nth month, note that the months are 0-indexed because javascript...
+function getMonthName(n: number, lang?: string) {
+  // Get name of month
+  return new Date(0, n).toLocaleString(lang, { month: "long" });
+}
 
 function MonthDisplay({
   productions,
@@ -9,28 +16,37 @@ function MonthDisplay({
   year: number;
   month: number;
 }) {
+  // timeline-month-header
+  // flex
+  // items-center
+  // gap-3
+  // mb-3
+  // sticky
+  // timeline-month-sticky
+  // timeline-sticky-glass
+  // z-30
+  const { lang } = useParams();
   return (
-    <>
+    <div>
       {/* Sticky month */}
-      <div className="z-30 mb-3 flex items-center gap-3">
-        <div className="text-xs font-bold opacity-25">
-          {new Date(0, month).toLocaleString("en", { month: "long" })}{" "}
-          {/* TODO: Make this take locale */}
+      <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
+        <div className="text-[14px] font-bold tracking-[0.28em] opacity-25">
+          {getMonthName(month, lang).toUpperCase()}
         </div>
-        <div className="bg-archive-ink/5 h-px flex-1"></div>
+        <div className="bg-archive-ink/15 h-px flex-1"></div>
       </div>
       {/* Productions */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {productions
           .filter((prod) => {
             const date = prod.starts_at ? new Date(prod.starts_at) : new Date();
             return date.getFullYear() === year && date.getMonth() === month;
           })
           .map((prod) => (
-            <ProductionCard production={prod} />
+            <ProductionCard production={prod} className="" />
           ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -42,6 +58,7 @@ function YearDisplay({
   year: number;
 }) {
   const months = productions
+    .filter((prod) => prod.starts_at && new Date(prod.starts_at).getFullYear() == year)
     .map((prod) => {
       const d = prod.starts_at ? new Date(prod.starts_at) : new Date();
       return d.getMonth();
@@ -51,13 +68,17 @@ function YearDisplay({
   return (
     <div className="">
       {/* YEAR HEADER */}
-      <h2 className="font-serif text-4xl font-black tracking-tighter opacity-20 transition-all md:text-6xl">
+      <h2 className="min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
         {year}
       </h2>
+      <div className="bg-archive-ink/5 h-px flex-1"></div>
 
-      {months.map((month) => (
-        <MonthDisplay productions={productions} month={month} year={year} />
-      ))}
+      {months
+        .sort()
+        .reverse()
+        .map((month) => (
+          <MonthDisplay productions={productions} month={month} year={year} />
+        ))}
     </div>
   );
 }
@@ -77,9 +98,12 @@ export function ProductionTimeline({
 
   return (
     <div className="">
-      {years.map((year) => (
-        <YearDisplay productions={productions} year={year} />
-      ))}
+      {years
+        .sort()
+        .reverse()
+        .map((year) => (
+          <YearDisplay productions={productions} year={year} />
+        ))}
     </div>
   );
 }
