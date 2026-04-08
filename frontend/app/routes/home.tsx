@@ -33,8 +33,7 @@ function HomeButton({
     "px-8 md:px-10 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-all inline-block hover:scale-105 shadow-xl shadow-archive-ink/10";
 
   const styles = {
-    primary:
-      "bg-archive-ink text-archive-paper",
+    primary: "bg-archive-ink text-archive-paper",
     secondary: "border border-archive-ink/20",
   };
 

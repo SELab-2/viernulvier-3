@@ -7,40 +7,49 @@ import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
 
-
 vi.mock("~/shared/hooks/useLocalizedPath", () => ({
   useLocalizedPath: () => (path: string) => path,
 }));
 
-export function renderWithRouterAndTheme({useRealHome = false, useRealArchive = false, useRealHistory = false}) {
+export function renderWithRouterAndTheme({
+  useRealHome = false,
+  useRealArchive = false,
+  useRealHistory = false,
+}) {
   const router = createMemoryRouter(
     [
       {
         path: "/",
-        element: (!useRealHome ? (
+        element: !useRealHome ? (
           <>
             <Navbar />
             <div>TEST_HOME_PAGE</div>
           </>
-        ) : <Home />),
+        ) : (
+          <Home />
+        ),
       },
       {
         path: "/archive",
-        element: (!useRealArchive ? (
+        element: !useRealArchive ? (
           <>
             <Navbar />
             <div>TEST_ARCHIVE_PAGE</div>
           </>
-        ) : <Archive />),
+        ) : (
+          <Archive />
+        ),
       },
       {
         path: "/history",
-        element: (!useRealHistory ? (
+        element: !useRealHistory ? (
           <>
             <Navbar />
             <div>TEST_HISTORY_PAGE</div>
           </>
-        ) : <History />),
+        ) : (
+          <History />
+        ),
       },
     ],
     {
