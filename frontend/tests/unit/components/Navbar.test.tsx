@@ -1,60 +1,11 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
-import Navbar from "~/shared/components/Navbar";
-import { createMemoryRouter, RouterProvider } from "react-router";
-import { ThemeProvider } from "~/shared/components/ThemeContext";
+import { screen, within } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
 import userEvent from "@testing-library/user-event";
-
-vi.mock("~/shared/hooks/useLocalizedPath", () => ({
-  useLocalizedPath: () => (path: string) => path,
-}));
-
-function renderWithRouterAndTheme() {
-  const router = createMemoryRouter(
-    [
-      {
-        path: "/",
-        element: (
-          <>
-            <Navbar />
-            <div>TEST_HOME_PAGE</div>
-          </>
-        ),
-      },
-      {
-        path: "/archive",
-        element: (
-          <>
-            <Navbar />
-            <div>TEST_ARCHIVE_PAGE</div>
-          </>
-        ),
-      },
-      {
-        path: "/history",
-        element: (
-          <>
-            <Navbar />
-            <div>TEST_HISTORY_PAGE</div>
-          </>
-        ),
-      },
-    ],
-    {
-      initialEntries: ["/"],
-    }
-  );
-
-  return render(
-    <ThemeProvider>
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  );
-}
 
 describe("Navbar", () => {
   it("renders navigation links", () => {
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     expect(screen.getByText("I18N_Home")).toBeInTheDocument();
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
@@ -63,7 +14,7 @@ describe("Navbar", () => {
   });
 
   it("toggles mobile menu when clicking hamburger button", async () => {
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     // After 2h I don't see why the tests have the Navbar rendered twice,
     // so let's just get this first one...
@@ -81,7 +32,7 @@ describe("Navbar", () => {
   });
 
   it("renders navigation links when menu is opened", async () => {
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const button = screen.getAllByTestId("hamburger-menu-button")[0];
 
@@ -103,7 +54,7 @@ describe("Navbar", () => {
 
   it("navigates to archive page when clicking Home link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const user = userEvent.setup();
     const links = screen.getAllByRole("link", { name: "I18N_Home" });
@@ -113,7 +64,7 @@ describe("Navbar", () => {
 
   it("navigates to archive page when clicking Archive link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const user = userEvent.setup();
     const links = screen.getAllByRole("link", { name: "I18N_Archive" });
@@ -123,7 +74,7 @@ describe("Navbar", () => {
 
   it("navigates to archive page when clicking History link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const user = userEvent.setup();
     const links = screen.getAllByRole("link", { name: "I18N_History" });
@@ -133,7 +84,7 @@ describe("Navbar", () => {
 
   it("mobile - navigates to archive page when clicking Home link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const button = screen.getAllByTestId("hamburger-menu-button")[0];
     await userEvent.click(button);
@@ -147,7 +98,7 @@ describe("Navbar", () => {
 
   it("mobile - navigates to archive page when clicking Archive link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const button = screen.getAllByTestId("hamburger-menu-button")[0];
     await userEvent.click(button);
@@ -161,7 +112,7 @@ describe("Navbar", () => {
 
   it("mobile - navigates to archive page when clicking History link", async () => {
     // For this we override the routes defined
-    renderWithRouterAndTheme();
+    renderWithRouterAndTheme({});
 
     const button = screen.getAllByTestId("hamburger-menu-button")[0];
     await userEvent.click(button);

@@ -1,31 +1,56 @@
 import { render } from "@testing-library/react";
-import { MemoryRouter, Routes, Route } from "react-router";
+import Navbar from "~/shared/components/Navbar";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
+import { vi } from "vitest";
 import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
 
-function Wrapper({
-  initialPath = "/nl",
-}: {
-  children?: React.ReactNode;
-  initialPath?: string;
-}) {
-  return (
-    <MemoryRouter initialEntries={[initialPath]}>
-      <ThemeProvider>
-        <Routes>
-          <Route path=":lang">
-            <Route index element={<Home />} />
-            <Route path="archive" element={<Archive />} />
-            <Route path="history" element={<History />} />
-          </Route>
-        </Routes>
-      </ThemeProvider>
-    </MemoryRouter>
-  );
-}
 
-export function renderWithRouterAndTheme(options?: { route?: string }) {
-  return render(<Wrapper initialPath={options?.route} />);
+vi.mock("~/shared/hooks/useLocalizedPath", () => ({
+  useLocalizedPath: () => (path: string) => path,
+}));
+
+export function renderWithRouterAndTheme({useRealHome = false, useRealArchive = false, useRealHistory = false}) {
+  const router = createMemoryRouter(
+    [
+      {
+        path: "/",
+        element: (!useRealHome ? (
+          <>
+            <Navbar />
+            <div>TEST_HOME_PAGE</div>
+          </>
+        ) : <Home />),
+      },
+      {
+        path: "/archive",
+        element: (!useRealArchive ? (
+          <>
+            <Navbar />
+            <div>TEST_ARCHIVE_PAGE</div>
+          </>
+        ) : <Archive />),
+      },
+      {
+        path: "/history",
+        element: (!useRealHistory ? (
+          <>
+            <Navbar />
+            <div>TEST_HISTORY_PAGE</div>
+          </>
+        ) : <History />),
+      },
+    ],
+    {
+      initialEntries: ["/"],
+    }
+  );
+
+  return render(
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  );
 }
