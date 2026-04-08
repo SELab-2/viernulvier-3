@@ -23,10 +23,6 @@ import type {
   PaginationResponse,
 } from "~/features/archive/types/productionTypes";
 
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
-
 describe("productionService", () => {
   let mockAdapter: AxiosMockAdapter;
 

@@ -5,7 +5,29 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
 
+type MenuButtonProperties = {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+function HamburgerMenuButton({ isOpen, onToggle }: MenuButtonProperties) {
+  return (
+    <button
+      aria-label="Toggle navigation menu"
+      aria-expanded={isOpen}
+      data-testid="hamburger-menu-button"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 md:hidden"
+      onClick={onToggle}
+    >
+      <span className="h-0.5 w-6 bg-current" />
+      <span className="h-0.5 w-6 bg-current" />
+      <span className="h-0.5 w-6 bg-current" />
+    </button>
+  );
+}
+
 const Navbar: React.FC = () => {
+  // Mobile dropdown state
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -15,8 +37,10 @@ const Navbar: React.FC = () => {
         : "border-b-2 border-transparent opacity-60"
     }`;
 
+  // "/archive" -> "/[en|nl]/archive"
   const lp = useLocalizedPath();
 
+  // i18n
   const { t } = useTranslation();
 
   return (
@@ -59,16 +83,15 @@ const Navbar: React.FC = () => {
           <LanguageSwitcher className="hidden sm:flex" />
           <ThemeToggle></ThemeToggle>
         </div>
-        <button
-          className="ml-auto flex cursor-pointer flex-col space-y-1 md:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <span className="h-0.5 w-6 bg-current"></span>
-          <span className="h-0.5 w-6 bg-current"></span>
-          <span className="h-0.5 w-6 bg-current"></span>
-        </button>
+        <HamburgerMenuButton
+          isOpen={menuOpen}
+          onToggle={() => setMenuOpen(!menuOpen)}
+        />
         {menuOpen && (
-          <div className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden">
+          <div
+            data-testid="mobile-menu"
+            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden"
+          >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <li>
                 <NavLink to={lp("/")} onClick={() => setMenuOpen(false)}>
