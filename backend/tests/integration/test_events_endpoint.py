@@ -89,7 +89,9 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
     assert data["production_id"].endswith(str(production.id))
 
 
-def test_get_event_by_id_with_null_hall_returns_null(client: TestClient, db_session: Session):
+def test_get_event_by_id_with_null_hall_returns_null(
+    client: TestClient, db_session: Session
+):
     production = Production()
     event = Event(
         hall_id=None,
