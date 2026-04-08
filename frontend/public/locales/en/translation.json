@@ -4,6 +4,15 @@
     "archive": "Archive",
     "history": "History"
   },
+  "archive": {
+    "card": {
+      "defaults": {
+        "title": "Unknown production",
+        "dateLabel": "Unknown",
+        "venueLabel": "Unknown"
+      }
+    }
+  },
   "productionPage": {
     "fallback": {
       "unknownProduction": "Unknown production",

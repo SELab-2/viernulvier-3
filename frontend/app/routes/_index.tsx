@@ -1,5 +1,9 @@
-import { Navigate } from "react-router";
+import { redirect } from "react-router";
 
-export default function IndexRedirect() {
-  return <Navigate to="/en" replace />;
+export function loader() {
+  return redirect("/en");
+}
+
+export default function Index() {
+  return null;
 }

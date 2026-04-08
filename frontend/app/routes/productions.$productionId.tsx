@@ -7,7 +7,7 @@ export default function ProductionDetailRoute() {
   const { productionId = "" } = useParams();
   const decodedProductionId = decodeURIComponent(productionId);
   const production = mockProductions.find(
-    (item) => item.id_url === decodedProductionId
+    (item) => item.id_url === decodedProductionId || item.id === decodedProductionId
   );
 
   return <ProductionPage production={production!} />;

@@ -10,14 +10,15 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+import type { Production, ProductionInfo } from "../types/productionTypes";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
 const DEFAULT_CARD_VALUES = {
-  title: "Onbekende productie",
-  dateLabel: "5 oktober 2024",
-  venueLabel: "Domzaal",
   imageUrl: DEFAULT_IMAGE,
   tagNames: [] as string[],
 } as const;
@@ -43,52 +44,49 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-interface ProductionInfoData {
-  language: string;
-  title?: string;
-  supertitle?: string;
-  artist?: string;
-  tagline?: string;
-}
-
-export interface ProductionCardData {
-  id_url: string;
-  performer_type?: string;
-  attendance_mode?: string;
-  media_gallery_id?: number | null;
-  production_infos?: ProductionInfoData[];
+export type ProductionCardData = Production & {
   starts_at?: string;
   hall_name?: string;
   tag_names?: string[];
-  image_url?: string[];
-}
+  image_url?: string;
+  id_url?: string;
+};
 
 interface ProductionCardProps {
   production: ProductionCardData;
-  onOpen?: (productionId: string) => void;
-  onDetailClick?: (productionId: string) => void;
   preferredLanguage?: string;
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfoData[] | undefined,
+  productionInfos: ProductionInfo[] | undefined,
   language: string
-): ProductionInfoData | undefined {
+): ProductionInfo | undefined {
   if (!productionInfos || productionInfos.length === 0) {
     return undefined;
   }
 
-  const languageMatch = productionInfos.find((info) => info.language === language);
-  return languageMatch ?? productionInfos[0];
+  const normalizedLanguage = language.toLowerCase();
+  const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
+
+  const preferredLanguages = Array.from(
+    new Set([normalizedLanguage, baseLanguage, "nl", "en"])
+  );
+
+  for (const preferred of preferredLanguages) {
+    const languageMatch = productionInfos.find(
+      (info) => info.language.toLowerCase() === preferred
+    );
+
+    if (languageMatch) {
+      return languageMatch;
+    }
+  }
+
+  return productionInfos[0];
 }
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
+  return getOptionalText(value) ?? fallback;
 }
 
 function getOptionalText(value: string | null | undefined): string | undefined {
@@ -100,45 +98,63 @@ function getOptionalText(value: string | null | undefined): string | undefined {
   return trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
-function getListOrDefault<T>(value: T[] | null | undefined, fallback: T[]): T[] {
-  return Array.isArray(value) ? value : fallback;
-}
+function getTagNamesByLanguage(
+  production: ProductionCardData,
+  language: string
+): string[] {
+  if (production.tag_names && production.tag_names.length > 0) {
+    return production.tag_names;
+  }
 
-function onClickDetailPlaceholder(productionId: string) {
-  console.log("PlaceHolderFunction", productionId);
+  if (!production.tags || production.tags.length === 0) {
+    return DEFAULT_CARD_VALUES.tagNames;
+  }
+
+  return production.tags
+    .map((tag) => {
+      const languageMatch = tag.names.find((name) => name.language === language);
+      return languageMatch?.name ?? tag.names[0]?.name;
+    })
+    .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
 export function ProductionCard({
   production,
-  onOpen,
-  onDetailClick,
   preferredLanguage = "nl",
 }: ProductionCardProps) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
+  const defaultCardValues = {
+    title: t("archive.card.defaults.title"),
+    dateLabel: t("archive.card.defaults.dateLabel"),
+    venueLabel: t("archive.card.defaults.venueLabel"),
+    imageUrl: DEFAULT_CARD_VALUES.imageUrl,
+    tagNames: DEFAULT_CARD_VALUES.tagNames,
+  };
+
   const primaryInfo = getProductionInfoByLanguage(
     production.production_infos,
     preferredLanguage
   );
-  const title = getTextOrDefault(primaryInfo?.title, DEFAULT_CARD_VALUES.title);
+  const title = getTextOrDefault(primaryInfo?.title, defaultCardValues.title);
   const supertitle = getOptionalText(primaryInfo?.supertitle);
   const artist = getOptionalText(primaryInfo?.artist);
   const tagline = getOptionalText(primaryInfo?.tagline);
-  const dateLabel = getTextOrDefault(
-    production.starts_at,
-    DEFAULT_CARD_VALUES.dateLabel
-  );
+  const dateLabel = getTextOrDefault(production.starts_at, defaultCardValues.dateLabel);
   const venueLabel = getTextOrDefault(
     production.hall_name,
-    DEFAULT_CARD_VALUES.venueLabel
+    defaultCardValues.venueLabel
   );
-  const imageUrl = getTextOrDefault(
-    production.image_url?.[0],
-    DEFAULT_CARD_VALUES.imageUrl
-  );
-  const tagNames = getListOrDefault(production.tag_names, DEFAULT_CARD_VALUES.tagNames);
+  const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
+  const tagNames = getTagNamesByLanguage(production, preferredLanguage);
+
+  // NOTE: update this after id_url becomes standard
+  // const productionId = production.id_url;
+  const productionId = production.id_url ?? production.id;
 
   const handleOpenDetails = () => {
-    (onDetailClick ?? onClickDetailPlaceholder)(production.id_url);
-    onOpen?.(production.id_url);
+    navigate(lp(`/productions/${encodeURIComponent(productionId)}`));
   };
 
   return (
@@ -163,11 +179,10 @@ export function ProductionCard({
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         "color": CARD_COLORS.textPrimary,
         "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
-        "boxShadow": `0 16px 40px ${colorWithOpacity(CARD_COLORS.ink, 0.38)}`,
         "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
-          boxShadow: `0 22px 50px ${colorWithOpacity(CARD_COLORS.ink, 0.45)}`,
+          boxShadow: `0 16px 36px ${colorWithOpacity(CARD_COLORS.ink, 0.1)}`,
         },
         "&:hover .production-card-image": {
           transform: `translateY(${CARD_MOTION.imageTranslateYOnHover}) scale(${CARD_MOTION.imageScaleOnHover})`,
@@ -274,6 +289,7 @@ export function ProductionCard({
             component="h3"
             sx={{
               mb: 0.7,
+              pb: "0.09em",
               fontFamily: "var(--font-serif)",
               fontSize: "var(--text-archive-title-lg)",
               lineHeight: "var(--leading-archive-title)",
@@ -386,15 +402,9 @@ export function ProductionCard({
 
 export interface ProductionCardGridProps {
   productions: ProductionCardData[];
-  onDetailClick?: (productionId: string) => void;
-  preferredLanguage?: string;
 }
 
-export function ProductionCardGrid({
-  productions,
-  onDetailClick,
-  preferredLanguage,
-}: ProductionCardGridProps) {
+export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
   return (
     <Box
       sx={{
@@ -409,12 +419,7 @@ export function ProductionCardGrid({
       }}
     >
       {productions.map((production) => (
-        <ProductionCard
-          key={production.id_url}
-          production={production}
-          onDetailClick={onDetailClick}
-          preferredLanguage={preferredLanguage}
-        />
+        <ProductionCard key={production.id} production={production} />
       ))}
     </Box>
   );
@@ -425,37 +430,47 @@ export const ProductionCardDemoGrid = ProductionCardGrid;
 // Temporary mock data for local UI development.
 export const mockProductions: ProductionCardData[] = [
   {
-    id_url: "VV-2024-10-OPEN-ARCHIVE",
+    id: "VV-2024-10-OPEN-ARCHIVE",
     performer_type: "group",
     attendance_mode: "offline",
+    media_gallery_id: 1,
+    created_at: "2024-10-01T10:00:00Z",
+    updated_at: "2024-10-01T10:00:00Z",
     starts_at: "3 oktober 2024",
     hall_name: "Balzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-OPEN-ARCHIVE",
         language: "nl",
-        title: "Open Archiefnacht",
+        title: undefined,
         supertitle: "Ephemera",
-        artist: "Zwangere guy",
+        artist: undefined,
         tagline:
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },
     ],
-    tag_names: ["Archief", "Open Huis", "Performance", "Gent"],
-    image_url: [
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
+    events: [],
+    tags: [
+      { id: "1", names: [{ language: "nl", name: "Archief" }] },
+      { id: "2", names: [{ language: "nl", name: "Open Huis" }] },
+      { id: "3", names: [{ language: "nl", name: "Performance" }] },
+      { id: "4", names: [{ language: "nl", name: "Gent" }] },
     ],
+    image_url:
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop",
   },
   {
-    id_url: "VV-2024-10-M1",
+    id: "VV-2024-10-M1",
     performer_type: "ensemble",
     attendance_mode: "hybrid",
+    media_gallery_id: 2,
+    created_at: "2024-10-02T10:00:00Z",
+    updated_at: "2024-10-02T10:00:00Z",
     starts_at: "5 oktober 2024",
     hall_name: "Domzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-M1",
         language: "nl",
         title: "Film Hoge Dichtheid #2",
         supertitle: "Theater",
@@ -463,21 +478,26 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    tag_names: ["Underground", "Mockup"],
-    image_url: [
-      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1521417531039-582e6f0c93f0?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1503095396549-807759245b35?q=80&w=1600&auto=format&fit=crop",
+    events: [],
+    tags: [
+      { id: "5", names: [{ language: "nl", name: "Underground" }] },
+      { id: "6", names: [{ language: "nl", name: "Mockup" }] },
     ],
+    image_url:
+      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1600&auto=format&fit=crop",
   },
   {
-    id_url: "VV-2024-10-M2",
+    id: "VV-2024-10-M2",
     performer_type: "duo",
     attendance_mode: "online",
+    media_gallery_id: 3,
+    created_at: "2024-10-03T10:00:00Z",
+    updated_at: "2024-10-03T10:00:00Z",
     starts_at: "21 oktober 2024",
     hall_name: "Filmzaal",
     production_infos: [
       {
+        prod_id: "VV-2024-10-M2",
         language: "nl",
         title: "Ephemera Hoge Dichtheid #3",
         supertitle: "Film",
@@ -485,12 +505,12 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    tag_names: ["Geschiedenis", "Mockup"],
-    image_url: [
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=1600&auto=format&fit=crop",
+    events: [],
+    tags: [
+      { id: "7", names: [{ language: "nl", name: "Geschiedenis" }] },
+      { id: "8", names: [{ language: "nl", name: "Mockup" }] },
     ],
+    image_url:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop",
   },
-  
 ];

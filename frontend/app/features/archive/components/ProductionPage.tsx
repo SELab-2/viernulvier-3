@@ -1,17 +1,9 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 
-import { ThemeToggle } from "~/shared/components/ThemeToggle";
+import type { ProductionInfo } from "~/features/archive/types/productionTypes";
 
 import type { ProductionCardData } from "./ProductionCard";
-
-interface ProductionInfoData {
-  language: string;
-  title?: string;
-  supertitle?: string;
-  artist?: string;
-  tagline?: string;
-}
 
 interface ProductionPageProps {
   production: ProductionCardData;
@@ -19,9 +11,9 @@ interface ProductionPageProps {
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfoData[] | undefined,
+  productionInfos: ProductionInfo[] | undefined,
   language: string
-): ProductionInfoData | undefined {
+): ProductionInfo | undefined {
   if (!productionInfos || productionInfos.length === 0) {
     return undefined;
   }
@@ -39,11 +31,30 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
-function getListOrDefault<T>(value: T[] | null | undefined, fallback: T[]): T[] {
-  return Array.isArray(value) ? value : fallback;
+function getTagNamesByLanguage(
+  production: ProductionCardData,
+  language: string
+): string[] {
+  if (production.tag_names && production.tag_names.length > 0) {
+    return production.tag_names;
+  }
+
+  if (!production.tags || production.tags.length === 0) {
+    return [];
+  }
+
+  return production.tags
+    .map((tag) => {
+      const languageMatch = tag.names.find((name) => name.language === language);
+      return languageMatch?.name ?? tag.names[0]?.name;
+    })
+    .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
-export function ProductionPage({ production, preferredLanguage = "nl" }: ProductionPageProps) {
+export function ProductionPage({
+  production,
+  preferredLanguage = "nl",
+}: ProductionPageProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
@@ -76,22 +87,20 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
     production.hall_name,
     t("productionPage.fallback.locationTbd")
   );
-  const imageUrls = getListOrDefault(production.image_url, []);
   const imageUrl = getTextOrDefault(
-    imageUrls[0],
+    production.image_url,
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop"
   );
-  const tags = getListOrDefault(production.tag_names, []);
+  const imageUrls = [imageUrl];
+  const tags = getTagNamesByLanguage(production, language);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
-      
-
-      <main className="mx-auto w-full max-w-[1400px] px-6 pb-16 pt-10 md:px-12">
+      <main className="mx-auto w-full max-w-[1400px] px-6 pt-10 pb-16 md:px-12">
         <div className="flex flex-col gap-4">
           <Link
             to="/"
-            className="font-sans text-[0.68rem] uppercase tracking-[0.24em] opacity-70 no-underline transition hover:opacity-100"
+            className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
           >
             {t("productionPage.backToCollection")}
           </Link>
@@ -103,11 +112,11 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
               className="h-[280px] w-full object-cover object-center md:h-[360px]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-            <div className="absolute bottom-8 left-7 right-7 md:bottom-10 md:left-12 md:right-12">
-              <p className="font-sans text-[0.65rem] uppercase tracking-[0.28em] text-white/72">
+            <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
+              <p className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase">
                 {supertitle}
               </p>
-              <h1 className="font-serif mt-2 text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl">
+              <h1 className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl">
                 {title}
               </h1>
               <p className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl">
@@ -121,7 +130,7 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           {tags.map((tag) => (
             <li
               key={tag}
-              className="border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] bg-archive-control rounded-full border px-4 py-1.5 text-[0.68rem] uppercase tracking-[var(--archive-tracking-label)]"
+              className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase"
             >
               {tag}
             </li>
@@ -133,21 +142,19 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
             <p>{tagline}</p>
             <p>
               {t("productionPage.body.referenceAndContext", {
-                reference: production.id_url,
+                reference: production.id_url ?? production.id,
               })}
             </p>
-            <p>
-              {t("productionPage.body.exploreSimilar")}
-            </p>
+            <p>{t("productionPage.body.exploreSimilar")}</p>
           </article>
 
-          <aside className="border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] bg-archive-surface-strong h-fit rounded-[1.75rem] border p-6">
-            <h2 className="text-[0.68rem] uppercase tracking-[0.25em] opacity-70">
+          <aside className="bg-archive-surface-strong h-fit rounded-[1.75rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6">
+            <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
               {t("productionPage.archiveSchema")}
             </h2>
 
             <div className="mt-6 space-y-4">
-              <div className="border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] border-b pb-4">
+              <div className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4">
                 <div className="flex items-baseline justify-between gap-4">
                   <span className="font-serif text-[1.35rem] leading-tight italic">
                     {startsAt}
@@ -156,7 +163,7 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
                     {t("productionPage.startTime")}
                   </span>
                 </div>
-                <p className="mt-2 text-xs uppercase tracking-[0.2em] opacity-62">
+                <p className="mt-2 text-xs tracking-[0.2em] uppercase opacity-62">
                   {hallName}
                 </p>
               </div>
@@ -164,12 +171,12 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           </aside>
         </section>
 
-        <section className="border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] mt-16 border-t pt-14">
+        <section className="mt-16 border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] pt-14">
           <div className="mb-8 flex items-end justify-between gap-6">
             <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
               {t("productionPage.visualEvidence")}
             </h2>
-            <p className="text-[0.68rem] uppercase tracking-[0.22em] opacity-60">
+            <p className="text-[0.68rem] tracking-[0.22em] uppercase opacity-60">
               {t("productionPage.archiveFragments", { count: imageUrls.length })}
             </p>
           </div>
@@ -177,8 +184,9 @@ export function ProductionPage({ production, preferredLanguage = "nl" }: Product
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {imageUrls.map((url, index) => (
               <figure
-                key={`${production.id_url}-${url}-${index}`}
-                className="group border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-archive-surface overflow-hidden rounded-2xl border"
+                // NOTE remove ?? after we fully switch to production.id_url
+                key={`${production.id_url ?? production.id}-${url}-${index}`}
+                className="group bg-archive-surface overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)]"
               >
                 <img
                   src={url}

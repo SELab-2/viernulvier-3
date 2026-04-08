@@ -78,7 +78,7 @@
   --archive-control-hover: rgba(45, 40, 37, 0.08);
   --archive-logo-filter: brightness(0) saturate(100%);
   --archive-text-meta: 0.77rem;
-  --archive-text-body: 0.85rem;
+  --archive-text-body: 1.1rem;
   --archive-text-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
   --archive-tracking-meta: 0.1em;
   --archive-tracking-label: 0.05em;
