@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
 
@@ -34,29 +34,29 @@ const Navbar: React.FC = () => {
               aria-hidden="true"
               className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
             >
-              {`${t("nav.archive")}`}
+              {t("nav.archive")}
             </span>
           </div>
         </header>
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
           <li>
             <NavLink to={lp("/")} className={navLinkClass} end>
-              {`${t("nav.home")}`}
+              {t("nav.home")}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/archive")} className={navLinkClass}>
-              {`${t("nav.archive")}`}
+              {t("nav.archive")}
             </NavLink>
           </li>
           <li>
             <NavLink to={lp("/history")} className={navLinkClass}>
-              {`${t("nav.history")}`}
+              {t("nav.history")}
             </NavLink>
           </li>
         </ul>
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-          <LanguageSwitcher />
+          <LanguageSwitcher className="hidden sm:flex" />
           <ThemeToggle></ThemeToggle>
         </div>
         <button
@@ -72,22 +72,25 @@ const Navbar: React.FC = () => {
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <li>
                 <NavLink to={lp("/")} onClick={() => setMenuOpen(false)}>
-                  {`${t("nav.home")}`}
+                  {t("nav.home")}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/archive")} onClick={() => setMenuOpen(false)}>
-                  {`${t("nav.archive")}`}
+                  {t("nav.archive")}
                 </NavLink>
               </li>
               <li>
                 <NavLink to={lp("/history")} onClick={() => setMenuOpen(false)}>
-                  {`${t("nav.history")}`}
+                  {t("nav.history")}
                 </NavLink>
               </li>
-
-              <LanguageSwitcher />
-              <ThemeToggle />
+              <li>
+                <LanguageSwitcher />
+              </li>
+              <li>
+                <ThemeToggle />
+              </li>
             </ul>
             <div className="bg-archive-ink/10 h-px" />
           </div>

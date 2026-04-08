@@ -1,0 +1,86 @@
+import type { Tag } from "./tagTypes";
+
+export interface PaginationRequest {
+  cursor?: number;
+  limit?: number;
+}
+
+export interface PaginationResponse {
+  next_cursor?: number;
+  has_more: boolean;
+}
+
+export interface ProductionInfo {
+  prod_id: string;
+  language: string;
+
+  title?: string;
+  supertitle?: string;
+  artist?: string;
+  tagline?: string;
+  teaser?: string;
+  description?: string;
+  info?: string;
+}
+
+export interface Production {
+  id: string;
+
+  performer_type?: string;
+  attendance_mode?: string;
+  media_gallery_id?: number; // Maybe update after merge media pr.
+  created_at?: string;
+  updated_at?: string;
+
+  production_infos: ProductionInfo[];
+  events: string[];
+  tags: Tag[];
+}
+
+export interface ProductionList {
+  productions: Production[];
+  pagination: PaginationResponse;
+}
+
+export interface ProductionInfoCreate {
+  language: string;
+
+  title?: string;
+  supertitle?: string;
+  artist?: string;
+  tagline?: string;
+  teaser?: string;
+  description?: string;
+  info?: string;
+}
+
+export interface ProductionCreate {
+  performer_type?: string;
+  attendance_mode?: string;
+  media_gallery_id?: number; // Maybe update after merge media pr.
+
+  production_info: ProductionInfoCreate;
+  tag_ids: number[];
+}
+
+export interface ProductionInfoUpdate {
+  language: string;
+
+  title?: string;
+  supertitle?: string;
+  artist?: string;
+  tagline?: string;
+  teaser?: string;
+  description?: string;
+  info?: string;
+}
+
+export interface ProductionUpdate {
+  performer_type?: string;
+  attendance_mode?: string;
+  media_gallery_id?: number; // Maybe update after merge media pr.
+
+  production_infos?: ProductionInfoUpdate[];
+  tag_ids?: number[];
+  remove_languages?: string[];
+}

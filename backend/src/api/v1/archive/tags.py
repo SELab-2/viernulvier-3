@@ -47,7 +47,6 @@ def get_tag(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ):
-
     base_url = get_base_url(str(request.url), remove_last_segments=2)
     tag = get_tag_by_id(db, tag_id, base_url, language)
     return tag
