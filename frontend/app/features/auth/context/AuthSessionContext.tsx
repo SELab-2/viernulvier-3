@@ -56,13 +56,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         const user = await loadSession();
 
         if (sessionOperationIdRef.current === operationId) {
-          updateAuthState(user);
+          Promise.resolve().then(() => updateAuthState(user));
         }
 
         return user;
       } catch (error) {
         if (fallbackToAnonymous && sessionOperationIdRef.current === operationId) {
-          updateAuthState(null);
+          Promise.resolve().then(() => updateAuthState(null));
         }
 
         throw error;
