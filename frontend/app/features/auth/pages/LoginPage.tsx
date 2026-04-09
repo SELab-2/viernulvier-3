@@ -9,6 +9,7 @@ import {
   IconButton,
   InputAdornment,
   TextField,
+  type TextFieldProps,
 } from "@mui/material";
 import { Navigate, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -26,6 +27,130 @@ function getLoginErrorMessage(
   }
 
   return fallbackMessage;
+}
+
+function LoginErrorAlert({ errorMessage }: { errorMessage: string | null }) {
+  if (!errorMessage) {
+    return null;
+  }
+
+  return (
+    <Alert
+      severity="error"
+      variant="outlined"
+      sx={{
+        "mb": 3,
+        "fontFamily": "var(--font-sans)",
+        "fontSize": "0.875rem",
+        "borderColor": "rgba(196, 164, 132, 0.4)",
+        "color": "var(--archive-ink)",
+        "& .MuiAlert-icon": { color: "var(--archive-accent)" },
+      }}
+    >
+      {errorMessage}
+    </Alert>
+  );
+}
+
+function LoginTextField(props: Omit<TextFieldProps, "fullWidth" | "size" | "sx">) {
+  return <TextField fullWidth size="small" sx={fieldSx} {...props} />;
+}
+
+function PasswordVisibilityAdornment({
+  showPassword,
+  showPasswordLabel,
+  hidePasswordLabel,
+  onToggle,
+}: {
+  showPassword: boolean;
+  showPasswordLabel: string;
+  hidePasswordLabel: string;
+  onToggle: () => void;
+}) {
+  return (
+    <InputAdornment position="end">
+      <IconButton
+        edge="end"
+        size="small"
+        onClick={onToggle}
+        aria-label={showPassword ? hidePasswordLabel : showPasswordLabel}
+        sx={{
+          "color": "var(--archive-ink)",
+          "opacity": 0.45,
+          "&:hover": {
+            opacity: 1,
+            backgroundColor: "var(--archive-control-hover)",
+          },
+        }}
+      >
+        {showPassword ? (
+          <VisibilityOffOutlinedIcon fontSize="small" />
+        ) : (
+          <VisibilityOutlinedIcon fontSize="small" />
+        )}
+      </IconButton>
+    </InputAdornment>
+  );
+}
+
+function LoginCredentialsFields({
+  username,
+  password,
+  showPassword,
+  usernameLabel,
+  passwordLabel,
+  showPasswordLabel,
+  hidePasswordLabel,
+  onUsernameChange,
+  onPasswordChange,
+  onTogglePasswordVisibility,
+}: {
+  username: string;
+  password: string;
+  showPassword: boolean;
+  usernameLabel: string;
+  passwordLabel: string;
+  showPasswordLabel: string;
+  hidePasswordLabel: string;
+  onUsernameChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onTogglePasswordVisibility: () => void;
+}) {
+  return (
+    <>
+      <LoginTextField
+        label={usernameLabel}
+        id="username"
+        name="username"
+        autoComplete="username"
+        autoFocus
+        value={username}
+        onChange={(event) => onUsernameChange(event.target.value)}
+      />
+
+      <LoginTextField
+        label={passwordLabel}
+        id="password"
+        name="password"
+        type={showPassword ? "text" : "password"}
+        autoComplete="current-password"
+        value={password}
+        onChange={(event) => onPasswordChange(event.target.value)}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <PasswordVisibilityAdornment
+                showPassword={showPassword}
+                showPasswordLabel={showPasswordLabel}
+                hidePasswordLabel={hidePasswordLabel}
+                onToggle={onTogglePasswordVisibility}
+              />
+            ),
+          },
+        }}
+      />
+    </>
+  );
 }
 
 export default function LoginPage() {
@@ -54,6 +179,20 @@ export default function LoginPage() {
 
   if (isAuthenticated) {
     return <Navigate to={homePath} replace />;
+  }
+
+  function handleUsernameChange(value: string) {
+    setUsername(value);
+    if (errorMessage) {
+      setErrorMessage(null);
+    }
+  }
+
+  function handlePasswordChange(value: string) {
+    setPassword(value);
+    if (errorMessage) {
+      setErrorMessage(null);
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -89,86 +228,20 @@ export default function LoginPage() {
           {t("auth.login.formDescription")}
         </p>
 
-        {errorMessage ? (
-          <Alert
-            severity="error"
-            variant="outlined"
-            sx={{
-              "mb": 3,
-              "fontFamily": "var(--font-sans)",
-              "fontSize": "0.875rem",
-              "borderColor": "rgba(196, 164, 132, 0.4)",
-              "color": "var(--archive-ink)",
-              "& .MuiAlert-icon": { color: "var(--archive-accent)" },
-            }}
-          >
-            {errorMessage}
-          </Alert>
-        ) : null}
+        <LoginErrorAlert errorMessage={errorMessage} />
 
         <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <TextField
-            label={t("auth.login.usernameLabel")}
-            id="username"
-            name="username"
-            autoComplete="username"
-            autoFocus
-            fullWidth
-            size="small"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            sx={fieldSx}
-          />
-
-          <TextField
-            label={t("auth.login.passwordLabel")}
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            fullWidth
-            size="small"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            sx={fieldSx}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      edge="end"
-                      size="small"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={
-                        showPassword
-                          ? t("auth.login.hidePassword")
-                          : t("auth.login.showPassword")
-                      }
-                      sx={{
-                        "color": "var(--archive-ink)",
-                        "opacity": 0.45,
-                        "&:hover": {
-                          opacity: 1,
-                          backgroundColor: "var(--archive-control-hover)",
-                        },
-                      }}
-                    >
-                      {showPassword ? (
-                        <VisibilityOffOutlinedIcon fontSize="small" />
-                      ) : (
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
+          <LoginCredentialsFields
+            username={username}
+            password={password}
+            showPassword={showPassword}
+            usernameLabel={t("auth.login.usernameLabel")}
+            passwordLabel={t("auth.login.passwordLabel")}
+            showPasswordLabel={t("auth.login.showPassword")}
+            hidePasswordLabel={t("auth.login.hidePassword")}
+            onUsernameChange={handleUsernameChange}
+            onPasswordChange={handlePasswordChange}
+            onTogglePasswordVisibility={() => setShowPassword((value) => !value)}
           />
 
           <Button
