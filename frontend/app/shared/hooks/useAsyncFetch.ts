@@ -13,14 +13,18 @@ export function useAsyncFetch<T>(asyncFn: () => Promise<T>): UseAsyncReturn<T> {
   const [error, setError] = useState<Error | null>(null);
 
   // Refresh function used to fetch and refetch data if needed
-  const refresh = useCallback(() => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    asyncFn()
-      .then(setData)
-      .catch(setError)
-      .finally(() => setLoading(false));
+    try {
+      const res = await asyncFn();
+      setData(res);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setLoading(false);
+    }
   }, [asyncFn]);
 
   useEffect(() => {

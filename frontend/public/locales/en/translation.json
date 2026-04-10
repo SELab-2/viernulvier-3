@@ -4,6 +4,28 @@
     "archive": "Archive",
     "history": "History"
   },
+  "filter": {
+    "search": "Search",
+    "search_in_collection": "Search in our collection",
+    "period": "Period",
+    "from": "From",
+    "to": "To",
+    "tags": "Tags",
+    "venues": "Venues",
+    "artists": "Artists",
+    "search_artists": "Search for artists"
+  },
+
+  "archive": {
+    "title": "The Collection",
+    "card": {
+      "defaults": {
+        "title": "Unknown production",
+        "dateLabel": "Unknown",
+        "venueLabel": "Unknown"
+      }
+    }
+  },
 
   "home": {
     "title": "Windows to the Past",
@@ -18,10 +40,6 @@
       "explore": "Explore the Collection",
       "history": "Our History"
     }
-  },
-
-  "archive": {
-    "title": "The Collection"
   },
 
   "history": {
