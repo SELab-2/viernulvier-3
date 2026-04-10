@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 function HistoryEntry({ title, description }: { title: string; description: string }) {
   return (
     <div className="relative pl-12">
-      <div className="bg-archive-accent border-archive-paper absolute top-4 -left-[9px] h-4 w-4 rounded-full border-4"></div>
+      <div className="bg-archive-accent border-archive-paper absolute top-4 -left-[9px] h-4 w-4 rounded-full border-4"/>
       <h3 className="mb-4 font-serif text-3xl italic">{title}</h3>
       <p className="leading-relaxed italic opacity-70">{description}</p>
     </div>
@@ -30,7 +30,7 @@ export default function History() {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000`}
         />
         <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
           <h1 className="font-serif text-7xl italic drop-shadow-lg md:text-9xl">
             {t("history.title")}
           </h1>
