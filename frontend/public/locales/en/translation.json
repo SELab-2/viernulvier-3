@@ -18,7 +18,8 @@
     "tags": "Tags",
     "venues": "Venues",
     "artists": "Artists",
-    "search_artists": "Search for artists"
+    "search_artists": "Search for artists",
+    "toggle_menu": "Filter & Search"
   },
 
   "archive": {

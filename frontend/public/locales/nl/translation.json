@@ -18,7 +18,8 @@
     "tags": "Tags",
     "venues": "Locaties",
     "artists": "Artiesten",
-    "search_artists": "Zoek naar artiesten"
+    "search_artists": "Zoek naar artiesten",
+    "toggle_menu": "Filteren & Zoeken"
   },
 
   "archive": {

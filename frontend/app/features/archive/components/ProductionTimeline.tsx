@@ -34,7 +34,7 @@ function MonthDisplay({
             return date.getFullYear() === year && date.getMonth() === month;
           })
           .map((prod) => (
-            <ProductionCard production={prod} className="" />
+            <ProductionCard key={prod.id} production={prod} className="" />
           ))}
       </div>
     </div>
@@ -67,7 +67,12 @@ function YearDisplay({
         .sort()
         .reverse()
         .map((month) => (
-          <MonthDisplay productions={productions} month={month} year={year} />
+          <MonthDisplay
+            key={`productions-y${year}-m${month}`}
+            productions={productions}
+            month={month}
+            year={year}
+          />
         ))}
     </div>
   );
@@ -94,7 +99,11 @@ export function ProductionTimeline({
         .sort()
         .reverse()
         .map((year) => (
-          <YearDisplay productions={productions} year={year} />
+          <YearDisplay
+            key={`productions-y${year}`}
+            productions={productions}
+            year={year}
+          />
         ))}
     </div>
   );
