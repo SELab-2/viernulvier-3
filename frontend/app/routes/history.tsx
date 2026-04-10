@@ -23,7 +23,7 @@ export default function History() {
   return (
     <>
       <section className="relative h-screen w-full overflow-hidden">
-        <img key={HERO_IMAGES[0]} src={HERO_IMAGES[0]} alt="" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000`}/>
+        <img data-testid="history-hero" key={HERO_IMAGES[0]} src={HERO_IMAGES[0]} alt={t("history.heroAlt")} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000`}/>
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
           <h1 className="font-serif text-7xl md:text-9xl italic drop-shadow-lg">
