@@ -12,18 +12,34 @@ function HistoryEntry({ title, description }: { title: string; description: stri
   );
 }
 
+const HERO_IMAGES = [
+  "/public/images/1914_Inhuldiging.jpg",
+];
+
 export default function History() {
   const { t } = useTranslation();
   const entries = t("history.entries", { returnObjects: true }) as Record<string, { title: string; description: string }>;
 
   return (
-    <div className="max-w-3xl mx-auto py-12">
-      <h1 className="font-serif text-6xl mb-12 italic">{t("history.title")}</h1> 
-      <div className="space-y-16 border-l-2 border-archive-accent/10 pb-12 max-w-2xl mx-auto">
-        {Object.values(entries).map((entry) => (
-          <HistoryEntry key={entry.title} title={entry.title} description={entry.description} />
-        ))}
-      </div>
-    </div>
+    <>
+      <section className="relative h-screen w-full overflow-hidden">
+        <img key={HERO_IMAGES[0]} src={HERO_IMAGES[0]} alt="" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000`}/>
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+          <h1 className="font-serif text-7xl md:text-9xl italic drop-shadow-lg">
+            {t("history.title")}
+          </h1>
+        </div>
+      </section>
+      <section>
+        <div className="max-w-3xl mx-auto py-12">
+          <div className="space-y-16 border-l-2 border-archive-accent/10 pb-12 max-w-2xl mx-auto">
+            {Object.values(entries).map((entry) => (
+              <HistoryEntry key={entry.title} title={entry.title} description={entry.description} />
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
