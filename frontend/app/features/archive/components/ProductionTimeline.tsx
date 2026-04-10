@@ -23,7 +23,7 @@ function MonthDisplay({
         <div className="text-[14px] font-bold tracking-[0.28em] opacity-25">
           {getMonthName(month, lang).toUpperCase()}
         </div>
-        <div className="bg-archive-ink/5 mr-5 h-px flex-1"></div>
+        <div className="bg-archive-ink/5 h-px flex-1"></div>
       </div>
 
       {/* Productions */}
@@ -58,10 +58,10 @@ function YearDisplay({
 
   return (
     <div>
-      <h2 className="min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
+      <h2 className="mt-5 min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
         {year}
       </h2>
-      <div className="bg-archive-ink/15 mr-5 h-px flex-1"></div>
+      <div className="bg-archive-ink/15 h-[1.25px] flex-1"></div>
 
       {months
         .sort()

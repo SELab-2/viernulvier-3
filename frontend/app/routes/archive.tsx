@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
 import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
-import { mockProductions } from "~/features/archive/components/ProductionCard";
+import { mockProductions } from "~/features/_template-feature/mock/mockProductions";
 
 export default function Archive() {
   const [showFilters, setShowFilters] = useState(false);
@@ -67,7 +67,15 @@ export default function Archive() {
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
-        <ProductionTimeline productions={[]} />
+        <ProductionTimeline
+          className="mr-5"
+          productions={[
+            ...mockProductions,
+            ...mockProductions,
+            ...mockProductions,
+            ...mockProductions,
+          ]}
+        />
       </div>
     </div>
   );
