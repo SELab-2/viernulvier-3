@@ -5,6 +5,7 @@ import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
 
 export default defineConfig({
   ignores: ["**/.react-router/**", ".config/*", "build/**"],
@@ -16,5 +17,6 @@ export default defineConfig({
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
     prettierConfig,
+    reactHooks.configs.flat.recommended,
   ],
 });
