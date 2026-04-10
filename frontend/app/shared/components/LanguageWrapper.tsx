@@ -12,7 +12,7 @@ export default function LanguageWrapper() {
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang);
     }
-  }, [lang]);
+  }, [lang, i18n]);
 
   if (!lang || !SUPPORTED_LANGS.includes(lang)) {
     return <Navigate to="/en" replace />;
