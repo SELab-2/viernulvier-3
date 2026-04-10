@@ -3,7 +3,6 @@ import { ProductionCard, type ProductionCardData } from "./ProductionCard";
 
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
-  // Get name of month
   return new Date(0, n).toLocaleString(lang, { month: "long" });
 }
 
@@ -16,15 +15,6 @@ function MonthDisplay({
   year: number;
   month: number;
 }) {
-  // timeline-month-header
-  // flex
-  // items-center
-  // gap-3
-  // mb-3
-  // sticky
-  // timeline-month-sticky
-  // timeline-sticky-glass
-  // z-30
   const { lang } = useParams();
   return (
     <div>
@@ -33,8 +23,9 @@ function MonthDisplay({
         <div className="text-[14px] font-bold tracking-[0.28em] opacity-25">
           {getMonthName(month, lang).toUpperCase()}
         </div>
-        <div className="bg-archive-ink/15 h-px flex-1"></div>
+        <div className="bg-archive-ink/5 mr-5 h-px flex-1"></div>
       </div>
+
       {/* Productions */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {productions
@@ -66,12 +57,11 @@ function YearDisplay({
     .filter((value, index, array) => array.indexOf(value) === index);
 
   return (
-    <div className="">
-      {/* YEAR HEADER */}
+    <div>
       <h2 className="min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
         {year}
       </h2>
-      <div className="bg-archive-ink/5 h-px flex-1"></div>
+      <div className="bg-archive-ink/15 mr-5 h-px flex-1"></div>
 
       {months
         .sort()
@@ -85,8 +75,10 @@ function YearDisplay({
 
 export function ProductionTimeline({
   productions,
+  className,
 }: {
   productions: ProductionCardData[];
+  className?: string;
 }) {
   // TODO do mapping and filters once and use result everywhere instead of repeatedly filtering
   const years: number[] = productions
@@ -97,7 +89,7 @@ export function ProductionTimeline({
     .filter((value, index, array) => array.indexOf(value) === index);
 
   return (
-    <div className="">
+    <div className={className}>
       {years
         .sort()
         .reverse()
