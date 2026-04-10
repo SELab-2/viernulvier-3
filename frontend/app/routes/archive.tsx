@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
 import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import { mockProductions } from "~/features/_template-feature/mock/mockProductions";
+import { Divider } from "@mui/material";
 
 function FilterIcon() {
   return (
@@ -26,15 +27,13 @@ function FilterIcon() {
 function MobileToggleButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="mx-5">
-      <button
-        onClick={onClick}
-        className="bg-archive-ink/5 border-archive-ink/10 mb-8 flex w-full cursor-pointer items-center justify-center space-x-3 rounded-xl border py-3 text-xs font-bold tracking-widest uppercase lg:hidden"
-      >
-        <FilterIcon />
-        <span>{t("filter.toggle_menu")}</span>
-      </button>
-    </div>
+    <button
+      onClick={onClick}
+      className="bg-archive-ink/5 border-archive-ink/10 mb-8 flex w-full cursor-pointer items-center justify-center space-x-3 rounded-xl border py-3 text-xs font-bold tracking-widest uppercase lg:hidden"
+    >
+      <FilterIcon />
+      <span>{t("filter.toggle_menu")}</span>
+    </button>
   );
 }
 
@@ -57,13 +56,19 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
+  const productions = [...mockProductions];
+
   return (
-    <div>
+    <div className="mx-6 md:mx-10">
       <title>{`${t("nav.archive")} | VIERNULVIER`}</title>
-      <h1 className="mt-5 ml-5 h-20 text-4xl font-bold">{t("archive.title")}</h1>
+      <div className="mb-10 md:mb-16">
+        <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
+          {t("archive.title")}
+        </h1>
+      </div>
 
       <MobileToggleButton onClick={toggleMobileFilters} />
-      <div className="relative mb-16 ml-4 flex flex-col items-start gap-5 lg:flex-row">
+      <div className="relative mb-16 flex flex-col items-start gap-5 lg:flex-row">
         <FilterSidebar
           className="min-w-1/4"
           show={showFilters}
@@ -80,15 +85,28 @@ export default function Archive() {
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
-        <ProductionTimeline
-          className="mr-5"
-          productions={[
-            ...mockProductions,
-            ...mockProductions,
-            ...mockProductions,
-            ...mockProductions,
-          ]}
-        />
+        <div className="w-full">
+          <div className="mb-4 flex flex-row items-center justify-between">
+            <p className="italic opacity-60 md:text-lg">
+              {productions.length}{" "}
+              {productions.length == 1 ? t("archive.result") : t("archive.results")}
+            </p>
+            <div className="flex items-center justify-between space-x-6 md:justify-end">
+              {/* TODO: Sorting component & functionality */}
+            </div>
+          </div>
+          <Divider className="bg-archive-ink/5" />
+          {productions && productions.length > 0 ? (
+            <ProductionTimeline productions={productions} />
+          ) : (
+            <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+              <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+                {t("archive.no_results.header")}
+              </p>
+              <p className="opacity-35">{t("archive.no_results.subtext")}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

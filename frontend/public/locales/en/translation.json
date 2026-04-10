@@ -24,6 +24,12 @@
 
   "archive": {
     "title": "The Collection",
+    "results": "results",
+    "result": "result",
+    "no_results": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less filters or keywords"
+    },
     "card": {
       "defaults": {
         "title": "Unknown production",

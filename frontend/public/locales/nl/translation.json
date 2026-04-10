@@ -24,6 +24,12 @@
 
   "archive": {
     "title": "De Collectie",
+    "results": "resultaten",
+    "result": "resultaat",
+    "no_results": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
+    },
     "card": {
       "defaults": {
         "title": "Onbekende productie",
