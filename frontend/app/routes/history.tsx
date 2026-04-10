@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 function HistoryEntry({ title, description }: { title: string; description: string }) {
   return (
     <div className="relative pl-12">
-      <div className="bg-archive-accent border-archive-paper dark:border-archive-paper-dark absolute top-4 -left-[9px] h-4 w-4 rounded-full border-4"></div>
+      <div className="bg-archive-accent border-archive-paper absolute top-4 -left-[9px] h-4 w-4 rounded-full border-4"></div>
       <h3 className="mb-4 font-serif text-3xl italic">{title}</h3>
       <p className="leading-relaxed italic opacity-70">{description}</p>
     </div>
