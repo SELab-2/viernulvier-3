@@ -56,13 +56,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
         const user = await loadSession();
 
         if (sessionOperationIdRef.current === operationId) {
-          Promise.resolve().then(() => updateAuthState(user));
+          updateAuthState(user);
         }
 
         return user;
       } catch (error) {
         if (fallbackToAnonymous && sessionOperationIdRef.current === operationId) {
-          Promise.resolve().then(() => updateAuthState(null));
+          updateAuthState(null);
         }
 
         throw error;
@@ -80,7 +80,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [runSessionOperation]);
 
   useEffect(() => {
-    void bootstrapSession();
+    async function init() {
+      await bootstrapSession();
+    }
+    void init();
   }, [bootstrapSession]);
 
   useEffect(() => {
