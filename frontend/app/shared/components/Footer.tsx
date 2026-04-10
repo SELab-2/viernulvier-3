@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
-const socials = [
+export const socials = [
   {
     url: "https://www.facebook.com/VIERNULVIER.gent/",
     label: "Facebook",

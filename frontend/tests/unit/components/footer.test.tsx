@@ -1,26 +1,27 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { Footer } from "~/shared/components/Footer";
-
-vi.mock("react-i18next", async () => {
-  const actual = await vi.importActual<typeof import("react-i18next")>("react-i18next");
-
-  return {
-    ...actual,
-    useTranslation: () => ({
-      t: (key: string) => key,
-    }),
-  };
-});
+import { Footer, socials } from "~/shared/components/Footer";
 
 describe("Footer", () => {
   it("renders properly and has a link to main website", () => {
     render(<Footer />);
 
-    const link = screen.getByRole("link", { name: "footer.website" });
+    const link = screen.getByRole("link", { name: "I18N_Footer_Website" });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute("href");
     expect(link).toHaveAttribute("target", "_blank");
+  });
+
+  it("renders socials", () => {
+    render(<Footer />);
+
+    socials.forEach((social) => {
+      const link = screen.getByRole("link", { name: social.label });
+
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute("href", social.url);
+      expect(link).toHaveAttribute("target", "_blank");
+    });
   });
 });
