@@ -4,6 +4,17 @@
     "archive": "Archief",
     "history": "Geschiedenis"
   },
+  "filter": {
+    "search": "Zoeken",
+    "search_in_collection": "Zoek in de collectie",
+    "period": "Periode",
+    "from": "Van",
+    "to": "Tot",
+    "tags": "Tags",
+    "venues": "Locaties",
+    "artists": "Artiesten",
+    "search_artists": "Zoek naar artiesten"
+  },
 
   "archive": {
     "title": "De Collectie",
