@@ -292,7 +292,7 @@ const fieldSx = {
       borderColor: "var(--archive-border)",
     },
     "&:hover fieldset": {
-      borderColor: "rgba(196, 164, 132, 0.5)",
+      borderColor: "var(--archive-border-hover)",
     },
     "&.Mui-focused fieldset": {
       borderColor: "var(--archive-accent)",
