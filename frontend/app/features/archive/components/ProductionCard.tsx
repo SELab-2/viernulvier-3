@@ -54,7 +54,7 @@ interface ProductionCardProps {
   production: ProductionCardData;
   onOpen?: (productionId: string) => void;
   preferredLanguage?: string;
-  className: string;
+  className?: string;
 }
 
 function getProductionInfoByLanguage(
