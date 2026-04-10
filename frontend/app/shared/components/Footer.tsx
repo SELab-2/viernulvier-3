@@ -8,6 +8,34 @@ import {
 } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
+const socials = [
+  {
+    url: "https://www.facebook.com/VIERNULVIER.gent/",
+    label: "Facebook",
+    icon: <FaFacebook />,
+  },
+  {
+    label: "Instagram",
+    url: "https://www.instagram.com/viernulvier.gent/",
+    icon: <FaInstagram />,
+  },
+  {
+    label: "TikTok",
+    url: "https://www.tiktok.com/@viernulvier.gent",
+    icon: <FaTiktok />,
+  },
+  {
+    label: "YouTube",
+    url: "https://www.youtube.com/channel/UCdRYlqUQcIm6pbLgHHobQcQ",
+    icon: <FaYoutube />,
+  },
+  {
+    label: "LinkedIn",
+    url: "https://www.linkedin.com/company/viernulviergent",
+    icon: <FaLinkedin />,
+  },
+];
+
 export function Footer() {
   const { t } = useTranslation();
   return (
@@ -34,27 +62,16 @@ export function Footer() {
 
         {/* Socials */}
         <div className="flex justify-center gap-2 md:mr-20 md:justify-end [&_svg]:h-6 [&_svg]:w-6">
-          <a aria-label="Facebook" href="https://www.facebook.com/VIERNULVIER.gent/">
-            <FaFacebook />
-          </a>
-          <a aria-label="Instagram" href="https://www.instagram.com/viernulvier.gent/">
-            <FaInstagram />
-          </a>
-          <a aria-label="TikTok" href="https://www.tiktok.com/@viernulvier.gent">
-            <FaTiktok />
-          </a>
-          <a
-            aria-label="YouTube"
-            href="https://www.youtube.com/channel/UCdRYlqUQcIm6pbLgHHobQcQ"
-          >
-            <FaYoutube />
-          </a>
-          <a
-            aria-label="LinkedIn"
-            href="https://www.linkedin.com/company/viernulviergent"
-          >
-            <FaLinkedin />
-          </a>
+          {socials.map((social) => (
+            <a
+              key={social.label}
+              target="_blank"
+              aria-label={social.label}
+              href={social.url}
+            >
+              {social.icon}
+            </a>
+          ))}
         </div>
       </div>
     </footer>
