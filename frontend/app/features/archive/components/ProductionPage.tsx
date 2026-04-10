@@ -3,11 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
-import type { ProductionInfo } from "~/features/archive/types/productionTypes";
-import type { ProductionPageData } from "./productionPageMock";
+import type { Production, ProductionInfo } from "~/features/archive/types/productionTypes";
 
 interface ProductionPageProps {
-  production: ProductionPageData;
+  production: Production;
   preferredLanguage?: string;
 }
 
@@ -24,8 +23,8 @@ function getProductionInfoByLanguage(
     return languageMatch;
   }
 
-  const dutchMatch = productionInfos.find((info) => info.language === "nl");
-  return dutchMatch ?? productionInfos[0];
+  const defaultMatch = productionInfos.find((info) => info.language === "nl");
+  return defaultMatch ?? productionInfos[0];
 }
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
@@ -37,15 +36,69 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
-// search for given language, if not found fall back to "nl", if "nl" not just take first translation
-function getTagNamesByLanguage(
-  production: ProductionPageData,
-  language: string
-): string[] {
-  if (production.tag_names && production.tag_names.length > 0) {
-    return production.tag_names;
+function formatEventTime(date: Date): string {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  if (minutes === 0) {
+    return `${hours}u`;
   }
 
+  return `${hours}u${String(minutes).padStart(2, "0")}`;
+}
+
+function formatEventDateTimeRange(
+  startsAt?: string,
+  endsAt?: string
+): { dateLabel: string; timeLabel: string } | undefined {
+  if (!startsAt) {
+    return undefined;
+  }
+
+  const startDate = new Date(startsAt);
+  if (Number.isNaN(startDate.getTime())) {
+    return undefined;
+  }
+
+  const dateLabel = `${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}`;
+  const startTimeLabel = formatEventTime(startDate);
+
+  if (!endsAt) {
+    return {
+      dateLabel,
+      timeLabel: startTimeLabel,
+    };
+  }
+
+  const endDate = new Date(endsAt);
+  if (Number.isNaN(endDate.getTime())) {
+    return {
+      dateLabel,
+      timeLabel: startTimeLabel,
+    };
+  }
+
+  return {
+    dateLabel,
+    timeLabel: `${startTimeLabel}-${formatEventTime(endDate)}`,
+  };
+}
+
+function getEventTimestamp(startsAt?: string): number {
+  if (!startsAt) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const parsedDate = new Date(startsAt);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return parsedDate.getTime();
+}
+
+// search for given language, if not found fall back to "nl", if "nl" not just take first translation
+function getTagNamesByLanguage(production: Production, language: string): string[] {
   if (!production.tags || production.tags.length === 0) {
     return [];
   }
@@ -96,21 +149,24 @@ export function ProductionPage({
     productionInfo?.tagline,
     t("productionPage.fallback.noDescription")
   );
-  const imageUrl = getTextOrDefault(
-    production.image_url,
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop"
-  );
-  const imageUrls =
-    production.image_urls && production.image_urls.length > 0
-      ? production.image_urls
-      : [imageUrl];
-  const archiveSchemaItems =
-    production.archive_schema && production.archive_schema.length > 0
-      ? production.archive_schema
-      : [{ starts_at: production.starts_at, hall_name: production.hall_name }];
-  const eventDetails = production.event_details ?? [];
+  const imageUrl =
+    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
+  const imageUrls = [imageUrl];
   const hasEvidenceCarousel = imageUrls.length > 4;
   const tags = getTagNamesByLanguage(production, language);
+  const eventObjects = (production.events_objects ?? [])
+    .slice()
+    .sort((leftEvent, rightEvent) => {
+      const startDifference =
+        getEventTimestamp(leftEvent.starts_at) -
+        getEventTimestamp(rightEvent.starts_at);
+
+      if (startDifference !== 0) {
+        return startDifference;
+      }
+
+      return leftEvent.id.localeCompare(rightEvent.id);
+    });
 
   const syncEvidenceSlider = () => {
     const track = evidenceTrackRef.current;
@@ -215,98 +271,98 @@ export function ProductionPage({
           ))}
         </ul>
 
-        <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
+        <section className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <p>{tagline}</p>
             <p>
               {t("productionPage.body.referenceAndContext", {
-                reference: production.id_url ?? production.id,
+                reference: production.id, // NOTE change this to production.id_url
               })}
             </p>
             <p>{t("productionPage.body.exploreSimilar")}</p>
-          </article>
+            <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6">
+              <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+                {t("productionPage.archiveSchema")}
+              </h2>
 
-          <aside className="bg-archive-surface-strong h-fit rounded-[1.75rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6">
-            <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
-              {t("productionPage.archiveSchema")}
-            </h2>
+              {eventObjects.length > 0 ? (
+                <div className="mt-6 space-y-4">
+                  {eventObjects.map((event) => {
+                    const dateAndTime = formatEventDateTimeRange(
+                      event.starts_at,
+                      event.ends_at
+                    );
+                    const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateTbd");
+                    const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateTbd");
+                    const eventLocation = getTextOrDefault(
+                      event.hall?.name,
+                      t("productionPage.fallback.locationTbd")
+                    );
+                    const eventPrice =
+                      event.price_objects && event.price_objects.length > 0
+                        ? event.price_objects
+                            .map((price) =>
+                              typeof price.amount === "number"
+                                ? new Intl.NumberFormat(i18n.language, {
+                                    style: "currency",
+                                    currency: "EUR",
+                                  }).format(price.amount)
+                                : undefined
+                            )
+                            .filter(
+                              (amount): amount is string =>
+                                typeof amount === "string" && amount.length > 0
+                            )
+                            .join(", ") || t("productionPage.noPrice")
+                        : t("productionPage.noPrice");
 
-            {eventDetails.length > 0 ? (
-              <div className="mt-6 space-y-4">
-                {eventDetails.map((event) => {
-                  const eventStart = getTextOrDefault(
-                    event.starts_at,
-                    t("productionPage.fallback.dateTbd")
-                  );
-                  const eventEnd = getTextOrDefault(
-                    event.ends_at,
-                    t("productionPage.fallback.dateTbd")
-                  );
-                  const eventHallName = getTextOrDefault(
-                    event.hall?.name,
-                    t("productionPage.fallback.locationTbd")
-                  );
-                  const eventHallAddress = getTextOrDefault(
-                    event.hall?.address,
-                    t("productionPage.fallback.locationTbd")
-                  );
-                  const eventOrderUrl = getTextOrDefault(event.order_url, "-");
-
-                  return (
-                    <div
-                      key={event.id}
-                      className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4"
-                    >
-                      <p className="text-xs tracking-[0.16em] uppercase opacity-72">
-                        EVENT ID: {event.id}
-                      </p>
-                      <p className="mt-2 text-sm opacity-88">START: {eventStart}</p>
-                      <p className="text-sm opacity-88">END: {eventEnd}</p>
-                      <p className="text-sm opacity-88">HALL ID: {event.hall_id}</p>
-                      <p className="text-sm opacity-88">HALL: {eventHallName}</p>
-                      <p className="text-sm opacity-78">ADDRESS: {eventHallAddress}</p>
-                      <p className="text-sm opacity-88">ORDER URL: {eventOrderUrl}</p>
-                      <p className="text-sm opacity-88">
-                        PRICE IDS: {event.price_ids.length > 0 ? event.price_ids.join(", ") : "-"}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-6 space-y-4">
-                {archiveSchemaItems.map((item, index) => {
-                  const itemStartsAt = getTextOrDefault(
-                    item.starts_at,
-                    t("productionPage.fallback.dateTbd")
-                  );
-                  const itemHallName = getTextOrDefault(
-                    item.hall_name,
-                    t("productionPage.fallback.locationTbd")
-                  );
-
-                  return (
-                    <div
-                      key={`${itemStartsAt}-${itemHallName}-${index}`}
-                      className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4"
-                    >
-                      <div className="flex items-baseline justify-between gap-4">
-                        <span className="font-serif text-[1.35rem] leading-tight italic">
-                          {itemStartsAt}
-                        </span>
-                        <span className="text-xs tracking-[0.16em] opacity-72">
-                          {t("productionPage.startTime")}
-                        </span>
+                    return (
+                      <div
+                        key={event.id}
+                        className="bg-archive-surface rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-4"
+                      >
+                        <div className="mt-3 space-y-1.5 text-sm opacity-90">
+                          <p>
+                            <span className="opacity-65">{t("productionPage.dateLabel")}:</span>{" "}
+                            {eventDate}
+                          </p>
+                          <p>
+                            <span className="opacity-65">{t("productionPage.timeLabel")}:</span>{" "}
+                            {eventTime}
+                          </p>
+                          <p>
+                            <span className="opacity-65">{t("productionPage.placeLabel")}:</span>{" "}
+                            {eventLocation}
+                          </p>
+                          <p>
+                            <span className="opacity-65">{t("productionPage.priceLabel")}:</span>{" "}
+                            {eventPrice}
+                          </p>
+                        </div>
                       </div>
-                      <p className="mt-2 text-xs tracking-[0.2em] uppercase opacity-62">
-                        {itemHallName}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </aside>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-6 space-y-4">
+                  <div className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4">
+                    <p className="text-sm opacity-88">
+                      {t("productionPage.dateLabel")}: {t("productionPage.fallback.dateTbd")}
+                    </p>
+                    <p className="mt-2 text-sm opacity-88">
+                      {t("productionPage.timeLabel")}: {t("productionPage.fallback.dateTbd")}
+                    </p>
+                    <p className="text-sm opacity-88">
+                      {t("productionPage.placeLabel")}: {t("productionPage.fallback.locationTbd")}
+                    </p>
+                    <p className="text-sm opacity-88">
+                      {t("productionPage.priceLabel")}: {t("productionPage.noPrice")}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
+          </article>
         </section>
 
         <section className="mt-16 border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] pt-14">
@@ -332,8 +388,7 @@ export function ProductionPage({
               >
                 {imageUrls.map((url, index) => (
                   <figure
-                    // NOTE remove ?? after we fully switch to production.id_url
-                    key={`${production.id_url ?? production.id}-${url}-${index}`}
+                    key={`${production.id}-${url}-${index}`}
                     className="group bg-archive-surface min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
                   >
                     <img
@@ -368,8 +423,7 @@ export function ProductionPage({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {imageUrls.map((url, index) => (
                 <figure
-                  // NOTE remove ?? after we fully switch to production.id_url
-                  key={`${production.id_url ?? production.id}-${url}-${index}`}
+                  key={`${production.id}-${url}-${index}`}
                   className="group bg-archive-surface overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)]"
                 >
                   <img

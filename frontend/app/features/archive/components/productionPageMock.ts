@@ -6,17 +6,6 @@ export interface ArchiveSchemaItem {
   hall_name?: string;
 }
 
-export type ProductionPageData = Production & {
-  starts_at?: string;
-  hall_name?: string;
-  tag_names?: string[];
-  image_url?: string;
-  image_urls?: string[];
-  archive_schema?: ArchiveSchemaItem[];
-  event_details?: Event[];
-  id_url?: string;
-};
-
 interface ProductionPageMockSource {
   production: Production;
   starts_at?: string;
@@ -27,20 +16,6 @@ interface ProductionPageMockSource {
   archive_schema?: ArchiveSchemaItem[];
   event_details?: Event[];
   id_url?: string;
-}
-
-function toProductionPageData(source: ProductionPageMockSource): ProductionPageData {
-  return {
-    ...source.production,
-    starts_at: source.starts_at,
-    hall_name: source.hall_name,
-    tag_names: source.tag_names,
-    image_url: source.image_url,
-    image_urls: source.image_urls,
-    archive_schema: source.archive_schema,
-    event_details: source.event_details,
-    id_url: source.id_url,
-  };
 }
 
 const productionPageMockSource: ProductionPageMockSource[] = [
@@ -63,6 +38,44 @@ const productionPageMockSource: ProductionPageMockSource[] = [
         },
       ],
       events: ["EVT-OPEN-1", "EVT-OPEN-2", "EVT-OPEN-3"],
+      events_objects: [
+        {
+          id: "EVT-OPEN-1",
+          production_id: "VV-2024-10-OPEN-ARCHIVE",
+          hall_id: "HALL-BALZAAL",
+          hall: { name: "Balzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-03T19:30:00+02:00",
+          ends_at: "2024-10-03T22:00:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-open-1",
+          price_ids: ["P-OPEN-1", "P-OPEN-2"],
+          price_objects: [
+            { id: "P-OPEN-1", amount: 18.0 },
+            { id: "P-OPEN-2", amount: 24.0 },
+          ],
+        },
+        {
+          id: "EVT-OPEN-2",
+          production_id: "VV-2024-10-OPEN-ARCHIVE",
+          hall_id: "HALL-DOMZAAL",
+          hall: { name: "Domzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-04T20:00:00+02:00",
+          ends_at: "2024-10-04T22:15:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-open-2",
+          price_ids: ["P-OPEN-3"],
+          price_objects: [{ id: "P-OPEN-3", amount: 16.5 }],
+        },
+        {
+          id: "EVT-OPEN-3",
+          production_id: "VV-2024-10-OPEN-ARCHIVE",
+          hall_id: "HALL-CLUBZAAL",
+          hall: { name: "Clubzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-06T17:00:00+02:00",
+          ends_at: "2024-10-06T19:00:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-open-3",
+          price_ids: ["P-OPEN-4"],
+          price_objects: [{ id: "P-OPEN-4", amount: 12.0 }],
+        },
+      ],
       tags: [
         { id: "1", names: [{ language: "nl", name: "Archief" }] },
         { id: "2", names: [{ language: "nl", name: "Open Huis" }] },
@@ -140,6 +153,33 @@ const productionPageMockSource: ProductionPageMockSource[] = [
         },
       ],
       events: ["EVT-M1-1", "EVT-M1-2"],
+      events_objects: [
+        {
+          id: "EVT-M1-1",
+          production_id: "VV-2024-10-M1",
+          hall_id: "HALL-DOMZAAL",
+          hall: { name: "Domzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-05T19:00:00+02:00",
+          ends_at: "2024-10-05T20:45:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-m1-1",
+          price_ids: ["P-M1-1"],
+          price_objects: [{ id: "P-M1-1", amount: 22.0 }],
+        },
+        {
+          id: "EVT-M1-2",
+          production_id: "VV-2024-10-M1",
+          hall_id: "HALL-BALZAAL",
+          hall: { name: "Balzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-07T21:00:00+02:00",
+          ends_at: "2024-10-07T22:30:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-m1-2",
+          price_ids: ["P-M1-2", "P-M1-3"],
+          price_objects: [
+            { id: "P-M1-2", amount: 19.0 },
+            { id: "P-M1-3", amount: 27.5 },
+          ],
+        },
+      ],
       tags: [
         { id: "5", names: [{ language: "nl", name: "Underground" }] },
         { id: "6", names: [{ language: "nl", name: "Mockup" }] },
@@ -199,6 +239,44 @@ const productionPageMockSource: ProductionPageMockSource[] = [
         },
       ],
       events: ["EVT-M2-1", "EVT-M2-2", "EVT-M2-3"],
+      events_objects: [
+        {
+          id: "EVT-M2-1",
+          production_id: "VV-2024-10-M2",
+          hall_id: "HALL-FILMZAAL",
+          hall: { name: "Filmzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-21T18:30:00+02:00",
+          ends_at: "2024-10-21T20:00:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-m2-1",
+          price_ids: ["P-M2-1"],
+          price_objects: [{ id: "P-M2-1", amount: 14.0 }],
+        },
+        {
+          id: "EVT-M2-2",
+          production_id: "VV-2024-10-M2",
+          hall_id: "HALL-FILMZAAL",
+          hall: { name: "Filmzaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-22T20:15:00+02:00",
+          ends_at: "2024-10-22T22:00:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-m2-2",
+          price_ids: ["P-M2-2", "P-M2-3"],
+          price_objects: [
+            { id: "P-M2-2", amount: 17.5 },
+            { id: "P-M2-3", amount: 25.0 },
+          ],
+        },
+        {
+          id: "EVT-M2-3",
+          production_id: "VV-2024-10-M2",
+          hall_id: "HALL-ZWARTE-ZAAL",
+          hall: { name: "Zwarte Zaal", address: "Sint-Pietersnieuwstraat 23, Gent" },
+          starts_at: "2024-10-24T16:00:00+02:00",
+          ends_at: "2024-10-24T17:45:00+02:00",
+          order_url: "https://tickets.viernulvier.gent/evt-m2-3",
+          price_ids: ["P-M2-4"],
+          price_objects: [{ id: "P-M2-4", amount: 11.0 }],
+        },
+      ],
       tags: [
         { id: "7", names: [{ language: "nl", name: "Geschiedenis" }] },
         { id: "8", names: [{ language: "nl", name: "Mockup" }] },
@@ -254,13 +332,16 @@ const productionPageMockSource: ProductionPageMockSource[] = [
   },
 ];
 
-export const mockProductionPageData: ProductionPageData[] =
-  productionPageMockSource.map(toProductionPageData);
+export const mockProductionPageData: Production[] =
+  productionPageMockSource.map((source) => source.production);
 
 export function getMockProductionPageById(
   productionId: string
-): ProductionPageData | undefined {
-  return mockProductionPageData.find(
-    (item) => item.id_url === productionId || item.id === productionId
+): Production | undefined {
+  const sourceMatch = productionPageMockSource.find(
+    (source) =>
+      source.id_url === productionId || source.production.id === productionId
   );
+
+  return sourceMatch?.production;
 }

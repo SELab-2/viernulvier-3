@@ -30,6 +30,12 @@
       "exploreSimilar": "Gebruik de tags en de locatie rechts om gelijkaardige items in de collectie te verkennen."
     },
     "archiveSchema": "Archiefschema",
+    "eventId": "Event ID",
+    "dateLabel": "Datum",
+    "timeLabel": "Tijd",
+    "placeLabel": "Plaats",
+    "priceLabel": "Prijs",
+    "noPrice": "Geen prijs beschikbaar",
     "startTime": "Aanvang",
     "visualEvidence": "Visueel bewijsmateriaal",
     "archiveFragments_one": "{{count}} archieffragment",

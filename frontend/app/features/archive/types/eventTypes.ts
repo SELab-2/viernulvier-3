@@ -18,8 +18,10 @@ export interface Event {
   ends_at?: string;
   order_url?: string;
   price_ids: string[];
+  price_objects?: Price[];
   created_at?: string;
   updated_at?: string;
+
 }
 
 export interface EventCreate {

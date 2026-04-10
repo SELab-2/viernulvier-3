@@ -30,6 +30,12 @@
       "exploreSimilar": "Use the tags and the venue on the right to explore similar items in the collection."
     },
     "archiveSchema": "Archive schema",
+    "eventId": "Event ID",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "placeLabel": "Venue",
+    "priceLabel": "Price",
+    "noPrice": "No price available",
     "startTime": "Start",
     "visualEvidence": "Visual evidence",
     "archiveFragments_one": "{{count}} archive fragment",

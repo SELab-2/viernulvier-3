@@ -1,4 +1,5 @@
 import type { Tag } from "./tagTypes";
+import type { Event } from "./eventTypes";
 
 export interface PaginationRequest {
   cursor?: number;
@@ -34,6 +35,7 @@ export interface Production {
 
   production_infos: ProductionInfo[];
   events: string[];
+  events_objects?: Event[];
   tags: Tag[];
 }
 
