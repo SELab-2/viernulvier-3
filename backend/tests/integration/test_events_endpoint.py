@@ -89,6 +89,26 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
     assert data["production_id"].endswith(str(production.id))
 
 
+def test_get_event_by_id_with_null_hall_returns_null(
+    client: TestClient, db_session: Session
+):
+    production = Production()
+    event = Event(
+        hall_id=None,
+        production=production,
+        order_url="http://order.url",
+    )
+    db_session.add_all([production, event])
+    db_session.commit()
+
+    response = client.get(f"{BASE_URL}/{event.id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"].endswith(str(event.id))
+    assert data["hall_id"] is None
+    assert data["production_id"].endswith(str(production.id))
+
+
 def test_get_event_not_found(client: TestClient):
     response = client.get(f"{BASE_URL}/9999")
     assert response.status_code == 404
