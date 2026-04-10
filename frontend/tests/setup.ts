@@ -41,14 +41,38 @@ vi.mock("react-i18next", async () => {
           "history.title": "I18N_History_Title",
           "history.heroAlt": "I18N_History_Hero_Alt",
           "history.entries": [
-            { title: "I18N_History_Entry1_Title", description: "I18N_History_Entry1_Description" },
-            { title: "I18N_History_Entry2_Title", description: "I18N_History_Entry2_Description" },
-            { title: "I18N_History_Entry3_Title", description: "I18N_History_Entry3_Description" },
-            { title: "I18N_History_Entry4_Title", description: "I18N_History_Entry4_Description" },
-            { title: "I18N_History_Entry5_Title", description: "I18N_History_Entry5_Description" },
-            { title: "I18N_History_Entry6_Title", description: "I18N_History_Entry6_Description" },
-            { title: "I18N_History_Entry7_Title", description: "I18N_History_Entry7_Description" },
-            { title: "I18N_History_Entry8_Title", description: "I18N_History_Entry8_Description" },
+            {
+              title: "I18N_History_Entry1_Title",
+              description: "I18N_History_Entry1_Description",
+            },
+            {
+              title: "I18N_History_Entry2_Title",
+              description: "I18N_History_Entry2_Description",
+            },
+            {
+              title: "I18N_History_Entry3_Title",
+              description: "I18N_History_Entry3_Description",
+            },
+            {
+              title: "I18N_History_Entry4_Title",
+              description: "I18N_History_Entry4_Description",
+            },
+            {
+              title: "I18N_History_Entry5_Title",
+              description: "I18N_History_Entry5_Description",
+            },
+            {
+              title: "I18N_History_Entry6_Title",
+              description: "I18N_History_Entry6_Description",
+            },
+            {
+              title: "I18N_History_Entry7_Title",
+              description: "I18N_History_Entry7_Description",
+            },
+            {
+              title: "I18N_History_Entry8_Title",
+              description: "I18N_History_Entry8_Description",
+            },
           ],
         };
 
