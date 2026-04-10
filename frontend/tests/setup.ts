@@ -5,6 +5,13 @@ import { afterEach, beforeEach, vi } from "vitest";
 // mock localStorage
 const store: Record<string, string> = {};
 
+type TranslationValue = string | { title: string; description: string }[];
+
+type TranslationOptions = {
+  returnObjects?: boolean;
+  [key: string]: unknown;
+};
+
 vi.stubGlobal("localStorage", {
   getItem: (key: string) => store[key] ?? null,
   setItem: (key: string, value: string) => {
@@ -24,8 +31,8 @@ vi.mock("react-i18next", async () => {
   return {
     ...actual,
     useTranslation: () => ({
-      t: (key: string, options?: any) => {
-        const map: Record<string, any> = {
+      t: (key: string, options?: TranslationOptions) => {
+        const map: Record<string, TranslationValue> = {
           "nav.home": "I18N_Home",
           "nav.archive": "I18N_Archive",
           "nav.history": "I18N_History",
