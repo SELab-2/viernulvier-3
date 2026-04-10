@@ -4,9 +4,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { AuthSessionProvider, useAuthSession } from "~/features/auth";
 import type { IAuthUser } from "~/features/auth/auth.types";
 import * as loginServiceModule from "~/features/auth/services/loginService";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("AuthSessionProvider", () => {
   beforeEach(() => {

@@ -28,6 +28,7 @@ export function LanguageSwitcher({ className }: Props) {
       {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
+          aria-label="Switch language"
           className={`cursor-pointer px-3 py-1 ${
             code === lang
               ? "bg-archive-ink bg-archive-ink-dark text-archive-paper text-archive-paper-dark rounded-full"

@@ -14,5 +14,27 @@
     "venues": "Venues",
     "artists": "Artists",
     "search_artists": "Search for artists"
+
+  "home": {
+    "title": "Windows to the Past",
+    "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
+    "stats": {
+      "productions": "Productions",
+      "artists": "Artists",
+      "events": "Events",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
+    }
+  },
+
+  "archive": {
+    "title": "The Collection"
+  },
+
+  "history": {
+    "title": "The echoes of the Building"
   }
 }

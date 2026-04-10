@@ -25,7 +25,9 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
     return EventResponse(
         id=f"{base_url}/events/{event.id}",
         production_id=f"{base_url}/productions/{event.production_id}",
-        hall_id=f"{base_url}/halls/{event.hall_id}",
+        hall_id=(
+            f"{base_url}/halls/{event.hall_id}" if event.hall_id is not None else None
+        ),
         hall=HallSchema(name=hall.name, address=hall.address) if hall else None,
         starts_at=event.starts_at,
         ends_at=event.ends_at,
