@@ -1,14 +1,12 @@
 import { useParams } from "react-router";
 
-import { mockProductions } from "~/features/archive/components/ProductionCard";
 import { ProductionPage } from "~/features/archive/components/ProductionPage";
+import { getMockProductionPageById } from "~/features/archive/components/productionPageMock";
 
 export default function ProductionDetailRoute() {
   const { productionId = "" } = useParams();
   const decodedProductionId = decodeURIComponent(productionId);
-  const production = mockProductions.find(
-    (item) => item.id_url === decodedProductionId || item.id === decodedProductionId
-  );
+  const production = getMockProductionPageById(decodedProductionId);
 
   return <ProductionPage production={production!} />;
 }
