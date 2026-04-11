@@ -10,7 +10,8 @@ class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=False, autoincrement=False)
+    viernulvier_use = Column(String, nullable=True)
 
     names = relationship("TagName", back_populates="tag")
     productions = relationship("Production", secondary=prod_tags, back_populates="tags")

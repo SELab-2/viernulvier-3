@@ -37,6 +37,7 @@ def overwrite_functions(monkeypatch):
     store_new_events = MagicMock(return_value=NEW_TS)
     store_new_eventprices = MagicMock(return_value=NEW_TS)
     store_new_tags = MagicMock(return_value=NEW_TS)
+    store_new_genres = MagicMock(return_value=NEW_TS)
 
     monkeypatch.setattr("src.worker.sync.sync_new.get_last_sync", get_last_sync)
     monkeypatch.setattr("src.worker.sync.sync_new.update_sync_state", update_sync_state)
@@ -49,6 +50,7 @@ def overwrite_functions(monkeypatch):
         sync_new.STORE_FUNCTIONS, ResourceType.EVENT_PRICES, store_new_eventprices
     )
     monkeypatch.setitem(sync_new.STORE_FUNCTIONS, ResourceType.TAGS, store_new_tags)
+    monkeypatch.setitem(sync_new.STORE_FUNCTIONS, ResourceType.GENRES, store_new_genres)
 
     return {
         "get_last_sync": get_last_sync,
@@ -57,6 +59,7 @@ def overwrite_functions(monkeypatch):
         "store_new_events": store_new_events,
         "store_new_eventprices": store_new_eventprices,
         "store_new_tags": store_new_tags,
+        "store_new_genres": store_new_genres
     }
 
 
@@ -68,6 +71,7 @@ def overwrite_functions(monkeypatch):
         (ResourceType.EVENT, "store_new_events"),
         (ResourceType.EVENT_PRICES, "store_new_eventprices"),
         (ResourceType.TAGS, "store_new_tags"),
+        (ResourceType.GENRES, "store_new_genres")
     ],
 )
 def test_sync_new_items_dispatch_good_path(

@@ -5,11 +5,11 @@ from sqlalchemy import select
 from src.models.event import Event, EventPrice
 from src.models.production import ProdInfo, Production
 from src.models.tag import Tag, TagName
-from src.services.language import Languages
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.tag import store_new_tags
+from src.worker.sync.store.genre import store_new_genres
 
 
 # Test storing a list of productions from the API into our database
@@ -296,7 +296,7 @@ def test_store_new_tags(db_session):
     ]
 
     # Store in database
-    newest = store_new_tags(db_session, language_map, tags)
+    newest = store_new_tags(db_session, tags)
     db_session.commit()
 
     # Check
@@ -308,3 +308,43 @@ def test_store_new_tags(db_session):
     assert len(stored_names) == 4
 
     assert newest == datetime.fromisoformat("2019-02-15T11:55:07+00:00")
+
+
+def test_store_new_genres(db_session):
+    # Data from actual API, removed some unused fields, that already gets
+    # tested in 'test_converters.py'
+    genres = [
+        {
+            "@id": "/api/v1/genres/1",
+            "created_at": "2008-07-11T08:49:18+00:00",
+            "updated_at": "2025-12-04T12:15:37+00:00",
+            "vendor_id": "cabaret"
+        },
+        {
+            "@id": "/api/v1/genres/3",
+            "created_at": "2008-07-11T08:50:34+00:00",
+            "updated_at": "2025-12-04T12:15:34+00:00",
+            "vendor_id": "opera"
+        },
+        {
+            "@id": "/api/v1/genres/22",
+            "@type": "Genres",
+            "created_at": "2023-03-31T08:44:07+00:00",
+            "updated_at": "2026-03-31T08:25:44+00:00",
+            "name": {"nl": "in De Vooruit", "en": "at De Vooruit"},
+        },
+    ]
+
+    # Store in database
+    newest = store_new_genres(db_session, genres)
+    db_session.commit()
+
+    # Check
+    stored_tags = db_session.execute(select(Tag)).scalars().all()
+    assert len(stored_tags) == 3
+
+    stored_names = db_session.execute(select(TagName)).scalars().all()
+    # 4 because 1 genre has 2 languages for its name
+    assert len(stored_names) == 4
+
+    assert newest == datetime.fromisoformat("2023-03-31T08:44:07+00:00")
