@@ -16,9 +16,7 @@ def api_tag_to_model_tag(json_tag: dict) -> tuple[Tag, list[TagName]]:
         for lang_code in names.keys():
             lang = get_accepted_language(lang_code)
             if lang is None:
-                logger.warning(
-                    f"ignoring language {lang_code} for Tag(id={tag_id})"
-                )
+                logger.warning(f"ignoring language {lang_code} for Tag(id={tag_id})")
                 continue
 
             tag_name = names[lang_code]

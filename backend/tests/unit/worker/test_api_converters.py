@@ -212,18 +212,18 @@ def test_api_eventprice_to_none():
 # Test normal test case from the actual API
 def test_api_tag_to_model_tag():
     test_input = {
-            "@id": "/api/v1/tags/6",
-            "@type": "Tags",
-            "created_at": "2019-02-15T11:55:07+00:00",
-            "updated_at": "2023-01-16T09:34:20+00:00",
-            "source": "box_office",
-            "sourceType": "default",
-            "enable": "nee",
-            "code": "10000",
-            "name": {"nl": "Abonnee 17-18", "en": "Subscriber 17-18"},
-            "url": "",
-            "automatically_assigned": False,
-            "external": False
+        "@id": "/api/v1/tags/6",
+        "@type": "Tags",
+        "created_at": "2019-02-15T11:55:07+00:00",
+        "updated_at": "2023-01-16T09:34:20+00:00",
+        "source": "box_office",
+        "sourceType": "default",
+        "enable": "nee",
+        "code": "10000",
+        "name": {"nl": "Abonnee 17-18", "en": "Subscriber 17-18"},
+        "url": "",
+        "automatically_assigned": False,
+        "external": False,
     }
 
     tag, tag_names = api_tag_to_model_tag(test_input)
@@ -255,15 +255,15 @@ def test_api_tag_to_none():
 # Test normal test case from the actual API
 def test_api_genre_to_model_tag():
     test_input = {
-            "@id": "/api/v1/genres/100",
-            "@type": "Genres",
-            "created_at": "2023-03-31T12:29:23+00:00",
-            "updated_at": "2025-12-04T12:15:34+00:00",
-            "type": "theater",
-            "use_as": "tag",
-            "vendor_id": "Met voeltoer",
-            "name": {"nl": "Met voeltoer", "en": "With feeling tour"},
-            "slug": {"nl": "Met voeltoer"}
+        "@id": "/api/v1/genres/100",
+        "@type": "Genres",
+        "created_at": "2023-03-31T12:29:23+00:00",
+        "updated_at": "2025-12-04T12:15:34+00:00",
+        "type": "theater",
+        "use_as": "tag",
+        "vendor_id": "Met voeltoer",
+        "name": {"nl": "Met voeltoer", "en": "With feeling tour"},
+        "slug": {"nl": "Met voeltoer"},
     }
 
     tag, tag_names = api_genre_to_model_tag(test_input)
@@ -284,13 +284,13 @@ def test_api_genre_to_model_tag():
 # Test fallback test case from the actual API
 def test_api_genre_to_model_tag_fallback():
     test_input = {
-            "@id": "/api/v1/genres/1",
-            "@type": "Genres",
-            "created_at": "2008-07-11T08:49:18+00:00",
-            "updated_at": "2025-12-04T12:15:37+00:00",
-            "type": "theater",
-            "use_as": "genre",
-            "vendor_id": "cabaret"
+        "@id": "/api/v1/genres/1",
+        "@type": "Genres",
+        "created_at": "2008-07-11T08:49:18+00:00",
+        "updated_at": "2025-12-04T12:15:37+00:00",
+        "type": "theater",
+        "use_as": "genre",
+        "vendor_id": "cabaret",
     }
 
     tag, tag_names = api_genre_to_model_tag(test_input)

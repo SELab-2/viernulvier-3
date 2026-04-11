@@ -19,7 +19,7 @@ STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
     ResourceType.EVENT: store_new_events,
     ResourceType.EVENT_PRICES: store_new_eventprices,
     ResourceType.TAGS: store_new_tags,
-    ResourceType.GENRES: store_new_genres
+    ResourceType.GENRES: store_new_genres,
 }
 
 

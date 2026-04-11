@@ -59,7 +59,7 @@ def overwrite_functions(monkeypatch):
         "store_new_events": store_new_events,
         "store_new_eventprices": store_new_eventprices,
         "store_new_tags": store_new_tags,
-        "store_new_genres": store_new_genres
+        "store_new_genres": store_new_genres,
     }
 
 
@@ -71,7 +71,7 @@ def overwrite_functions(monkeypatch):
         (ResourceType.EVENT, "store_new_events"),
         (ResourceType.EVENT_PRICES, "store_new_eventprices"),
         (ResourceType.TAGS, "store_new_tags"),
-        (ResourceType.GENRES, "store_new_genres")
+        (ResourceType.GENRES, "store_new_genres"),
     ],
 )
 def test_sync_new_items_dispatch_good_path(

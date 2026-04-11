@@ -318,13 +318,13 @@ def test_store_new_genres(db_session):
             "@id": "/api/v1/genres/1",
             "created_at": "2008-07-11T08:49:18+00:00",
             "updated_at": "2025-12-04T12:15:37+00:00",
-            "vendor_id": "cabaret"
+            "vendor_id": "cabaret",
         },
         {
             "@id": "/api/v1/genres/3",
             "created_at": "2008-07-11T08:50:34+00:00",
             "updated_at": "2025-12-04T12:15:34+00:00",
-            "vendor_id": "opera"
+            "vendor_id": "opera",
         },
         {
             "@id": "/api/v1/genres/22",

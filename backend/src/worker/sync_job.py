@@ -31,7 +31,7 @@ SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
     (ResourceType.PRODUCTION, ProductionFetcher),
     (ResourceType.EVENT, EventFetcher),
     (ResourceType.EVENT_PRICES, EventPriceFetcher),
-    (ResourceType.GENRES, GenreFetcher)
+    (ResourceType.GENRES, GenreFetcher),
 ]
 
 
