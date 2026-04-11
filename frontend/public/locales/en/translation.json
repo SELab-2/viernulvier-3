@@ -11,6 +11,7 @@
     "from": "From",
     "to": "To",
     "tags": "Tags",
+    "search_tags": "Search for more tags",
     "venues": "Venues",
     "artists": "Artists",
     "search_artists": "Search for artists"

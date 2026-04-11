@@ -17,6 +17,21 @@ export async function getTagById(id: number): Promise<Tag> {
   return getFromArchive<Tag>(`${ENDPOINT}/${id}`);
 }
 
+export async function getTagByName(name: string): Promise<Tag> {
+  const allTags = await getAllTags();
+
+  // Search for a tag with the correct name.
+  const tag = allTags.find((tag) =>
+    tag.names.some((tagName) => tagName.name === name)
+  );
+
+  if (!tag) {
+    throw new Error(`Tag with name "${name}" not found`);
+  }
+
+  return tag;
+}
+
 export async function createTag(request: TagCreate): Promise<Tag> {
   return postToArchive<Tag>(`${ENDPOINT}`, request);
 }
