@@ -64,7 +64,7 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
     return production
 
 
-def csv_prod_to_model_prod(csv_prod: dict) -> Production:
+def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
     """
     This function takes care of molding the csv format of a production,
     into a Production object for our archive database.
@@ -79,6 +79,10 @@ def csv_prod_to_model_prod(csv_prod: dict) -> Production:
         supertitle=csv_prod[1],
         description=(csv_prod[2] + "\n" + csv_prod[3]),
     )
+
+    genres = csv_prod[4].split(',')
+    for genre in genres:
+        production.tags.append(tag_map[genre])
 
     production.info.append(prod_info)
 

@@ -2,6 +2,7 @@ from datetime import datetime
 from src.worker.converters.production import csv_prod_to_model_prod
 from src.worker.converters.event import csv_event_to_model_event
 from src.services.language import Languages
+from src.models.tag import Tag
 
 
 # Test normal test case with fake data
@@ -15,8 +16,12 @@ def test_csv_prod_to_model_prod():
         "1234",
         "5678",
     ]
+    tag_map = {
+            "test genre": Tag(id=1),
+            "test tag": Tag(id=2),
+            }
 
-    prod = csv_prod_to_model_prod(test_input)
+    prod = csv_prod_to_model_prod(test_input, tag_map)
     prod_infos = prod.info
 
     # Check prod
@@ -28,6 +33,9 @@ def test_csv_prod_to_model_prod():
     assert prod.id is None
     assert prod.created_at is None
     assert prod.updated_at is None
+
+    assert len(prod.tags) == 1
+    assert prod.tags[0].id == 1
 
     # Check prod_infos
 
