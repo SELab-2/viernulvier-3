@@ -5,6 +5,7 @@ from sqlalchemy import select
 from src.models.event import Event, EventPrice
 from src.models.production import ProdInfo, Production
 from src.models.tag import Tag, TagName
+from src.services.language import Languages
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
@@ -271,14 +272,6 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
 
 
 def test_store_new_tags(db_session):
-    # Set up DB with
-    lang_nl = Language(id=1, language="nl")
-    lang_en = Language(id=2, language="en")
-    db_session.add_all([lang_nl, lang_en])
-    db_session.commit()
-
-    language_map = {"nl": 1, "en": 2}
-
     # Data from actual API, removed some unused fields, that already gets
     # tested in 'test_converters.py'
     tags = [

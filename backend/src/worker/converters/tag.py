@@ -1,12 +1,11 @@
 from src.models.tag import Tag, TagName
+from src.api.dependencies.language import get_accepted_language
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def api_tag_to_model_tag(
-    json_tag: dict, language_map: dict[str, int]
-) -> tuple[Tag, list[TagName]]:
+def api_tag_to_model_tag(json_tag: dict) -> tuple[Tag, list[TagName]]:
     tag_id = int(json_tag["@id"].split("/")[-1])
 
     tag = Tag(id=tag_id)
@@ -15,15 +14,15 @@ def api_tag_to_model_tag(
     tag_names = []
     if names:
         for lang_code in names.keys():
-            lang_id = language_map.get(lang_code)
-            if not lang_id:
+            lang = get_accepted_language(lang_code)
+            if lang is None:
                 logger.warning(
                     f"ignoring language {lang_code} for Production(id={tag_id})"
                 )
                 continue
 
             tag_name = names[lang_code]
-            tag_name_object = TagName(tag_id=tag_id, language_id=lang_id, name=tag_name)
+            tag_name_object = TagName(tag_id=tag_id, language=lang, name=tag_name)
 
             tag_names.append(tag_name_object)
 

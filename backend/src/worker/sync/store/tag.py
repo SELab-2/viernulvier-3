@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 from src.worker.converters.tag import api_tag_to_model_tag
 
 
-def store_new_tags(db_session: Session, language_map: dict[str, int], tags: list[dict]):
+def store_new_tags(db_session: Session, tags: list[dict]):
     newest_timestamp = None
 
     for json_tag in tags:
-        tag, tag_names = api_tag_to_model_tag(json_tag, language_map)
+        tag, tag_names = api_tag_to_model_tag(json_tag)
         db_session.merge(tag)
 
         for tag_name in tag_names:
