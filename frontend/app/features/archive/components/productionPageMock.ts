@@ -18,7 +18,7 @@ interface ProductionPageMockSource {
   id_url?: string;
 }
 
-const productionPageMockSource: ProductionPageMockSource[] = [
+export const productionPageMockSource: ProductionPageMockSource[] = [
   {
     production: {
       id: "VV-2024-10-OPEN-ARCHIVE",
@@ -95,7 +95,6 @@ const productionPageMockSource: ProductionPageMockSource[] = [
       "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?q=80&w=1600&auto=format&fit=crop",
-
     ],
     archive_schema: [
       { starts_at: "3 oktober 2024 - 19:30", hall_name: "Balzaal" },
@@ -332,15 +331,15 @@ const productionPageMockSource: ProductionPageMockSource[] = [
   },
 ];
 
-export const mockProductionPageData: Production[] =
-  productionPageMockSource.map((source) => source.production);
+export const mockProductionPageData: Production[] = productionPageMockSource.map(
+  (source) => source.production
+);
 
 export function getMockProductionPageById(
   productionId: string
 ): Production | undefined {
   const sourceMatch = productionPageMockSource.find(
-    (source) =>
-      source.id_url === productionId || source.production.id === productionId
+    (source) => source.id_url === productionId || source.production.id === productionId
   );
 
   return sourceMatch?.production;

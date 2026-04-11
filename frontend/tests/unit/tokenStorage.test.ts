@@ -10,9 +10,6 @@ import {
   storeAuthTokens,
   updateStoredAccessToken,
 } from "~/features/auth/services/tokenStorage";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("tokenStorage", () => {
   beforeEach(() => {

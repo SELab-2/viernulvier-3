@@ -21,7 +21,6 @@ export interface Event {
   price_objects?: Price[];
   created_at?: string;
   updated_at?: string;
-
 }
 
 export interface EventCreate {

@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
-import type { Production, ProductionInfo } from "~/features/archive/types/productionTypes";
+import type {
+  Production,
+  ProductionInfo,
+} from "~/features/archive/types/productionTypes";
 
 interface ProductionPageProps {
   production: Production;
@@ -292,8 +295,10 @@ export function ProductionPage({
                       event.starts_at,
                       event.ends_at
                     );
-                    const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateTbd");
-                    const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateTbd");
+                    const eventDate =
+                      dateAndTime?.dateLabel ?? t("productionPage.fallback.dateTbd");
+                    const eventTime =
+                      dateAndTime?.timeLabel ?? t("productionPage.fallback.dateTbd");
                     const eventLocation = getTextOrDefault(
                       event.hall?.name,
                       t("productionPage.fallback.locationTbd")
@@ -323,19 +328,27 @@ export function ProductionPage({
                       >
                         <div className="mt-3 space-y-1.5 text-sm opacity-90">
                           <p>
-                            <span className="opacity-65">{t("productionPage.dateLabel")}:</span>{" "}
+                            <span className="opacity-65">
+                              {t("productionPage.dateLabel")}:
+                            </span>{" "}
                             {eventDate}
                           </p>
                           <p>
-                            <span className="opacity-65">{t("productionPage.timeLabel")}:</span>{" "}
+                            <span className="opacity-65">
+                              {t("productionPage.timeLabel")}:
+                            </span>{" "}
                             {eventTime}
                           </p>
                           <p>
-                            <span className="opacity-65">{t("productionPage.placeLabel")}:</span>{" "}
+                            <span className="opacity-65">
+                              {t("productionPage.placeLabel")}:
+                            </span>{" "}
                             {eventLocation}
                           </p>
                           <p>
-                            <span className="opacity-65">{t("productionPage.priceLabel")}:</span>{" "}
+                            <span className="opacity-65">
+                              {t("productionPage.priceLabel")}:
+                            </span>{" "}
                             {eventPrice}
                           </p>
                         </div>
@@ -347,13 +360,16 @@ export function ProductionPage({
                 <div className="mt-6 space-y-4">
                   <div className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4">
                     <p className="text-sm opacity-88">
-                      {t("productionPage.dateLabel")}: {t("productionPage.fallback.dateTbd")}
+                      {t("productionPage.dateLabel")}:{" "}
+                      {t("productionPage.fallback.dateTbd")}
                     </p>
                     <p className="mt-2 text-sm opacity-88">
-                      {t("productionPage.timeLabel")}: {t("productionPage.fallback.dateTbd")}
+                      {t("productionPage.timeLabel")}:{" "}
+                      {t("productionPage.fallback.dateTbd")}
                     </p>
                     <p className="text-sm opacity-88">
-                      {t("productionPage.placeLabel")}: {t("productionPage.fallback.locationTbd")}
+                      {t("productionPage.placeLabel")}:{" "}
+                      {t("productionPage.fallback.locationTbd")}
                     </p>
                     <p className="text-sm opacity-88">
                       {t("productionPage.priceLabel")}: {t("productionPage.noPrice")}
@@ -384,7 +400,7 @@ export function ProductionPage({
                 onMouseMove={handleEvidenceMouseMove}
                 onMouseUp={stopEvidenceDragging}
                 onMouseLeave={stopEvidenceDragging}
-                className="flex cursor-grab gap-4 overflow-x-auto pb-3 select-none active:cursor-grabbing [scrollbar-width:thin]"
+                className="flex cursor-grab gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] active:cursor-grabbing"
               >
                 {imageUrls.map((url, index) => (
                   <figure

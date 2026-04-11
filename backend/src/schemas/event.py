@@ -19,7 +19,7 @@ class PriceResponse(BaseModel):
 class EventResponse(BaseModel):
     id: str  # ids are url's
     production_id: str
-    hall_id: str
+    hall_id: Optional[str] = None
 
     hall: Optional[HallSchema] = None
 
