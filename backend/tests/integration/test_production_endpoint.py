@@ -4,6 +4,7 @@ from src.models.user import User
 from src.models.role import Role
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
+from src.services.language import Languages
 
 BASE_URL = "/api/v1/archive/productions"
 
@@ -70,6 +71,50 @@ def test_get_productions_success(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_tag(
+    client: TestClient, db_session: Session, many_productions
+):
+    tag_id1 = many_productions[0].tags[0].id
+    tag_id2 = many_productions[1].tags[0].id
+
+    # Only asking tag_id1 gives 5 productions.
+    response = client.get(BASE_URL + "/", params={"limit": 10, "tags": [tag_id1]})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id1
+            for tag_response in production["tags"]
+        )
+        for production in data["productions"]
+    )
+
+    # There are no productions left.
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    # Only asking tag_id2 gives 5 productions.
+    response = client.get(BASE_URL + "/", params={"limit": 10, "tags": [tag_id2]})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            int(tag_response["id"].rstrip("/").split("/")[-1]) == tag_id2
+            for tag_response in production["tags"]
+        )
+        for production in data["productions"]
+    )
+
+    # There are no productions left.
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
     response = client.get(BASE_URL + "/", params={"limit": 5})
@@ -103,7 +148,7 @@ def test_get_production_by_id_valid_language(
     id = productions_limited[0].id
     response = client.get(
         BASE_URL + f"/{id}",
-        headers={"Accept-Language": "nl"},
+        headers={"Accept-Language": Languages.NEDERLANDS},
     )
     assert response.status_code == 200
     data = response.json()
@@ -212,7 +257,9 @@ def test_patch_production_add_info_success(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"production_infos": [{"language": "en", "title": "prod2_en"}]},
+        json={
+            "production_infos": [{"language": Languages.ENGLISH, "title": "prod2_en"}]
+        },
         headers=headers,
     )
 
@@ -236,7 +283,77 @@ def test_patch_production_add_info_invalid_language(
         headers=headers,
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 400  # bad request: invalid language
+
+
+# User can change tags of a production if all given tags exist.
+def test_patch_production_tags_success(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    id = productions_limited[0].id
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 3}
+
+    response = client.patch(
+        f"{BASE_URL}/{id}",
+        json={"tag_ids": [1, 2, 3]},
+        headers=headers,
+    )
+
+    # Updated in response.
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2, 3}
+
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    # Updated in database.
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2, 3}
+
+
+# User cannot change tags of a production if one or more tags do not exist.
+def test_patch_production_tags_failure(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    id = productions_limited[0].id
+    response = client.get(
+        BASE_URL + f"/{id}",
+    )
+
+    data = response.json()
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 3}
+
+    response = client.patch(
+        f"{BASE_URL}/{id}",
+        json={"tag_ids": [1, 2, 124]},
+        headers=headers,
+    )
+
+    assert response.status_code == 400  # bad request: at least one invalid tag
 
 
 # User with permissions can delete an existing info of an existing production.
@@ -250,7 +367,7 @@ def test_patch_production_delete_info_success(
 
     response = client.patch(
         f"{BASE_URL}/{production.id}",
-        json={"remove_languages": ["en"]},
+        json={"remove_languages": [Languages.ENGLISH]},
         headers=headers,
     )
 
@@ -260,8 +377,34 @@ def test_patch_production_delete_info_success(
 
 
 # User should be able to create a new production.
-def test_create_production_success(
-    client: TestClient, db_session: Session, language_nl
+def test_create_production_success(client: TestClient, db_session: Session):
+    headers = create_user_and_login(
+        client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
+    )
+    response = client.post(
+        BASE_URL + "/",
+        json={
+            "performer_type": "band",
+            "attendance_mode": "offline",
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["performer_type"] == "band"
+    assert data["attendance_mode"] == "offline"
+
+
+# User should be able to create a new production with tags.
+def test_create_production_with_tags_success(
+    client: TestClient,
+    db_session: Session,
+    productions_limited,
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -272,28 +415,55 @@ def test_create_production_success(
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "tag_ids": [1, 2],
         },
         headers=headers,
     )
 
     assert response.status_code == 201
     data = response.json()
-    print(data)
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
+    assert {
+        int(tag_response["id"].rstrip("/").split("/")[-1])
+        for tag_response in data["tags"]
+    } == {1, 2}
 
 
-# User should not be able to create a new production because of permissions.
-def test_create_production_failure(
-    client: TestClient, db_session: Session, language_nl
+# User should not be able to create a new production with tags if one is not existing in database.
+def test_create_production_with_tags_failure(
+    client: TestClient,
+    db_session: Session,
+    productions_limited,
 ):
+    headers = create_user_and_login(
+        client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
+    )
     response = client.post(
         BASE_URL + "/",
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "media_gallery_id": 4,
             "production_info": {"language": "nl", "title": "Nieuwe productie"},
+            "tag_ids": [123, 2],
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 400  # bad request: at least one invalid tag
+
+
+# User should not be able to create a new production because of permissions.
+def test_create_production_failure(client: TestClient, db_session: Session):
+    response = client.post(
+        BASE_URL + "/",
+        json={
+            "performer_type": "band",
+            "attendance_mode": "offline",
+            "production_info": {
+                "language": Languages.NEDERLANDS,
+                "title": "Nieuwe productie",
+            },
         },
     )
 
@@ -302,7 +472,7 @@ def test_create_production_failure(
 
 # User should not be able to create a new production because of unsupported language.
 def test_create_production_unsupported_language(
-    client: TestClient, db_session: Session, language_nl
+    client: TestClient, db_session: Session
 ):
     headers = create_user_and_login(
         client, db_session, "create_production_user", [Permissions.ARCHIVE_CREATE]
@@ -312,12 +482,11 @@ def test_create_production_unsupported_language(
         json={
             "performer_type": "band",
             "attendance_mode": "offline",
-            "media_gallery_id": 4,
-            "production_info": {"language": "en", "title": "new production"},
+            "production_info": {"language": "es", "title": "new production"},
         },
         headers=headers,
     )
-    assert response.status_code == 404
+    assert response.status_code == 400
 
 
 # User with permissions should be able to delete an existing production.
@@ -351,3 +520,44 @@ def test_delete_production_not_found(
     )
     response = client.delete(f"{BASE_URL}/100", headers=headers)
     assert response.status_code == 404
+
+
+def test_production_urls_contain_full_path(client: TestClient, db_session: Session):
+    from src.models.production import Production
+    from src.models.event import Event
+    from src.models.hall import Hall
+
+    hall = Hall(name="Test Hall", address="Test Street")
+    production = Production()
+    db_session.add_all([hall, production])
+    db_session.commit()
+
+    event1 = Event(hall=hall, production=production, order_url="http://order1.url")
+    event2 = Event(hall=hall, production=production, order_url="http://order2.url")
+    db_session.add_all([event1, event2])
+    db_session.commit()
+
+    response = client.get(BASE_URL)
+    assert response.status_code == 200
+    data = response.json()
+
+    assert "productions" in data
+    assert len(data["productions"]) > 0
+
+    prod_data = data["productions"][0]
+
+    production_url = prod_data.get("id_url")
+    assert production_url is not None
+    assert BASE_URL in production_url
+
+    events_urls = prod_data.get("events", [])
+    assert len(events_urls) == 2
+    for event_url, event in zip(events_urls, [event1, event2]):
+        assert "/api/v1/archive/events" in event_url
+        assert str(event.id) in event_url
+
+        response = client.get(event_url)
+        assert response.status_code == 200
+
+    response = client.get(production_url)
+    assert response.status_code == 200

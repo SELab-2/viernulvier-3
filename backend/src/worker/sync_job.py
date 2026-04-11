@@ -1,8 +1,6 @@
 import logging
 
-from sqlalchemy.orm import Session
 from src.database import SESSION_LOCAL
-from src.models.language import Language
 from src.models.sync_state import ResourceType
 from src.worker.fetchers.event import EventFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
@@ -25,13 +23,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# HACK: this will not be necessary anymore when we store languages by their
-#       code instead of by id
-def get_language_map(db_session: Session) -> dict[str, int]:
-    languages = db_session.query(Language).all()
-    return {lang.language: lang.id for lang in languages}
-
-
 # The order in which to sync is defined here. If one type relies (via Foreign
 # Key constraints) on another, it should appear after the other in this list.
 SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
@@ -45,7 +36,6 @@ SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
 def sync_all():
     db = SESSION_LOCAL()
     logger.info("connection with database created")
-    lang_map = get_language_map(db)
 
     try:
         for resource_type, fetcher_class in SYNC_ORDER:
@@ -53,7 +43,7 @@ def sync_all():
             # fetching a lot of data. Strang api...
             with VNV_Wrapper() as wrapper:
                 fetcher = fetcher_class(wrapper)
-                sync_new_items(db, lang_map, fetcher, resource_type)
+                sync_new_items(db, fetcher, resource_type)
                 # And later:
                 # sync_updated_items(db, lang_map, fetcher, resource_type)
     finally:

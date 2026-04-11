@@ -14,15 +14,15 @@ from src.services.production import (
     update_production_by_id,
     delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, HTTPException, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
+from src.services.archive import get_base_url
 
 router = APIRouter()
 
 
-# TODO: Add filter options (after merge tags-branch).
 @router.get(
     "/",
     response_model=ProductionListResponse,
@@ -34,9 +34,10 @@ async def get_productions(
     db: Session = Depends(get_db),
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
+    tags: list[int] | None = Query(None),
 ) -> ProductionListResponse:
-    base_url = str(request.base_url).rstrip("/")
-    return get_productions_paginated(db, base_url, cursor, limit)
+    base_url = get_base_url(str(request.url))
+    return get_productions_paginated(db, base_url, cursor, limit, tags=tags)
 
 
 @router.post(
@@ -52,12 +53,8 @@ async def post_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = create_production(db, production_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    base_url = get_base_url(str(request.url))
+    production_data = create_production(db, production_in, base_url)
     return production_data
 
 
@@ -73,12 +70,8 @@ async def get_production(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = get_production_by_id(db, production_id, base_url, language)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    base_url = get_base_url(str(request.url), 2)
+    production_data = get_production_by_id(db, production_id, base_url, language)
     return production_data
 
 
@@ -95,13 +88,10 @@ async def patch_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        production_data = update_production_by_id(
-            db, production_in, production_id, base_url
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    base_url = get_base_url(str(request.url), 2)
+    production_data = update_production_by_id(
+        db, production_in, production_id, base_url
+    )
 
     return production_data
 
@@ -117,7 +107,4 @@ async def delete_production(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    try:
-        delete_production_by_id(db, production_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    delete_production_by_id(db, production_id)

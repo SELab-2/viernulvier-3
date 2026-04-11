@@ -66,6 +66,8 @@ Probeer duidelijke commit-messages in de gebiedende wijs (bijv. `Add user endpoi
 * Review openstaande PR's van teamgenoten zo snel mogelijk om blokkades te voorkomen.
 
 ### 4. Code Formatting en Linting
+
+#### Backend
 Voor de backend code gebruiken we **Ruff** voor automatische formatting en linting om consistente code kwaliteit te waarborgen.
 
 Ruff wordt automatisch geïnstalleerd via de ontwikkelvereisten. Installeer alle benodigde tools met:
@@ -79,3 +81,18 @@ Ruff onderscheidt tussen formatting en linting: `ruff format` past automatische 
 - **Linting**: Voer `ruff check backend/` uit om te controleren op fouten en stijlproblemen. Los eventuele problemen op voordat je een Pull Request opent.
 
 De CI pipeline controleert automatisch op deze regels tijdens elke push naar `dev` of `main`.
+
+#### Frontend
+Voor de frontend code gebruiken we **prettier** voor formatting en **eslint** voor linting.
+
+Deze packages worden automatisch geïnstalleerd door npm bij het uitvoeren vanuit de frontend directory van:
+```bash
+npm ci
+```
+
+Net als bij de backend wordt een onderscheid gemaakt tussen formatting en linting: formatting controleert de code volgens de afgesproken standaarden en past deze automatisch toe, terwijl linting controleert op fouten en stijlproblemen die mogelijks handmatige aanpassingen vereisen.
+
+- **Formatting**: Voer `npm run format` uit vanuit de frontend directory om de code te formatteren volgens de afgesproken standaarden
+- **Linting**: Voer `npm run lint` uit vanuit de frontend directory om te controleren op fouten en stijlproblemen. 
+
+

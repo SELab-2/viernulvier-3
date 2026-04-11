@@ -3,10 +3,14 @@ from datetime import datetime
 from src.models.event import Event
 
 
-def api_event_to_model_event(json_event: dict) -> Event:
+def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
     """
-    This function takes care of molding the json response of the api for a
-    production, into a Production object for our archive database.
+    This function takes care of molding the json response of the api for an
+    event, into an Event object for our archive database.
+
+    If the json_event does not have a production id, the second element of the
+    tuple will be None. The first will not be None so that the parsed id is
+    still available.
     """
     event_id = int(json_event["@id"].split("/")[-1])
 
@@ -35,11 +39,29 @@ def api_event_to_model_event(json_event: dict) -> Event:
             order_url = order_urls[0]
 
     event = Event(
-        id=event_id,
-        production_id=production_id,
+        viernulvier_id=event_id,
         starts_at=start_time,
         ends_at=end_time,
         order_url=order_url,
+    )
+
+    return event, production_id
+
+
+def csv_event_to_model_event(prod_id: int, csv_event: list, hall_id: int) -> Event:
+    """
+    This function takes care of molding the csv format of an event,
+    into an Event object for our archive database.
+    """
+    if int(csv_event[0][:4]) < 1970:
+        csv_event[0] = "1970-01-01 00:00:00"
+    if int(csv_event[1][:4]) < 1970:
+        csv_event[1] = "1970-01-01 00:00:00"
+    event = Event(
+        production_id=prod_id,
+        starts_at=datetime.fromisoformat(csv_event[0]),
+        ends_at=datetime.fromisoformat(csv_event[1]),
+        hall_id=hall_id,
     )
 
     return event

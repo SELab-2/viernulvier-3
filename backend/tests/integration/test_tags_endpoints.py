@@ -4,33 +4,11 @@ from sqlalchemy.orm import Session
 
 from src.models.user import User
 from src.models.role import Role
-from src.models.language import Language
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
+from src.services.language import Languages
 
 TAGS_URL = "/api/v1/archive/tags"
-
-
-@pytest.fixture
-def language_nl(db_session: Session):
-    lang = Language(id=1, language="nl")
-
-    db_session.add(lang)
-    db_session.commit()
-    db_session.refresh(lang)
-
-    return lang
-
-
-@pytest.fixture
-def language_en(db_session: Session):
-    lang = Language(id=2, language="en")
-
-    db_session.add(lang)
-    db_session.commit()
-    db_session.refresh(lang)
-
-    return lang
 
 
 @pytest.fixture
@@ -76,12 +54,12 @@ def create_user_and_login(
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_create_tag(client: TestClient, create_headers, language_nl: Language):
+def test_create_tag(client: TestClient, create_headers):
     response = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1"},
+                {"language": Languages.NEDERLANDS, "name": "tag1"},
             ]
         },
         headers=create_headers,
@@ -94,27 +72,25 @@ def test_create_tag(client: TestClient, create_headers, language_nl: Language):
     assert data["names"][0]["name"] == "tag1"
 
 
-def test_create_tag_unauthorized(client: TestClient, language_nl: Language):
+def test_create_tag_unauthorized(client: TestClient):
     response = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1"},
+                {"language": Languages.NEDERLANDS, "name": "tag1"},
             ]
         },
     )
     assert response.status_code == 401
 
 
-def test_get_tag(
-    client: TestClient, create_headers, language_nl: Language, language_en: Language
-):
+def test_get_tag(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1_nl"},
-                {"language_id": language_en.id, "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_nl"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
         headers=create_headers,
@@ -130,7 +106,9 @@ def test_get_tag(
     assert len(data["names"]) == 2
 
     # Test if nl header only gives nl tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "nl"})
+    response = client.get(
+        f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.NEDERLANDS}
+    )
     assert response.status_code == 200
 
     data = response.json()
@@ -138,7 +116,9 @@ def test_get_tag(
     assert data["names"][0]["name"] == "tag1_nl"
 
     # Test if en header only gives en tag
-    response = client.get(f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": "en"})
+    response = client.get(
+        f"{TAGS_URL}/{tag_id}", headers={"Accept-Language": Languages.ENGLISH}
+    )
     assert response.status_code == 200
 
     data = response.json()
@@ -146,23 +126,21 @@ def test_get_tag(
     assert data["names"][0]["name"] == "tag1_en"
 
 
-def test_get_tags(
-    client: TestClient, create_headers, language_nl: Language, language_en: Language
-):
+def test_get_tags(client: TestClient, create_headers):
     n = 5
     for i in range(n):
         client.post(
             TAGS_URL,
             json={
                 "names": [
-                    {"language_id": language_nl.id, "name": f"tag{i}_nl"},
-                    {"language_id": language_en.id, "name": f"tag{i}_en"},
+                    {"language": Languages.NEDERLANDS, "name": f"tag{i}_nl"},
+                    {"language": Languages.ENGLISH, "name": f"tag{i}_en"},
                 ]
             },
             headers=create_headers,
         )
 
-    response = client.get(TAGS_URL, headers={"Accept-Language": "nl"})
+    response = client.get(TAGS_URL, headers={"Accept-Language": Languages.NEDERLANDS})
     assert response.status_code == 200
     data = response.json()
 
@@ -174,16 +152,10 @@ def test_get_tags(
         assert any(data[j]["names"][0]["name"] == f"tag{i}_nl" for j in range(n))
 
 
-def test_patch_tag(
-    client: TestClient,
-    db_session: Session,
-    create_headers,
-    language_nl: Language,
-    language_en: Language,
-):
+def test_patch_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language_id": language_nl.id, "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
     tag_id = created_tag.json()["id"].split("/")[-1]
@@ -195,8 +167,8 @@ def test_patch_tag(
         f"{TAGS_URL}/{tag_id}",
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1_updated"},
-                {"language_id": language_en.id, "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_updated"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
         headers=patch_headers,
@@ -206,17 +178,15 @@ def test_patch_tag(
     data = response.json()
     assert len(data["names"]) == 2
 
-    names = {n["language_id"]: n["name"] for n in data["names"]}
-    assert names[language_nl.id] == "tag1_updated"
-    assert names[language_en.id] == "tag1_en"
+    names = {n["language"]: n["name"] for n in data["names"]}
+    assert names[Languages.NEDERLANDS] == "tag1_updated"
+    assert names[Languages.ENGLISH] == "tag1_en"
 
 
-def test_patch_tag_unauthorized(
-    client: TestClient, create_headers, language_nl: Language, language_en: Language
-):
+def test_patch_tag_unauthorized(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language_id": language_nl.id, "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
     tag_id = created_tag.json()["id"].split("/")[-1]
@@ -225,8 +195,8 @@ def test_patch_tag_unauthorized(
         f"{TAGS_URL}/{tag_id}",
         json={
             "names": [
-                {"language_id": language_nl.id, "name": "tag1_updated"},
-                {"language_id": language_en.id, "name": "tag1_en"},
+                {"language": Languages.NEDERLANDS, "name": "tag1_updated"},
+                {"language": Languages.ENGLISH, "name": "tag1_en"},
             ]
         },
     )
@@ -236,16 +206,14 @@ def test_patch_tag_unauthorized(
     data = get_response.json()
     assert len(data["names"]) == 1
 
-    names = {n["language_id"]: n["name"] for n in data["names"]}
-    assert names[language_nl.id] == "tag1"
+    names = {n["language"]: n["name"] for n in data["names"]}
+    assert names[Languages.NEDERLANDS] == "tag1"
 
 
-def test_delete_tag(
-    client: TestClient, db_session: Session, create_headers, language_nl: Language
-):
+def test_delete_tag(client: TestClient, db_session: Session, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language_id": language_nl.id, "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
 
@@ -261,10 +229,10 @@ def test_delete_tag(
     assert get_response.status_code == 404
 
 
-def test_delete_unauthorized(client: TestClient, create_headers, language_nl: Language):
+def test_delete_unauthorized(client: TestClient, create_headers):
     created_tag = client.post(
         TAGS_URL,
-        json={"names": [{"language_id": language_nl.id, "name": "tag1"}]},
+        json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
 
@@ -275,4 +243,37 @@ def test_delete_unauthorized(client: TestClient, create_headers, language_nl: La
 
     # Ensure tag is still present in database
     response = client.get(f"{TAGS_URL}/{tag_id}")
+    assert response.status_code == 200
+
+
+def test_tag_url_contains_full_path(client: TestClient, db_session: Session):
+    create_headers = create_user_and_login(
+        client, db_session, "tag_url_user", permissions=[Permissions.ARCHIVE_CREATE]
+    )
+
+    response = client.post(
+        TAGS_URL,
+        json={
+            "names": [
+                {"language": Languages.NEDERLANDS, "name": "tag_url_test"},
+            ]
+        },
+        headers=create_headers,
+    )
+    assert response.status_code == 201
+    data = response.json()
+
+    tag_url = data.get("id")
+    assert tag_url is not None
+
+    assert "/api/v1/archive/tags" in tag_url
+
+    tag_id = tag_url.split("/")[-1]
+    assert str(tag_id) in tag_url
+
+    names = data.get("names")
+    assert names is not None
+    assert any(n["name"] == "tag_url_test" for n in names)
+
+    response = client.get(tag_url)
     assert response.status_code == 200

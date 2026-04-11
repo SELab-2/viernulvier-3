@@ -20,6 +20,11 @@ services:
   database:
     restart: unless-stopped
 
+  minio:
+    restart: unless-stopped
+    volumes:
+      - minio_data:/data
+
   certbot:
     image: certbot/certbot
     volumes:
@@ -31,3 +36,4 @@ services:
 volumes:
   certbot-www:
   certbot-certs:
+  minio_data:

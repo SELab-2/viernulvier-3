@@ -1,17 +1,14 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
-
-
-class Pagination(BaseModel):
-    next_cursor: int | None = None
-    has_more: bool = False
+from src.schemas.tag import TagResponse
+from src.schemas.pagination import Pagination
 
 
 # The response for a production info in a specific language.
 class ProductionInfoResponse(BaseModel):
     production_id_url: str
-    language_id_url: str
+    language: str
     title: Optional[str] = None
     supertitle: Optional[str] = None
     artist: Optional[str] = None
@@ -27,14 +24,15 @@ class ProductionResponse(BaseModel):
     id_url: str
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     # A production has a list of event urls (for the different events of that production).
     # A production has a list of infos (for different languages).
+    # A production has a list of tags.
     production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
+    tags: list[TagResponse] = Field(default_factory=list)  # tag_object
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -62,10 +60,10 @@ class ProductionInfoCreate(BaseModel):
 class ProductionCreate(BaseModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     production_info: ProductionInfoCreate
+    tag_ids: list[int] = []
 
 
 class ProductionInfoUpdate(BaseModel):
@@ -83,9 +81,9 @@ class ProductionInfoUpdate(BaseModel):
 class ProductionUpdate(BaseModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
-    media_gallery_id: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     production_infos: Optional[list[ProductionInfoUpdate]] = None
+    tag_ids: Optional[list[int]] = None
     remove_languages: list[str] | None = None

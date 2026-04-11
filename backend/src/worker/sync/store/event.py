@@ -9,33 +9,44 @@ from src.worker.converters.event import api_event_to_model_event
 logger = logging.getLogger(__name__)
 
 
-def store_new_events(
-    db_session: Session, language_map: dict[str, int], events: list[dict]
-):
+def store_new_events(db_session: Session, events: list[dict]):
     newest_timestamp = None
 
-    existing_productions = set(db_session.execute(select(Production.id)).scalars())
+    existing_productions = db_session.execute(
+        select(Production.id, Production.viernulvier_id)
+    )
+    prod_map: dict[int, int] = {
+        prod_viernulvier_id: prod_id
+        for (prod_id, prod_viernulvier_id) in existing_productions
+    }
+
     orphans = 0
 
     for json_event in events:
-        event = api_event_to_model_event(json_event)
+        event, viernulvier_prod_id = api_event_to_model_event(json_event)
 
         # Check if the event is tied to a valid production, else we would get a
         # ForeignKey violation
-        if not event.production_id:
+        if not viernulvier_prod_id:
             logger.warning(
-                f"Not storing event (id={event.id}) because no associated production"
+                f"Not storing event (id={event.viernulvier_id}) because no "
+                "associated production"
             )
             orphans += 1
             continue
 
-        elif event.production_id not in existing_productions:
+        internal_prod_id = prod_map.get(viernulvier_prod_id)
+
+        if not internal_prod_id:
             logger.warning(
-                f"Not storing event (id={event.id}) because the associated "
-                f"production (id={event.production_id}) does not exist (anymore)"
+                f"Not storing event (id={event.viernulvier_id}) because the "
+                f"associated production (id={viernulvier_prod_id}) does not "
+                "exist (anymore)"
             )
             orphans += 1
             continue
+
+        event.production_id = internal_prod_id
 
         # Valid production id, so store this event
         db_session.merge(event)

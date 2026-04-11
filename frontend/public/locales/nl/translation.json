@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "home": "Home",
+    "archive": "Archief",
+    "history": "Geschiedenis"
+  },
+  "filter": {
+    "search": "Zoeken",
+    "search_in_collection": "Zoek in de collectie",
+    "period": "Periode",
+    "from": "Van",
+    "to": "Tot",
+    "tags": "Tags",
+    "venues": "Locaties",
+    "artists": "Artiesten",
+    "search_artists": "Zoek naar artiesten"
+  },
+
+  "archive": {
+    "title": "De Collectie",
+    "card": {
+      "defaults": {
+        "title": "Onbekende productie",
+        "dateLabel": "Onbekend",
+        "venueLabel": "Onbekend"
+      }
+    }
+  },
+
+  "home": {
+    "title": "Vensters naar het Verleden",
+    "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
+    "stats": {
+      "productions": "Producties",
+      "artists": "Artiesten",
+      "events": "Evenementen",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
+  },
+
+  "history": {
+    "title": "De Echo's van het Gebouw"
+  },
+
+  "auth": {
+    "login": {
+      "formTitle": "Welkom terug",
+      "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",
+      "usernameLabel": "Gebruikersnaam",
+      "passwordLabel": "Wachtwoord",
+      "showPassword": "Wachtwoord tonen",
+      "hidePassword": "Wachtwoord verbergen",
+      "submit": "Aanmelden",
+      "submitting": "Bezig met aanmelden",
+      "backToSite": "Terug naar het archief",
+      "loading": "Sessie wordt hersteld",
+      "errors": {
+        "invalidCredentials": "De opgegeven gebruikersnaam of het opgegeven wachtwoord is ongeldig.",
+        "generic": "Aanmelden lukt momenteel niet. Probeer het opnieuw."
+      }
+    }
+  }
+}
