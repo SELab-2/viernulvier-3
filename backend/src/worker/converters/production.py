@@ -80,7 +80,7 @@ def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
         description=(csv_prod[2] + "\n" + csv_prod[3]),
     )
 
-    genres = csv_prod[4].split(',')
+    genres = csv_prod[4].split(",")
     for genre in genres:
         production.tags.append(tag_map[genre])
 

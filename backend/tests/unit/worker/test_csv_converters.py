@@ -17,9 +17,9 @@ def test_csv_prod_to_model_prod():
         "5678",
     ]
     tag_map = {
-            "test genre": Tag(id=1),
-            "test tag": Tag(id=2),
-            }
+        "test genre": Tag(id=1),
+        "test tag": Tag(id=2),
+    }
 
     prod = csv_prod_to_model_prod(test_input, tag_map)
     prod_infos = prod.info

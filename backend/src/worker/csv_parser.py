@@ -67,7 +67,7 @@ try:
     production_count, event_count, hall_count, tag_count = 0, 0, 0, 0
     for prod_id, productie in producties.items():
         genres = productie[4]
-        genres = genres.split(',')
+        genres = genres.split(",")
         for genre in genres:
             if genre not in tag_map:
                 logger.info(f"tag '{genre}' no found, adding it")
@@ -76,10 +76,8 @@ try:
                 db.flush()
                 tag_id = tag_model.id
                 tag_name_model = TagName(
-                        tag_id=tag_id,
-                        language=Languages.NEDERLANDS,
-                        name=genre
-                    )
+                    tag_id=tag_id, language=Languages.NEDERLANDS, name=genre
+                )
                 db.add(tag_name_model)
                 db.flush()
                 tag_map[genre] = tag_id
