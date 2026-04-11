@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
-from src.schemas.hall import HallSchema
+from src.schemas.hall import HallResponse, HallCreate
 
 
 class PriceResponse(BaseModel):
@@ -19,9 +19,10 @@ class PriceResponse(BaseModel):
 class EventResponse(BaseModel):
     id_url: str
     production_id_url: str
-    hall_id_url: str
+    # TODO: remove
+    hall_id_url: Optional[str] = None
 
-    hall: Optional[HallSchema] = None
+    hall: Optional[HallResponse] = None
 
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
