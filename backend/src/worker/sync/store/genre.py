@@ -13,6 +13,7 @@ def store_new_genres(db_session: Session, genres: list[dict]):
 
         for tag_name in tag_names:
             db_session.merge(tag_name)
+            db_session.flush()
 
         created_at = datetime.fromisoformat(json_genre["created_at"])
         if newest_timestamp is None or created_at > newest_timestamp:
