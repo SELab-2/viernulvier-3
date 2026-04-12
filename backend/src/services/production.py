@@ -62,7 +62,7 @@ def build_production_response(
 
     # Get events of this production.
     # Get tags of this productoin.
-    events = get_events_for_production(db, production.id, base_url)
+    event_urls = get_event_urls_for_production(db, production.id, base_url)
     tags = get_tags_for_production(db, production.id, base_url)
 
     return ProductionResponse(
@@ -72,7 +72,7 @@ def build_production_response(
         created_at=production.created_at,
         updated_at=production.updated_at,
         production_infos=production_infos,
-        events=events,
+        event_id_urls=event_urls,
         tags=tags,
     )
 
@@ -116,7 +116,7 @@ def get_productions_paginated(
 
 
 # Returns all event-urls for a given production.
-def get_events_for_production(
+def get_event_urls_for_production(
     db: Session, production_id: int, base_url: str
 ) -> list[str]:
     events = db.query(Event).filter(Event.production_id == production_id).all()

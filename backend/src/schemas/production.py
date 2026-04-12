@@ -33,8 +33,7 @@ class ProductionResponse(StrictModel):
     # A production has a list of infos (for different languages).
     # A production has a list of tags.
     production_infos: list[ProductionInfoResponse] = Field(default_factory=list)
-    # TODO: must be event_id_urls
-    events: list[str] = Field(default_factory=list)
+    event_id_urls: list[str] = Field(default_factory=list)
     tags: list[TagResponse] = Field(default_factory=list)  # tag_object
 
     model_config = ConfigDict(from_attributes=True)

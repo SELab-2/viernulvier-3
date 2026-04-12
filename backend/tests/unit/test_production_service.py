@@ -1,7 +1,7 @@
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
-    get_events_for_production,
+    get_event_urls_for_production,
     get_tags_for_production,
     create_production,
     update_production_by_id,
@@ -91,8 +91,8 @@ def test_get_productions_with_tag(db_session, many_productions):
 
 
 # Get events for production: check if correct event urls are returned.
-def test_get_events_for_production(db_session, productions_limited):
-    events_prod1 = get_events_for_production(
+def test_get_event_urls_for_production(db_session, productions_limited):
+    events_prod1 = get_event_urls_for_production(
         db_session, productions_limited[0].id, BASE_URL
     )
     assert len(events_prod1) == 2
@@ -102,7 +102,7 @@ def test_get_events_for_production(db_session, productions_limited):
             == f"{BASE_URL}/events/{productions_limited[0].events[i].id}"
         )
 
-    events_prod2 = get_events_for_production(
+    events_prod2 = get_event_urls_for_production(
         db_session, productions_limited[1].id, BASE_URL
     )
     assert len(events_prod2) == 4
@@ -139,7 +139,7 @@ def test_get_production_by_id_no_language(db_session, productions_limited):
     assert production_response.performer_type == productions_limited[0].performer_type
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
     assert len(production_response.production_infos) == 2
-    assert production_response.events == [
+    assert production_response.event_id_urls == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
     ]
 
@@ -157,7 +157,7 @@ def test_get_production_by_id_valid_language(db_session, productions_limited):
     assert production_response.attendance_mode == productions_limited[0].attendance_mode
     assert len(production_response.production_infos) == 1
     assert production_response.production_infos[0].language == Languages.ENGLISH
-    assert production_response.events == [
+    assert production_response.event_id_urls == [
         f"{BASE_URL}/events/{event.id}" for event in productions_limited[0].events
     ]
 

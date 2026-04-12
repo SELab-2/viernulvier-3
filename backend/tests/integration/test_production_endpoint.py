@@ -560,7 +560,8 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
     assert production_url is not None
     assert BASE_PROD_URL in production_url
 
-    events_urls = prod_data.get("events", [])
+    print(prod_data)
+    events_urls = prod_data.get("event_id_urls", [])
     assert len(events_urls) == 2
     for event_url, event in zip(events_urls, [event1, event2]):
         assert "/api/v1/archive/events" in event_url
