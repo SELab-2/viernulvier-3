@@ -40,6 +40,7 @@ vi.mock("react-i18next", async () => {
           "home.buttons.history": "I18N_Home_Button_History",
           "archive.title": "I18N_Archive_Title",
           "history.title": "I18N_History_Title",
+          "footer.website": "I18N_Footer_Website",
         };
 
         return map[key] || key;

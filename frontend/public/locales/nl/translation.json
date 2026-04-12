@@ -4,6 +4,10 @@
     "archive": "Archief",
     "history": "Geschiedenis"
   },
+  "footer": {
+    "website": "Onze officiële website"
+  },
+
   "filter": {
     "search": "Zoeken",
     "search_in_collection": "Zoek in de collectie",
