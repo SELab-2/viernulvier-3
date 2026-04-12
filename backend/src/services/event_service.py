@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from src.models.production import Production
 from src.models import Event, Hall, EventPrice
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
-from src.schemas.hall import HallSchema
+from src.schemas.hall import HallResponse, HallCreate, HallUpdate
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
 
@@ -22,11 +22,18 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
         f"{base_url}/events/{event.id}/prices/{price.id}" for price in prices_db
     ]
 
+    hall_id_url = f"{base_url}/halls/{event.hall_id}"
+    hall = (
+        HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
+        if hall
+        else None
+    )
+
     return EventResponse(
         id_url=f"{base_url}/events/{event.id}",
         production_id_url=f"{base_url}/productions/{event.production_id}",
-        hall_id_url=f"{base_url}/halls/{event.hall_id}",
-        hall=HallSchema(name=hall.name, address=hall.address) if hall else None,
+        hall_id_url=hall_id_url,
+        hall=hall,
         starts_at=event.starts_at,
         ends_at=event.ends_at,
         order_url=event.order_url,
@@ -64,10 +71,10 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
     try:
-        production_id = extract_id(event_in.production_id)
-        hall_id = extract_id(event_in.hall_id)
+        production_id = extract_id(event_in.production_id_url)
+        hall_id = extract_id(event_in.hall_id_url)
     except ValueError:
-        raise ValidationError("Invalid production_id or hall_id format")
+        raise ValidationError("Invalid production_id_url or hall_id_url format")
 
     db_production = db.query(Production).filter(Production.id == production_id).first()
     if not db_production:
