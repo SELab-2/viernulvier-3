@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 from typing import List
 
+from fastapi import APIRouter, Depends, Request, status
+from sqlalchemy.orm import Session
+from src.api.dependencies.auth import RequirePermissions
 from src.database import get_db
 from src.models.user import User
-from src.schemas.auth import RoleCreate, RoleUpdate, RoleResponse
+from src.schemas.auth import RoleCreate, RoleResponse, RoleUpdate
+from src.services.archive import get_base_url
 from src.services.auth import role as role_service
-from src.api.dependencies.auth import RequirePermissions
 from src.services.auth.permissions import Permissions
 
 router = APIRouter()
@@ -19,10 +20,12 @@ router = APIRouter()
     description="Returns all roles with their permissions.",
 )
 def list_roles(
+    request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.USERS_READ])),
 ) -> List[RoleResponse]:
-    return role_service.list_roles(db)
+    base_url = get_base_url(str(request.url), 2)
+    return role_service.list_roles(db, base_url)
 
 
 @router.post(
@@ -34,10 +37,12 @@ def list_roles(
 )
 def create_role(
     role: RoleCreate,
+    request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.USERS_CREATE])),
 ) -> RoleResponse:
-    return role_service.create_role(db, role)
+    base_url = get_base_url(str(request.url), 2)
+    return role_service.create_role(db, role, base_url)
 
 
 @router.get(
@@ -48,10 +53,12 @@ def create_role(
 )
 def get_role(
     role_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.USERS_READ])),
 ) -> RoleResponse:
-    return role_service.get_role(db, role_id)
+    base_url = get_base_url(str(request.url), 2)
+    return role_service.get_role(db, role_id, base_url)
 
 
 @router.put(
@@ -63,10 +70,12 @@ def get_role(
 def update_role(
     role_id: int,
     update: RoleUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.USERS_UPDATE])),
 ) -> RoleResponse:
-    return role_service.update_role(db, role_id, update)
+    base_url = get_base_url(str(request.url), 2)
+    return role_service.update_role(db, role_id, update, base_url)
 
 
 @router.delete(
