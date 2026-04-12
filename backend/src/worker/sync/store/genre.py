@@ -8,12 +8,13 @@ def store_new_genres(db_session: Session, genres: list[dict]):
 
     for json_genre in genres:
         tag, tag_names = api_genre_to_model_tag(json_genre)
-        merged_tag = db_session.merge(tag)
+        db_session.add(tag)
         db_session.flush()
-        db_session.refresh(merged_tag)
+        tag_id = tag.id
 
         for tag_name in tag_names:
-            db_session.merge(tag_name)
+            tag_name.id = tag_id
+            db_session.add(tag_name)
 
         db_session.flush()
 
