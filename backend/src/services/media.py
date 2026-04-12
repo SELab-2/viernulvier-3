@@ -77,7 +77,7 @@ def list_media_for_production(
 
 def upload_media(
     db: Session,
-    production_id_url: str,
+    production_id: int,
     filename: str,
     content_type: str,
     data: bytes,
@@ -85,7 +85,6 @@ def upload_media(
     base_url: str,
 ) -> MediaResponse:
     ext = os.path.splitext(filename)[1].lower()
-    production_id = int(production_id_url.rstrip("/").split("/")[-1])
     object_key = f"gallery-{production_id}/{uuid.uuid4()}{ext}"
 
     minio_client.put_object(

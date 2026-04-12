@@ -7,21 +7,19 @@ from src.schemas.auth import RoleCreate, RoleUpdate, RoleResponse
 from src.services.auth.permissions import Permissions
 
 
-# TODO: pass base_url
-def list_roles(db: Session, base_url: str = "TODO") -> List[RoleResponse]:
+def list_roles(db: Session, base_url: str) -> List[RoleResponse]:
     roles = db.query(Role).all()
     return [
         RoleResponse(
             id_url=f"{base_url}/auth/roles/{r.id}",
             name=r.name,
-            permissions=[p.name for p in r.permissions]
+            permissions=[p.name for p in r.permissions],
         )
         for r in roles
     ]
 
 
-# TODO: base_url
-def create_role(db: Session, role: RoleCreate, base_url: str = "TODO") -> RoleResponse:
+def create_role(db: Session, role: RoleCreate, base_url: str) -> RoleResponse:
     if db.query(Role).filter(Role.name == role.name).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Role name already exists"
@@ -55,8 +53,7 @@ def create_role(db: Session, role: RoleCreate, base_url: str = "TODO") -> RoleRe
     )
 
 
-# TODO: pass base_url
-def get_role(db: Session, role_id: int, base_url: str = "TODO") -> RoleResponse:
+def get_role(db: Session, role_id: int, base_url: str) -> RoleResponse:
     role = db.query(Role).filter(Role.id == role_id).first()
     if not role:
         raise HTTPException(
@@ -65,12 +62,13 @@ def get_role(db: Session, role_id: int, base_url: str = "TODO") -> RoleResponse:
     return RoleResponse(
         id_url=f"{base_url}/auth/roles/{role.id}",
         name=role.name,
-        permissions=[p.name for p in role.permissions]
+        permissions=[p.name for p in role.permissions],
     )
 
 
-# TODO: pass base_url
-def update_role(db: Session, role_id: int, update: RoleUpdate, base_url: str = "TODO") -> RoleResponse:
+def update_role(
+    db: Session, role_id: int, update: RoleUpdate, base_url: str
+) -> RoleResponse:
     role = db.query(Role).filter(Role.id == role_id).first()
     if not role:
         raise HTTPException(
@@ -107,7 +105,7 @@ def update_role(db: Session, role_id: int, update: RoleUpdate, base_url: str = "
     return RoleResponse(
         id_url=f"{base_url}/auth/roles/{role.id}",
         name=role.name,
-        permissions=[p.name for p in role.permissions]
+        permissions=[p.name for p in role.permissions],
     )
 
 
