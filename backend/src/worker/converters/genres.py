@@ -21,14 +21,14 @@ def api_genre_to_model_tag(json_genre: dict) -> tuple[Tag, list[TagName]]:
                 continue
 
             genre_name = names[lang_code]
-            genre_name_object = TagName(tag_id=genre_id, language=lang, name=genre_name)
+            genre_name_object = TagName(language=lang, name=genre_name)
 
             genre_names.append(genre_name_object)
     else:
         name = json_genre.get("vendor_id")
         if name:
             genre_name_object = TagName(
-                tag_id=genre_id, language=Languages.NEDERLANDS, name=name
+                language=Languages.NEDERLANDS, name=name
             )
             genre_names.append(genre_name_object)
 

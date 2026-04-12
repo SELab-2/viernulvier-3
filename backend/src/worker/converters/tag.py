@@ -20,7 +20,7 @@ def api_tag_to_model_tag(json_tag: dict) -> tuple[Tag, list[TagName]]:
                 continue
 
             tag_name = names[lang_code]
-            tag_name_object = TagName(tag_id=tag_id, language=lang, name=tag_name)
+            tag_name_object = TagName(language=lang, name=tag_name)
 
             tag_names.append(tag_name_object)
 
