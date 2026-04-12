@@ -32,7 +32,6 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
     return EventResponse(
         id_url=f"{base_url}/events/{event.id}",
         production_id_url=f"{base_url}/productions/{event.production_id}",
-        hall_id_url=hall_id_url,
         hall=hall,
         starts_at=event.starts_at,
         ends_at=event.ends_at,

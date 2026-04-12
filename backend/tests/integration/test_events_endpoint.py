@@ -72,7 +72,7 @@ def test_create_event_success(client: TestClient, db_session: Session):
     assert response.status_code == 201
     data = response.json()
     assert data["production_id_url"].endswith(str(production.id))
-    assert data["hall_id_url"].endswith(str(hall.id))
+    assert data["hall"]["id_url"].endswith(str(hall.id))
     assert data["order_url"] == "http://order.url"
 
 
@@ -91,7 +91,7 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
     assert data["id_url"].endswith(str(event.id))
-    assert data["hall_id_url"].endswith(str(hall.id))
+    assert data["hall"]["id_url"].endswith(str(hall.id))
     assert data["production_id_url"].endswith(str(production.id))
 
 
@@ -111,7 +111,7 @@ def test_get_event_by_id_with_null_hall_returns_null(
     assert response.status_code == 200
     data = response.json()
     assert data["id_url"].endswith(str(event.id))
-    assert data["hall_id_url"] is None
+    assert data["hall"] is None
     assert data["production_id_url"].endswith(str(production.id))
 
 

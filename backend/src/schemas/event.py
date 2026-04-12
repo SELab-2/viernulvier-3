@@ -21,8 +21,6 @@ class PriceResponse(StrictModel):
 class EventResponse(StrictModel):
     id_url: str
     production_id_url: str
-    # TODO: remove
-    hall_id_url: Optional[str] = None
 
     hall: Optional[HallResponse] = None
 
