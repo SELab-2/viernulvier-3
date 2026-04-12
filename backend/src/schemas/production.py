@@ -1,12 +1,14 @@
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional
 from datetime import datetime
-from src.schemas.tag import TagResponse
+from typing import Optional
+
+from pydantic import ConfigDict, Field
+from src.schemas.base_schema import StrictModel
 from src.schemas.pagination import Pagination
+from src.schemas.tag import TagResponse
 
 
 # The response for a production info in a specific language.
-class ProductionInfoResponse(BaseModel):
+class ProductionInfoResponse(StrictModel):
     production_id_url: str
     language: str
     title: Optional[str] = None
@@ -20,7 +22,7 @@ class ProductionInfoResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ProductionResponse(BaseModel):
+class ProductionResponse(StrictModel):
     id_url: str
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
@@ -39,13 +41,13 @@ class ProductionResponse(BaseModel):
 
 
 # The response for a list of productions, including pagination info.
-class ProductionListResponse(BaseModel):
+class ProductionListResponse(StrictModel):
     productions: list[ProductionResponse] = Field(default_factory=list)
     pagination: Pagination = Field(default_factory=Pagination)
 
 
 # When a new production info is created in a specific language.
-class ProductionInfoCreate(BaseModel):
+class ProductionInfoCreate(StrictModel):
     language: str
 
     title: Optional[str] = None
@@ -58,7 +60,7 @@ class ProductionInfoCreate(BaseModel):
 
 
 # When a new production is created (has one or more info entries).
-class ProductionCreate(BaseModel):
+class ProductionCreate(StrictModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
     created_at: Optional[datetime] = None
@@ -67,7 +69,7 @@ class ProductionCreate(BaseModel):
     tag_id_urls: list[str] = []
 
 
-class ProductionInfoUpdate(BaseModel):
+class ProductionInfoUpdate(StrictModel):
     language: str
 
     title: Optional[str] = None
@@ -79,7 +81,7 @@ class ProductionInfoUpdate(BaseModel):
     info: Optional[str] = None
 
 
-class ProductionUpdate(BaseModel):
+class ProductionUpdate(StrictModel):
     performer_type: Optional[str] = None
     attendance_mode: Optional[str] = None
     created_at: Optional[datetime] = None

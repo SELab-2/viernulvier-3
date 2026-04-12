@@ -1,10 +1,12 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
 from datetime import datetime
-from src.schemas.hall import HallResponse, HallCreate
+from typing import List, Optional
+
+from pydantic import ConfigDict
+from src.schemas.base_schema import StrictModel
+from src.schemas.hall import HallResponse
 
 
-class PriceResponse(BaseModel):
+class PriceResponse(StrictModel):
     id_url: str
     amount: Optional[float] = None
     available: Optional[int] = None
@@ -16,7 +18,7 @@ class PriceResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class EventResponse(BaseModel):
+class EventResponse(StrictModel):
     id_url: str
     production_id_url: str
     # TODO: remove
@@ -37,7 +39,7 @@ class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class EventCreate(BaseModel):
+class EventCreate(StrictModel):
     production_id_url: str
     hall_id_url: str
     starts_at: Optional[datetime] = None
@@ -45,7 +47,7 @@ class EventCreate(BaseModel):
     order_url: Optional[str] = None
 
 
-class EventUpdate(BaseModel):
+class EventUpdate(StrictModel):
     hall_id_url: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None

@@ -1,8 +1,10 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
+from pydantic import ConfigDict
+from src.schemas.base_schema import StrictModel
 
-class HallResponse(BaseModel):
+
+class HallResponse(StrictModel):
     id_url: str
     name: str
     address: Optional[str] = None
@@ -10,11 +12,11 @@ class HallResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class HallCreate(BaseModel):
+class HallCreate(StrictModel):
     name: str
     address: Optional[str] = None
 
 
-class HallUpdate(BaseModel):
+class HallUpdate(StrictModel):
     name: Optional[str] = None
     address: Optional[str] = None
