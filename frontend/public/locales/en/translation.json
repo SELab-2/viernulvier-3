@@ -47,6 +47,10 @@
   },
 
   "auth": {
+    "actions": {
+      "login": "Login",
+      "logout": "Logout"
+    },
     "login": {
       "formTitle": "Welcome back",
       "formDescription": "Enter your username and password to start an authenticated session.",
