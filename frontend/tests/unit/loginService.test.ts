@@ -3,6 +3,7 @@ import axios from "axios";
 import * as envModule from "~/shared/utils/env";
 import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
+
 import {
   getCurrentUser,
   login,
@@ -11,9 +12,6 @@ import {
   refreshToken,
   restoreSession,
 } from "~/features/auth/services/loginService";
-import { setupLocalStorage } from "tests/globalSetup";
-
-setupLocalStorage();
 
 describe("loginService", () => {
   let mockAdapter: AxiosMockAdapter;

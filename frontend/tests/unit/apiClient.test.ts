@@ -4,10 +4,9 @@ import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as tokenRefreshModule from "~/features/auth/services/tokenRefresh";
-import { setupLocalStorage } from "tests/globalSetup";
 import { getByUrl } from "~/shared/services/sharedService";
 
-setupLocalStorage();
+vi.mock("~/features/auth");
 
 describe("createApiClient", () => {
   let mockAdapter: AxiosMockAdapter;

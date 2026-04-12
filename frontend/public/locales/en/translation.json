@@ -3,5 +3,69 @@
     "home": "Home",
     "archive": "Archive",
     "history": "History"
+  },
+  "footer": {
+    "website": "Our official website"
+  },
+
+  "filter": {
+    "search": "Search",
+    "search_in_collection": "Search in our collection",
+    "period": "Period",
+    "from": "From",
+    "to": "To",
+    "tags": "Tags",
+    "venues": "Venues",
+    "artists": "Artists",
+    "search_artists": "Search for artists"
+  },
+
+  "archive": {
+    "title": "The Collection",
+    "card": {
+      "defaults": {
+        "title": "Unknown production",
+        "dateLabel": "Unknown",
+        "venueLabel": "Unknown"
+      }
+    }
+  },
+
+  "home": {
+    "title": "Windows to the Past",
+    "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
+    "stats": {
+      "productions": "Productions",
+      "artists": "Artists",
+      "events": "Events",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
+    }
+  },
+
+  "history": {
+    "title": "The echoes of the Building"
+  },
+
+  "auth": {
+    "login": {
+      "formTitle": "Welcome back",
+      "formDescription": "Enter your username and password to start an authenticated session.",
+      "usernameLabel": "Username",
+      "passwordLabel": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Sign in",
+      "submitting": "Signing in",
+      "backToSite": "Back to archive",
+      "loading": "Restoring session",
+      "errors": {
+        "invalidCredentials": "The provided username or password is incorrect.",
+        "generic": "We could not sign you in right now. Please try again."
+      }
+    }
   }
 }

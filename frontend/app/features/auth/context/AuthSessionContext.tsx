@@ -80,7 +80,10 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   }, [runSessionOperation]);
 
   useEffect(() => {
-    void bootstrapSession();
+    async function init() {
+      await bootstrapSession();
+    }
+    void init();
   }, [bootstrapSession]);
 
   useEffect(() => {

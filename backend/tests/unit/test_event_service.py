@@ -57,6 +57,23 @@ def test_get_event_by_id_success(db_session, event):
     assert result.hall_id_url == f"{BASE_URL}/halls/{event.hall_id}"
 
 
+def test_get_event_by_id_with_null_hall_returns_null_hall_id(db_session, production):
+    event = Event(
+        production_id=production.id,
+        hall_id=None,
+        order_url="old_url",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db_session.add(event)
+    db_session.commit()
+
+    result = get_event_by_id(db_session, event.id, BASE_URL)
+
+    assert result.id_url == f"{BASE_URL}/events/{event.id}"
+    assert result.hall_id_url is None
+
+
 def test_get_event_by_id_not_found(db_session):
     with pytest.raises(NotFoundError):
         get_event_by_id(db_session, 999, BASE_URL)

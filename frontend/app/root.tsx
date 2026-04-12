@@ -6,6 +6,7 @@ import { AuthSessionProvider } from "./features/auth";
 import { getThemeBootstrapScript } from "./shared/utils/theme";
 import "./styles/app.css";
 import "./i18n";
+import { Footer } from "./shared/components/Footer";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,13 +29,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <AuthSessionProvider>
-      <ThemeProvider>
-        <Navbar />
-        <main>
-          <Outlet />
-        </main>
-      </ThemeProvider>
-    </AuthSessionProvider>
+    <div className="flex min-h-screen flex-col">
+      <AuthSessionProvider>
+        <ThemeProvider>
+          <Navbar />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
+        </ThemeProvider>
+      </AuthSessionProvider>
+    </div>
   );
 }

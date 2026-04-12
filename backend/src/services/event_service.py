@@ -22,7 +22,7 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
         f"{base_url}/events/{event.id}/prices/{price.id}" for price in prices_db
     ]
 
-    hall_id_url = f"{base_url}/halls/{event.hall_id}"
+    hall_id_url = f"{base_url}/halls/{event.hall_id}" if hall else None
     hall = (
         HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
         if hall
