@@ -9,6 +9,7 @@
   --color-archive-ink: var(--archive-ink);
   --color-archive-accent: var(--archive-accent);
   --color-archive-border: var(--archive-border);
+  --color-archive-border-hover: var(--archive-border-hover);
   --color-archive-surface: var(--archive-surface);
   --color-archive-surface-strong: var(--archive-surface-strong);
   --color-archive-control: var(--archive-control);
@@ -72,6 +73,7 @@
   --archive-ink: #2d2825;
   --archive-accent: #c4a484;
   --archive-border: rgba(45, 40, 37, 0.1);
+  --archive-border-hover: rgba(196, 164, 132, 0.7);
   --archive-surface: rgba(245, 241, 232, 0.86);
   --archive-surface-strong: rgba(255, 255, 255, 0.82);
   --archive-control: rgba(45, 40, 37, 0.05);
@@ -93,6 +95,7 @@
   --archive-paper: #11100e;
   --archive-ink: #f0e4d3;
   --archive-border: rgba(240, 228, 211, 0.1);
+  --archive-border-hover: rgba(196, 164, 132, 0.45);
   --archive-surface: rgba(17, 16, 14, 0.8);
   --archive-surface-strong: rgba(17, 16, 14, 0.88);
   --archive-control: rgba(240, 228, 211, 0.06);

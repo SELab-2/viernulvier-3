@@ -79,5 +79,24 @@
         "description": "In 2022 Kunstencentrum Vooruit changes its name to Kunstencentrum VIERNULVIER, after the Flemish socialist party chose the new name 'Vooruit' in 2021. The building itself will continue to be known as De Vooruit. Only the organization will carry the new name."
       }
     }
+  },
+
+  "auth": {
+    "login": {
+      "formTitle": "Welcome back",
+      "formDescription": "Enter your username and password to start an authenticated session.",
+      "usernameLabel": "Username",
+      "passwordLabel": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Sign in",
+      "submitting": "Signing in",
+      "backToSite": "Back to archive",
+      "loading": "Restoring session",
+      "errors": {
+        "invalidCredentials": "The provided username or password is incorrect.",
+        "generic": "We could not sign you in right now. Please try again."
+      }
+    }
   }
 }
