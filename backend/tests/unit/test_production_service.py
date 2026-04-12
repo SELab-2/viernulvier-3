@@ -200,10 +200,7 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
-        tag_id_urls=[
-            f"/tags/{tag.id}"
-            for tag in valid_tags
-        ],
+        tag_id_urls=[f"/tags/{tag.id}" for tag in valid_tags],
     )
 
     response = create_production(db_session, new_prod, BASE_URL)
@@ -227,10 +224,7 @@ def test_create_production_with_tags_invalid(db_session, productions_limited):
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(language="nl", title="nieuw_prod_nl"),
-        tag_id_urls=[
-            f"/tags/{id}"
-            for id in [1, 2, 164, 564]
-        ],
+        tag_id_urls=[f"/tags/{id}" for id in [1, 2, 164, 564]],
     )
     with pytest.raises(ValidationError, match="Tags do not exist: {164, 564}"):
         create_production(db_session, new_prod, BASE_URL)
@@ -257,19 +251,17 @@ def test_update_production_tags(db_session, productions_limited):
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
     )
-    id_urls_1 = {
-        tag_response.id_url
-        for tag_response in production_response.tags
-    }
+    id_urls_1 = {tag_response.id_url for tag_response in production_response.tags}
     production_response2 = get_production_by_id(
         db_session, productions_limited[1].id, BASE_URL
     )
-    id_urls_2 = {
-        tag_response.id_url
-        for tag_response in production_response2.tags
+    id_urls_2 = {tag_response.id_url for tag_response in production_response2.tags}
+    assert id_urls_1 == {f"{BASE_URL}/tags/1", f"{BASE_URL}/tags/3"}
+    assert id_urls_2 == {
+        f"{BASE_URL}/tags/3",
+        f"{BASE_URL}/tags/2",
+        f"{BASE_URL}/tags/4",
     }
-    assert id_urls_1 == {"/tags/1", "/tags/3"}
-    assert id_urls_2 == {"/tags/3", "/tags/2", "/tags/4"}
 
     production_update1 = ProductionUpdate(tag_id_urls=id_urls_2)
     production_update2 = ProductionUpdate(tag_id_urls=id_urls_1)
@@ -278,37 +270,35 @@ def test_update_production_tags(db_session, productions_limited):
     result = update_production_by_id(
         db_session, production_update1, productions_limited[0].id, BASE_URL
     )
-    id_urls_1 = {
-        tag_response.id_url for tag_response in result.tags
-    }
+    id_urls_1 = {tag_response.id_url for tag_response in result.tags}
     result2 = update_production_by_id(
         db_session, production_update2, productions_limited[1].id, BASE_URL
     )
-    id_urls_2 = {
-        tag_response.id_url for tag_response in result2.tags
-    }
+    id_urls_2 = {tag_response.id_url for tag_response in result2.tags}
 
-    assert id_urls_1 == {"/tags/3", "/tags/2", "/tags/4"}
-    assert id_urls_2 == {"/tags/1", "/tags/3"}
+    assert id_urls_1 == {
+        f"{BASE_URL}/tags/3",
+        f"{BASE_URL}/tags/2",
+        f"{BASE_URL}/tags/4",
+    }
+    assert id_urls_2 == {f"{BASE_URL}/tags/1", f"{BASE_URL}/tags/3"}
 
     # Updated in database.
     production_response = get_production_by_id(
         db_session, productions_limited[0].id, BASE_URL
     )
-    id_urls_1 = {
-        tag_response.id_url
-        for tag_response in production_response.tags
-    }
+    id_urls_1 = {tag_response.id_url for tag_response in production_response.tags}
     production_response2 = get_production_by_id(
         db_session, productions_limited[1].id, BASE_URL
     )
-    id_urls_2 = {
-        tag_response.id_url
-        for tag_response in production_response2.tags
-    }
+    id_urls_2 = {tag_response.id_url for tag_response in production_response2.tags}
 
-    assert id_urls_1 == {"/tags/3", "/tags/2", "/tags/4"}
-    assert id_urls_2 == {"/tags/1", "/tags/3"}
+    assert id_urls_1 == {
+        f"{BASE_URL}/tags/3",
+        f"{BASE_URL}/tags/2",
+        f"{BASE_URL}/tags/4",
+    }
+    assert id_urls_2 == {f"{BASE_URL}/tags/1", f"{BASE_URL}/tags/3"}
 
 
 # Update tags of a production with invalid tags.
@@ -319,10 +309,7 @@ def test_update_production_tags_invalid(db_session, productions_limited):
     assert len(production_response.tags) == 2
 
     # Create partly invalid taglist.
-    id_urls = {
-        tag_response.id_url
-        for tag_response in production_response.tags
-    }
+    id_urls = {tag_response.id_url for tag_response in production_response.tags}
     id_urls.add("/tags/145")
     id_urls.add("/tags/432")
     production_update = ProductionUpdate(tag_id_urls=id_urls)

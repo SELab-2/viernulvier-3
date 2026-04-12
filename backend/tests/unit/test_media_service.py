@@ -49,7 +49,9 @@ def test_build_media_response_basic(db_session, media_item):
         resp.id_url
         == f"{BASE_URL}/productions/{media_item.production_id}/media/{media_item.id}"
     )
-    assert resp.production_id_url == f"{BASE_URL}/productions/{media_item.production_id}"
+    assert (
+        resp.production_id_url == f"{BASE_URL}/productions/{media_item.production_id}"
+    )
     # Note: host-only URL for actual media file
     assert resp.url == f"http://test/media/{media_item.object_key}"
     assert resp.content_type == media_item.content_type
