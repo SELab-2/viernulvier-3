@@ -17,8 +17,10 @@ class Tag(Base):
     productions = relationship("Production", secondary=prod_tags, back_populates="tags")
 
     __table_args__ = (
-            UniqueConstraint("viernulvier_id", "viernulvier_use", name="unique_viernulvier_entry"),
-            )
+        UniqueConstraint(
+            "viernulvier_id", "viernulvier_use", name="unique_viernulvier_entry"
+        ),
+    )
 
 
 class TagName(Base):
