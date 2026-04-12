@@ -30,16 +30,15 @@ export default function History() {
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000`}
         />
         <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <h1 className="font-serif italic text-[#f0e4d3] drop-shadow-lg text-[clamp(2.5rem,5vw,4.5rem)]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <h1 className="font-serif italic text-[#f0e4d3] drop-shadow-lg text-[clamp(3rem,7vw,6rem)]">
             {t("history.title")}
           </h1>
         </div>
       </section>
       <section>
-        <div className="mx-auto max-w-3xl py-12">
-          <div className="border-archive-accent/10 mx-auto max-w-2xl space-y-16 border-l-2 pb-12 pl-[clamp(1rem,3vw,3rem)] pr-[clamp(1rem,3vw,2rem)]">
-            {Object.values(entries).map((entry) => (
+        <div className="mx-auto max-w-5xl py-12">
+            <div className="border-archive-accent/10 mx-auto max-w-4xl xl:max-w-7xl space-y-16 border-l-2 pb-12 pl-[clamp(1rem,3vw,3rem)] pr-[clamp(1rem,3vw,2rem)]">            {Object.values(entries).map((entry) => (
               <HistoryEntry
                 key={entry.title}
                 title={entry.title}
