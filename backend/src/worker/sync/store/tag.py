@@ -8,12 +8,14 @@ def store_new_tags(db_session: Session, tags: list[dict]):
 
     for json_tag in tags:
         tag, tag_names = api_tag_to_model_tag(json_tag)
-        db_session.merge(tag)
+        merged_tag = db_session.merge(tag)
         db_session.flush()
+        db_session.refresh(merged_tag)
 
         for tag_name in tag_names:
             db_session.merge(tag_name)
-            db_session.flush()
+
+        db_session.flush()
 
         created_at = datetime.fromisoformat(json_tag["created_at"])
         if newest_timestamp is None or created_at > newest_timestamp:
