@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def api_genre_to_model_tag(json_genre: dict) -> tuple[Tag, list[TagName]]:
     genre_id = int(json_genre["@id"].split("/")[-1])
 
-    genre = Tag(viernulvier_id=genre_id, viernulvier_use="genre")
+    genre = Tag(viernulvier_id=genre_id)
 
     names = json_genre.get("name")
     genre_names = []

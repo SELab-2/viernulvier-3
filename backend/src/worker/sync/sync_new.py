@@ -8,7 +8,6 @@ from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
-from src.worker.sync.store.tag import store_new_tags
 from src.worker.sync.store.genre import store_new_genres
 
 logger = logging.getLogger(__name__)
@@ -18,7 +17,6 @@ STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
     ResourceType.PRODUCTION: store_new_productions,
     ResourceType.EVENT: store_new_events,
     ResourceType.EVENT_PRICES: store_new_eventprices,
-    ResourceType.TAGS: store_new_tags,
     ResourceType.GENRES: store_new_genres,
 }
 

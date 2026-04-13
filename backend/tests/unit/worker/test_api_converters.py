@@ -2,7 +2,6 @@ from datetime import datetime
 from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
-from src.worker.converters.tag import api_tag_to_model_tag
 from src.worker.converters.genres import api_genre_to_model_tag
 from src.services.language import Languages
 
@@ -210,49 +209,6 @@ def test_api_eventprice_to_none():
 
 
 # Test normal test case from the actual API
-def test_api_tag_to_model_tag():
-    test_input = {
-        "@id": "/api/v1/tags/6",
-        "@type": "Tags",
-        "created_at": "2019-02-15T11:55:07+00:00",
-        "updated_at": "2023-01-16T09:34:20+00:00",
-        "source": "box_office",
-        "sourceType": "default",
-        "enable": "nee",
-        "code": "10000",
-        "name": {"nl": "Abonnee 17-18", "en": "Subscriber 17-18"},
-        "url": "",
-        "automatically_assigned": False,
-        "external": False,
-    }
-
-    tag, tag_names = api_tag_to_model_tag(test_input)
-
-    assert tag.viernulvier_id == 6
-    assert tag.viernulvier_use == "tag"
-    assert len(tag_names) == 2
-
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
-    tagname_en = [tn for tn in tag_names if tn.language == Languages.ENGLISH][0]
-
-    assert tagname_nl.name == "Abonnee 17-18"
-    assert tagname_en.name == "Subscriber 17-18"
-
-    assert len(tag.productions) == 0
-
-
-# Test tags without name should just return an empty list
-def test_api_tag_to_none():
-    test_input = {"@id": "/api/v1/tags/7"}
-
-    tag, tag_names = api_tag_to_model_tag(test_input)
-
-    assert tag is not None
-    assert tag.viernulvier_id == 7
-    assert len(tag_names) == 0
-
-
-# Test normal test case from the actual API
 def test_api_genre_to_model_tag():
     test_input = {
         "@id": "/api/v1/genres/100",
@@ -269,7 +225,6 @@ def test_api_genre_to_model_tag():
     tag, tag_names = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 100
-    assert tag.viernulvier_use == "genre"
     assert len(tag_names) == 2
 
     tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
@@ -296,7 +251,6 @@ def test_api_genre_to_model_tag_fallback():
     tag, tag_names = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 1
-    assert tag.viernulvier_use == "genre"
     assert len(tag_names) == 1
 
     tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]

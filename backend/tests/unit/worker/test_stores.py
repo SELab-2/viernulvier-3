@@ -8,7 +8,6 @@ from src.models.tag import Tag, TagName
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
-from src.worker.sync.store.tag import store_new_tags
 from src.worker.sync.store.genre import store_new_genres
 
 
@@ -269,45 +268,6 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     assert "does not exist" in orphaned_warning_2
 
     assert "Skipped 3 eventprices" in total_orphans_warning
-
-
-def test_store_new_tags(db_session):
-    # Data from actual API, removed some unused fields, that already gets
-    # tested in 'test_converters.py'
-    tags = [
-        {
-            "@id": "/api/v1/tags/6",
-            "created_at": "2019-02-15T11:55:07+00:00",
-            "updated_at": "2023-01-16T09:34:20+00:00",
-            "name": {"nl": "Abonnee 17-18", "en": "Subscriber 17-18"},
-        },
-        {
-            "@id": "/api/v1/tags/14",
-            "created_at": "2019-02-15T11:55:07+00:00",
-            "updated_at": "2023-01-16T09:34:20+00:00",
-            "name": {"nl": "Regelmatige klant min 3 voorst. EP 16-17"},
-        },
-        {
-            "@id": "/api/v1/tags/18",
-            "created_at": "2019-02-15T11:55:07+00:00",
-            "updated_at": "2023-01-16T09:34:20+00:00",
-            "name": {"nl": "Regelmatige klant min 3 voorst. EP 15-16"},
-        },
-    ]
-
-    # Store in database
-    newest = store_new_tags(db_session, tags)
-    db_session.commit()
-
-    # Check
-    stored_tags = db_session.execute(select(Tag)).scalars().all()
-    assert len(stored_tags) == 3
-
-    stored_names = db_session.execute(select(TagName)).scalars().all()
-    # 4 because 1 tag has 2 languages for its name
-    assert len(stored_names) == 4
-
-    assert newest == datetime.fromisoformat("2019-02-15T11:55:07+00:00")
 
 
 def test_store_new_genres(db_session):

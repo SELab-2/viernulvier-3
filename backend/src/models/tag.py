@@ -10,17 +10,10 @@ class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, unique=False, autoincrement=False)
-    viernulvier_use = Column(String, nullable=True)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     names = relationship("TagName", back_populates="tag")
     productions = relationship("Production", secondary=prod_tags, back_populates="tags")
-
-    __table_args__ = (
-        UniqueConstraint(
-            "viernulvier_id", "viernulvier_use", name="unique_viernulvier_entry"
-        ),
-    )
 
 
 class TagName(Base):
