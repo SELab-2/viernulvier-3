@@ -19,10 +19,15 @@ const HERO_IMAGES = ["/images/1914_Inhuldiging.jpg"];
 
 export default function History() {
   const { t } = useTranslation();
-  const entries = t("history.entries", { returnObjects: true }) as Record<
-    string,
-    { title: string; description: string }
-  >;
+  
+  type HistoryEntry = {
+    title: string;
+    description: string;
+  };
+
+  const entries = t("history.entries", {
+    returnObjects: true,
+  }) as HistoryEntry[];
 
   return (
     <>
@@ -45,7 +50,7 @@ export default function History() {
         <div className="mx-auto max-w-5xl py-12">
           <div className="border-archive-accent/10 mx-auto max-w-4xl space-y-16 border-l-2 pr-[clamp(1rem,3vw,2rem)] pb-12 pl-[clamp(1rem,3vw,3rem)] xl:max-w-7xl">
             {" "}
-            {Object.values(entries).map((entry) => (
+            {entries.map((entry) => (
               <HistoryEntry
                 key={entry.title}
                 title={entry.title}
