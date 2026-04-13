@@ -70,7 +70,7 @@ try:
         for genre in genres:
             if genre not in tag_map:
                 logger.info(f"tag '{genre}' no found, adding it")
-                tag_model = Tag(viernulvier_use="csv")
+                tag_model = Tag()
                 db.add(tag_model)
                 db.flush()
                 tag_id = tag_model.id

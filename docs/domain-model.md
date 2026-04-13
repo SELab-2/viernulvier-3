@@ -32,12 +32,7 @@ Table prod_info {
 
 Table tags {
   id int [pk]
-  viernulvier_id int
-  viernulvier_use varchar
-
-  indexes {
-    (viernulvier_id, viernulvier_use) [unique, name: "unique_viernulvier_entry"]
-  }
+  viernulvier_id int [unique]
 }
 
 Table tag_names {
