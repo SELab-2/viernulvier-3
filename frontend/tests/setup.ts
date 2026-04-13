@@ -36,6 +36,7 @@ vi.mock("react-i18next", async () => {
           "nav.home": "I18N_Home",
           "nav.archive": "I18N_Archive",
           "nav.history": "I18N_History",
+          "auth.actions.logout": "I18N_Logout",
           "home.title": "I18N_Title",
           "home.description": "I18N_Description",
           "home.stats.productions": "I18N_Home_Stats_Productions",
@@ -46,6 +47,7 @@ vi.mock("react-i18next", async () => {
           "home.buttons.history": "I18N_Home_Button_History",
           "archive.title": "I18N_Archive_Title",
           "history.title": "I18N_History_Title",
+          "footer.website": "I18N_Footer_Website",
           "history.heroAlt": "I18N_History_Hero_Alt",
           "history.entries": [
             {
