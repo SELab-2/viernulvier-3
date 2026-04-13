@@ -19,7 +19,7 @@ const HERO_IMAGES = ["/images/1914_Inhuldiging.jpg"];
 
 export default function History() {
   const { t } = useTranslation();
-  
+
   type HistoryEntry = {
     title: string;
     description: string;
