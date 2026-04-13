@@ -23,5 +23,6 @@ describe("History", async () => {
     const img = screen.getByTestId("history-hero");
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("src", "/images/1914_Inhuldiging.jpg");
+    expect(img).toHaveAttribute("alt", "I18N_History_Hero_Alt");
   });
 });
