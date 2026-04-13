@@ -1,3 +1,4 @@
+import { Protected } from "./components/Protected";
 import { AuthSessionProvider, useAuthSession } from "./context/AuthSessionContext";
 import {
   getCurrentUser,
@@ -12,6 +13,7 @@ export {
   getCurrentUser,
   login,
   logout,
+  Protected,
   refreshToken,
   restoreSession,
   useAuthSession,

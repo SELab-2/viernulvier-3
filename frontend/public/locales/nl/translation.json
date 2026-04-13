@@ -51,6 +51,10 @@
   },
 
   "auth": {
+    "actions": {
+      "login": "Aanmelden",
+      "logout": "Afmelden"
+    },
     "login": {
       "formTitle": "Welkom terug",
       "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",
