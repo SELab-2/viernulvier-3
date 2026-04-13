@@ -10,11 +10,7 @@ import {
   updateHall,
   deleteHall,
 } from "~/features/archive/services/hallService";
-import type {
-  Hall,
-  HallCreate,
-  HallUpdate,
-} from "~/features/archive/types/hallTypes";
+import type { Hall, HallCreate, HallUpdate } from "~/features/archive/types/hallTypes";
 
 describe("hallService", () => {
   let mockAdapter: AxiosMockAdapter;
