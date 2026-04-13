@@ -28,14 +28,19 @@ def test_api_prod_to_model_prod():
         "info": {
             "nl": '<p><img src="https://www.viernulvier.gent/cms_files/Image/Nastymonday_6-55bf5bcav1_site_icon.png" alt="" width="100" height="100" /></p>'
         },
-        "genres": [],
+        "genres": [
+            "/api/v1/genres/10",
+            "/api/v1/genres/12",
+        ],
         "events": ["/api/v1/events/8370"],
         "media_gallery": "/api/v1/media/galleries/10365",
         "uitdatabank_keywords": [],
     }
 
-    prod = api_prod_to_model_prod(test_input)
+    prod, tags = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
+
+    assert tags == [10, 12]
 
     # Check prod
     assert prod.viernulvier_id == 5604
@@ -89,9 +94,10 @@ def test_api_prod_to_model_prod_unknown_language():
         "title": {"es": "Poplife - NYE", "en": "Poplife - NYE"},
     }
 
-    prod = api_prod_to_model_prod(test_input)
+    prod, tags = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
 
+    assert tags == []
     assert len(prod_infos) == 1
 
     pi = prod_infos[0]

@@ -1,6 +1,6 @@
 """SQLAlchemy-model voor tags."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.database import Base
 from src.models.associations import prod_tags

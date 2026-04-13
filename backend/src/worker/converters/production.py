@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def api_prod_to_model_prod(json_prod: dict) -> Production:
+def api_prod_to_model_prod(json_prod: dict) -> [Production, list[int]]:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.
@@ -18,6 +18,12 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
         performer_type=json_prod.get("performer_type"),
         attendance_mode=json_prod.get("attendance_mode"),
     )
+
+    tag_urls = json_prod.get("genres")
+    if tag_urls:
+        tag_ids = [int(url.split("/")[-1]) for url in tag_urls]
+    else:
+        tag_ids = []
 
     fields_to_check = (
         "title",
@@ -61,7 +67,7 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
 
         production.info.append(prod_info)
 
-    return production
+    return production, tag_ids
 
 
 def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
