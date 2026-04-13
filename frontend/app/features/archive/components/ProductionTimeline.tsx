@@ -1,9 +1,30 @@
 import { useParams } from "react-router";
 import { ProductionCard, type ProductionCardData } from "./ProductionCard";
 
+type GroupedProductions = Map<number, Map<number, ProductionCardData[]>>;
+
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
   return new Date(0, n).toLocaleString(lang, { month: "long" });
+}
+
+// Groups productions per year per month
+function groupProductions(productions: ProductionCardData[]): GroupedProductions {
+  const grouped: GroupedProductions = new Map();
+
+  for (const prod of productions) {
+    const date = prod.starts_at ? new Date(prod.starts_at) : new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    if (!grouped.has(year)) grouped.set(year, new Map());
+    const yearGroup = grouped.get(year)!;
+
+    if (!yearGroup.has(month)) yearGroup.set(month, []);
+    yearGroup.get(month)!.push(prod);
+  }
+
+  return grouped;
 }
 
 function MonthDisplay({
@@ -42,19 +63,13 @@ function MonthDisplay({
 }
 
 function YearDisplay({
-  productions,
+  productionsPerMonth,
   year,
 }: {
-  productions: ProductionCardData[];
+  productionsPerMonth: Map<number, ProductionCardData[]>;
   year: number;
 }) {
-  const months = productions
-    .filter((prod) => prod.starts_at && new Date(prod.starts_at).getFullYear() == year)
-    .map((prod) => {
-      const d = prod.starts_at ? new Date(prod.starts_at) : new Date();
-      return d.getMonth();
-    })
-    .filter((value, index, array) => array.indexOf(value) === index);
+  const months = [...productionsPerMonth.keys()];
 
   return (
     <div>
@@ -69,7 +84,7 @@ function YearDisplay({
         .map((month) => (
           <MonthDisplay
             key={`productions-y${year}-m${month}`}
-            productions={productions}
+            productions={productionsPerMonth.get(month)!}
             month={month}
             year={year}
           />
@@ -85,13 +100,8 @@ export function ProductionTimeline({
   productions: ProductionCardData[];
   className?: string;
 }) {
-  // TODO do mapping and filters once and use result everywhere instead of repeatedly filtering
-  const years: number[] = productions
-    .map((prod) => {
-      const d = prod.starts_at ? new Date(prod.starts_at) : new Date();
-      return d.getFullYear();
-    })
-    .filter((value, index, array) => array.indexOf(value) === index);
+  const groupedProductions = groupProductions(productions);
+  const years = [...groupedProductions.keys()];
 
   return (
     <div className={className}>
@@ -101,7 +111,7 @@ export function ProductionTimeline({
         .map((year) => (
           <YearDisplay
             key={`productions-y${year}`}
-            productions={productions}
+            productionsPerMonth={groupedProductions.get(year)!}
             year={year}
           />
         ))}
