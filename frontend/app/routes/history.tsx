@@ -2,15 +2,10 @@ import { useTranslation } from "react-i18next";
 
 function HistoryEntry({ title, description }: { title: string; description: string }) {
   return (
-    <div className="relative pl-12">
-      <div className="bg-archive-accent border-archive-paper absolute top-4 -left-[9px] h-4 w-4 rounded-full border-4" />
-      <h3 className="mb-4 font-serif text-[clamp(1.5rem,2.5vw,2.25rem)] italic">
-        {title}
-      </h3>
-      <p className="text-[clamp(1rem,1.5vw,1.25rem)] leading-relaxed italic opacity-70">
-        {" "}
-        {description}
-      </p>
+    <div className="relative pl-[1.5em] text-[clamp(1rem,1.5vw,1.25rem)]">
+      <div className="absolute top-[0.6em] left-[-0.5em] h-[0.6em] w-[0.6em] rounded-full bg-archive-accent border-archive-paper border-[0.15em]" />
+      <h3 className="mb-4 font-serif text-[clamp(1.5rem,2.5vw,2.25rem)] italic"> {title} </h3>
+      <p className="leading-relaxed italic opacity-70"> {description} </p>
     </div>
   );
 }
@@ -25,9 +20,8 @@ export default function History() {
     description: string;
   };
 
-  const entries = t("history.entries", {
-    returnObjects: true,
-  }) as HistoryEntry[];
+  const raw = t("history.entries", { returnObjects: true });
+  const entries: HistoryEntry[] = Array.isArray(raw) ? raw : [];
 
   return (
     <>
