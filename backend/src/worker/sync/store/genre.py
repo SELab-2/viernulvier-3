@@ -8,11 +8,13 @@ def store_new_genres(db_session: Session, genres: list[dict]):
 
     for json_genre in genres:
         tag, tag_names = api_genre_to_model_tag(json_genre)
+        db_session.add(tag)
+        db_session.flush()
 
         for tag_name in tag_names:
-            tag.names.append(tag_name)
+            tag_name.tag_id = tag.id
+            db_session.add(tag_name)
 
-        db_session.add(tag)
         db_session.flush()
 
         created_at = datetime.fromisoformat(json_genre["created_at"])

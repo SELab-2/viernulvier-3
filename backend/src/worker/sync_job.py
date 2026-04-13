@@ -7,7 +7,7 @@ from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
 from src.worker.fetchers.tags import TagFetcher
-from src.worker.fetchers.genress import GenreFetcher
+from src.worker.fetchers.genres import GenreFetcher
 from src.worker.sync.sync_new import sync_new_items
 from src.worker.vnv_wrapper import VNV_Wrapper
 

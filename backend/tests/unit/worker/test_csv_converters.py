@@ -25,7 +25,7 @@ def test_csv_prod_to_model_prod():
     prod_infos = prod.info
 
     # Check prod
-    assert prod.viernulvier_id == 1234
+    assert prod.viernulvier_id is None
     assert prod.performer_type is None
     assert prod.attendance_mode is None
 

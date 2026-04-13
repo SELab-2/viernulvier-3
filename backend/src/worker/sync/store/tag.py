@@ -8,11 +8,13 @@ def store_new_tags(db_session: Session, tags: list[dict]):
 
     for json_tag in tags:
         tag, tag_names = api_tag_to_model_tag(json_tag)
+        db_session.add(tag)
+        db_session.flush()
 
         for tag_name in tag_names:
-            tag.names.append(tag_name)
+            tag_name.tag_id = tag.id
+            db_session.add(tag_name)
 
-        db_session.add(tag)
         db_session.flush()
 
         created_at = datetime.fromisoformat(json_tag["created_at"])

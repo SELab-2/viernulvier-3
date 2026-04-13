@@ -66,8 +66,7 @@ try:
     logger.info("Start adding data")
     production_count, event_count, hall_count, tag_count = 0, 0, 0, 0
     for prod_id, productie in producties.items():
-        genres = productie[4]
-        genres = genres.split(",")
+        genres = set(productie[4].split(","))
         for genre in genres:
             if genre not in tag_map:
                 logger.info(f"tag '{genre}' no found, adding it")
@@ -80,7 +79,8 @@ try:
                 )
                 db.add(tag_name_model)
                 db.flush()
-                tag_map[genre] = tag_id
+                tag_map[genre] = tag_model
+                tag_count += 1
 
         production_model = csv_prod_to_model_prod(productie, tag_map)
         db.add(production_model)
@@ -107,6 +107,7 @@ try:
     logger.info(f"{production_count} productions added")
     logger.info(f"{event_count} events added")
     logger.info(f"{hall_count} halls added")
+    logger.info(f"{tag_count} tags added")
 finally:
     db.close()
     logger.info("Connection with database closed")

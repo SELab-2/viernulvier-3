@@ -69,9 +69,6 @@ def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
     This function takes care of molding the csv format of a production,
     into a Production object for our archive database.
     """
-    production = Production(
-        viernulvier_id=int(csv_prod[5]),
-    )
 
     prod_info = ProdInfo(
         language=Languages.NEDERLANDS,
@@ -80,10 +77,14 @@ def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
         description=(csv_prod[2] + "\n" + csv_prod[3]),
     )
 
-    genres = csv_prod[4].split(",")
-    for genre in genres:
-        production.tags.append(tag_map[genre])
+    production = Production(info=[prod_info])
 
-    production.info.append(prod_info)
+    genres = set(csv_prod[4].split(","))
+    seen_ids = set()
+    for genre in genres:
+        tag = tag_map[genre]
+        if tag.id not in seen_ids:
+            production.tags.append(tag_map[genre])
+            seen_ids.add(tag.id)
 
     return production
