@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from src.models.production import Production
 from src.models import Event, Hall, EventPrice
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
-from src.schemas.hall import HallResponse, HallCreate, HallUpdate
+from src.schemas.hall import HallResponse
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
 
