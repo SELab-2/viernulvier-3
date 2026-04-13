@@ -147,7 +147,7 @@ export function ProductionCard({
 
   // NOTE: update this after id_url becomes standard
   // const productionId = production.id_url;
-  const productionId = production.id_url ?? production.id;
+  const productionId = production.id_url;
 
   const handleOpenDetails = () => {
     navigate(lp(`/productions/${encodeURIComponent(productionId)}`));
@@ -415,7 +415,7 @@ export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
       }}
     >
       {productions.map((production) => (
-        <ProductionCard key={production.id} production={production} />
+        <ProductionCard key={production.id_url} production={production} />
       ))}
     </Box>
   );

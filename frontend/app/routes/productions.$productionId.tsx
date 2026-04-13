@@ -8,5 +8,9 @@ export default function ProductionDetailRoute() {
   const decodedProductionId = decodeURIComponent(productionId);
   const production = getMockProductionPageById(decodedProductionId);
 
-  return <ProductionPage production={production!} />;
+  if (!production) {
+    return <div>Production not found.</div>;
+  }
+
+  return <ProductionPage production={production} />;
 }

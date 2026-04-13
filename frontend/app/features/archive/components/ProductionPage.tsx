@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
 import type {
@@ -8,6 +8,7 @@ import type {
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
+import { getMediaForProductionPaginated } from "~/features/archive/services/mediaService";
 
 interface ProductionPageProps {
   production: Production;
@@ -97,6 +98,17 @@ function getEventTimestamp(startsAt?: string): number {
   return parsedDate.getTime();
 }
 
+// gets the id from the id_url, so it can be used for fetching the media
+function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+  if (!match) {
+    return undefined;
+  }
+
+  const parsedId = Number(match[1]);
+  return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : undefined;
+}
+
 // search for given language, if not found fall back to "nl", if "nl" not just take first translation
 function getTagNamesByLanguage(production: Production, language: string): string[] {
   if (!production.tags || production.tags.length === 0) {
@@ -123,6 +135,8 @@ export function ProductionPage({
   const { t, i18n } = useTranslation();
   const lp = useLocalizedPath();
   const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
+  const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
+  const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
   const isDraggingEvidenceRef = useRef(false);
   const evidenceDragStartXRef = useRef(0);
@@ -150,10 +164,13 @@ export function ProductionPage({
     productionInfo?.tagline,
     t("productionPage.fallback.noDescription")
   );
-  const imageUrl =
+
+  //TODO maybe an image saying no image found? Or something else? idk
+  const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-  const imageUrls = [imageUrl];
-  const hasEvidenceCarousel = imageUrls.length > 4;
+
+  const imageUrls = mediaImageUrls.length > 0 ? mediaImageUrls : [fallbackImageUrl, fallbackImageUrl, fallbackImageUrl, fallbackImageUrl, fallbackImageUrl];
+  const imageUrl = imageUrls[0];
   const tags = getTagNamesByLanguage(production, language);
   const eventObjects = (production.events_objects ?? [])
     .slice()
@@ -169,6 +186,63 @@ export function ProductionPage({
       return leftEvent.id.localeCompare(rightEvent.id);
     });
 
+  useEffect(() => {
+    // Extract the numeric id from a full id_url like ".../productions/{id}".
+    const parsedProductionId = getProductionNumericIdFromUrl(production.id_url);
+    if (!parsedProductionId) {
+      setMediaImageUrls([]);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadAllMediaImages = async () => {
+      try {
+        const imageUrlsSet = new Set<string>();
+        let cursor: number | undefined;
+        let hasMore = true;
+
+        // Follow cursor-based pagination until the backend indicates there are no more results.
+        while (hasMore) {
+          const response = await getMediaForProductionPaginated(parsedProductionId, {
+            cursor,
+            limit: 50,
+          });
+
+          for (const media of response.media) {
+            // Only keep image assets for the visual evidence section.
+            if (!media.content_type.startsWith("image/")) {
+              continue;
+            }
+
+            // A Set keeps URLs unique while preserving insertion order.
+            imageUrlsSet.add(media.url);
+          }
+
+          cursor = response.pagination.next_cursor;
+          hasMore =
+            response.pagination.has_more && typeof response.pagination.next_cursor === "number";
+        }
+
+        if (!isCancelled) {
+          setMediaImageUrls(Array.from(imageUrlsSet));
+        }
+      } catch {
+        if (!isCancelled) {
+          setMediaImageUrls([]);
+        }
+      }
+    };
+
+    void loadAllMediaImages();
+
+    // Prevent state updates if the component unmounts during an in-flight request.
+    return () => {
+      isCancelled = true;
+    };
+  }, [production.id_url]);
+  
+
   const syncEvidenceSlider = () => {
     const track = evidenceTrackRef.current;
     if (!track) {
@@ -176,6 +250,9 @@ export function ProductionPage({
     }
 
     const maxScroll = track.scrollWidth - track.clientWidth;
+    const hasOverflow = maxScroll > 0;
+    setHasEvidenceOverflow(hasOverflow);
+
     if (maxScroll <= 0) {
       setEvidenceScrollPercent(0);
       return;
@@ -186,7 +263,7 @@ export function ProductionPage({
 
   const handleEvidenceSliderChange = (nextPercent: number) => {
     const track = evidenceTrackRef.current;
-    if (!track) {
+    if (!track || !hasEvidenceOverflow) {
       return;
     }
 
@@ -196,7 +273,7 @@ export function ProductionPage({
   };
 
   const handleEvidenceMouseDown = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!hasEvidenceCarousel) {
+    if (!hasEvidenceOverflow) {
       return;
     }
 
@@ -228,6 +305,25 @@ export function ProductionPage({
   const stopEvidenceDragging = () => {
     isDraggingEvidenceRef.current = false;
   };
+
+  useEffect(() => {
+    const track = evidenceTrackRef.current;
+    if (!track) {
+      return;
+    }
+
+    syncEvidenceSlider();
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncEvidenceSlider();
+    });
+
+    resizeObserver.observe(track);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [imageUrls]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
@@ -388,35 +484,39 @@ export function ProductionPage({
             </h2>
           </div>
 
-          {hasEvidenceCarousel ? (
-            <>
-              <div
-                ref={evidenceTrackRef}
-                onScroll={syncEvidenceSlider}
-                onMouseDown={handleEvidenceMouseDown}
-                onMouseMove={handleEvidenceMouseMove}
-                onMouseUp={stopEvidenceDragging}
-                onMouseLeave={stopEvidenceDragging}
-                className="flex cursor-grab gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] active:cursor-grabbing"
-              >
-                {imageUrls.map((url, index) => (
-                  <figure
-                    key={`${production.id}-${url}-${index}`}
-                    className="group bg-archive-surface min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
-                  >
-                    <img
-                      src={url}
-                      alt={t("productionPage.archivePhotoAlt", {
-                        title,
-                        index: index + 1,
-                      })}
-                      loading="lazy"
-                      className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                    />
-                  </figure>
-                ))}
-              </div>
+          <>
+            <div
+              ref={evidenceTrackRef}
+              onScroll={syncEvidenceSlider}
+              onMouseDown={handleEvidenceMouseDown}
+              onMouseMove={handleEvidenceMouseMove}
+              onMouseUp={stopEvidenceDragging}
+              onMouseLeave={stopEvidenceDragging}
+              className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
+                hasEvidenceOverflow
+                  ? "cursor-grab active:cursor-grabbing"
+                  : "cursor-default"
+              }`}
+            >
+              {imageUrls.map((url, index) => (
+                <figure
+                  key={`${production.id_url}-${url}-${index}`}
+                  className="group bg-archive-surface min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
+                >
+                  <img
+                    src={url}
+                    alt={t("productionPage.archivePhotoAlt", {
+                      title,
+                      index: index + 1,
+                    })}
+                    loading="lazy"
+                    className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                </figure>
+              ))}
+            </div>
 
+            {hasEvidenceOverflow ? (
               <div className="mt-2">
                 <input
                   type="range"
@@ -431,27 +531,8 @@ export function ProductionPage({
                   className="accent-archive-accent w-full"
                 />
               </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {imageUrls.map((url, index) => (
-                <figure
-                  key={`${production.id}-${url}-${index}`}
-                  className="group bg-archive-surface overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)]"
-                >
-                  <img
-                    src={url}
-                    alt={t("productionPage.archivePhotoAlt", {
-                      title,
-                      index: index + 1,
-                    })}
-                    loading="lazy"
-                    className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  />
-                </figure>
-              ))}
-            </div>
-          )}
+            ) : null}
+          </>
         </section>
       </main>
     </div>

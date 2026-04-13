@@ -25,11 +25,10 @@ export interface ProductionInfo {
 }
 
 export interface Production {
-  id: string;
+  id_url: string;
 
   performer_type?: string;
   attendance_mode?: string;
-  media_gallery_id?: number; // Maybe update after merge media pr.
   created_at?: string;
   updated_at?: string;
 

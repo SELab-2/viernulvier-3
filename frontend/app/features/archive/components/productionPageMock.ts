@@ -15,16 +15,14 @@ interface ProductionPageMockSource {
   image_urls?: string[];
   archive_schema?: ArchiveSchemaItem[];
   event_details?: Event[];
-  id_url?: string;
 }
 
 export const productionPageMockSource: ProductionPageMockSource[] = [
   {
     production: {
-      id: "VV-2024-10-OPEN-ARCHIVE",
+      id_url: "http://localhost:8000/api/v1/archive/productions/1",
       performer_type: "group",
       attendance_mode: "offline",
-      media_gallery_id: 1,
       created_at: "2024-10-01T10:00:00Z",
       updated_at: "2024-10-01T10:00:00Z",
       production_infos: [
@@ -135,10 +133,9 @@ export const productionPageMockSource: ProductionPageMockSource[] = [
   },
   {
     production: {
-      id: "VV-2024-10-M1",
+      id_url: "http://localhost:8000/api/v1/archive/productions/2",
       performer_type: "ensemble",
       attendance_mode: "hybrid",
-      media_gallery_id: 2,
       created_at: "2024-10-02T10:00:00Z",
       updated_at: "2024-10-02T10:00:00Z",
       production_infos: [
@@ -221,10 +218,9 @@ export const productionPageMockSource: ProductionPageMockSource[] = [
   },
   {
     production: {
-      id: "VV-2024-10-M2",
+      id_url: "http://localhost:8000/api/v1/archive/productions/3",
       performer_type: "duo",
       attendance_mode: "online",
-      media_gallery_id: 3,
       created_at: "2024-10-03T10:00:00Z",
       updated_at: "2024-10-03T10:00:00Z",
       production_infos: [
@@ -337,8 +333,23 @@ export const mockProductionPageData: Production[] = productionPageMockSource.map
 export function getMockProductionPageById(
   productionId: string
 ): Production | undefined {
+  const normalizedInput = productionId.trim();
+  const inputIdMatch = normalizedInput.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+  const inputNumericId = inputIdMatch?.[1] ?? normalizedInput;
+
   const sourceMatch = productionPageMockSource.find(
-    (source) => source.id_url === productionId || source.production.id === productionId
+    (source) => {
+      if (source.production.id_url === normalizedInput) {
+        return true;
+      }
+
+      const sourceIdMatch = source.production.id_url.match(
+        /\/productions\/(\d+)(?:[/?#]|$)/
+      );
+      const sourceNumericId = sourceIdMatch?.[1];
+
+      return sourceNumericId === inputNumericId;
+    }
   );
 
   return sourceMatch?.production;
