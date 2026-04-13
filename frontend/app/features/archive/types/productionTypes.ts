@@ -11,7 +11,7 @@ export interface PaginationResponse {
 }
 
 export interface ProductionInfo {
-  prod_id: string;
+  production_id_url: string;
   language: string;
 
   title?: string;
@@ -24,7 +24,7 @@ export interface ProductionInfo {
 }
 
 export interface Production {
-  id: string;
+  id_url: string;
 
   performer_type?: string;
   attendance_mode?: string;
@@ -33,7 +33,7 @@ export interface Production {
   updated_at?: string;
 
   production_infos: ProductionInfo[];
-  events: string[];
+  event_id_urls: string[];
   tags: Tag[];
 }
 
@@ -60,7 +60,7 @@ export interface ProductionCreate {
   media_gallery_id?: number; // Maybe update after merge media pr.
 
   production_info: ProductionInfoCreate;
-  tag_ids: number[];
+  tag_id_urls: string[];
 }
 
 export interface ProductionInfoUpdate {
@@ -81,6 +81,6 @@ export interface ProductionUpdate {
   media_gallery_id?: number; // Maybe update after merge media pr.
 
   production_infos?: ProductionInfoUpdate[];
-  tag_ids?: number[];
+  tag_id_urls?: number[];
   remove_languages?: string[];
 }
