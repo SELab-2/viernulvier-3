@@ -15,7 +15,7 @@ function HistoryEntry({ title, description }: { title: string; description: stri
   );
 }
 
-const HERO_IMAGES = ["/public/images/1914_Inhuldiging.jpg"];
+const HERO_IMAGES = ["/images/1914_Inhuldiging.jpg"];
 
 export default function History() {
   const { t } = useTranslation();

@@ -22,6 +22,6 @@ describe("History", async () => {
   it("renders hero image", () => {
     const img = screen.getByTestId("history-hero");
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "/public/images/1914_Inhuldiging.jpg");
+    expect(img).toHaveAttribute("src", "/images/1914_Inhuldiging.jpg");
   });
 });
