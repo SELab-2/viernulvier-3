@@ -15,13 +15,11 @@ const HERO_IMAGES = ["/images/1914_Inhuldiging.jpg"];
 export default function History() {
   const { t } = useTranslation();
 
-  type HistoryEntry = {
+  const raw = t("history.entries", { returnObjects: true });
+  const entries: {
     title: string;
     description: string;
-  };
-
-  const raw = t("history.entries", { returnObjects: true });
-  const entries: HistoryEntry[] = Array.isArray(raw) ? raw : [];
+  }[] = Array.isArray(raw) ? raw : [];
 
   return (
     <>
