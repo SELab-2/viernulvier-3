@@ -89,6 +89,37 @@ describe("Protected", () => {
     });
   });
 
+  it("requires a super user when configured", async () => {
+    renderProtected(
+      <Protected requireSuperUser fallback={<span>DENIED</span>}>
+        <span>SECRET</span>
+      </Protected>,
+      baseUser
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("DENIED")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText("SECRET")).not.toBeInTheDocument();
+  });
+
+  it("allows a super user when requireSuperUser is set", async () => {
+    renderProtected(
+      <Protected requireSuperUser fallback={<span>DENIED</span>}>
+        <span>SECRET</span>
+      </Protected>,
+      {
+        ...baseUser,
+        isSuperUser: true,
+      }
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("SECRET")).toBeInTheDocument();
+    });
+  });
+
   it("lets super users bypass role and permission checks", async () => {
     renderProtected(
       <Protected
