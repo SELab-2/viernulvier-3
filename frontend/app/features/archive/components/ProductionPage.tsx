@@ -14,13 +14,9 @@ interface ProductionPageProps {
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfo[] | undefined,
+  productionInfos: ProductionInfo[],
   language: string
-): ProductionInfo | undefined {
-  if (!productionInfos || productionInfos.length === 0) {
-    return undefined;
-  }
-
+): ProductionInfo {
   const languageMatch = productionInfos.find((info) => info.language === language);
   if (languageMatch) {
     return languageMatch;
@@ -264,6 +260,14 @@ export function ProductionPage({
         </div>
 
         <ul className="mt-6 flex flex-wrap gap-2">
+          {/* Performer type badge */}
+          {production.performer_type && (
+            <li className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] px-4 py-1.5 text-[0.68rem] font-semibold tracking-[var(--archive-tracking-label)] uppercase opacity-90">
+              {production.performer_type}
+            </li>
+          )}
+
+          {/* Bestaande tags */}
           {tags.map((tag) => (
             <li
               key={tag}
@@ -277,12 +281,6 @@ export function ProductionPage({
         <section className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <p>{tagline}</p>
-            <p>
-              {t("productionPage.body.referenceAndContext", {
-                reference: production.id, // NOTE change this to production.id_url
-              })}
-            </p>
-            <p>{t("productionPage.body.exploreSimilar")}</p>
             <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6">
               <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
                 {t("productionPage.archiveSchema")}
@@ -386,9 +384,6 @@ export function ProductionPage({
             <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
               {t("productionPage.visualEvidence")}
             </h2>
-            <p className="text-[0.68rem] tracking-[0.22em] uppercase opacity-60">
-              {t("productionPage.archiveFragments", { count: imageUrls.length })}
-            </p>
           </div>
 
           {hasEvidenceCarousel ? (

@@ -77,7 +77,6 @@ export const productionPageMockSource: ProductionPageMockSource[] = [
         },
       ],
       tags: [
-        { id: "1", names: [{ language: "nl", name: "Archief" }] },
         { id: "2", names: [{ language: "nl", name: "Open Huis" }] },
         { id: "3", names: [{ language: "nl", name: "Performance" }] },
       ],
@@ -162,7 +161,7 @@ export const productionPageMockSource: ProductionPageMockSource[] = [
           ends_at: "2024-10-05T20:45:00+02:00",
           order_url: "https://tickets.viernulvier.gent/evt-m1-1",
           price_ids: ["P-M1-1"],
-          price_objects: [{ id: "P-M1-1", amount: 22.0 }],
+          price_objects: [{ id: "P-M1-1", }],
         },
         {
           id: "EVT-M1-2",

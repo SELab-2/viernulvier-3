@@ -58,13 +58,9 @@ interface ProductionCardProps {
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfo[] | undefined,
+  productionInfos: ProductionInfo[],
   language: string
-): ProductionInfo | undefined {
-  if (!productionInfos || productionInfos.length === 0) {
-    return undefined;
-  }
-
+): ProductionInfo {
   const normalizedLanguage = language.toLowerCase();
   const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
 

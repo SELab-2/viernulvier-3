@@ -37,24 +37,14 @@
     },
     "headerBrandAria": "VIERNULVIER Archief",
     "archiveLabel": "Archief",
-    "backToCollection": "← Terug naar de collectie",
-    "body": {
-      "referenceAndContext": "Deze productie is opgenomen in het archief onder referentie {{reference}}. Vanuit deze pagina bundelen we kerninfo, metadata en context op een leesbare manier.",
-      "exploreSimilar": "Gebruik de tags en de locatie rechts om gelijkaardige items in de collectie te verkennen."
-    },
+    "backToCollection": "Terug naar de collectie",
     "archiveSchema": "Archiefschema",
-    "eventId": "Event ID",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
-    "startTime": "Aanvang",
-    "visualEvidence": "Visueel bewijsmateriaal",
-    "archiveFragments_one": "{{count}} archieffragment",
-    "archiveFragments_other": "{{count}} archieffragmenten",
-    "archivePhotoAlt": "{{title}} - archieffoto {{index}}",
-    "archivePhotoCaption": "{{title}} - archieffoto {{index}}"
+    "visualEvidence": "Foto's"
   },
 
   "home": {

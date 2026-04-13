@@ -32,7 +32,9 @@ export default function Archive() {
       const title = info.title?.toLowerCase() ?? "";
       const supertitle = info.supertitle?.toLowerCase() ?? "";
       const artist = info.artist?.toLowerCase() ?? "";
-      return title.includes(query) || supertitle.includes(query) || artist.includes(query);
+      return (
+        title.includes(query) || supertitle.includes(query) || artist.includes(query)
+      );
     });
   });
   // for seeing the mocks
@@ -90,18 +92,20 @@ export default function Archive() {
           <p>Venues: {selectedVenues.join(", ")}</p>
           <p>Artists: {selectedArtists.join(", ")}</p>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredProductions.map(({ production, starts_at, hall_name, tag_names, image_url }) => (
-              <ProductionCard
-                key={production.id}
-                production={{
-                  ...production,
-                  starts_at,
-                  hall_name,
-                  tag_names,
-                  image_url,
-                }}
-              />
-            ))}
+            {filteredProductions.map(
+              ({ production, starts_at, hall_name, tag_names, image_url }) => (
+                <ProductionCard
+                  key={production.id}
+                  production={{
+                    ...production,
+                    starts_at,
+                    hall_name,
+                    tag_names,
+                    image_url,
+                  }}
+                />
+              )
+            )}
           </div>
         </div>
       </div>

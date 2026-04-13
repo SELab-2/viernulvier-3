@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
-
 function HomeStatistic({ count, label }: { count: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
