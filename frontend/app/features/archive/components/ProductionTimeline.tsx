@@ -1,8 +1,9 @@
 import { useParams } from "react-router";
-import { ProductionCard, type ProductionCardData } from "./ProductionCard";
+import { ProductionCard } from "./ProductionCard";
 import { Divider } from "@mui/material";
+import type { Production } from "../types/productionTypes";
 
-type GroupedProductions = Map<number, Map<number, ProductionCardData[]>>;
+type GroupedProductions = Map<number, Map<number, Production[]>>;
 
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
@@ -10,7 +11,7 @@ function getMonthName(n: number, lang?: string) {
 }
 
 // Groups productions per year per month
-function groupProductions(productions: ProductionCardData[]): GroupedProductions {
+function groupProductions(productions: Production[]): GroupedProductions {
   const grouped: GroupedProductions = new Map();
 
   for (const prod of productions) {
@@ -30,10 +31,9 @@ function groupProductions(productions: ProductionCardData[]): GroupedProductions
 
 function MonthDisplay({
   productions,
-  year,
   month,
 }: {
-  productions: ProductionCardData[];
+  productions: Production[];
   year: number;
   month: number;
 }) {
@@ -50,14 +50,9 @@ function MonthDisplay({
 
       {/* Productions */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {productions
-          .filter((prod) => {
-            const date = prod.starts_at ? new Date(prod.starts_at) : new Date();
-            return date.getFullYear() === year && date.getMonth() === month;
-          })
-          .map((prod) => (
-            <ProductionCard key={prod.id} production={prod} className="" />
-          ))}
+        {productions.map((prod) => (
+          <ProductionCard key={prod.id} production={prod} className="" />
+        ))}
       </div>
     </div>
   );
@@ -67,7 +62,7 @@ function YearDisplay({
   productionsPerMonth,
   year,
 }: {
-  productionsPerMonth: Map<number, ProductionCardData[]>;
+  productionsPerMonth: Map<number, Production[]>;
   year: number;
 }) {
   const months = [...productionsPerMonth.keys()];
@@ -98,7 +93,7 @@ export function ProductionTimeline({
   productions,
   className,
 }: {
-  productions: ProductionCardData[];
+  productions: Production[];
   className?: string;
 }) {
   const groupedProductions = groupProductions(productions);
