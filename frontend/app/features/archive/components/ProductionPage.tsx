@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
 import type {
@@ -169,7 +169,24 @@ export function ProductionPage({
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrls = mediaImageUrls.length > 0 ? mediaImageUrls : [fallbackImageUrl, fallbackImageUrl, fallbackImageUrl, fallbackImageUrl, fallbackImageUrl];
+  const productionNumericId = useMemo(
+    () => getProductionNumericIdFromUrl(production.id_url),
+    [production.id_url]
+  );
+
+  const imageUrls = useMemo(
+    () =>
+      mediaImageUrls.length > 0
+        ? mediaImageUrls
+        : [
+            fallbackImageUrl,
+            fallbackImageUrl,
+            fallbackImageUrl,
+            fallbackImageUrl,
+            fallbackImageUrl,
+          ],
+    [fallbackImageUrl, mediaImageUrls]
+  );
   const imageUrl = imageUrls[0];
   const tags = getTagNamesByLanguage(production, language);
   const eventObjects = (production.events_objects ?? [])
@@ -187,10 +204,7 @@ export function ProductionPage({
     });
 
   useEffect(() => {
-    // Extract the numeric id from a full id_url like ".../productions/{id}".
-    const parsedProductionId = getProductionNumericIdFromUrl(production.id_url);
-    if (!parsedProductionId) {
-      setMediaImageUrls([]);
+    if (!productionNumericId) {
       return;
     }
 
@@ -204,7 +218,7 @@ export function ProductionPage({
 
         // Follow cursor-based pagination until the backend indicates there are no more results.
         while (hasMore) {
-          const response = await getMediaForProductionPaginated(parsedProductionId, {
+          const response = await getMediaForProductionPaginated(productionNumericId, {
             cursor,
             limit: 50,
           });
@@ -221,7 +235,8 @@ export function ProductionPage({
 
           cursor = response.pagination.next_cursor;
           hasMore =
-            response.pagination.has_more && typeof response.pagination.next_cursor === "number";
+            response.pagination.has_more &&
+            typeof response.pagination.next_cursor === "number";
         }
 
         if (!isCancelled) {
@@ -240,8 +255,7 @@ export function ProductionPage({
     return () => {
       isCancelled = true;
     };
-  }, [production.id_url]);
-  
+  }, [productionNumericId]);
 
   const syncEvidenceSlider = () => {
     const track = evidenceTrackRef.current;

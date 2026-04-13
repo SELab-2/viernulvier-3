@@ -158,7 +158,7 @@ export const productionPageMockSource: ProductionPageMockSource[] = [
           ends_at: "2024-10-05T20:45:00+02:00",
           order_url: "https://tickets.viernulvier.gent/evt-m1-1",
           price_ids: ["P-M1-1"],
-          price_objects: [{ id: "P-M1-1", }],
+          price_objects: [{ id: "P-M1-1" }],
         },
         {
           id: "EVT-M1-2",
@@ -337,20 +337,18 @@ export function getMockProductionPageById(
   const inputIdMatch = normalizedInput.match(/\/productions\/(\d+)(?:[/?#]|$)/);
   const inputNumericId = inputIdMatch?.[1] ?? normalizedInput;
 
-  const sourceMatch = productionPageMockSource.find(
-    (source) => {
-      if (source.production.id_url === normalizedInput) {
-        return true;
-      }
-
-      const sourceIdMatch = source.production.id_url.match(
-        /\/productions\/(\d+)(?:[/?#]|$)/
-      );
-      const sourceNumericId = sourceIdMatch?.[1];
-
-      return sourceNumericId === inputNumericId;
+  const sourceMatch = productionPageMockSource.find((source) => {
+    if (source.production.id_url === normalizedInput) {
+      return true;
     }
-  );
+
+    const sourceIdMatch = source.production.id_url.match(
+      /\/productions\/(\d+)(?:[/?#]|$)/
+    );
+    const sourceNumericId = sourceIdMatch?.[1];
+
+    return sourceNumericId === inputNumericId;
+  });
 
   return sourceMatch?.production;
 }
