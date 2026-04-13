@@ -34,13 +34,12 @@ describe("eventService", () => {
   describe("getEvent", () => {
     it("returns a single event by id on success", async () => {
       const mockEvent: Event = {
-        id: "1",
-        production_id: "prod1",
-        hall_id: "hall1",
+        id_url: "1",
+        production_id_url: "prod1",
         starts_at: "2026-03-20T19:00:00",
         ends_at: "2026-03-20T22:00:00",
         order_url: "https://example.com/order",
-        price_ids: ["price1", "price2"],
+        price_urls: ["price1", "price2"],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-20T10:00:00",
       };
@@ -50,8 +49,8 @@ describe("eventService", () => {
       const result = await getEvent(1);
 
       expect(result).toEqual(mockEvent);
-      expect(result.id).toBe("1");
-      expect(result.production_id).toBe("prod1");
+      expect(result.id_url).toBe("1");
+      expect(result.production_id_url).toBe("prod1");
     });
 
     it("throws when event is not found", async () => {
@@ -64,17 +63,17 @@ describe("eventService", () => {
   describe("createEvent", () => {
     it("creates a new event and returns it", async () => {
       const eventData: EventCreate = {
-        production_id: "prod1",
-        hall_id: "hall1",
+        production_id_url: "prod1",
+        hall_id_url: "hall1",
         starts_at: "2026-03-20T19:00:00",
         ends_at: "2026-03-20T22:00:00",
         order_url: "https://example.com/order",
       };
 
       const mockResponse: Event = {
-        id: "1",
+        id_url: "1",
         ...eventData,
-        price_ids: [],
+        price_urls: [],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-20T10:00:00",
       };
@@ -84,13 +83,13 @@ describe("eventService", () => {
       const result = await createEvent(eventData);
 
       expect(result).toEqual(mockResponse);
-      expect(result.id).toBe("1");
+      expect(result.id_url).toBe("1");
     });
 
     it("throws when create request fails", async () => {
       const eventData: EventCreate = {
-        production_id: "prod1",
-        hall_id: "hall1",
+        production_id_url: "prod1",
+        hall_id_url: "hall1",
       };
 
       mockAdapter.onPost("/api/v1/archive/events").reply(400);
@@ -107,11 +106,10 @@ describe("eventService", () => {
       };
 
       const mockResponse: Event = {
-        id: "1",
-        production_id: "prod1",
-        hall_id: "hall1",
+        id_url: "1",
+        production_id_url: "prod1",
         ...eventData,
-        price_ids: ["price1"],
+        price_urls: ["price1"],
         created_at: "2026-03-20T10:00:00",
         updated_at: "2026-03-21T10:00:00",
       };
@@ -153,7 +151,7 @@ describe("eventService", () => {
     it("returns all prices for an event", async () => {
       const mockPrices: Price[] = [
         {
-          id: "price1",
+          id_url: "price1",
           amount: 25.0,
           available: 100,
           expires_at: "2026-03-20T23:59:59",
@@ -161,7 +159,7 @@ describe("eventService", () => {
           updated_at: "2026-03-20T10:00:00",
         },
         {
-          id: "price2",
+          id_url: "price2",
           amount: 35.0,
           available: 50,
           expires_at: "2026-03-20T23:59:59",
@@ -188,7 +186,7 @@ describe("eventService", () => {
   describe("getEventPrice", () => {
     it("returns a single price for an event", async () => {
       const mockPrice: Price = {
-        id: "1",
+        id_url: "1",
         amount: 25.0,
         available: 100,
         expires_at: "2026-03-20T23:59:59",
@@ -201,7 +199,7 @@ describe("eventService", () => {
       const result = await getEventPrice(1, 1);
 
       expect(result).toEqual(mockPrice);
-      expect(result.id).toBe("1");
+      expect(result.id_url).toBe("1");
       expect(result.amount).toBe(25.0);
     });
 
