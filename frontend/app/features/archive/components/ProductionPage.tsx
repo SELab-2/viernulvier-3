@@ -7,6 +7,7 @@ import type {
   Production,
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 interface ProductionPageProps {
   production: Production;
@@ -120,6 +121,7 @@ export function ProductionPage({
   preferredLanguage = "nl",
 }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
+  const lp = useLocalizedPath();
   const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
   const isDraggingEvidenceRef = useRef(false);
@@ -232,7 +234,7 @@ export function ProductionPage({
       <main className="mx-auto w-full max-w-[1400px] px-6 pt-10 pb-16 md:px-12">
         <div className="flex flex-col gap-4">
           <Link
-            to="/"
+            to={lp("/archive")}
             className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
           >
             {t("productionPage.backToCollection")}
