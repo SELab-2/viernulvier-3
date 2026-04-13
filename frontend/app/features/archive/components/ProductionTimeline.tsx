@@ -1,5 +1,6 @@
 import { useParams } from "react-router";
 import { ProductionCard, type ProductionCardData } from "./ProductionCard";
+import { Divider } from "@mui/material";
 
 type GroupedProductions = Map<number, Map<number, ProductionCardData[]>>;
 
@@ -44,7 +45,7 @@ function MonthDisplay({
         <div className="text-[14px] font-bold tracking-[0.28em] opacity-25">
           {getMonthName(month, lang).toUpperCase()}
         </div>
-        <div className="bg-archive-ink/15 h-px flex-1"></div>
+        <Divider className="bg-archive-ink/15 flex-1" />
       </div>
 
       {/* Productions */}
@@ -76,7 +77,7 @@ function YearDisplay({
       <h2 className="mt-5 min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
         {year}
       </h2>
-      <div className="bg-archive-ink/5 h-px flex-1"></div>
+      <Divider className="bg-archive-accent/15 flex-1" />
 
       {months
         .sort()
