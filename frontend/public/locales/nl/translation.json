@@ -4,6 +4,10 @@
     "archive": "Archief",
     "history": "Geschiedenis"
   },
+  "footer": {
+    "website": "Onze officiële website"
+  },
+
   "filter": {
     "search": "Zoeken",
     "search_in_collection": "Zoek in de collectie",
@@ -47,6 +51,10 @@
   },
 
   "auth": {
+    "actions": {
+      "login": "Aanmelden",
+      "logout": "Afmelden"
+    },
     "login": {
       "formTitle": "Welkom terug",
       "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",
