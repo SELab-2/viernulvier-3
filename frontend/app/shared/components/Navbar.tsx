@@ -73,8 +73,9 @@ function NavLinks({ onNavigate }: NavLinksProps) {
 
 function NavbarAuthControls({
   onNavigate,
+  className,
   asList,
-}: NavLinksProps & {asList?: boolean }) {
+}: NavLinksProps & { className?: string; asList?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -108,7 +109,13 @@ function NavbarAuthControls({
     );
   }
 
-  return <Protected>{button}</Protected>;
+  return (
+    <Protected>
+      <div className={className}>
+        {button}
+      </div>
+    </Protected>
+  );
 }
 
 type HamburgerMenuProps = {
@@ -150,7 +157,7 @@ function Navbar(): JSX.Element {
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls />
+          <NavbarAuthControls className="hidden lg:flex"/>
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
