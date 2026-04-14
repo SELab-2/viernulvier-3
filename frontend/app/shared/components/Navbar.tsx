@@ -45,7 +45,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 const authActionClassName =
-  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors";
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden lg:flex";
 
 type NavLinksProps = { onNavigate?: () => void };
 
@@ -73,8 +73,8 @@ function NavLinks({ onNavigate }: NavLinksProps) {
 
 function NavbarAuthControls({
   onNavigate,
-  className,
-}: NavLinksProps & { className?: string }) {
+  asList,
+}: NavLinksProps & {asList?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -86,21 +86,29 @@ function NavbarAuthControls({
     navigate(lp("/"), { replace: true });
   }
 
-  return (
-    <div className={className}>
-      <Protected>
-        <button
-          type="button"
-          className={authActionClassName}
-          onClick={handleLogout}
-          aria-label={t("auth.actions.logout")}
-        >
-          <LogoutOutlinedIcon fontSize="small" />
-          <span>{t("auth.actions.logout")}</span>
-        </button>
-      </Protected>
-    </div>
+  const button = (
+    <button
+      type="button"
+      className={authActionClassName}
+      onClick={handleLogout}
+      aria-label={t("auth.actions.logout")}
+    >
+      <LogoutOutlinedIcon fontSize="small" />
+      <span>{t("auth.actions.logout")}</span>
+    </button>
   );
+
+  if (asList) {
+    return (
+      <Protected>
+        <li>
+          {button}
+        </li>
+      </Protected>
+    );
+  }
+
+  return <Protected>{button}</Protected>;
 }
 
 type HamburgerMenuProps = {
@@ -128,6 +136,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
 function Navbar(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation();
+
   return (
     <nav
       aria-label="Main navigation bar"
@@ -141,7 +150,7 @@ function Navbar(): JSX.Element {
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden lg:flex" />
+          <NavbarAuthControls />
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
@@ -155,9 +164,7 @@ function Navbar(): JSX.Element {
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />
-              <li>
-                <NavbarAuthControls onNavigate={() => setMenuOpen(false)} />
-              </li>
+              <NavbarAuthControls asList={true} onNavigate={() => setMenuOpen(false)} />
             </ul>
             <div className="bg-archive-ink/10 h-px" />
           </div>
