@@ -1,6 +1,6 @@
 import { deleteFromArchive } from "~/shared/services/sharedService";
 import { createApiClient } from "~/shared/services/apiClient";
-import type { PaginationRequest } from "../types/productionTypes";
+import type { PaginationRequest } from "../types/paginationTypes";
 import type { MediaItem, MediaList } from "../types/mediaTypes";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";

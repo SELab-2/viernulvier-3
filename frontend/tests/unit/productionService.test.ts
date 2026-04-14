@@ -13,6 +13,7 @@ import {
 } from "~/features/archive/services/productionService";
 
 import type { Tag } from "~/features/archive/types/tagTypes";
+import type { PaginationResponse } from "~/features/archive/types/paginationTypes";
 
 import type {
   Production,
@@ -20,7 +21,6 @@ import type {
   ProductionList,
   ProductionCreate,
   ProductionUpdate,
-  PaginationResponse,
 } from "~/features/archive/types/productionTypes";
 
 describe("productionService", () => {

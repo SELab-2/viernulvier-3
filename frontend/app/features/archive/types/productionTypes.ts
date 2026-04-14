@@ -1,14 +1,6 @@
 import type { Tag } from "./tagTypes";
+import type { PaginationResponse } from "./paginationTypes";
 
-export interface PaginationRequest {
-  cursor?: number;
-  limit?: number;
-}
-
-export interface PaginationResponse {
-  next_cursor?: number;
-  has_more: boolean;
-}
 
 export interface ProductionInfo {
   prod_id: string;

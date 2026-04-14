@@ -1,4 +1,4 @@
-import type { PaginationResponse } from "./productionTypes";
+import type { PaginationResponse } from "./paginationTypes";
 
 export interface MediaItem {
   id: number;
