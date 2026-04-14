@@ -18,22 +18,17 @@ type LogoProps = { nav_name: string };
 
 function Logo({ nav_name }: LogoProps) {
   return (
-    <header className="sticky top-0 z-50">
-      <div className="group flex items-center space-x-2">
-        <img
-          src="/logo.svg"
-          alt={`${nav_name} logo`}
-          className="h-8 w-auto md:h-10"
-          style={{ filter: "var(--archive-logo-filter)" }}
-        />
-        <span
-          aria-hidden="true"
-          className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
-        >
-          {nav_name}
-        </span>
-      </div>
-    </header>
+    <div className="sticky top-0 z-50 flex items-end space-x-2">
+      <img
+        src="/logo.svg"
+        alt={`${nav_name} logo`}
+        className="h-8 w-auto md:h-10"
+        style={{ filter: "var(--archive-logo-filter)" }}
+      />
+      <span aria-hidden="true" className="font-serif text-base italic opacity-50 md:text-[1.125rem] mb-[2px]">
+        {nav_name}
+      </span>
+    </div>
   );
 }
 
@@ -123,12 +118,8 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
 }
 
 function Navbar(): JSX.Element {
-  // Mobile dropdown state
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // i18n
   const { t } = useTranslation();
-
   return (
     <nav
       aria-label="Main navigation bar"
