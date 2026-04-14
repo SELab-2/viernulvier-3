@@ -1,3 +1,4 @@
+import type { Event } from "./eventTypes";
 import type { Tag } from "./tagTypes";
 import type { PaginationResponse } from "./paginationTypes";
 
@@ -77,4 +78,8 @@ export interface ProductionUpdate {
   production_infos?: ProductionInfoUpdate[];
   tag_id_urls?: string[];
   remove_languages?: string[];
+}
+
+export interface ProductionWithEvents extends Omit<Production, "events"> {
+  events: Event[];
 }

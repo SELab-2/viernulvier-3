@@ -1,6 +1,6 @@
-import type { ProductionCardData } from "~/features/archive/components/ProductionCard";
+import type { ProductionWithEvents } from "~/features/archive/types/productionTypes";
 
-export const mockProductions: ProductionCardData[] = [
+export const mockProductions: ProductionWithEvents[] = [
   {
     id: "VV-2024-10-OPEN-ARCHIVE",
     performer_type: "group",
@@ -8,8 +8,6 @@ export const mockProductions: ProductionCardData[] = [
     media_gallery_id: 1,
     created_at: "2024-10-01T10:00:00Z",
     updated_at: "2024-10-01T10:00:00Z",
-    starts_at: "2024-10-01T10:00:00Z",
-    hall_name: "Balzaal",
     production_infos: [
       {
         prod_id: "VV-2024-10-OPEN-ARCHIVE",
@@ -21,7 +19,22 @@ export const mockProductions: ProductionCardData[] = [
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },
     ],
-    events: [],
+    events: [
+      {
+        id: "1",
+        production_id: "VV-2024-10-OPEN-ARCHIVE",
+        hall_id: "1",
+        starts_at: "2024-10-01T10:00:00Z",
+        price_ids: [],
+      },
+      {
+        id: "2",
+        production_id: "VV-2024-10-OPEN-ARCHIVE",
+        hall_id: "1",
+        starts_at: "2024-10-02T10:00:00Z",
+        price_ids: [],
+      },
+    ],
     tags: [
       { id: "1", names: [{ language: "nl", name: "Archief" }] },
       { id: "2", names: [{ language: "nl", name: "Open Huis" }] },
@@ -38,8 +51,6 @@ export const mockProductions: ProductionCardData[] = [
     media_gallery_id: 2,
     created_at: "2024-10-02T10:00:00Z",
     updated_at: "2024-10-02T10:00:00Z",
-    starts_at: "2024-08-02T10:00:00Z",
-    hall_name: "Domzaal",
     production_infos: [
       {
         prod_id: "VV-2024-10-M1",
@@ -50,7 +61,15 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    events: [],
+    events: [
+      {
+        id: "1",
+        production_id: "VV-2024-10-OPEN-ARCHIVE",
+        hall_id: "1",
+        // starts_at: "2023-10-01T10:00:00Z",
+        price_ids: [],
+      },
+    ],
     tags: [
       { id: "5", names: [{ language: "nl", name: "Underground" }] },
       { id: "6", names: [{ language: "nl", name: "Mockup" }] },
@@ -65,8 +84,6 @@ export const mockProductions: ProductionCardData[] = [
     media_gallery_id: 3,
     created_at: "2024-10-03T10:00:00Z",
     updated_at: "2024-10-03T10:00:00Z",
-    starts_at: "2023-08-02T10:00:00Z",
-    hall_name: "Filmzaal",
     production_infos: [
       {
         prod_id: "VV-2024-10-M2",
@@ -77,7 +94,15 @@ export const mockProductions: ProductionCardData[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    events: [],
+    events: [
+      {
+        id: "1",
+        production_id: "VV-2024-10-M2",
+        hall_id: "1",
+        starts_at: "2023-10-01T10:00:00Z",
+        price_ids: [],
+      },
+    ],
     tags: [
       { id: "7", names: [{ language: "nl", name: "Geschiedenis" }] },
       { id: "8", names: [{ language: "nl", name: "Mockup" }] },

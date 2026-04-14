@@ -1,23 +1,33 @@
 import { useParams } from "react-router";
 import { ProductionCard } from "./ProductionCard";
 import { Divider } from "@mui/material";
-import type { Production } from "../types/productionTypes";
+import type { ProductionWithEvents } from "../types/productionTypes";
+import { useTranslation } from "react-i18next";
 
-type GroupedProductions = Map<number, Map<number, Production[]>>;
+type GroupedProductions = Map<number, Map<number, ProductionWithEvents[]>>;
 
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
   return new Date(0, n).toLocaleString(lang, { month: "long" });
 }
 
+function getEarliestProductionStartDate(production: ProductionWithEvents): Date | null {
+  return production.events.reduce<Date | null>((min, event) => {
+    if (!event.starts_at) return min;
+
+    const current = new Date(event.starts_at);
+    return !min || current < min ? current : min;
+  }, null);
+}
+
 // Groups productions per year per month
-function groupProductions(productions: Production[]): GroupedProductions {
+function groupProductions(productions: ProductionWithEvents[]): GroupedProductions {
   const grouped: GroupedProductions = new Map();
 
   for (const prod of productions) {
-    const date = prod.starts_at ? new Date(prod.starts_at) : new Date();
-    const year = date.getFullYear();
-    const month = date.getMonth();
+    const date = getEarliestProductionStartDate(prod);
+    const year = date ? date.getFullYear() : -1;
+    const month = date ? date.getMonth() : -1;
 
     if (!grouped.has(year)) grouped.set(year, new Map());
     const yearGroup = grouped.get(year)!;
@@ -33,20 +43,28 @@ function MonthDisplay({
   productions,
   month,
 }: {
-  productions: Production[];
+  productions: ProductionWithEvents[];
   year: number;
   month: number;
 }) {
   const { lang } = useParams();
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* Sticky month */}
-      <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
-        <div className="text-[14px] font-bold tracking-[0.28em] opacity-25">
-          {getMonthName(month, lang).toUpperCase()}
+      {month != -1 ? (
+        <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
+          <div className="upper text-[14px] font-bold tracking-[0.28em] uppercase opacity-25">
+            {month == -1 ? t("Unknown") : getMonthName(month, lang)}
+          </div>
+          <Divider className="bg-archive-ink/15 flex-1" />
         </div>
-        <Divider className="bg-archive-ink/15 flex-1" />
-      </div>
+      ) : (
+        <div className="py-3">
+          {/* If we don't display the month, create some padding between year and card */}
+        </div>
+      )}
 
       {/* Productions */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -62,15 +80,16 @@ function YearDisplay({
   productionsPerMonth,
   year,
 }: {
-  productionsPerMonth: Map<number, Production[]>;
+  productionsPerMonth: Map<number, ProductionWithEvents[]>;
   year: number;
 }) {
+  const { t } = useTranslation();
   const months = [...productionsPerMonth.keys()];
 
   return (
     <div>
       <h2 className="mt-5 min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
-        {year}
+        {year == -1 ? t("Unknown date") : year}
       </h2>
       <Divider className="bg-archive-accent/15 flex-1" />
 
@@ -93,7 +112,7 @@ export function ProductionTimeline({
   productions,
   className,
 }: {
-  productions: Production[];
+  productions: ProductionWithEvents[];
   className?: string;
 }) {
   const groupedProductions = groupProductions(productions);
