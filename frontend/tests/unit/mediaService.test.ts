@@ -104,9 +104,7 @@ describe("mediaService", () => {
     });
 
     it("throws when upload fails", async () => {
-      mockAdapter
-        .onPost("/api/v1/archive/productions/1/media/")
-        .reply(415);
+      mockAdapter.onPost("/api/v1/archive/productions/1/media/").reply(415);
 
       const file = new File(["dummy content"], "doc.pdf", {
         type: "application/pdf",
@@ -118,17 +116,13 @@ describe("mediaService", () => {
 
   describe("deleteMedia", () => {
     it("deletes a media item successfully", async () => {
-      mockAdapter
-        .onDelete("/api/v1/archive/productions/1/media/1")
-        .reply(204);
+      mockAdapter.onDelete("/api/v1/archive/productions/1/media/1").reply(204);
 
       await expect(deleteMedia(1, 1)).resolves.toBeUndefined();
     });
 
     it("throws when media item is not found", async () => {
-      mockAdapter
-        .onDelete("/api/v1/archive/productions/1/media/99")
-        .reply(404);
+      mockAdapter.onDelete("/api/v1/archive/productions/1/media/99").reply(404);
 
       await expect(deleteMedia(1, 99)).rejects.toThrow();
     });
