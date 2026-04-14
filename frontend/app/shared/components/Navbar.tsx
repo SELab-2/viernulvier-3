@@ -115,7 +115,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 md:hidden"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 lg:hidden"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -135,13 +135,13 @@ function Navbar(): JSX.Element {
     >
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
+        <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
           <NavLinks />
         </ul>
         <div className="flex items-center space-x-4 text-sm font-medium tracking-widest uppercase">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden md:flex" />
+          <NavbarAuthControls className="hidden lg:flex" />
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
@@ -151,7 +151,7 @@ function Navbar(): JSX.Element {
           <div
             data-testid="mobile-menu"
             id="mobile-menu"
-            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden"
+            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t lg:hidden"
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />
