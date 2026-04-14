@@ -25,7 +25,10 @@ function Logo({ nav_name }: LogoProps) {
         className="h-8 w-auto md:h-10"
         style={{ filter: "var(--archive-logo-filter)" }}
       />
-      <span aria-hidden="true" className="font-serif text-base italic opacity-50 md:text-[1.125rem] mb-[2px]">
+      <span
+        aria-hidden="true"
+        className="mb-[2px] font-serif text-base italic opacity-50 md:text-[1.125rem]"
+      >
         {nav_name}
       </span>
     </div>
@@ -68,7 +71,10 @@ function NavLinks({ onNavigate }: NavLinksProps) {
   );
 }
 
-function NavbarAuthControls({ onNavigate, className }: NavLinksProps & { className?: string }) {
+function NavbarAuthControls({
+  onNavigate,
+  className,
+}: NavLinksProps & { className?: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -81,18 +87,18 @@ function NavbarAuthControls({ onNavigate, className }: NavLinksProps & { classNa
   }
 
   return (
-    <div className={className}> 
+    <div className={className}>
       <Protected>
-      <button
-        type="button"
-        className={authActionClassName}
-        onClick={handleLogout}
-        aria-label={t("auth.actions.logout")}
-      >
-        <LogoutOutlinedIcon fontSize="small" />
-        <span>{t("auth.actions.logout")}</span>
-      </button>
-    </Protected>
+        <button
+          type="button"
+          className={authActionClassName}
+          onClick={handleLogout}
+          aria-label={t("auth.actions.logout")}
+        >
+          <LogoutOutlinedIcon fontSize="small" />
+          <span>{t("auth.actions.logout")}</span>
+        </button>
+      </Protected>
     </div>
   );
 }
