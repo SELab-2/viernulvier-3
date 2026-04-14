@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def api_prod_to_model_prod(json_prod: dict) -> [Production, list[int]]:
+def api_prod_to_model_prod(json_prod: dict) -> tuple[Production, list[int]]:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.

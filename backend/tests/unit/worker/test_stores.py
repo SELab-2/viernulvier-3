@@ -270,7 +270,7 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     assert "Skipped 3 eventprices" in total_orphans_warning
 
 
-def test_store_new_genres(db_session):
+def test_store_new_genres_as_tags(db_session):
     # Data from actual API, removed some unused fields, that already gets
     # tested in 'test_converters.py'
     genres = [
