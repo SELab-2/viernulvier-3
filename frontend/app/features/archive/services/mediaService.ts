@@ -17,3 +17,17 @@ export async function getMediaForProduction(
   return response.data;
 }
 
+export async function uploadMedia(
+  productionId: number,
+  file: File
+): Promise<MediaItem> {
+  const apiClient = createApiClient();
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<MediaItem>(
+    `${ARCHIVE_PATH}/productions/${productionId}/media/`,
+    formData
+  );
+  return response.data;
+}
+
