@@ -18,16 +18,16 @@ type LogoProps = { nav_name: string };
 
 function Logo({ nav_name }: LogoProps) {
   return (
-    <div className="sticky top-0 z-50 flex items-end space-x-2">
+    <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
       <img
         src="/logo.svg"
         alt={`${nav_name} logo`}
-        className="h-8 w-auto md:h-10"
+        className="xs:h-8 h-6 w-auto md:h-10"
         style={{ filter: "var(--archive-logo-filter)" }}
       />
       <span
         aria-hidden="true"
-        className="mb-[2px] font-serif text-base italic opacity-50 md:text-[1.125rem]"
+        className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
       >
         {nav_name}
       </span>
@@ -133,12 +133,12 @@ function Navbar(): JSX.Element {
       aria-label="Main navigation bar"
       className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md"
     >
-      <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
+      <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
         <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
           <NavLinks />
         </ul>
-        <div className="flex items-center space-x-4 text-sm font-medium tracking-widest uppercase">
+        <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
           <NavbarAuthControls className="hidden lg:flex" />
