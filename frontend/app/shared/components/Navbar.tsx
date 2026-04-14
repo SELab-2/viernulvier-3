@@ -102,18 +102,14 @@ function NavbarAuthControls({
   if (asList) {
     return (
       <Protected>
-        <li>
-          {button}
-        </li>
+        <li>{button}</li>
       </Protected>
     );
   }
 
   return (
     <Protected>
-      <div className={className}>
-        {button}
-      </div>
+      <div className={className}>{button}</div>
     </Protected>
   );
 }
@@ -157,7 +153,7 @@ function Navbar(): JSX.Element {
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden lg:flex"/>
+          <NavbarAuthControls className="hidden lg:flex" />
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
