@@ -31,3 +31,9 @@ export async function uploadMedia(
   return response.data;
 }
 
+export async function deleteMedia(
+  productionId: number,
+  mediaId: number
+): Promise<void> {
+  return deleteFromArchive(`/productions/${productionId}/media/${mediaId}`);
+}
