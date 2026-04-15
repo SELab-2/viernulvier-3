@@ -65,7 +65,7 @@ describe("productionService", () => {
   };
 
   const mockProduction1: Production = {
-    id: "/api/v1/archive/productions/1",
+    id_url: "/api/v1/archive/productions/1",
     performer_type: "documentary",
     attendance_mode: "online",
     created_at: "2026-03-29T14:00:00",
@@ -77,7 +77,7 @@ describe("productionService", () => {
   };
 
   const mockProduction2: Production = {
-    id: "/api/v1/archive/productions/2",
+    id_url: "/api/v1/archive/productions/2",
     performer_type: "singer",
     attendance_mode: "on stage",
     created_at: "2026-03-29T14:00:00",
@@ -125,7 +125,7 @@ describe("productionService", () => {
 
       expect(result).toBeDefined();
 
-      expect(result.id).toBe(mockProduction1.id);
+      expect(result.id_url).toBe(mockProduction1.id_url);
       expect(result.performer_type).toBe(mockProduction1.performer_type);
       expect(result.attendance_mode).toBe(mockProduction1.attendance_mode);
 
@@ -158,7 +158,7 @@ describe("productionService", () => {
       };
 
       const mockResponse: Production = {
-        id: "/api/v1/archive/productions/3",
+        id_url: "/api/v1/archive/productions/3",
         production_infos: [production_info],
         events: [],
         tags: [tag1],
@@ -167,7 +167,7 @@ describe("productionService", () => {
       mockAdapter.onPost("/api/v1/archive/productions").reply(201, mockResponse);
       const result = await createProduction(productionData);
       expect(result).toEqual(mockResponse);
-      expect(result.id).toBe("/api/v1/archive/productions/3");
+      expect(result.id_url).toBe("/api/v1/archive/productions/3");
     });
 
     it("throws when create request fails", async () => {
@@ -196,7 +196,7 @@ describe("productionService", () => {
       };
 
       const mockProduction2_updated: Production = {
-        id: "/api/v1/archive/productions/2",
+        id_url: "/api/v1/archive/productions/2",
         performer_type: "singer",
         attendance_mode: "online",
         created_at: "2026-03-29T14:00:00",

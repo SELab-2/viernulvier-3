@@ -95,7 +95,7 @@ export default function Archive() {
             {filteredProductions.map(
               ({ production, starts_at, hall_name, tag_names, image_url }) => (
                 <ProductionCard
-                  key={production.id}
+                  key={production.id_url}
                   production={{
                     ...production,
                     starts_at,
