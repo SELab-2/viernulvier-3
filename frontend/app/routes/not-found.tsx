@@ -14,7 +14,7 @@ export default function NotFound() {
             <p className="mb-6 text-lg md:mb-12 md:text-2xl">
                 {t("notFound.description")}
             </p>
-            <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
+            <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8">
                 <NavigateButton location="archive" name={t("home.buttons.explore")} />
                 <NavigateButton
                     location="history"
