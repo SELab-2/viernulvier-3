@@ -7,6 +7,7 @@ import { vi } from "vitest";
 import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
+import NotFound from "~/routes/not-found";
 
 vi.mock("~/shared/hooks/useLocalizedPath", () => ({
   useLocalizedPath: () => (path: string) => path,
@@ -16,6 +17,8 @@ export function renderWithRouterAndTheme({
   useRealHome = false,
   useRealArchive = false,
   useRealHistory = false,
+  useRealNotFound = false,
+  initialPath = "/",
 }) {
   const router = createMemoryRouter(
     [
@@ -52,9 +55,20 @@ export function renderWithRouterAndTheme({
           <History />
         ),
       },
+      {
+        path : "*",
+        element: !useRealNotFound ? (
+          <>
+            <Navbar />
+            <div>TEST_NOT_FOUND_PAGE</div>
+          </>
+        ) : (
+          <NotFound />
+        )
+      }
     ],
     {
-      initialEntries: ["/"],
+      initialEntries: [initialPath],
     }
   );
 
