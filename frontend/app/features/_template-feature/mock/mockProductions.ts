@@ -12,9 +12,7 @@ export const mockProductions: Production[] = [
       {
         prod_id: "VV-2024-10-OPEN-ARCHIVE",
         language: "nl",
-        title: undefined,
         supertitle: "Ephemera",
-        artist: undefined,
         tagline:
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },

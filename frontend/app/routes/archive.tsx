@@ -97,7 +97,12 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
-  const productions = [...mockProductions, ...mockProductions];
+  const productions = [
+    ...mockProductions,
+    ...mockProductions,
+    ...mockProductions,
+    ...mockProductions,
+  ];
 
   return (
     <div className="mx-6 md:mx-10">
@@ -127,6 +132,7 @@ export default function Archive() {
           setSelectedArtists={setSelectedArtists}
         />
         <div className="w-full">
+          {/* Production list header */}
           <div className="mb-4 flex flex-row items-center justify-between">
             <p className="italic opacity-60 md:text-lg">
               {productions.length}{" "}
@@ -135,6 +141,8 @@ export default function Archive() {
             <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
           </div>
           <Divider className="bg-archive-ink/5" />
+
+          {/* Production list view */}
           {productions && productions.length > 0 ? (
             <ProductionTimeline productions={productions} sortOrder={sortOrder} />
           ) : (
