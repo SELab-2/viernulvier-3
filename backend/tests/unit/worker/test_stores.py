@@ -308,3 +308,57 @@ def test_store_new_genres_as_tags(db_session):
     assert len(stored_names) == 4
 
     assert newest == datetime.fromisoformat("2023-03-31T08:44:07+00:00")
+
+
+def test_store_production_with_tags(db_session):
+    # Simple genres to test only the appending
+    genres = [
+        {
+            "@id": "/api/v1/genres/10",
+            "created_at": "2008-07-11T08:49:18+00:00",
+            "updated_at": "2025-12-04T12:15:37+00:00",
+            "vendor_id": "cabaret",
+        },
+        {
+            "@id": "/api/v1/genres/11",
+            "created_at": "2008-07-11T08:50:34+00:00",
+            "updated_at": "2025-12-04T12:15:34+00:00",
+            "vendor_id": "opera",
+        },
+    ]
+    # Simple production to test only the tags
+    productions = [
+        {
+            "@id": "/api/v1/productions/5604",
+            "created_at": "2022-11-22T11:02:27+00:00",
+            "updated_at": "2022-11-30T08:59:20+00:00",
+            "title": {"nl": "Poplife - NYE", "en": "Poplife - NYE"},
+            "genres": ["api/v1/genres/10"],
+        },
+        {
+            "@id": "/api/v1/productions/5610",
+            "created_at": "2022-11-22T13:45:50+00:00",
+            "updated_at": "2024-07-23T06:59:29+00:00",
+            "title": {"nl": "TOESTANDEN", "en": "TOESTANDEN"},
+            "genres": ["api/v1/genres/10", "api/v1/genres/11"],
+        },
+    ]
+
+    store_new_genres(db_session, genres)
+    db_session.commit()
+    store_new_productions(db_session, productions)
+    db_session.commit()
+
+    stored_tags = db_session.execute(select(Tag)).scalars().all()
+    assert len(stored_tags) == 2
+    stored_prods: list[Production] = (
+        db_session.execute(select(Production)).scalars().all()
+    )
+    assert len(stored_prods) == 2
+
+    assert len(stored_prods[0].tags) == 1
+    assert len(stored_prods[1].tags) == 2
+
+    assert stored_prods[0].tags[0].id == stored_prods[1].tags[0].id
+    assert stored_prods[0].tags[0].id == stored_tags[0].id
+    assert stored_prods[1].tags[1].id == stored_tags[1].id
