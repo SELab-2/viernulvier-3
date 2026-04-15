@@ -17,7 +17,6 @@ function HomeStatistic({ count, label }: { count: number; label: string }) {
   );
 }
 
-
 export default function Home() {
   const { t } = useTranslation();
 

@@ -107,7 +107,7 @@
       }
     }
   },
-  "notFound" : {
+  "notFound": {
     "title": "Pagina niet gevonden",
     "description": "De pagina die u zoekt bestaat niet. Deze kan zijn verwijderd, de naam gewijzigd of tijdelijk niet beschikbaar.",
     "GoToHome": "Ga naar Home",
