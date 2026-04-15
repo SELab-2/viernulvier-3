@@ -393,13 +393,13 @@ export function ProductionPage({
         <section className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <p>{tagline}</p>
-            <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6">
+            <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
               <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
                 {t("productionPage.archiveSchema")}
               </h2>
 
               {eventObjects.length > 0 ? (
-                <div className="mt-6 space-y-4">
+                <ul className="mt-6 space-y-2.5">
                   {eventObjects.map((event) => {
                     const dateAndTime = formatEventDateTimeRange(
                       event.starts_at,
@@ -432,57 +432,62 @@ export function ProductionPage({
                         : t("productionPage.noPrice");
 
                     return (
-                      <div
-                        key={event.id}
-                        className="bg-archive-surface rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-4"
-                      >
-                        <div className="mt-3 space-y-1.5 text-sm opacity-90">
-                          <p>
-                            <span className="opacity-65">
-                              {t("productionPage.dateLabel")}:
-                            </span>{" "}
-                            {eventDate}
-                          </p>
-                          <p>
-                            <span className="opacity-65">
-                              {t("productionPage.timeLabel")}:
-                            </span>{" "}
-                            {eventTime}
-                          </p>
-                          <p>
-                            <span className="opacity-65">
-                              {t("productionPage.placeLabel")}:
-                            </span>{" "}
-                            {eventLocation}
-                          </p>
-                          <p>
-                            <span className="opacity-65">
-                              {t("productionPage.priceLabel")}:
-                            </span>{" "}
-                            {eventPrice}
-                          </p>
-                        </div>
-                      </div>
+                      <li key={event.id}>
+                        <details className="bg-archive-surface group rounded-xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] transition open:border-[color:color-mix(in_srgb,var(--archive-accent)_35%,transparent)]">
+                          <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
+                            <div className="min-w-0">
+                              <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+                                {t("productionPage.dateLabel")}
+                              </p>
+                              <p className="truncate text-sm font-semibold opacity-95 md:text-base">
+                                {eventDate}
+                              </p>
+                            </div>
+
+                            <div className="min-w-0">
+                              <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+                                {t("productionPage.placeLabel")}
+                              </p>
+                              <p className="truncate text-sm font-semibold opacity-95 md:text-base">
+                                {eventLocation}
+                              </p>
+                            </div>
+
+                            <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
+                              Meer
+                            </span>
+                          </summary>
+
+                          <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
+                            <div className="grid gap-3 text-sm sm:grid-cols-2">
+                              <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
+                                <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+                                  {t("productionPage.timeLabel")}
+                                </dt>
+                                <dd className="mt-1 font-medium opacity-95">{eventTime}</dd>
+                              </div>
+
+                              <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
+                                <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+                                  {t("productionPage.priceLabel")}
+                                </dt>
+                                <dd className="mt-1 font-medium opacity-95">{eventPrice}</dd>
+                              </div>
+                            </div>
+                          </div>
+                        </details>
+                      </li>
                     );
                   })}
-                </div>
+                </ul>
               ) : (
-                <div className="mt-6 space-y-4">
-                  <div className="border-b border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] pb-4">
-                    <p className="text-sm opacity-88">
-                      {t("productionPage.dateLabel")}:{" "}
+                <div className="mt-6">
+                  <div className="bg-archive-surface rounded-xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] px-4 py-3 md:px-5">
+                    <p className="text-sm font-semibold opacity-95">
                       {t("productionPage.fallback.dateTbd")}
                     </p>
-                    <p className="mt-2 text-sm opacity-88">
-                      {t("productionPage.timeLabel")}:{" "}
-                      {t("productionPage.fallback.dateTbd")}
-                    </p>
-                    <p className="text-sm opacity-88">
-                      {t("productionPage.placeLabel")}:{" "}
+                    <p className="mt-1 text-sm opacity-75">
                       {t("productionPage.fallback.locationTbd")}
-                    </p>
-                    <p className="text-sm opacity-88">
-                      {t("productionPage.priceLabel")}: {t("productionPage.noPrice")}
                     </p>
                   </div>
                 </div>
