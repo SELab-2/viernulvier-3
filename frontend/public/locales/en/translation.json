@@ -39,7 +39,7 @@
     "card": {
       "defaults": {
         "title": "Unknown production",
-        "dateLabel": "Unknown",
+        "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
     }

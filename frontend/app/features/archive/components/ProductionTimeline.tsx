@@ -3,6 +3,7 @@ import { ProductionCard } from "./ProductionCard";
 import { Divider } from "@mui/material";
 import type { Production } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
+import { getLongMonthName } from "~/shared/utils/dateFormatting";
 
 type GroupedProductions = Map<number, Map<number, Production[]>>;
 
@@ -12,11 +13,6 @@ export enum ArchiveSortOrder {
 }
 
 const UNKNOWN_YEAR_OR_MONTH = -1;
-
-// Get the name of the nth month, note that the months are 0-indexed because javascript...
-function getMonthName(n: number, lang?: string) {
-  return new Date(0, n).toLocaleString(lang, { month: "long" });
-}
 
 // Returns a sorting function to sort a list of numbers based on the ArchiveSortOrder enum
 function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => number[] {
@@ -87,7 +83,7 @@ function MonthDisplay({
       {month != -1 ? (
         <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
           <div className="upper text-[14px] font-bold tracking-[0.28em] uppercase opacity-25">
-            {month == -1 ? t("Unknown") : getMonthName(month, lang)}
+            {month == -1 ? t("Unknown") : getLongMonthName(month, lang)}
           </div>
           <Divider className="bg-archive-ink/15 flex-1" />
         </div>

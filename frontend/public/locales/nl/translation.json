@@ -39,7 +39,7 @@
     "card": {
       "defaults": {
         "title": "Onbekende productie",
-        "dateLabel": "Onbekend",
+        "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
     }

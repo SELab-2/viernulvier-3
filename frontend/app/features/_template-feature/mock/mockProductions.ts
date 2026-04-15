@@ -25,6 +25,10 @@ export const mockProductions: Production[] = [
         id: "1",
         production_id: "VV-2024-10-OPEN-ARCHIVE",
         hall_id: "1",
+        hall: {
+          name: "Filmzaal",
+          address: "adres",
+        },
         starts_at: "2024-10-01T10:00:00Z",
         price_ids: [],
       },
@@ -34,6 +38,10 @@ export const mockProductions: Production[] = [
         hall_id: "1",
         starts_at: "2024-10-02T10:00:00Z",
         price_ids: [],
+        hall: {
+          name: "Balzaal",
+          address: "adres",
+        },
       },
     ],
     tags: [
@@ -68,6 +76,10 @@ export const mockProductions: Production[] = [
         id: "1",
         production_id: "VV-2024-10-OPEN-ARCHIVE",
         hall_id: "1",
+        hall: {
+          name: "Filmzaal",
+          address: "aders",
+        },
         // starts_at: "2023-10-01T10:00:00Z",
         price_ids: [],
       },
