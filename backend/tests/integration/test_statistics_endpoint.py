@@ -28,9 +28,15 @@ def seed_statistics_db(db_session):
 
     db_session.add_all(
         [
-            ProdInfo(production_id=prod1.id, language=Languages.NEDERLANDS, artist="Artist A"),
-            ProdInfo(production_id=prod1.id, language=Languages.ENGLISH, artist="Artist A"),
-            ProdInfo(production_id=prod2.id, language=Languages.NEDERLANDS, artist="Artist B"),
+            ProdInfo(
+                production_id=prod1.id, language=Languages.NEDERLANDS, artist="Artist A"
+            ),
+            ProdInfo(
+                production_id=prod1.id, language=Languages.ENGLISH, artist="Artist A"
+            ),
+            ProdInfo(
+                production_id=prod2.id, language=Languages.NEDERLANDS, artist="Artist B"
+            ),
             ProdInfo(production_id=prod3.id, language=Languages.NEDERLANDS, artist=""),
         ]
     )
@@ -45,7 +51,9 @@ def seed_statistics_db(db_session):
     db_session.commit()
 
 
-def test_get_statistics_endpoint_returns_expected_shape_and_values(client, seed_statistics_db):
+def test_get_statistics_endpoint_returns_expected_shape_and_values(
+    client, seed_statistics_db
+):
     response = client.get(STATISTICS_URL)
 
     assert response.status_code == 200

@@ -30,9 +30,15 @@ def statistics_data(db_session):
 
     db_session.add_all(
         [
-            ProdInfo(production_id=prod1.id, language=Languages.NEDERLANDS, artist="Artist A"),
-            ProdInfo(production_id=prod1.id, language=Languages.ENGLISH, artist="Artist A"),
-            ProdInfo(production_id=prod2.id, language=Languages.NEDERLANDS, artist="Artist B"),
+            ProdInfo(
+                production_id=prod1.id, language=Languages.NEDERLANDS, artist="Artist A"
+            ),
+            ProdInfo(
+                production_id=prod1.id, language=Languages.ENGLISH, artist="Artist A"
+            ),
+            ProdInfo(
+                production_id=prod2.id, language=Languages.NEDERLANDS, artist="Artist B"
+            ),
             ProdInfo(production_id=prod3.id, language=Languages.NEDERLANDS, artist=""),
             ProdInfo(production_id=prod3.id, language=Languages.ENGLISH, artist=None),
         ]

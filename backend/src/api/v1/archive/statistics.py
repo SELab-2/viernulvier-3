@@ -15,6 +15,8 @@ router = APIRouter()
     summary="Get archive statistics",
     description="Returns archive counts and all unique tags.",
 )
-async def statistics(request: Request, db: Session = Depends(get_db)) -> StatisticsResponse:
+async def statistics(
+    request: Request, db: Session = Depends(get_db)
+) -> StatisticsResponse:
     base_url = get_base_url(str(request.url), remove_last_segments=1)
     return get_statistics(db, base_url)
