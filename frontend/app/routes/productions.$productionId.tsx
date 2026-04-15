@@ -6,7 +6,7 @@ import { getMockProductionPageById } from "~/features/archive/components/product
 export default function ProductionDetailRoute() {
   const { productionId = "" } = useParams();
   const decodedProductionId = decodeURIComponent(productionId);
-  
+
   //TODO remove mocks
   const production = getMockProductionPageById(decodedProductionId);
 

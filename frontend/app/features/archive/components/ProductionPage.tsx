@@ -24,6 +24,7 @@ function getProductionInfoByLanguage(
     return languageMatch;
   }
 
+  // fallback to dutch first, then fallback to first available translation
   const defaultMatch = productionInfos.find((info) => info.language === "nl");
   return defaultMatch ?? productionInfos[0];
 }
@@ -98,7 +99,7 @@ function getEventTimestamp(startsAt?: string): number {
   return parsedDate.getTime();
 }
 
-// gets the id from the id_url, so it can be used for fetching the media
+// extract numeric production id from id_url for media requests
 function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
   const match = idUrl.match(/\/productions\/(\d+)(?:[/?#]|$)/);
   if (!match) {
@@ -109,7 +110,7 @@ function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
   return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : undefined;
 }
 
-// search for given language, if not found fall back to "nl", if "nl" not just take first translation
+// prefer active language, then dutch, then first available tag name
 function getTagNamesByLanguage(production: Production, language: string): string[] {
   if (!production.tags || production.tags.length === 0) {
     return [];
@@ -189,6 +190,7 @@ export function ProductionPage({
   );
   const imageUrl = imageUrls[0];
   const tags = getTagNamesByLanguage(production, language);
+  // keep events chronologically ordered for a predictable schedule list
   const eventObjects = (production.events_objects ?? [])
     .slice()
     .sort((leftEvent, rightEvent) => {
@@ -204,6 +206,7 @@ export function ProductionPage({
     });
 
   useEffect(() => {
+    // skip media fetching if the production id cannot be parsed
     if (!productionNumericId) {
       return;
     }
@@ -216,7 +219,7 @@ export function ProductionPage({
         let cursor: number | undefined;
         let hasMore = true;
 
-        // Follow cursor-based pagination until the backend indicates there are no more results.
+        // continue paginated requests until there are no more pages
         while (hasMore) {
           const response = await getMediaForProductionPaginated(productionNumericId, {
             cursor,
@@ -224,12 +227,12 @@ export function ProductionPage({
           });
 
           for (const media of response.media) {
-            // Only keep image assets for the visual evidence section.
+            // keep only image media for the visual evidence section
             if (!media.content_type.startsWith("image/")) {
               continue;
             }
 
-            // A Set keeps URLs unique while preserving insertion order.
+            // a set avoids duplicate urls while preserving insertion order
             imageUrlsSet.add(media.url);
           }
 
@@ -251,7 +254,7 @@ export function ProductionPage({
 
     void loadAllMediaImages();
 
-    // Prevent state updates if the component unmounts during an in-flight request.
+    // prevent state updates if the component unmounts during an in-flight request
     return () => {
       isCancelled = true;
     };
@@ -464,14 +467,18 @@ export function ProductionPage({
                                 <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
                                   {t("productionPage.timeLabel")}
                                 </dt>
-                                <dd className="mt-1 font-medium opacity-95">{eventTime}</dd>
+                                <dd className="mt-1 font-medium opacity-95">
+                                  {eventTime}
+                                </dd>
                               </div>
 
                               <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
                                 <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
                                   {t("productionPage.priceLabel")}
                                 </dt>
-                                <dd className="mt-1 font-medium opacity-95">{eventPrice}</dd>
+                                <dd className="mt-1 font-medium opacity-95">
+                                  {eventPrice}
+                                </dd>
                               </div>
                             </div>
                           </div>
