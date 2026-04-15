@@ -5,6 +5,13 @@ import { afterEach, beforeEach, vi } from "vitest";
 // mock localStorage
 const store: Record<string, string> = {};
 
+type TranslationValue = string | { title: string; description: string }[];
+
+type TranslationOptions = {
+  returnObjects?: boolean;
+  [key: string]: unknown;
+};
+
 vi.stubGlobal("localStorage", {
   getItem: (key: string) => store[key] ?? null,
   setItem: (key: string, value: string) => {
@@ -21,12 +28,11 @@ vi.stubGlobal("localStorage", {
 // Partial mock of UseTranslation (for easy testing)
 vi.mock("react-i18next", async () => {
   const actual = await vi.importActual<typeof import("react-i18next")>("react-i18next");
-
   return {
     ...actual,
     useTranslation: () => ({
-      t: (key: string) => {
-        const map: Record<string, string> = {
+      t: (key: string, options?: TranslationOptions) => {
+        const map: Record<string, TranslationValue> = {
           "nav.home": "I18N_Home",
           "nav.archive": "I18N_Archive",
           "nav.history": "I18N_History",
@@ -42,9 +48,48 @@ vi.mock("react-i18next", async () => {
           "archive.title": "I18N_Archive_Title",
           "history.title": "I18N_History_Title",
           "footer.website": "I18N_Footer_Website",
+          "history.heroAlt": "I18N_History_Hero_Alt",
+          "history.entries": [
+            {
+              title: "I18N_History_Entry1_Title",
+              description: "I18N_History_Entry1_Description",
+            },
+            {
+              title: "I18N_History_Entry2_Title",
+              description: "I18N_History_Entry2_Description",
+            },
+            {
+              title: "I18N_History_Entry3_Title",
+              description: "I18N_History_Entry3_Description",
+            },
+            {
+              title: "I18N_History_Entry4_Title",
+              description: "I18N_History_Entry4_Description",
+            },
+            {
+              title: "I18N_History_Entry5_Title",
+              description: "I18N_History_Entry5_Description",
+            },
+            {
+              title: "I18N_History_Entry6_Title",
+              description: "I18N_History_Entry6_Description",
+            },
+            {
+              title: "I18N_History_Entry7_Title",
+              description: "I18N_History_Entry7_Description",
+            },
+            {
+              title: "I18N_History_Entry8_Title",
+              description: "I18N_History_Entry8_Description",
+            },
+          ],
         };
 
-        return map[key] || key;
+        if (options?.returnObjects) {
+          return map[key];
+        }
+
+        return typeof map[key] === "string" ? map[key] : key;
       },
     }),
   };
