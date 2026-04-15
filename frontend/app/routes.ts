@@ -9,5 +9,6 @@ export default [
     route("archive", "routes/archive.tsx"),
     route("history", "routes/history.tsx"),
     route("login", "routes/login.tsx"),
+    route("*", "routes/not-found.tsx"),
   ]),
 ] satisfies RouteConfig;
