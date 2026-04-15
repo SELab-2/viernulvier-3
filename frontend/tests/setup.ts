@@ -83,6 +83,10 @@ vi.mock("react-i18next", async () => {
               description: "I18N_History_Entry8_Description",
             },
           ],
+          "notFound.title": "I18N_NotFound_Title",
+          "notFound.description": "I18N_NotFound_Description",
+          "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
+          "notFound.buttons.history": "I18N_NotFound_Button_History",
         };
 
         if (options?.returnObjects) {
