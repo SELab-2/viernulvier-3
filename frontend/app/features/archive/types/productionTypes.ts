@@ -81,6 +81,6 @@ export interface ProductionUpdate {
   media_gallery_id?: number; // Maybe update after merge media pr.
 
   production_infos?: ProductionInfoUpdate[];
-  tag_id_urls?: number[];
+  tag_id_urls?: string[];
   remove_languages?: string[];
 }
