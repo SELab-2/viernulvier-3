@@ -6,6 +6,11 @@ import { useTranslation } from "react-i18next";
 
 type GroupedProductions = Map<number, Map<number, ProductionWithEvents[]>>;
 
+export enum ArchiveSortOrder {
+  NewestFirst = "NewestFirst",
+  OldestFirst = "OldestFirst",
+}
+
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
   return new Date(0, n).toLocaleString(lang, { month: "long" });

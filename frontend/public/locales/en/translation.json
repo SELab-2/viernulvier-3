@@ -30,6 +30,12 @@
       "header": "No results...",
       "subtext": "Change your search to contain less filters or keywords"
     },
+    "sortBy": "Sort by",
+    "sortOrder": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "unknownDate": "Unknown date",
     "card": {
       "defaults": {
         "title": "Unknown production",

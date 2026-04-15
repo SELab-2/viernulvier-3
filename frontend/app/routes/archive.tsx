@@ -1,9 +1,46 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
-import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
+import {
+  ArchiveSortOrder,
+  ProductionTimeline,
+} from "~/features/archive/components/ProductionTimeline";
 import { mockProductions } from "~/features/_template-feature/mock/mockProductions";
 import { Divider } from "@mui/material";
+
+function SortOrderSelection({
+  sortOrder,
+  setSortOrder,
+}: {
+  sortOrder: ArchiveSortOrder;
+  setSortOrder: React.Dispatch<React.SetStateAction<ArchiveSortOrder>>;
+}) {
+  const { t } = useTranslation();
+  const handleChangeSortOrder = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(event.target.value as ArchiveSortOrder);
+  };
+
+  return (
+    <div className="flex items-center justify-between space-x-2 md:justify-end">
+      <div className="text-[12px] font-bold tracking-widest opacity-40">
+        {t("archive.sortBy")}:
+      </div>
+
+      <select
+        className="hover:text-archive-accent *:bg-archive-paper cursor-pointer border-none text-sm font-medium italic transition-colors duration-100 focus:ring-0"
+        value={sortOrder}
+        onChange={handleChangeSortOrder}
+      >
+        <option value={ArchiveSortOrder.NewestFirst}>
+          {t("archive.sortOrder.newest")}
+        </option>
+        <option value={ArchiveSortOrder.OldestFirst}>
+          {t("archive.sortOrder.oldest")}
+        </option>
+      </select>
+    </div>
+  );
+}
 
 function FilterIcon() {
   return (
@@ -38,6 +75,10 @@ function MobileToggleButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function Archive() {
+  const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
+    ArchiveSortOrder.NewestFirst
+  );
+
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("1970-01-01");
@@ -56,7 +97,7 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
-  const productions = [...mockProductions];
+  const productions = [...mockProductions, ...mockProductions];
 
   return (
     <div className="mx-6 md:mx-10">
@@ -91,9 +132,7 @@ export default function Archive() {
               {productions.length}{" "}
               {productions.length == 1 ? t("archive.result") : t("archive.results")}
             </p>
-            <div className="flex items-center justify-between space-x-6 md:justify-end">
-              {/* TODO: Sorting component & functionality */}
-            </div>
+            <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
           </div>
           <Divider className="bg-archive-ink/5" />
           {productions && productions.length > 0 ? (

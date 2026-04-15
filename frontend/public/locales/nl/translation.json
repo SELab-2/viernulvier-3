@@ -30,6 +30,12 @@
       "header": "Geen resultaten...",
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
+    "sortBy": "Sorteer op",
+    "sortOrder": {
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst"
+    },
+    "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
         "title": "Onbekende productie",
