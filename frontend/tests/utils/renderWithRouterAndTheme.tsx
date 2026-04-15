@@ -56,7 +56,7 @@ export function renderWithRouterAndTheme({
         ),
       },
       {
-        path : "*",
+        path: "*",
         element: !useRealNotFound ? (
           <>
             <Navbar />
@@ -64,8 +64,8 @@ export function renderWithRouterAndTheme({
           </>
         ) : (
           <NotFound />
-        )
-      }
+        ),
+      },
     ],
     {
       initialEntries: [initialPath],
