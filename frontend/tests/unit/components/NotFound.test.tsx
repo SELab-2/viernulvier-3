@@ -11,7 +11,7 @@ describe("NotFound", () => {
   });
 
   it("renders the not found page with correct title and description", () => {
-    expect(screen.getByText(`VIERNULVIER - I18N_NotFound_Title`)).toBeInTheDocument();
+    expect(screen.getByText(`I18N_NotFound_Title`)).toBeInTheDocument();
     expect(screen.getByText("I18N_NotFound_Description")).toBeInTheDocument();
   });
 
