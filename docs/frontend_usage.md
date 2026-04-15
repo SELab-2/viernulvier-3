@@ -86,6 +86,42 @@ Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd vi
 route("archive/productions/:id", "routes/productionPage.tsx")
 ```
 
+De loginroute is bewust niet zichtbaar in de navbar. Ze blijft wel beschikbaar voor beheerders of editors die de route kennen, en na een geslaagde login wordt de sessie opgeslagen via de auth feature. Uitloggen gebeurt volledig client-side door de tokens uit storage te wissen.
+
+### Auth UI
+
+Gebruik `Protected` voor auth-afhankelijke UI-fragmenten zoals een logoutknop, beheerdersacties of permission-gated controls. De component ondersteunt `fallback`, `roles`, `permissions` en `requireSuperUser`, zodat dezelfde primitive schaalbaar blijft voor toekomstige UI-restricties.
+
+Een generiek voorbeeld voor een hypothetische `ProductionActions`-sectie:
+
+```tsx
+import { Button, Stack } from "@mui/material";
+import { Protected, useAuthSession } from "~/features/auth";
+
+function ProductionActions() {
+	const { user } = useAuthSession();
+
+	return (
+		<Stack direction="row" spacing={2}>
+			<Protected permissions={["productions:update"]}>
+				<Button variant="outlined">Bewerken</Button>
+			</Protected>
+
+			<Protected
+				roles={["editor", "manager"]}
+				requireAllRoles={false}
+			>
+				<Button variant="contained">Publiceren</Button>
+			</Protected>
+
+			<Protected requireSuperUser>
+				<Button variant="text">Systeeminstellingen</Button>
+			</Protected>
+		</Stack>
+	);
+}
+```
+
 
 ## Issues
 Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24``` met npm versie ```11.9.0```.

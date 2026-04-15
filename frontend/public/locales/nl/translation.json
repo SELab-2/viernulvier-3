@@ -47,10 +47,49 @@
   },
 
   "history": {
-    "title": "De Echo's van het Gebouw"
+    "title": "De Echo's van het Gebouw",
+    "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "entries": [
+      {
+        "title": "1910: De bouw van 'Feestlokaal Vooruit'",
+        "description": "In 1910 kocht Vooruit een groot herenhuis en twee aangrenzende woningen in de Sint-Pietersnieuwstraat. Daar moest een nieuw feestlokaal komen. Met de nieuwe cultuurtempel wilden de socialisten bewijzen dat ze geen cultuurbarbaren waren, dat ze zich bekommerden om de geestelijke ontwikkeling van de arbeiders. De coöperatie stelde Ferdinand Dierkens aan als architect. De arbeiders kregen een reusachtig volkshuis."
+      },
+      {
+        "title": "1946: Reprise de l’activité",
+        "description": "De coöperatie Vooruit kreeg het Feestlokaal in 1946 terug in handen. De Multatulikring, Harmonie Vooruit, de Rode Valken, ... na de oorlog maakten ze van het Feestlokaal opnieuw een ware bijenkorf. Er kwamen ook enkele nieuwe verenigingen bij. De Anseele Vrienden, De Samenwerkster (een vrouwenbond), de Leesclub Boekuil, e.a."
+      },
+      {
+        "title": "1970: Het verval van feestlokaal Vooruit",
+        "description": "Omdat er steeds minder geld was om het gebouw te onderhouden, raakten meer en meer zalen in onbruik. Er sijpelde water binnen, de brandveiligheid liet te wensen over. Heel wat verenigingen verlieten het gebouw. In de jaren 1970 was het café een van de weinige plekken waar nog volk over de vloer kwam. Een levendige plek was het toen al lang niet meer."
+      },
+      {
+        "title": "1980: Opruimactie & restauratie",
+        "description": "Overal in België waren volkshuizen in hetzelfde bedje ziek. Coöperaties konden moeilijk het hoofd boven water houden. Dat leidde tot verwaarlozing en verkrotting. Sommige volkshuizen kregen een nieuwe bestemming, andere werden afgebroken. In 1982 richtten enkele jongeren de vzw Socio-cultureel Centrum Vooruit op. Die ging het hele gebouw restaureren en het als progressief artistiek ontmoetingscentrum uitbaten. De initiatiefnemers wilden wel graag af van het rode etiket en zagen de ontzuiling van het Feestlokaal als een prioriteit."
+      },
+      {
+        "title": "1988: Kunstencentrum Vooruit",
+        "description": "In 1988 werd Socio-Cultureel Centrum Vooruit omgedoopt tot Kunstencentrum Vooruit. De eigen activiteiten moesten een geprononceerder profiel krijgen, het artistieke beleid moest de grootste prioriteit worden. Daarbij stond vernieuwend werk uit verschillende kunstdisciplines centraal. Vooruit ging niet enkel producties van anderen brengen, maar ook zelf (co)produceren. Het gebouw werd een werkplaats waar kunstenaars uit binnen- en buitenland samen aan producties konden sleutelen."
+      },
+      {
+        "title": "2013: 100 jaar Vooruit",
+        "description": "Met een 100-tal personeelsleden, jaarlijks ongeveer 2000 activiteiten en 350 000 bezoekers - groeide Kunstencentrum Vooruit in de nillies uit tot een culturele instelling van formaat. Net als zijn voorganger - het Feestlokaal van Vooruit - was het Kunstencentrum een plaats van ontmoeting, cultuur en engagement. Het opschrift ‘Kunst veredelt’, dat al een eeuw boven het podium van de Theaterzaal te lezen is, mag dan wel behoorlijk hoogdravend klinken: het bleef het motto van Vooruit. In 2013 wordt het 100 jarig bestaan van het gebouw uitgebreid gevierd tijdens 'Vooruit 100'. "
+      },
+      {
+        "title": "2017: Een Vlaamse kunstinstelling",
+        "description": "Op 1 januari 2017 wordt het kunstencentrum officieel een Vlaamse kunstinstelling. Dat vertaalt zich in onder andere een hernieuwde missie, met daaraan gekoppeld zes centrale speerpunten: support, experiment, connect, engage, reflect en celebrate. Hier kan je de volledige missie vinden."
+      },
+      {
+        "title": "2022: Een nieuwe naam",
+        "description": "In 2022 verandert Kunstencentrum Vooruit haar naam naar Kunstencentrum VIERNULVIER, nadat de Vlaamse socialistische partij in 2021 voor de nieuwe naam ‘Vooruit’ koos. Het gebouw zelf blijft De Vooruit heten. Enkel de organisatie draagt dus een nieuwe naam."
+      }
+    ]
   },
 
   "auth": {
+    "actions": {
+      "login": "Aanmelden",
+      "logout": "Afmelden"
+    },
     "login": {
       "formTitle": "Welkom terug",
       "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",

@@ -1,4 +1,5 @@
 import { render } from "@testing-library/react";
+import { AuthSessionProvider } from "~/features/auth";
 import Navbar from "~/shared/components/Navbar";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { ThemeProvider } from "~/shared/components/ThemeContext";
@@ -58,8 +59,10 @@ export function renderWithRouterAndTheme({
   );
 
   return render(
-    <ThemeProvider>
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <AuthSessionProvider>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </AuthSessionProvider>
   );
 }

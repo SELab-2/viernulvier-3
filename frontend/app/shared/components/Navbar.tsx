@@ -1,6 +1,8 @@
 import { useState, type JSX } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import { Protected, useAuthSession } from "~/features/auth";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
@@ -44,6 +46,9 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   }`;
 }
 
+const authActionClassName =
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors";
+
 type NavLinksProps = { onNavigate?: () => void };
 
 function NavLinks({ onNavigate }: NavLinksProps) {
@@ -65,6 +70,33 @@ function NavLinks({ onNavigate }: NavLinksProps) {
         </li>
       ))}
     </>
+  );
+}
+
+function NavbarAuthControls({ onNavigate }: NavLinksProps) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
+  const { logout } = useAuthSession();
+
+  function handleLogout() {
+    logout();
+    onNavigate?.();
+    navigate(lp("/"), { replace: true });
+  }
+
+  return (
+    <Protected>
+      <button
+        type="button"
+        className={authActionClassName}
+        onClick={handleLogout}
+        aria-label={t("auth.actions.logout")}
+      >
+        <LogoutOutlinedIcon fontSize="small" />
+        <span>{t("auth.actions.logout")}</span>
+      </button>
+    </Protected>
   );
 }
 
@@ -110,6 +142,7 @@ function Navbar(): JSX.Element {
         <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
           <LanguageSwitcher className="hidden sm:flex" />
           <ThemeToggle />
+          <NavbarAuthControls />
         </div>
         <HamburgerMenuButton
           isOpen={menuOpen}
@@ -123,6 +156,9 @@ function Navbar(): JSX.Element {
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />
+              <li>
+                <NavbarAuthControls onNavigate={() => setMenuOpen(false)} />
+              </li>
               <li>
                 <LanguageSwitcher />
               </li>
