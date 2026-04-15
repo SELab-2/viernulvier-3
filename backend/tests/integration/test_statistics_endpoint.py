@@ -54,18 +54,12 @@ def test_get_statistics_endpoint_returns_expected_shape_and_values(client, seed_
     assert "productions_count" in data
     assert "events_count" in data
     assert "unique_artists_count" in data
-    assert "tags" in data
+    assert "tags_count" in data
 
     assert data["productions_count"] == 3
     assert data["events_count"] == 3
     assert data["unique_artists_count"] == 2
-    assert len(data["tags"]) == 2
-
-    for tag in data["tags"]:
-        assert "id" in tag
-        assert "/api/v1/archive/tags/" in tag["id"]
-        assert "names" in tag
-        assert len(tag["names"]) >= 1
+    assert data["tags_count"] == 2
 
 
 def test_get_statistics_endpoint_empty_database(client):
@@ -77,4 +71,4 @@ def test_get_statistics_endpoint_empty_database(client):
     assert data["productions_count"] == 0
     assert data["events_count"] == 0
     assert data["unique_artists_count"] == 0
-    assert data["tags"] == []
+    assert data["tags_count"] == 0

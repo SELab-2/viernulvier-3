@@ -57,10 +57,7 @@ def test_get_statistics_returns_expected_counts_and_tags(db_session, statistics_
     assert result.productions_count == 3
     assert result.events_count == 3
     assert result.unique_artists_count == 2
-    assert len(result.tags) == 2
-
-    returned_tag_ids = {tag.id.split("/")[-1] for tag in result.tags}
-    assert returned_tag_ids == {str(tag_id) for tag_id in statistics_data["tag_ids"]}
+    assert result.tags_count == 2
 
 
 def test_get_statistics_empty_database(db_session):
@@ -69,4 +66,4 @@ def test_get_statistics_empty_database(db_session):
     assert result.productions_count == 0
     assert result.events_count == 0
     assert result.unique_artists_count == 0
-    assert result.tags == []
+    assert result.tags_count == 0
