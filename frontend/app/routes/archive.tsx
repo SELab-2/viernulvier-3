@@ -136,7 +136,7 @@ export default function Archive() {
           </div>
           <Divider className="bg-archive-ink/5" />
           {productions && productions.length > 0 ? (
-            <ProductionTimeline productions={productions} />
+            <ProductionTimeline productions={productions} sortOrder={sortOrder} />
           ) : (
             <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
               <p className="text-center font-serif text-3xl tracking-tighter opacity-50">

@@ -11,9 +11,33 @@ export enum ArchiveSortOrder {
   OldestFirst = "OldestFirst",
 }
 
+const UNKNOWN_YEAR_OR_MONTH = -1;
+
 // Get the name of the nth month, note that the months are 0-indexed because javascript...
 function getMonthName(n: number, lang?: string) {
   return new Date(0, n).toLocaleString(lang, { month: "long" });
+}
+
+// Returns a sorting function to sort a list of numbers based on the ArchiveSortOrder enum
+function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => number[] {
+  const direction =
+    sortOrder === ArchiveSortOrder.NewestFirst
+      ? -1
+      : sortOrder === ArchiveSortOrder.OldestFirst
+        ? 1
+        : 0;
+
+  if (direction === 0) return (list) => list;
+
+  return (list) =>
+    list.sort((a, b) => {
+      // Ensure unknown appears last
+      if (a === UNKNOWN_YEAR_OR_MONTH) return 1;
+      if (b === UNKNOWN_YEAR_OR_MONTH) return -1;
+
+      // Actual sort
+      return direction * (a - b);
+    });
 }
 
 function getEarliestProductionStartDate(production: ProductionWithEvents): Date | null {
@@ -84,31 +108,32 @@ function MonthDisplay({
 function YearDisplay({
   productionsPerMonth,
   year,
+  sortOrder,
 }: {
   productionsPerMonth: Map<number, ProductionWithEvents[]>;
   year: number;
+  sortOrder?: ArchiveSortOrder;
 }) {
   const { t } = useTranslation();
   const months = [...productionsPerMonth.keys()];
 
+  const sortFunction = getSortFunction(sortOrder);
+
   return (
     <div>
       <h2 className="mt-5 min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
-        {year == -1 ? t("Unknown date") : year}
+        {year == -1 ? t("archive.unknownDate") : year}
       </h2>
       <Divider className="bg-archive-accent/15 flex-1" />
 
-      {months
-        .sort()
-        .reverse()
-        .map((month) => (
-          <MonthDisplay
-            key={`productions-y${year}-m${month}`}
-            productions={productionsPerMonth.get(month)!}
-            month={month}
-            year={year}
-          />
-        ))}
+      {sortFunction(months).map((month) => (
+        <MonthDisplay
+          key={`productions-y${year}-m${month}`}
+          productions={productionsPerMonth.get(month)!}
+          month={month}
+          year={year}
+        />
+      ))}
     </div>
   );
 }
@@ -116,25 +141,27 @@ function YearDisplay({
 export function ProductionTimeline({
   productions,
   className,
+  sortOrder,
 }: {
   productions: ProductionWithEvents[];
   className?: string;
+  sortOrder?: ArchiveSortOrder;
 }) {
   const groupedProductions = groupProductions(productions);
   const years = [...groupedProductions.keys()];
 
+  const sortFunction = getSortFunction(sortOrder);
+
   return (
     <div className={className}>
-      {years
-        .sort()
-        .reverse()
-        .map((year) => (
-          <YearDisplay
-            key={`productions-y${year}`}
-            productionsPerMonth={groupedProductions.get(year)!}
-            year={year}
-          />
-        ))}
+      {sortFunction(years).map((year) => (
+        <YearDisplay
+          key={`productions-y${year}`}
+          productionsPerMonth={groupedProductions.get(year)!}
+          year={year}
+          sortOrder={sortOrder}
+        />
+      ))}
     </div>
   );
 }
