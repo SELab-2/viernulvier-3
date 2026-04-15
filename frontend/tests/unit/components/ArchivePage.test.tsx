@@ -19,20 +19,28 @@ describe("ProductionTimeline", () => {
   });
   it("renders filter side panel", async () => {
     await renderArchiveAndNavigate();
-    // TODO
+    expect(screen.getByText("filter.search")).toBeInTheDocument();
   });
   it("renders a list of productions", async () => {
     await renderArchiveAndNavigate();
-    // TODO
+    // TODO (improve once non-hardcoded productions)
+    expect(screen.getAllByText("Film Hoge Dichtheid #2")).toHaveLength(4); // Check if there are 4 productions with the name "Film Hoge Dichtheid #2" (4 because I copied the mocked productions into the archive page 4 times)
   });
+  describe("Result count", async () => {
+    it("displays correct result count", async () => {
+      await renderArchiveAndNavigate();
+      // TODO (improve once non-hardcoded productions)
+      expect(screen.getByText("12 archive.results")).toBeInTheDocument();
+    });
+    it("uses correct form of result(s) depending on amount of results", async () => {
+      await renderArchiveAndNavigate();
+      // TODO (requires non-hardcoded productions)
+    });
+  });
+
   it("shows no results text when 0 results", async () => {
     await renderArchiveAndNavigate();
     // TODO (requires non-hardcoded productions)
-  });
-
-  it("displays productions grouped per month", async () => {
-    await renderArchiveAndNavigate();
-    // TODO
   });
 
   it("displays months grouped per year", async () => {
@@ -57,9 +65,9 @@ describe("ProductionTimeline", () => {
     await renderArchiveAndNavigate();
     const user = userEvent.setup();
 
-    const select = screen.getByRole("combobox");
+    const select = screen.getByRole("combobox", { name: "sort-order" });
 
-    expect(select).toHaveValue("NewestFirst");
+    expect(select).toHaveValue(ArchiveSortOrder.NewestFirst);
 
     let year2024 = screen.getByText("2024");
     let year2023 = screen.getByText("2023");
@@ -69,9 +77,9 @@ describe("ProductionTimeline", () => {
       Node.DOCUMENT_POSITION_PRECEDING
     );
 
-    await user.selectOptions(select, "OldestFirst");
+    await user.selectOptions(select, ArchiveSortOrder.OldestFirst);
 
-    expect(select).toHaveValue("OldestFirst");
+    expect(select).toHaveValue(ArchiveSortOrder.OldestFirst);
 
     year2023 = screen.getByText("2023");
     year2024 = screen.getByText("2024");
