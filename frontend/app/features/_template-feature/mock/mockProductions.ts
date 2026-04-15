@@ -1,6 +1,6 @@
-import type { ProductionWithEvents } from "~/features/archive/types/productionTypes";
+import type { Production } from "~/features/archive/types/productionTypes";
 
-export const mockProductions: ProductionWithEvents[] = [
+export const mockProductions: Production[] = [
   {
     id: "VV-2024-10-OPEN-ARCHIVE",
     performer_type: "group",
@@ -19,7 +19,8 @@ export const mockProductions: ProductionWithEvents[] = [
           "Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren. Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.Een avondvullende opening van de herfstselectie, opgebouwd rond dossiers, affiches en korte performances die de stadsarchieven activeren.",
       },
     ],
-    events: [
+    events: [],
+    eventsExpanded: [
       {
         id: "1",
         production_id: "VV-2024-10-OPEN-ARCHIVE",
@@ -61,7 +62,8 @@ export const mockProductions: ProductionWithEvents[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    events: [
+    events: [],
+    eventsExpanded: [
       {
         id: "1",
         production_id: "VV-2024-10-OPEN-ARCHIVE",
@@ -94,7 +96,8 @@ export const mockProductions: ProductionWithEvents[] = [
           "Een representatief voorbeelditem voor de mockup, dat de stabiliteit van de lay-out aantoont bij variërende volumes.",
       },
     ],
-    events: [
+    events: [],
+    eventsExpanded: [
       {
         id: "1",
         production_id: "VV-2024-10-M2",

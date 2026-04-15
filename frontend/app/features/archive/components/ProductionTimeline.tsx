@@ -1,10 +1,10 @@
 import { useParams } from "react-router";
 import { ProductionCard } from "./ProductionCard";
 import { Divider } from "@mui/material";
-import type { ProductionWithEvents } from "../types/productionTypes";
+import type { Production } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
 
-type GroupedProductions = Map<number, Map<number, ProductionWithEvents[]>>;
+type GroupedProductions = Map<number, Map<number, Production[]>>;
 
 export enum ArchiveSortOrder {
   NewestFirst = "NewestFirst",
@@ -40,17 +40,19 @@ function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => numb
     });
 }
 
-function getEarliestProductionStartDate(production: ProductionWithEvents): Date | null {
-  return production.events.reduce<Date | null>((min, event) => {
-    if (!event.starts_at) return min;
+function getEarliestProductionStartDate(production: Production): Date | null {
+  return production.eventsExpanded
+    ? production.eventsExpanded.reduce<Date | null>((min, event) => {
+        if (!event.starts_at) return min;
 
-    const current = new Date(event.starts_at);
-    return !min || current < min ? current : min;
-  }, null);
+        const current = new Date(event.starts_at);
+        return !min || current < min ? current : min;
+      }, null)
+    : null;
 }
 
 // Groups productions per year per month
-function groupProductions(productions: ProductionWithEvents[]): GroupedProductions {
+function groupProductions(productions: Production[]): GroupedProductions {
   const grouped: GroupedProductions = new Map();
 
   for (const prod of productions) {
@@ -72,7 +74,7 @@ function MonthDisplay({
   productions,
   month,
 }: {
-  productions: ProductionWithEvents[];
+  productions: Production[];
   year: number;
   month: number;
 }) {
@@ -110,7 +112,7 @@ function YearDisplay({
   year,
   sortOrder,
 }: {
-  productionsPerMonth: Map<number, ProductionWithEvents[]>;
+  productionsPerMonth: Map<number, Production[]>;
   year: number;
   sortOrder?: ArchiveSortOrder;
 }) {
@@ -143,7 +145,7 @@ export function ProductionTimeline({
   className,
   sortOrder,
 }: {
-  productions: ProductionWithEvents[];
+  productions: Production[];
   className?: string;
   sortOrder?: ArchiveSortOrder;
 }) {

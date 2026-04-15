@@ -30,6 +30,8 @@ export interface Production {
   production_infos: ProductionInfo[];
   event_id_urls: string[];
   tags: Tag[];
+
+  eventsExpanded?: Event[]; // event data
 }
 
 export interface ProductionList {
@@ -78,8 +80,4 @@ export interface ProductionUpdate {
   production_infos?: ProductionInfoUpdate[];
   tag_id_urls?: string[];
   remove_languages?: string[];
-}
-
-export interface ProductionWithEvents extends Omit<Production, "events"> {
-  events: Event[];
 }
