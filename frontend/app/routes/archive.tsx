@@ -27,6 +27,7 @@ function SortOrderSelection({
       </div>
 
       <select
+        aria-label="sort-order"
         className="hover:text-archive-accent *:bg-archive-paper cursor-pointer border-none text-sm font-medium italic transition-colors duration-100 focus:ring-0"
         value={sortOrder}
         onChange={handleChangeSortOrder}
