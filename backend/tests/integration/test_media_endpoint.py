@@ -70,12 +70,12 @@ def test_upload_media_success(
     # Exact MediaResponse schema validation
     assert data["content_type"] == content_type
     assert "id_url" in data
-    assert "production" in data
+    assert "production_id_url" in data
     assert "uploaded_at" in data
     assert "url" in data
 
     # Verify production relationship
-    assert f"productions/{production_with_no_media.id}" in data["production"]
+    assert f"productions/{production_with_no_media.id}" in data["production_id_url"]
     assert f"productions/{production_with_no_media.id}/media/" in data["id_url"]
 
 
@@ -126,8 +126,8 @@ def test_list_media(client: TestClient, media_items_for_production):
     for item in data["media"]:
         assert "content_type" in item
         assert "id_url" in item
-        assert "production" in item
-        assert prod_path in item["production"]
+        assert "production_id_url" in item
+        assert prod_path in item["production_id_url"]
 
 
 def test_delete_media_success(client: TestClient, db_session: Session, media_item):

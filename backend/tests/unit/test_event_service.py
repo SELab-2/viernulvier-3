@@ -53,8 +53,8 @@ def event(db_session, production, hall):
 def test_get_event_by_id_success(db_session, event):
     result = get_event_by_id(db_session, event.id, BASE_URL)
 
-    assert result.id == f"{BASE_URL}/events/{event.id}"
-    assert result.hall_id == f"{BASE_URL}/halls/{event.hall_id}"
+    assert result.id_url == f"{BASE_URL}/events/{event.id}"
+    assert result.hall.id_url == f"{BASE_URL}/halls/{event.hall_id}"
 
 
 def test_get_event_by_id_with_null_hall_returns_null_hall_id(db_session, production):
@@ -70,8 +70,8 @@ def test_get_event_by_id_with_null_hall_returns_null_hall_id(db_session, product
 
     result = get_event_by_id(db_session, event.id, BASE_URL)
 
-    assert result.id == f"{BASE_URL}/events/{event.id}"
-    assert result.hall_id is None
+    assert result.id_url == f"{BASE_URL}/events/{event.id}"
+    assert result.hall is None
 
 
 def test_get_event_by_id_not_found(db_session):
@@ -81,20 +81,20 @@ def test_get_event_by_id_not_found(db_session):
 
 def test_make_event_with_existing_hall(db_session, production, hall):
     event_in = EventCreate(
-        production_id=f"{BASE_URL}/productions/{production.id}",
-        hall_id=f"{BASE_URL}/halls/{hall.id}",
+        production_id_url=f"{BASE_URL}/productions/{production.id}",
+        hall_id_url=f"{BASE_URL}/halls/{hall.id}",
     )
 
     result = create_event(db_session, event_in, BASE_URL)
 
-    assert result.production_id == f"{BASE_URL}/productions/{production.id}"
-    assert result.hall_id == f"{BASE_URL}/halls/{hall.id}"
+    assert result.production_id_url == f"{BASE_URL}/productions/{production.id}"
+    assert result.hall.id_url == f"{BASE_URL}/halls/{hall.id}"
 
 
 def test_make_event_invalid_hall(db_session, production):
     event_in = EventCreate(
-        production_id=f"{BASE_URL}/productions/{production.id}",
-        hall_id=f"{BASE_URL}/halls/999",
+        production_id_url=f"{BASE_URL}/productions/{production.id}",
+        hall_id_url=f"{BASE_URL}/halls/999",
     )
 
     with pytest.raises(NotFoundError):
@@ -117,7 +117,7 @@ def test_update_event_not_found(db_session):
 
 
 def test_update_event_invalid_hall(db_session, event):
-    update_data = EventUpdate(hall_id=f"{BASE_URL}/halls/999")
+    update_data = EventUpdate(hall_id_url=f"{BASE_URL}/halls/999")
 
     with pytest.raises(NotFoundError):
         update_event(db_session, event.id, update_data, BASE_URL)

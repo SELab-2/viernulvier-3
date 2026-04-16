@@ -201,7 +201,7 @@ function dev() {
 	case "$action" in
 		format)
 			if [[ "$target" == backend || "$target" == both ]]; then
-				(run cd backend && run ruff format)
+				(run cd backend && run ruff check --fix && run ruff format)
 			fi
 			if [[ "$target" == frontend || "$target" == both ]]; then
 				(
