@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { getArtists } from "~/features/archive/services/artistService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
@@ -44,6 +45,7 @@ const FilterSidebar: React.FC<Props> = ({
   const [tags, setTags] = useState<Tag[]>([]);
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
+  const [artists, setArtists] = useState<string[]>([]);
 
   const sidebarRef = useRef<HTMLElement>(null);
   const artistInputRef = useRef<HTMLDivElement>(null);
@@ -131,20 +133,9 @@ const FilterSidebar: React.FC<Props> = ({
   ];
 
   // Get artists from service
-  const artists = [
-    "Alain Platel",
-    "Anne Teresa De Keersmaeker",
-    "FC Bergman",
-    "Jan Decorte",
-    "Josse De Pauw",
-    "Luc Tuymans",
-    "Meg Stuart",
-    "Needcompany",
-    "Ontroerend Goed",
-    "Peeping Tom",
-    "Sidi Larbi Cherkaoui",
-    "Wim Vandekeybus",
-  ];
+  useEffect(() => {
+	  getArtists("nl").then(setArtists).catch(console.error);
+  }, [])
 
   const filteredArtists =
     artistQuery.trim().length > 0
