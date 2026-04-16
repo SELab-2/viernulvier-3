@@ -7,13 +7,25 @@ import type {
   Production,
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
+import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { HallResponse } from "~/features/archive/types/hallTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getMediaForProductionPaginated } from "~/features/archive/services/mediaService";
+import {
+  getEventByUrl,
+  getPriceByUrl,
+} from "~/features/archive/services/eventService";
+import { getHallByUrl } from "~/features/archive/services/hallService";
 
 interface ProductionPageProps {
   production: Production;
   preferredLanguage?: string;
 }
+
+type EventWithResolvedRelations = Event & {
+  resolvedHall: HallResponse | undefined;
+  resolvedPrices: Price[];
+};
 
 function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
@@ -138,6 +150,9 @@ export function ProductionPage({
   const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
   const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
   const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
+  const [eventsWithDetails, setEventsWithDetails] = useState<
+    EventWithResolvedRelations[]
+  >([]);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
   const isDraggingEvidenceRef = useRef(false);
   const evidenceDragStartXRef = useRef(0);
@@ -191,7 +206,9 @@ export function ProductionPage({
   const imageUrl = imageUrls[0];
   const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
-  const eventObjects = (production.events_objects ?? [])
+  const eventObjects = useMemo(
+    () =>
+      eventsWithDetails
     .slice()
     .sort((leftEvent, rightEvent) => {
       const startDifference =
@@ -203,9 +220,93 @@ export function ProductionPage({
       }
 
       return leftEvent.id.localeCompare(rightEvent.id);
-    });
+    }),
+    [eventsWithDetails]
+  );
 
   useEffect(() => {
+    let isCancelled = false;
+
+    const loadEventDetails = async () => {
+      if (!isCancelled) {
+        setEventsWithDetails([]);
+      }
+
+      try {
+        if (production.events.length === 0) {
+          return;
+        }
+
+        const hydratedEvents = await Promise.all(
+          production.events.map(async (eventUrl): Promise<EventWithResolvedRelations | null> => {
+            let event: Event | undefined;
+
+            try {
+              event = await getEventByUrl(eventUrl);
+            } catch {
+              return null;
+            }
+
+            if (!event) {
+              return null;
+            }
+
+            const hallPromise = event.hall_id
+              ? getHallByUrl(event.hall_id).catch(() => undefined)
+              : Promise.resolve(undefined);
+
+            const pricesPromise =
+              event.prices.length > 0
+                ? Promise.all(
+                    event.prices.map(async (priceUrl) => {
+                      try {
+                        return await getPriceByUrl(priceUrl);
+                      } catch {
+                        return undefined;
+                      }
+                    })
+                  ).then((prices) =>
+                    prices.filter((price): price is Price => Boolean(price))
+                  )
+                : Promise.resolve([] as Price[]);
+
+            const [resolvedHall, resolvedPrices] = await Promise.all([
+              hallPromise,
+              pricesPromise,
+            ]);
+
+            return {
+              ...event,
+              resolvedHall,
+              resolvedPrices,
+            };
+          })
+        );
+
+        if (!isCancelled) {
+          setEventsWithDetails(
+            hydratedEvents.filter(
+              (event): event is EventWithResolvedRelations => event !== null
+            )
+          );
+        }
+      } catch {
+        if (!isCancelled) {
+          setEventsWithDetails([]);
+        }
+      }
+    };
+
+    void loadEventDetails();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [production.events]);
+
+  useEffect(() => {
+    setMediaImageUrls([]);
+
     // skip media fetching if the production id cannot be parsed
     if (!productionNumericId) {
       return;
@@ -413,12 +514,12 @@ export function ProductionPage({
                     const eventTime =
                       dateAndTime?.timeLabel ?? t("productionPage.fallback.dateTbd");
                     const eventLocation = getTextOrDefault(
-                      event.hall?.name,
+                      event.resolvedHall?.name ?? event.hall?.name,
                       t("productionPage.fallback.locationTbd")
                     );
                     const eventPrice =
-                      event.price_objects && event.price_objects.length > 0
-                        ? event.price_objects
+                      event.resolvedPrices.length > 0
+                        ? event.resolvedPrices
                             .map((price) =>
                               typeof price.amount === "number"
                                 ? new Intl.NumberFormat(i18n.language, {

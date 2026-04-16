@@ -34,7 +34,6 @@ export interface Production {
 
   production_infos: ProductionInfo[];
   events: string[];
-  events_objects?: Event[];
   tags: Tag[];
 }
 

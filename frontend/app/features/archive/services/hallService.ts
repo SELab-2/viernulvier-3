@@ -1,4 +1,5 @@
 import {
+  getByUrl,
   getFromArchive,
   postToArchive,
   patchToArchive,
@@ -16,6 +17,10 @@ export async function getAllHalls(): Promise<HallResponse[]> {
 
 export async function getHall(hallId: number): Promise<HallResponse> {
   return getFromArchive<HallResponse>(`/halls/${hallId}`);
+}
+
+export async function getHallByUrl(hallUrl: string): Promise<HallResponse> {
+  return getByUrl<HallResponse>(hallUrl);
 }
 
 export async function createHall(hallData: Hall): Promise<HallResponse> {

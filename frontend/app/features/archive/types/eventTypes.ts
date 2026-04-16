@@ -12,13 +12,12 @@ export interface Price {
 export interface Event {
   id: string;
   production_id: string;
-  hall_id: string;
+  hall_id?: string;
   hall?: Hall;
   starts_at?: string;
   ends_at?: string;
   order_url?: string;
-  price_ids: string[];
-  price_objects?: Price[];
+  prices: string[];
   created_at?: string;
   updated_at?: string;
 }

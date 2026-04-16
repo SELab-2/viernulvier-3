@@ -1,4 +1,5 @@
 import {
+  getByUrl,
   getFromArchive,
   postToArchive,
   patchToArchive,
@@ -32,6 +33,10 @@ export async function getProductionsPaginated(
 
 export async function getProduction(productionId: number): Promise<Production> {
   return getFromArchive<Production>(`/productions/${productionId}`);
+}
+
+export async function getProductionByUrl(productionUrl: string): Promise<Production> {
+  return getByUrl<Production>(productionUrl);
 }
 
 export async function createProduction(

@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
-import { ProductionCard } from "~/features/archive/components/ProductionCard";
-import { productionPageMockSource } from "~/features/archive/components/productionPageMock";
 
 export default function Archive() {
   const [showFilters, setShowFilters] = useState(false);
@@ -22,22 +20,6 @@ export default function Archive() {
   };
 
   const { t } = useTranslation();
-  const filteredProductions = productionPageMockSource.filter(({ production }) => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) {
-      return true;
-    }
-
-    return production.production_infos.some((info) => {
-      const title = info.title?.toLowerCase() ?? "";
-      const supertitle = info.supertitle?.toLowerCase() ?? "";
-      const artist = info.artist?.toLowerCase() ?? "";
-      return (
-        title.includes(query) || supertitle.includes(query) || artist.includes(query)
-      );
-    });
-  });
-  // for seeing the mocks
 
   // De div met getoonde filters is tijdelijk en heeft dus geen i18n
   return (
@@ -91,22 +73,6 @@ export default function Archive() {
           <p>Tags: {selectedTags.join(", ")}</p>
           <p>Venues: {selectedVenues.join(", ")}</p>
           <p>Artists: {selectedArtists.join(", ")}</p>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredProductions.map(
-              ({ production, starts_at, hall_name, tag_names, image_url }) => (
-                <ProductionCard
-                  key={production.id_url}
-                  production={{
-                    ...production,
-                    starts_at,
-                    hall_name,
-                    tag_names,
-                    image_url,
-                  }}
-                />
-              )
-            )}
-          </div>
         </div>
       </div>
     </div>
