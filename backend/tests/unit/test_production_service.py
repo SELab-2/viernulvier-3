@@ -90,6 +90,34 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert result.pagination.next_cursor is None
 
 
+# Only get productions with a certain artist (in total 10 productions).
+def test_get_productions_with_artist(db_session, many_productions):
+    # 5 productions by Steve, 5 by Bob, 0 by Alice.
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, artists=["Steve"]
+    )
+    assert len(result.productions) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+    result = get_productions_paginated(db_session, BASE_URL, limit=10, artists=["Bob"])
+    assert len(result.productions) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=5, artists=["Steve", "Bob"]
+    )
+    assert len(result.productions) == 5
+    assert result.pagination.has_more
+    assert result.pagination.next_cursor is not None
+
+    result = get_productions_paginated(db_session, BASE_URL, limit=5, artists=["Alice"])
+    assert len(result.productions) == 0
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+
 # Get events for production: check if correct event urls are returned.
 def test_get_event_urls_for_production(db_session, productions_limited):
     events_prod1 = get_event_urls_for_production(

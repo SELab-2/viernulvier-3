@@ -85,6 +85,7 @@ def get_productions_paginated(
     cursor: int | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
+    artists: list[str] | None = None,
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
     if tags:
@@ -92,6 +93,15 @@ def get_productions_paginated(
             db.query(Production.id)
             .join(Production.tags)
             .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
+    if artists:
+        subq = (
+            db.query(ProdInfo.production_id)
+            .filter(ProdInfo.artist.in_(artists))
             .distinct()
             .subquery()
         )
