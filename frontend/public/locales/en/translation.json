@@ -112,7 +112,7 @@
   "users": {
     "eyebrow": "Administration",
     "title": "User management",
-    "description": "Review active accounts and their effective access in a single overview.",
+    "description": "Review active accounts and make lightweight account changes without leaving the overview.",
     "loading": "Loading users",
     "summary": {
       "totalUsers": "Total users",
@@ -120,21 +120,48 @@
     },
     "fields": {
       "username": "Username",
+      "password": "Password",
       "roles": "Roles",
       "permissions": "Permissions"
     },
+    "form": {
+      "passwordCreateHint": "New users need a password before the account can be created."
+    },
     "actions": {
-      "retry": "Retry"
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "add": "Add user",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "create": "Create user",
+      "creating": "Creating user",
+      "confirmDelete": "Delete user",
+      "deleting": "Deleting user"
     },
     "badges": {
-      "superUser": "Super user"
+      "superUser": "Super user",
+      "currentUser": "Current session"
     },
     "meta": {
       "createdAt": "Created",
       "lastLoginAt": "Last login"
     },
     "messages": {
-      "loadFailed": "We could not load the user administration data right now."
+      "loadFailed": "We could not load the user administration data right now.",
+      "createFailed": "We could not create the user right now.",
+      "deleteFailed": "We could not delete the user right now.",
+      "usernameRequired": "A username is required.",
+      "passwordRequired": "A password is required."
+    },
+    "dialogs": {
+      "create": {
+        "title": "Add user",
+        "description": "Create a basic account with a username and password. Roles can be assigned later."
+      },
+      "delete": {
+        "title": "Delete user",
+        "description": "Delete {{username}} permanently. This action cannot be undone."
+      }
     },
     "empty": {
       "title": "No users found",
