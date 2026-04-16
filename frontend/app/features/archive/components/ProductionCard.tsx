@@ -114,6 +114,11 @@ function getTagNamesByLanguage(
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
+function getProductionNumericIdFromUrl(idUrl: string): string | undefined {
+  const match = idUrl.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+  return match?.[1];
+}
+
 export function ProductionCard({
   production,
   preferredLanguage = "nl",
@@ -145,12 +150,14 @@ export function ProductionCard({
   const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
-  // NOTE: update this after id_url becomes standard
-  // const productionId = production.id_url;
-  const productionId = production.id_url;
+  const productionId = getProductionNumericIdFromUrl(production.id_url);
 
   const handleOpenDetails = () => {
-    navigate(lp(`/productions/${encodeURIComponent(productionId)}`));
+    if (!productionId) {
+      return;
+    }
+
+    navigate(lp(`/productions/${productionId}`));
   };
 
   return (
