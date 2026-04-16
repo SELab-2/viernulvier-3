@@ -38,7 +38,7 @@ def test_get_tags_list(db_session, tag):
     result = get_tags_list(db_session, BASE_URL)
 
     assert len(result) == 1
-    assert result[0].id == f"{BASE_URL}/tags/{tag.id}"
+    assert result[0].id_url == f"{BASE_URL}/tags/{tag.id}"
     assert len(result[0].names) == 2
 
 
@@ -54,7 +54,7 @@ def test_get_tags_list_language_filter(db_session):
 def test_get_tag_by_id_success(db_session, tag):
     result = get_tag_by_id(db_session, tag.id, BASE_URL)
 
-    assert result.id == f"{BASE_URL}/tags/{tag.id}"
+    assert result.id_url == f"{BASE_URL}/tags/{tag.id}"
     assert len(result.names) == 2
 
 
@@ -80,7 +80,7 @@ def test_create_tag(db_session):
 
     result = create_tag(db_session, tag_in, BASE_URL)
 
-    assert result.id.startswith(f"{BASE_URL}/tags/")
+    assert result.id_url.startswith(f"{BASE_URL}/tags/")
     assert len(result.names) == 2
 
     names = {n.language: n.name for n in result.names}

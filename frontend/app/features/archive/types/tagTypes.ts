@@ -4,7 +4,7 @@ export interface TagName {
 }
 
 export interface Tag {
-  id: string;
+  id_url: string;
   names: TagName[];
 }
 

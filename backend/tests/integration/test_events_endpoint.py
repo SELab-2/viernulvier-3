@@ -8,7 +8,8 @@ from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 
-BASE_URL = "/api/v1/archive/events"
+BASE_URL = "/api/v1/archive"
+BASE_URL_EVENTS = "/api/v1/archive/events"
 
 
 def create_user_and_login(
@@ -53,11 +54,16 @@ def test_create_event_success(client: TestClient, db_session: Session):
         client, db_session, "create_event_user", [Permissions.ARCHIVE_CREATE]
     )
 
+    api_production_response = client.get(f"{BASE_URL}/productions")
+    api_production = api_production_response.json()["productions"][0]
+    api_hall_response = client.get(f"{BASE_URL}/halls")
+    api_hall = api_hall_response.json()[0]
+
     response = client.post(
-        BASE_URL + "/",
+        BASE_URL_EVENTS + "/",
         json={
-            "production_id": str(production.id),
-            "hall_id": str(hall.id),
+            "production_id_url": api_production["id_url"],
+            "hall_id_url": api_hall["id_url"],
             "order_url": "http://order.url",
         },
         headers=headers,
@@ -65,8 +71,8 @@ def test_create_event_success(client: TestClient, db_session: Session):
 
     assert response.status_code == 201
     data = response.json()
-    assert data["production_id"].endswith(str(production.id))
-    assert data["hall_id"].endswith(str(hall.id))
+    assert data["production_id_url"].endswith(str(production.id))
+    assert data["hall"]["id_url"].endswith(str(hall.id))
     assert data["order_url"] == "http://order.url"
 
 
@@ -81,12 +87,12 @@ def test_get_event_by_id(client: TestClient, db_session: Session):
     db_session.add_all([hall, production, event])
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"].endswith(str(event.id))
-    assert data["hall_id"].endswith(str(hall.id))
-    assert data["production_id"].endswith(str(production.id))
+    assert data["id_url"].endswith(str(event.id))
+    assert data["hall"]["id_url"].endswith(str(hall.id))
+    assert data["production_id_url"].endswith(str(production.id))
 
 
 def test_get_event_by_id_with_null_hall_returns_null(
@@ -101,16 +107,16 @@ def test_get_event_by_id_with_null_hall_returns_null(
     db_session.add_all([production, event])
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"].endswith(str(event.id))
-    assert data["hall_id"] is None
-    assert data["production_id"].endswith(str(production.id))
+    assert data["id_url"].endswith(str(event.id))
+    assert data["hall"] is None
+    assert data["production_id_url"].endswith(str(production.id))
 
 
 def test_get_event_not_found(client: TestClient):
-    response = client.get(f"{BASE_URL}/9999")
+    response = client.get(f"{BASE_URL_EVENTS}/9999")
     assert response.status_code == 404
 
 
@@ -130,7 +136,9 @@ def test_update_event_success(client: TestClient, db_session: Session):
     )
 
     response = client.patch(
-        f"{BASE_URL}/{event.id}", json={"order_url": "http://new.url"}, headers=headers
+        f"{BASE_URL_EVENTS}/{event.id}",
+        json={"order_url": "http://new.url"},
+        headers=headers,
     )
     assert response.status_code == 200
     data = response.json()
@@ -143,7 +151,7 @@ def test_update_event_not_found(client: TestClient, db_session: Session):
     )
 
     response = client.patch(
-        f"{BASE_URL}/9999", json={"order_url": "http://new.url"}, headers=headers
+        f"{BASE_URL_EVENTS}/9999", json={"order_url": "http://new.url"}, headers=headers
     )
     assert response.status_code == 404
 
@@ -163,7 +171,7 @@ def test_delete_event_success(client: TestClient, db_session: Session):
         client, db_session, "delete_event_user", [Permissions.ARCHIVE_DELETE]
     )
 
-    response = client.delete(f"{BASE_URL}/{event.id}", headers=headers)
+    response = client.delete(f"{BASE_URL_EVENTS}/{event.id}", headers=headers)
     assert response.status_code == 204
 
 
@@ -172,7 +180,7 @@ def test_delete_event_not_found(client: TestClient, db_session: Session):
         client, db_session, "delete_fail_user", [Permissions.ARCHIVE_DELETE]
     )
 
-    response = client.delete(f"{BASE_URL}/9999", headers=headers)
+    response = client.delete(f"{BASE_URL_EVENTS}/9999", headers=headers)
     assert response.status_code == 404
 
 
@@ -185,7 +193,7 @@ def test_create_event_without_permission(client: TestClient, db_session: Session
     headers = create_user_and_login(client, db_session, "no_perm_user")
 
     response = client.post(
-        BASE_URL + "/",
+        BASE_URL_EVENTS + "/",
         json={
             "production_id": str(production.id),
             "hall_id": str(hall.id),
@@ -221,7 +229,7 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
     db_session.add_all([hall, production, event, price1, price2])
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}/prices")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices")
 
     assert response.status_code == 200
     data = response.json()
@@ -232,7 +240,7 @@ def test_get_event_prices_success(client: TestClient, db_session: Session):
 
 
 def test_get_event_prices_event_not_found(client: TestClient):
-    response = client.get(f"{BASE_URL}/9999/prices")
+    response = client.get(f"{BASE_URL_EVENTS}/9999/prices")
 
     assert response.status_code == 404
 
@@ -256,12 +264,12 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
     db_session.add_all([hall, production, event, price])
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}/prices/{price.id}")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}")
 
     assert response.status_code == 200
     data = response.json()
 
-    assert data["id"].endswith(str(price.id))
+    assert data["id_url"].endswith(str(price.id))
     assert float(data["amount"]) == 15.0
 
 
@@ -278,7 +286,7 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
     db_session.add_all([hall, production, event])
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}/prices/9999")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices/9999")
 
     assert response.status_code == 404
 
@@ -297,11 +305,11 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
     db_session.add(event)
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{event.id}")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}")
     assert response.status_code == 200
     data = response.json()
 
-    event_url = data.get("id")
+    event_url = data.get("id_url")
     assert event_url is not None
 
     assert "/api/v1/archive/events" in event_url
@@ -325,11 +333,11 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
     db_session.commit()
 
     # actual request
-    response = client.get(f"{BASE_URL}/{event.id}/prices/{price.id}")
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}")
     assert response.status_code == 200
     data = response.json()
 
-    price_url = data.get("id")
+    price_url = data.get("id_url")
     assert price_url is not None
 
     assert f"/api/v1/archive/events/{event.id}/prices/{price.id}" in price_url

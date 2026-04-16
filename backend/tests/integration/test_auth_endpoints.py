@@ -96,9 +96,7 @@ def test_tokens_invalidated_after_password_change_integration(
     refresh_token = login_response.json()["refresh_token"]
 
     user_service.patch_user(
-        db_session,
-        user.id,
-        UserPatch(password="new-password"),
+        db_session, user.id, UserPatch(password="new-password"), base_url=""
     )
 
     me_response = client.get(

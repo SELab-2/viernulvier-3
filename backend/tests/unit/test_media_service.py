@@ -49,7 +49,9 @@ def test_build_media_response_basic(db_session, media_item):
         resp.id_url
         == f"{BASE_URL}/productions/{media_item.production_id}/media/{media_item.id}"
     )
-    assert resp.production == f"{BASE_URL}/productions/{media_item.production_id}"
+    assert (
+        resp.production_id_url == f"{BASE_URL}/productions/{media_item.production_id}"
+    )
     # Note: host-only URL for actual media file
     assert resp.url == f"http://test/media/{media_item.object_key}"
     assert resp.content_type == media_item.content_type
@@ -66,7 +68,7 @@ def test_get_media_by_id_found(db_session, media_items_for_production):
     resp = get_media_by_id(db_session, media.id, BASE_URL)
 
     assert resp.id_url.endswith(f"/productions/{media.production_id}/media/{media.id}")
-    assert resp.production.endswith(f"/productions/{media.production_id}")
+    assert resp.production_id_url.endswith(f"/productions/{media.production_id}")
     assert resp.content_type == media.content_type
 
 
@@ -145,7 +147,7 @@ def test_upload_media_creates_db_row_and_puts_object(
     assert db_media.object_key == object_key
     assert db_media.content_type == content_type
 
-    assert resp.production == f"{BASE_URL}/productions/{prod.id}"
+    assert resp.production_id_url == f"{BASE_URL}/productions/{prod.id}"
     assert resp.url.endswith(f"/media/{object_key}")
 
 
