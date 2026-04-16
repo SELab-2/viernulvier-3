@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getArtists } from "~/features/archive/services/artistService";
+import { getHallByName } from "~/features/archive/services/hallService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
@@ -46,6 +47,7 @@ const FilterSidebar: React.FC<Props> = ({
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
   const [artists, setArtists] = useState<string[]>([]);
+  const [venueMap, setVenueMap] = useState<Record<string, string>>({});
 
   const sidebarRef = useRef<HTMLElement>(null);
   const artistInputRef = useRef<HTMLDivElement>(null);
@@ -122,15 +124,38 @@ const FilterSidebar: React.FC<Props> = ({
     fetchPopularTags();
   }, [tags]);
 
-  // Hardcoded as most popular venues, but maybe only the ids and use service to get them
-  const venues = [
-    "Balzaal",
-    "Café",
-    "Domzaal",
-    "Filmzaal",
-    "Theaterzaal",
-    "Andere locaties",
-  ];
+  // Hardcoded as most popular venues
+  useEffect(() => {
+    const searchHallNames = [
+      "Balzaal",
+      "Café",
+      "Domzaal",
+      "Filmzaal",
+      "Theaterzaal",
+    ];
+
+    const fetchVenues = async () => {
+	  const entries = (
+        await Promise.all(
+          searchHallNames.map(async (hall) => {
+            try {
+              const result = await getHallByName(hall);
+              return [hall, result.id_url] as [string, string];
+            } catch (error) {
+              console.error(`Failed to fetch hall "${hall}":`, error);
+              return null;
+            }
+          })
+        )
+      ).filter((entry): entry is [string, string] => entry !== null);
+
+      const venueMap: Record<string, string> = Object.fromEntries(entries);
+      venueMap["Andere locaties"] = "none";
+      setVenueMap(venueMap);
+    };
+
+    fetchVenues();
+  }, []);
 
   // Get artists from service
   useEffect(() => {
@@ -291,7 +316,7 @@ const FilterSidebar: React.FC<Props> = ({
             <div className="sticky-scroll flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2 md:max-h-60">
               {popTags.map((tag) => (
                 <button
-                  key={tag.id}
+                  key={tag.id_url}
                   onClick={() => toggleTag(tag)}
                   className={`cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase transition-all ${selectedTags.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
                 >
@@ -302,11 +327,11 @@ const FilterSidebar: React.FC<Props> = ({
               {tags
                 .filter(
                   (tag) =>
-                    selectedTags.includes(tag) && !popTags.some((p) => p.id === tag.id)
+                    selectedTags.includes(tag) && !popTags.some((p) => p.id_url === tag.id_url)
                 )
                 .map((tag) => (
                   <button
-                    key={tag.id}
+                    key={tag.id_url}
                     onClick={() => toggleTag(tag)}
                     className="bg-archive-accent border-archive-accent cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap text-white uppercase transition-all"
                   >
@@ -346,7 +371,7 @@ const FilterSidebar: React.FC<Props> = ({
                     )
                     .map((tag) => (
                       <li
-                        key={tag.id}
+                        key={tag.id_url}
                         onMouseDown={() => {
                           toggleTag(tag);
                           setTagQuery("");
@@ -386,24 +411,24 @@ const FilterSidebar: React.FC<Props> = ({
           </svg>
         </div>
         {venuesOpen && (
-          <div className="space-y-3">
-            {venues.map((venue) => (
-              <label
-                key={venue}
-                className="group flex cursor-pointer items-center space-x-3"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedVenues.includes(venue)}
-                  onChange={() => toggleVenue(venue)}
-                  className="border-archive-ink/20 text-archive-accent focus:ring-archive-accent cursor-pointer rounded"
-                />
-                <span className="text-xs font-medium opacity-60 transition-opacity group-hover:opacity-100">
-                  {venue}
-                </span>
-              </label>
-            ))}
-          </div>
+		  <div className="space-y-3">
+			{Object.keys(venueMap).map((venue) => (
+			  <label
+			    key={venue}
+				className="group flex cursor-pointer items-center space-x-3"
+			  >
+			  <input
+				type="checkbox"
+				checked={selectedVenues.includes(venueMap[venue])}
+				onChange={() => toggleVenue(venueMap[venue])}
+				className="border-archive-ink/20 text-archive-accent focus:ring-archive-accent cursor-pointer rounded"
+			  />
+			  <span className="text-xs font-medium opacity-60 transition-opacity group-hover:opacity-100">
+				{venue}
+			  </span>
+		      </label>
+			))}
+		  </div>
         )}
       </div>
 
