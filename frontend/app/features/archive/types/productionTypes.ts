@@ -32,7 +32,7 @@ export interface Production {
   event_id_urls: string[];
   tags: Tag[];
 
-  eventsExpanded?: Event[]; // event data
+  events?: Event[]; // event data
 }
 
 export interface ProductionList {

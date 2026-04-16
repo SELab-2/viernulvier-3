@@ -10,6 +10,7 @@ import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import { getByUrl } from "~/shared/services/sharedService";
 import type { Event } from "~/features/archive/types/eventTypes";
+import type { ProductionList } from "~/features/archive/types/productionTypes";
 
 function SortOrderSelection({
   sortOrder,
@@ -78,11 +79,31 @@ function MobileToggleButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function ShowMoreButton() {
+function ShowMoreButton({
+  productionList,
+  setProductionList,
+}: {
+  productionList: ProductionList;
+  setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
+}) {
   const { t } = useTranslation();
+
+  async function onClick() {
+    const next_productions = await getProductionsPaginated({
+      cursor: productionList.pagination.next_cursor,
+    });
+
+    setProductionList({
+      productions: [...productionList.productions, ...next_productions.productions],
+      pagination: next_productions.pagination,
+    });
+  }
   return (
     <div className="mt-15 w-full text-center">
-      <button className="bg-archive-accent/90 hover:bg-archive-accent cursor-pointer rounded-md px-5 py-2 font-sans text-sm font-bold tracking-[0.2em] uppercase transition-all">
+      <button
+        onClick={onClick}
+        className="bg-archive-accent/90 hover:bg-archive-accent cursor-pointer rounded-md px-5 py-2 font-sans text-sm font-bold tracking-[0.2em] uppercase transition-all"
+      >
         {t("archive.show_more")}
       </button>
     </div>
@@ -112,20 +133,21 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
-  const { data: productionList } = useAsyncFetch(
-    useCallback(async () => {
-      const productionList = await getProductionsPaginated();
-      const productions = await Promise.all(
-        productionList.productions.map(async (production) => ({
-          ...production,
-          eventsExpanded: await Promise.all(
-            production.events.map((eventUrl) => getByUrl<Event>(eventUrl))
-          ),
-        }))
-      );
-      return { ...productionList, productions };
-    }, [])
-  );
+  const { data: productionList, setData: setProductionList } =
+    useAsyncFetch<ProductionList>(
+      useCallback(async () => {
+        const productionList = await getProductionsPaginated();
+        const productions = await Promise.all(
+          productionList.productions.map(async (production) => ({
+            ...production,
+            events: await Promise.all(
+              production.event_id_urls.map((eventUrl) => getByUrl<Event>(eventUrl))
+            ),
+          }))
+        );
+        return { ...productionList, productions };
+      }, [])
+    );
   const productions = productionList?.productions ?? [];
 
   return (
@@ -178,7 +200,12 @@ export default function Archive() {
             </div>
           )}
 
-          {productionList && productionList.pagination.has_more && <ShowMoreButton />}
+          {productionList && productionList.pagination.has_more && (
+            <ShowMoreButton
+              productionList={productionList}
+              setProductionList={setProductionList}
+            />
+          )}
         </div>
       </div>
     </div>
