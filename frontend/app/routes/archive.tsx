@@ -8,6 +8,8 @@ import {
 import { Divider } from "@mui/material";
 import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
+import { getByUrl } from "~/shared/services/sharedService";
+import type { Event } from "~/features/archive/types/eventTypes";
 
 function SortOrderSelection({
   sortOrder,
@@ -100,9 +102,19 @@ export default function Archive() {
   const { t } = useTranslation();
 
   const { data: productionList } = useAsyncFetch(
-    useCallback(() => getProductionsPaginated(), [])
+    useCallback(async () => {
+      const productionList = await getProductionsPaginated();
+      const productions = await Promise.all(
+        productionList.productions.map(async (production) => ({
+          ...production,
+          eventsExpanded: await Promise.all(
+            production.events.map((eventUrl) => getByUrl<Event>(eventUrl))
+          ),
+        }))
+      );
+      return { ...productionList, productions };
+    }, [])
   );
-
   const productions = productionList?.productions ?? [];
 
   return (
