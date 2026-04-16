@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "~/shared/components/FilterSidebar";
 
 export default function Archive() {
@@ -11,7 +12,7 @@ export default function Archive() {
   const [dateTo, setDateTo] = useState(
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   );
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
 
@@ -70,7 +71,7 @@ export default function Archive() {
           <p>
             From: {dateFrom} - To: {dateTo}
           </p>
-          <p>Tags: {selectedTags.join(", ")}</p>
+          <p>Tags: {selectedTags.map((tag) => tag.names[0].name).join(", ")}</p>
           <p>Venues: {selectedVenues.join(", ")}</p>
           <p>Artists: {selectedArtists.join(", ")}</p>
         </div>

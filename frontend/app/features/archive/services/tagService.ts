@@ -22,7 +22,7 @@ export async function getTagByName(name: string): Promise<Tag> {
 
   // Search for a tag with the correct name.
   const tag = allTags.find((tag) =>
-    tag.names.some((tagName) => tagName.name === name)
+    tag.names.some((tagName) => tagName.name.toLowerCase() === name.toLowerCase())
   );
 
   if (!tag) {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { getAllTags, getTagByName } from "~/features/archive/services/tagService"
+import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
 
@@ -45,7 +45,6 @@ const FilterSidebar: React.FC<Props> = ({
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
 
-
   const sidebarRef = useRef<HTMLElement>(null);
   const artistInputRef = useRef<HTMLDivElement>(null);
 
@@ -72,47 +71,53 @@ const FilterSidebar: React.FC<Props> = ({
     setSelectedArtists((prev) => prev.filter((a) => a !== artist));
   };
 
-  const mostPopularTags = [
-	  "theater",
-	  "dans",
-	  "concert",
-	  "nightlife",
-	  "talks",
-	  "comedy",
-	  "monument",
-	  "circus",
-	  "performance",
-	  "spoken word",
-	  "listening session",
-	  "by viernulvier",
-	  "in de vooruit",
-	  "in club wintercircus",
-	  "op locatie",
-	  "met audiodescriptie",
-	  "relaxed performance",
-	  "met tolk vgt",
-	  "cadeaubon geldig"
-  ];
-
   useEffect(() => {
-	  const fetchTags = async () => {
-		  const result = await getAllTags();
-		  setTags(result);
-	  }
-	  fetchTags();
+    const fetchTags = async () => {
+      const result = await getAllTags();
+      setTags(result);
+    };
+    fetchTags();
   }, []);
 
   useEffect(() => {
-	  if (tags.length === 0) return;
-
-	  const fetchPopularTags = async () => {
-		  const results = await Promise.all(
-			  mostPopularTags.map((name) => getTagByName(name))
-		  );
-		  setPopTags(results);
-	  };
-
-	  fetchPopularTags();
+    const mostPopularTags = [
+      "theater",
+      "dans",
+      "concert",
+      "nightlife",
+      "talks",
+      "comedy",
+      "monument",
+      "circus",
+      "performance",
+      "spoken word",
+      "listening session",
+      "by viernulvier",
+      "in de vooruit",
+      "in club wintercircus",
+      "op locatie",
+      "met audiodescriptie",
+      "relaxed performance",
+      "met tolk vgt",
+      "cadeaubon geldig",
+    ];
+    if (tags.length === 0) return;
+    const fetchPopularTags = async () => {
+      const results = await Promise.allSettled(
+        mostPopularTags.map((name) => getTagByName(name))
+      );
+      const successfulTags = results
+        .filter((result): result is PromiseFulfilledResult<Tag> => {
+          if (result.status === "rejected") {
+            console.error(result.reason);
+            return false;
+          }
+          return true;
+        })
+        .map((result) => result.value);
+      setPopTags(successfulTags);
+    };
+    fetchPopularTags();
   }, [tags]);
 
   // Hardcoded as most popular venues, but maybe only the ids and use service to get them
@@ -172,14 +177,14 @@ const FilterSidebar: React.FC<Props> = ({
   }, [filteredArtists.length]);
 
   const getLocalizedTagName = (tag: Tag): string => {
-	const lang = i18n.language.startsWith("nl") ? "nl" : "en";
-	const fallback = lang === "nl" ? "en" : "nl";
+    const lang = i18n.language.startsWith("nl") ? "nl" : "en";
+    const fallback = lang === "nl" ? "en" : "nl";
 
-	return (
-	  tag.names.find((tn) => tn.language === lang)?.name ??
-	  tag.names.find((tn) => tn.language === fallback)?.name ??
-	  ""
-	);
+    return (
+      tag.names.find((tn) => tn.language === lang)?.name ??
+      tag.names.find((tn) => tn.language === fallback)?.name ??
+      ""
+    );
   };
 
   const { t } = useTranslation();
@@ -290,83 +295,82 @@ const FilterSidebar: React.FC<Props> = ({
             />
           </svg>
         </div>
-		{tagOpen && (
-		  <div className="space-y-4">
-			<div className="sticky-scroll flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2 md:max-h-60">
-			  {popTags.map((tag) => (
-				<button
-				  key={tag.id}
-				  onClick={() => toggleTag(tag)}
-				  className={`cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase transition-all ${selectedTags.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
-				>
-				  {getLocalizedTagName(tag)}
-				</button>
-			  ))}
+        {tagOpen && (
+          <div className="space-y-4">
+            <div className="sticky-scroll flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2 md:max-h-60">
+              {popTags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => toggleTag(tag)}
+                  className={`cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase transition-all ${selectedTags.includes(tag) ? "bg-archive-accent border-archive-accent text-white" : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"}`}
+                >
+                  {getLocalizedTagName(tag)}
+                </button>
+              ))}
 
-			  {tags
-				.filter(
-				  (tag) =>
-					selectedTags.includes(tag) &&
-					!popTags.some((p) => p.id === tag.id)
-				)
-				.map((tag) => (
-				  <button
-					key={tag.id}
-					onClick={() => toggleTag(tag)}
-					className="bg-archive-accent border-archive-accent cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase text-white transition-all"
-				  >
-					{getLocalizedTagName(tag)}
-				  </button>
-				))}
-			</div>
+              {tags
+                .filter(
+                  (tag) =>
+                    selectedTags.includes(tag) && !popTags.some((p) => p.id === tag.id)
+                )
+                .map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => toggleTag(tag)}
+                    className="bg-archive-accent border-archive-accent cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap text-white uppercase transition-all"
+                  >
+                    {getLocalizedTagName(tag)}
+                  </button>
+                ))}
+            </div>
 
-			<div className="relative">
-			  <input
-				type="text"
-				placeholder={t("filter.search_tags")}
-				className="archive-filter-input pr-9"
-				value={tagQuery}
-				onChange={(e) => setTagQuery(e.target.value)}
-			  />
-			  <svg
-				className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-				fill="none"
-				stroke="currentColor"
-				viewBox="0 0 24 24"
-			  >
-				<path
-				  strokeLinecap="round"
-				  strokeLinejoin="round"
-				  strokeWidth={2}
-				  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-				/>
-			  </svg>
-			  {tagQuery.trim().length > 0 && (
-				<ul className="border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900">
-				  {tags
-					.filter((tag) =>
-					  tag.names.some((tn) =>
-						tn.name.toLowerCase().includes(tagQuery.toLowerCase())
-					  )
-					)
-					.map((tag) => (
-					  <li
-						key={tag.id}
-						onMouseDown={() => {
-						  toggleTag(tag);
-						  setTagQuery("");
-						}}
-						className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
-					  >
-						{getLocalizedTagName(tag)}
-					  </li>
-					))}
-				</ul>
-			  )}
-			</div>
-		  </div>
-		)}
-	  </div>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t("filter.search_tags")}
+                className="archive-filter-input pr-9"
+                value={tagQuery}
+                onChange={(e) => setTagQuery(e.target.value)}
+              />
+              <svg
+                className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {tagQuery.trim().length > 0 && (
+                <ul className="border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900">
+                  {tags
+                    .filter((tag) =>
+                      tag.names.some((tn) =>
+                        tn.name.toLowerCase().includes(tagQuery.toLowerCase())
+                      )
+                    )
+                    .map((tag) => (
+                      <li
+                        key={tag.id}
+                        onMouseDown={() => {
+                          toggleTag(tag);
+                          setTagQuery("");
+                        }}
+                        className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
+                      >
+                        {getLocalizedTagName(tag)}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="bg-archive-ink/5 dark:bg-archive-ink-dark/5 border-archive-ink/5 dark:border-archive-ink-dark/5 rounded-2xl border p-6 shadow-sm">
         <div
