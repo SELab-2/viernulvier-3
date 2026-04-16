@@ -151,7 +151,7 @@ function Navbar(): JSX.Element {
     >
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
+        <ul className="absolute left-1/2 -translate-x-1/2 hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
           <NavLinks />
         </ul>
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
