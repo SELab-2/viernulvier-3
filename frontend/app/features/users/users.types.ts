@@ -17,3 +17,8 @@ export interface IUser {
   createdAt: string;
   lastLoginAt: string | null;
 }
+
+export interface IUserCreateRequest {
+  username: string;
+  password: string;
+}
