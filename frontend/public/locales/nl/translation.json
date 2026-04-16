@@ -26,6 +26,7 @@
     "title": "De Collectie",
     "results": "resultaten",
     "result": "resultaat",
+    "show_more": "Toon meer",
     "no_results": {
       "header": "Geen resultaten...",
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"

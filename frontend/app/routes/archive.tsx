@@ -78,6 +78,17 @@ function MobileToggleButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+function ShowMoreButton() {
+  const { t } = useTranslation();
+  return (
+    <div className="mt-15 w-full text-center">
+      <button className="bg-archive-accent/90 hover:bg-archive-accent cursor-pointer rounded-md px-5 py-2 font-sans text-sm font-bold tracking-[0.2em] uppercase transition-all">
+        {t("archive.show_more")}
+      </button>
+    </div>
+  );
+}
+
 export default function Archive() {
   const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
     ArchiveSortOrder.NewestFirst
@@ -127,7 +138,7 @@ export default function Archive() {
       </div>
 
       <MobileToggleButton onClick={toggleMobileFilters} />
-      <div className="relative mb-16 flex flex-col items-start gap-5 lg:flex-row">
+      <div className="relative mb-0 flex flex-col items-start gap-5 lg:flex-row">
         <FilterSidebar
           className="min-w-1/4"
           show={showFilters}
@@ -166,6 +177,8 @@ export default function Archive() {
               <p className="opacity-35">{t("archive.no_results.subtext")}</p>
             </div>
           )}
+
+          {productionList && productionList.pagination.has_more && <ShowMoreButton />}
         </div>
       </div>
     </div>
