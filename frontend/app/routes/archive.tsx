@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import FilterSidebar from "~/shared/components/FilterSidebar";
 import {
   ArchiveSortOrder,
   ProductionTimeline,
 } from "~/features/archive/components/ProductionTimeline";
-import { mockProductions } from "~/features/_template-feature/mock/mockProductions";
 import { Divider } from "@mui/material";
+import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
+import { getProductionsPaginated } from "~/features/archive/services/productionService";
 
 function SortOrderSelection({
   sortOrder,
@@ -98,12 +99,11 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
-  const productions = [
-    ...mockProductions,
-    ...mockProductions,
-    ...mockProductions,
-    ...mockProductions,
-  ];
+  const { data: productionList } = useAsyncFetch(
+    useCallback(() => getProductionsPaginated(), [])
+  );
+
+  const productions = productionList?.productions ?? [];
 
   return (
     <div className="mx-6 md:mx-10">
