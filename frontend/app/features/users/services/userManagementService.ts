@@ -3,7 +3,7 @@ import type { AxiosInstance } from "axios";
 import { createApiClient } from "~/shared/services/apiClient";
 
 import { USERS_API_PATH } from "../users.constants";
-import type { IUser, IUserResponse } from "../users.types";
+import type { IUser, IUserCreateRequest, IUserResponse } from "../users.types";
 
 function mapUser(response: IUserResponse): IUser {
   return {
@@ -20,4 +20,19 @@ function mapUser(response: IUserResponse): IUser {
 export async function listUsers(apiClient: AxiosInstance = createApiClient()) {
   const response = await apiClient.get<IUserResponse[]>(USERS_API_PATH);
   return response.data.map(mapUser);
+}
+
+export async function createUser(
+  payload: IUserCreateRequest,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  const response = await apiClient.post<IUserResponse>(USERS_API_PATH, payload);
+  return mapUser(response.data);
+}
+
+export async function deleteUser(
+  userId: number,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  await apiClient.delete(`${USERS_API_PATH}/${userId}`);
 }
