@@ -16,8 +16,8 @@ interface Props {
   setDateTo: React.Dispatch<React.SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
-  selectedVenues: string[];
-  setSelectedVenues: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedHalls: string[];
+  setSelectedHalls: React.Dispatch<React.SetStateAction<string[]>>;
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -32,14 +32,14 @@ const FilterSidebar: React.FC<Props> = ({
   setDateTo,
   selectedTags,
   setSelectedTags,
-  selectedVenues,
-  setSelectedVenues,
+  selectedHalls,
+  setSelectedHalls,
   selectedArtists,
   setSelectedArtists,
 }) => {
   const [tagOpen, setTagOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
-  const [venuesOpen, setVenuesOpen] = useState(false);
+  const [hallsOpen, setHallsOpen] = useState(false);
   const [artistsOpen, setArtistsOpen] = useState(false);
   const [artistQuery, setArtistQuery] = useState("");
   const [dropdownAbove, setDropdownAbove] = useState(false);
@@ -47,7 +47,7 @@ const FilterSidebar: React.FC<Props> = ({
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
   const [artists, setArtists] = useState<string[]>([]);
-  const [venueMap, setVenueMap] = useState<Record<string, string>>({});
+  const [hallMap, setHallMap] = useState<Record<string, string>>({});
 
   const sidebarRef = useRef<HTMLElement>(null);
   const artistInputRef = useRef<HTMLDivElement>(null);
@@ -58,9 +58,9 @@ const FilterSidebar: React.FC<Props> = ({
     );
   };
 
-  const toggleVenue = (venue: string) => {
-    setSelectedVenues((prev) =>
-      prev.includes(venue) ? prev.filter((v) => v !== venue) : [...prev, venue]
+  const toggleHall = (hall: string) => {
+    setSelectedHalls((prev) =>
+      prev.includes(hall) ? prev.filter((v) => v !== hall) : [...prev, hall]
     );
   };
 
@@ -124,18 +124,12 @@ const FilterSidebar: React.FC<Props> = ({
     fetchPopularTags();
   }, [tags]);
 
-  // Hardcoded as most popular venues
+  // Hardcoded as most popular halls
   useEffect(() => {
-    const searchHallNames = [
-      "Balzaal",
-      "Café",
-      "Domzaal",
-      "Filmzaal",
-      "Theaterzaal",
-    ];
+    const searchHallNames = ["Balzaal", "Café", "Domzaal", "Filmzaal", "Theaterzaal"];
 
-    const fetchVenues = async () => {
-	  const entries = (
+    const fetchHalls = async () => {
+      const entries = (
         await Promise.all(
           searchHallNames.map(async (hall) => {
             try {
@@ -149,18 +143,18 @@ const FilterSidebar: React.FC<Props> = ({
         )
       ).filter((entry): entry is [string, string] => entry !== null);
 
-      const venueMap: Record<string, string> = Object.fromEntries(entries);
-      venueMap["Andere locaties"] = "none";
-      setVenueMap(venueMap);
+      const hallMap: Record<string, string> = Object.fromEntries(entries);
+      hallMap["Andere locaties"] = "none";
+      setHallMap(hallMap);
     };
 
-    fetchVenues();
+    fetchHalls();
   }, []);
 
   // Get artists from service
   useEffect(() => {
-	  getArtists("nl").then(setArtists).catch(console.error);
-  }, [])
+    getArtists("nl").then(setArtists).catch(console.error);
+  }, []);
 
   const filteredArtists =
     artistQuery.trim().length > 0
@@ -327,7 +321,8 @@ const FilterSidebar: React.FC<Props> = ({
               {tags
                 .filter(
                   (tag) =>
-                    selectedTags.includes(tag) && !popTags.some((p) => p.id_url === tag.id_url)
+                    selectedTags.includes(tag) &&
+                    !popTags.some((p) => p.id_url === tag.id_url)
                 )
                 .map((tag) => (
                   <button
@@ -390,14 +385,14 @@ const FilterSidebar: React.FC<Props> = ({
 
       <div className="bg-archive-ink/5 dark:bg-archive-ink-dark/5 border-archive-ink/5 dark:border-archive-ink-dark/5 rounded-2xl border p-6 shadow-sm">
         <div
-          className={`group flex cursor-pointer items-center justify-between ${venuesOpen ? "mb-6" : ""}`}
-          onClick={() => setVenuesOpen((prev) => !prev)}
+          className={`group flex cursor-pointer items-center justify-between ${hallsOpen ? "mb-6" : ""}`}
+          onClick={() => setHallsOpen((prev) => !prev)}
         >
           <h3 className="cursor-pointer text-xs font-bold tracking-[0.2em] uppercase opacity-40">
-            {t("filter.venues")}
+            {t("filter.halls")}
           </h3>
           <svg
-            className={`h-3 w-3 opacity-30 transition-transform group-hover:opacity-100 ${venuesOpen ? "rotate-180" : ""}`}
+            className={`h-3 w-3 opacity-30 transition-transform group-hover:opacity-100 ${hallsOpen ? "rotate-180" : ""}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -410,25 +405,25 @@ const FilterSidebar: React.FC<Props> = ({
             />
           </svg>
         </div>
-        {venuesOpen && (
-		  <div className="space-y-3">
-			{Object.keys(venueMap).map((venue) => (
-			  <label
-			    key={venue}
-				className="group flex cursor-pointer items-center space-x-3"
-			  >
-			  <input
-				type="checkbox"
-				checked={selectedVenues.includes(venueMap[venue])}
-				onChange={() => toggleVenue(venueMap[venue])}
-				className="border-archive-ink/20 text-archive-accent focus:ring-archive-accent cursor-pointer rounded"
-			  />
-			  <span className="text-xs font-medium opacity-60 transition-opacity group-hover:opacity-100">
-				{venue}
-			  </span>
-		      </label>
-			))}
-		  </div>
+        {hallsOpen && (
+          <div className="space-y-3">
+            {Object.keys(hallMap).map((hall) => (
+              <label
+                key={hall}
+                className="group flex cursor-pointer items-center space-x-3"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedHalls.includes(hallMap[hall])}
+                  onChange={() => toggleHall(hallMap[hall])}
+                  className="border-archive-ink/20 text-archive-accent focus:ring-archive-accent cursor-pointer rounded"
+                />
+                <span className="text-xs font-medium opacity-60 transition-opacity group-hover:opacity-100">
+                  {hall}
+                </span>
+              </label>
+            ))}
+          </div>
         )}
       </div>
 

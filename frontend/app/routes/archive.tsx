@@ -13,7 +13,7 @@ export default function Archive() {
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
+  const [selectedHalls, setSelectedHalls] = useState<string[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
 
   const toggleMobileFilters = () => {
@@ -61,8 +61,8 @@ export default function Archive() {
           setDateFrom={setDateFrom}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
-          selectedVenues={selectedVenues}
-          setSelectedVenues={setSelectedVenues}
+          selectedHalls={selectedHalls}
+          setSelectedHalls={setSelectedHalls}
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
@@ -72,7 +72,7 @@ export default function Archive() {
             From: {dateFrom} - To: {dateTo}
           </p>
           <p>Tags: {selectedTags.map((tag) => tag.names[0].name).join(", ")}</p>
-          <p>Venues: {selectedVenues.join(", ")}</p>
+          <p>Halls: {selectedHalls.join(", ")}</p>
           <p>Artists: {selectedArtists.join(", ")}</p>
         </div>
       </div>

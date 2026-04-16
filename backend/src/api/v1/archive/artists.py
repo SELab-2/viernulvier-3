@@ -1,23 +1,19 @@
-from typing import List
 from src.models.production import ProdInfo
 from sqlalchemy.orm import Session
 from collections import defaultdict
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends
 from src.database import get_db
+from src.schemas.artists import ArtistsResponse
 
 router = APIRouter()
 
 
-class ArtistResponse(BaseModel):
-    en: List[str]
-    nl: List[str]
-
-
 @router.get(
-        "/",
-        response_model=ArtistResponse
-        )
+    "/",
+    response_model=ArtistsResponse,
+    summary="Get all artists",
+    description="Returns lists of the artists, filtered by language",
+)
 def get_all_artists(db: Session = Depends(get_db)):
     rows = (
         db.query(ProdInfo)
@@ -45,7 +41,4 @@ def get_all_artists(db: Session = Depends(get_db)):
         if resolved_nl:
             nl_artists.add(resolved_nl)
 
-    return ArtistResponse(
-        en=en_artists,
-        nl=nl_artists
-        )
+    return ArtistsResponse(en=en_artists, nl=nl_artists)

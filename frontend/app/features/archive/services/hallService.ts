@@ -18,9 +18,7 @@ export async function getHallByName(name: string): Promise<Hall> {
   const allHalls = await getAllHalls();
 
   // Search for a hall with the correct name.
-  const hall = allHalls.find((hall) =>
-    hall.name.toLowerCase() === name.toLowerCase()
-  );
+  const hall = allHalls.find((hall) => hall.name.toLowerCase() === name.toLowerCase());
 
   if (!hall) {
     throw new Error(`Hall with name "${name}" not found`);
