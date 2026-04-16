@@ -11,10 +11,7 @@ import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { HallResponse } from "~/features/archive/types/hallTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getMediaForProductionPaginated } from "~/features/archive/services/mediaService";
-import {
-  getEventByUrl,
-  getPriceByUrl,
-} from "~/features/archive/services/eventService";
+import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
 
 interface ProductionPageProps {
@@ -149,7 +146,9 @@ export function ProductionPage({
   const lp = useLocalizedPath();
   const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
   const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
-  const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
+  const [mediaImageUrlsByProductionId, setMediaImageUrlsByProductionId] = useState<
+    Record<string, string[]>
+  >({});
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
@@ -192,8 +191,8 @@ export function ProductionPage({
 
   const imageUrls = useMemo(
     () =>
-      mediaImageUrls.length > 0
-        ? mediaImageUrls
+      (mediaImageUrlsByProductionId[production.id_url] ?? []).length > 0
+        ? mediaImageUrlsByProductionId[production.id_url]!
         : [
             fallbackImageUrl,
             fallbackImageUrl,
@@ -201,26 +200,24 @@ export function ProductionPage({
             fallbackImageUrl,
             fallbackImageUrl,
           ],
-    [fallbackImageUrl, mediaImageUrls]
+    [fallbackImageUrl, mediaImageUrlsByProductionId, production.id_url]
   );
   const imageUrl = imageUrls[0];
   const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
-      eventsWithDetails
-    .slice()
-    .sort((leftEvent, rightEvent) => {
-      const startDifference =
-        getEventTimestamp(leftEvent.starts_at) -
-        getEventTimestamp(rightEvent.starts_at);
+      eventsWithDetails.slice().sort((leftEvent, rightEvent) => {
+        const startDifference =
+          getEventTimestamp(leftEvent.starts_at) -
+          getEventTimestamp(rightEvent.starts_at);
 
-      if (startDifference !== 0) {
-        return startDifference;
-      }
+        if (startDifference !== 0) {
+          return startDifference;
+        }
 
-      return leftEvent.id.localeCompare(rightEvent.id);
-    }),
+        return leftEvent.id.localeCompare(rightEvent.id);
+      }),
     [eventsWithDetails]
   );
 
@@ -238,49 +235,51 @@ export function ProductionPage({
         }
 
         const hydratedEvents = await Promise.all(
-          production.events.map(async (eventUrl): Promise<EventWithResolvedRelations | null> => {
-            let event: Event | undefined;
+          production.events.map(
+            async (eventUrl): Promise<EventWithResolvedRelations | null> => {
+              let event: Event | undefined;
 
-            try {
-              event = await getEventByUrl(eventUrl);
-            } catch {
-              return null;
+              try {
+                event = await getEventByUrl(eventUrl);
+              } catch {
+                return null;
+              }
+
+              if (!event) {
+                return null;
+              }
+
+              const hallPromise = event.hall_id
+                ? getHallByUrl(event.hall_id).catch(() => undefined)
+                : Promise.resolve(undefined);
+
+              const pricesPromise =
+                event.prices.length > 0
+                  ? Promise.all(
+                      event.prices.map(async (priceUrl) => {
+                        try {
+                          return await getPriceByUrl(priceUrl);
+                        } catch {
+                          return undefined;
+                        }
+                      })
+                    ).then((prices) =>
+                      prices.filter((price): price is Price => Boolean(price))
+                    )
+                  : Promise.resolve([] as Price[]);
+
+              const [resolvedHall, resolvedPrices] = await Promise.all([
+                hallPromise,
+                pricesPromise,
+              ]);
+
+              return {
+                ...event,
+                resolvedHall,
+                resolvedPrices,
+              };
             }
-
-            if (!event) {
-              return null;
-            }
-
-            const hallPromise = event.hall_id
-              ? getHallByUrl(event.hall_id).catch(() => undefined)
-              : Promise.resolve(undefined);
-
-            const pricesPromise =
-              event.prices.length > 0
-                ? Promise.all(
-                    event.prices.map(async (priceUrl) => {
-                      try {
-                        return await getPriceByUrl(priceUrl);
-                      } catch {
-                        return undefined;
-                      }
-                    })
-                  ).then((prices) =>
-                    prices.filter((price): price is Price => Boolean(price))
-                  )
-                : Promise.resolve([] as Price[]);
-
-            const [resolvedHall, resolvedPrices] = await Promise.all([
-              hallPromise,
-              pricesPromise,
-            ]);
-
-            return {
-              ...event,
-              resolvedHall,
-              resolvedPrices,
-            };
-          })
+          )
         );
 
         if (!isCancelled) {
@@ -305,8 +304,6 @@ export function ProductionPage({
   }, [production.events]);
 
   useEffect(() => {
-    setMediaImageUrls([]);
-
     // skip media fetching if the production id cannot be parsed
     if (!productionNumericId) {
       return;
@@ -344,11 +341,17 @@ export function ProductionPage({
         }
 
         if (!isCancelled) {
-          setMediaImageUrls(Array.from(imageUrlsSet));
+          setMediaImageUrlsByProductionId((previousState) => ({
+            ...previousState,
+            [production.id_url]: Array.from(imageUrlsSet),
+          }));
         }
       } catch {
         if (!isCancelled) {
-          setMediaImageUrls([]);
+          setMediaImageUrlsByProductionId((previousState) => ({
+            ...previousState,
+            [production.id_url]: [],
+          }));
         }
       }
     };
@@ -359,7 +362,7 @@ export function ProductionPage({
     return () => {
       isCancelled = true;
     };
-  }, [productionNumericId]);
+  }, [production.id_url, productionNumericId]);
 
   const syncEvidenceSlider = () => {
     const track = evidenceTrackRef.current;

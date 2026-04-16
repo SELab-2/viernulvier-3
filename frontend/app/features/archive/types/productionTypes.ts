@@ -1,5 +1,4 @@
 import type { Tag } from "./tagTypes";
-import type { Event } from "./eventTypes";
 
 export interface PaginationRequest {
   cursor?: number;

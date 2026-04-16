@@ -8,7 +8,9 @@ import {
 } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 
-function getProductionNumericIdFromInput(productionIdInput: string): number | undefined {
+function getProductionNumericIdFromInput(
+  productionIdInput: string
+): number | undefined {
   if (/^\d+$/.test(productionIdInput)) {
     const numericId = Number(productionIdInput);
     return Number.isInteger(numericId) && numericId > 0 ? numericId : undefined;
