@@ -360,7 +360,7 @@ function worker() {
 			run docker compose --profile sync run --rm sync_worker
 			;;
 		csv)
-			run docker compose up --build
+			run docker compose up --build -d --wait
 			run docker compose --profile csv build
 			run docker compose --profile csv run --rm csv_worker
 			;;
