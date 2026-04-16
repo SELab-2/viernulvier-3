@@ -7,15 +7,19 @@ from src.schemas.auth import RoleCreate, RoleUpdate, RoleResponse
 from src.services.auth.permissions import Permissions
 
 
-def list_roles(db: Session) -> List[RoleResponse]:
+def list_roles(db: Session, base_url: str) -> List[RoleResponse]:
     roles = db.query(Role).all()
     return [
-        RoleResponse(id=r.id, name=r.name, permissions=[p.name for p in r.permissions])
+        RoleResponse(
+            id_url=f"{base_url}/auth/roles/{r.id}",
+            name=r.name,
+            permissions=[p.name for p in r.permissions],
+        )
         for r in roles
     ]
 
 
-def create_role(db: Session, role: RoleCreate) -> RoleResponse:
+def create_role(db: Session, role: RoleCreate, base_url: str) -> RoleResponse:
     if db.query(Role).filter(Role.name == role.name).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Role name already exists"
@@ -43,24 +47,28 @@ def create_role(db: Session, role: RoleCreate) -> RoleResponse:
     db.commit()
     db.refresh(db_role)
     return RoleResponse(
-        id=db_role.id,
+        id_url=f"{base_url}/auth/roles/{db_role.id}",
         name=db_role.name,
         permissions=[p.name for p in db_role.permissions],
     )
 
 
-def get_role(db: Session, role_id: int) -> RoleResponse:
+def get_role(db: Session, role_id: int, base_url: str) -> RoleResponse:
     role = db.query(Role).filter(Role.id == role_id).first()
     if not role:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
     return RoleResponse(
-        id=role.id, name=role.name, permissions=[p.name for p in role.permissions]
+        id_url=f"{base_url}/auth/roles/{role.id}",
+        name=role.name,
+        permissions=[p.name for p in role.permissions],
     )
 
 
-def update_role(db: Session, role_id: int, update: RoleUpdate) -> RoleResponse:
+def update_role(
+    db: Session, role_id: int, update: RoleUpdate, base_url: str
+) -> RoleResponse:
     role = db.query(Role).filter(Role.id == role_id).first()
     if not role:
         raise HTTPException(
@@ -95,7 +103,9 @@ def update_role(db: Session, role_id: int, update: RoleUpdate) -> RoleResponse:
     db.commit()
     db.refresh(role)
     return RoleResponse(
-        id=role.id, name=role.name, permissions=[p.name for p in role.permissions]
+        id_url=f"{base_url}/auth/roles/{role.id}",
+        name=role.name,
+        permissions=[p.name for p in role.permissions],
     )
 
 

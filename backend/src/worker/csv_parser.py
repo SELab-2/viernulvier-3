@@ -2,6 +2,8 @@ import csv
 import logging
 
 from src.models.hall import Hall
+from src.models.tag import Tag, TagName
+from src.services.language import Languages
 from src.worker.converters.production import csv_prod_to_model_prod
 from src.worker.converters.event import csv_event_to_model_event
 from src.database import SESSION_LOCAL
@@ -53,12 +55,34 @@ hall_map = {}
 for hall in hall_models:
     hall_map[hall.name] = hall.id
 
+# Get all tagnames
+tag_name_models = db.query(TagName).all()
+tag_map = {}
+for tag_name in tag_name_models:
+    tag_map[tag_name.name] = tag_name.tag
+
 try:
     nl_lang_id = None
     logger.info("Start adding data")
-    production_count, event_count, hall_count = 0, 0, 0
+    production_count, event_count, hall_count, tag_count = 0, 0, 0, 0
     for prod_id, productie in producties.items():
-        production_model = csv_prod_to_model_prod(productie)
+        genres = set(productie[4].split(","))
+        for genre in genres:
+            if genre not in tag_map:
+                logger.info(f"tag '{genre}' no found, adding it")
+                tag_model = Tag()
+                db.add(tag_model)
+                db.flush()
+                tag_id = tag_model.id
+                tag_name_model = TagName(
+                    tag_id=tag_id, language=Languages.NEDERLANDS, name=genre
+                )
+                db.add(tag_name_model)
+                db.flush()
+                tag_map[genre] = tag_model
+                tag_count += 1
+
+        production_model = csv_prod_to_model_prod(productie, tag_map)
         db.add(production_model)
         production_count += 1
         db.flush()
@@ -83,6 +107,7 @@ try:
     logger.info(f"{production_count} productions added")
     logger.info(f"{event_count} events added")
     logger.info(f"{hall_count} halls added")
+    logger.info(f"{tag_count} tags added")
 finally:
     db.close()
     logger.info("Connection with database closed")

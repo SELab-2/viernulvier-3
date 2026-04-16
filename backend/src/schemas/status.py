@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from pydantic import BaseModel
+from src.schemas.base_schema import StrictModel
 
 
 class ComponentStatus(StrEnum):
@@ -8,7 +8,7 @@ class ComponentStatus(StrEnum):
     ERROR = "error"
 
 
-class HealthResponse(BaseModel):
+class HealthResponse(StrictModel):
     status: ComponentStatus
     database: ComponentStatus
     detail: str | None = None

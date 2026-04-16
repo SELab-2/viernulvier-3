@@ -16,14 +16,14 @@ describe("tagService", () => {
   let mockAdapter: AxiosMockAdapter;
 
   const mockTag1: Tag = {
-    id: "http://localhost/api/v1/archive/tags/1",
+    id_url: "http://localhost/api/v1/archive/tags/1",
     names: [
       { language: "nl", name: "tag naam" },
       { language: "en", name: "tag name" },
     ],
   };
   const mockTag2: Tag = {
-    id: "http://localhost/api/v1/archive/tags/2",
+    id_url: "http://localhost/api/v1/archive/tags/2",
     names: [
       { language: "nl", name: "tag naam2" },
       { language: "en", name: "tag name2" },
@@ -71,7 +71,7 @@ describe("tagService", () => {
       // Upon calling post, return the request with an added id field
       mockAdapter.onPost("/api/v1/archive/tags").reply((config) => {
         const data = {
-          id: mockTag1.id,
+          id_url: mockTag1.id_url,
           ...JSON.parse(config.data),
         };
         return [201, data];
@@ -86,7 +86,7 @@ describe("tagService", () => {
     it("edits a tag by id and returns the updated object", async () => {
       mockAdapter.onPatch("/api/v1/archive/tags/1").reply((config) => {
         const data = {
-          id: "http://localhost/api/v1/archive/tags/1",
+          id_url: "http://localhost/api/v1/archive/tags/1",
           ...JSON.parse(config.data),
         };
         return [201, data];

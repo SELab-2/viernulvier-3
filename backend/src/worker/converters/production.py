@@ -3,8 +3,10 @@ from src.api.dependencies.language import get_accepted_language
 from src.services.language import Languages
 import logging
 
+logger = logging.getLogger(__name__)
 
-def api_prod_to_model_prod(json_prod: dict) -> Production:
+
+def api_prod_to_model_prod(json_prod: dict) -> tuple[Production, list[int]]:
     """
     This function takes care of molding the json response of the api for a
     production, into a Production object for our archive database.
@@ -16,6 +18,12 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
         performer_type=json_prod.get("performer_type"),
         attendance_mode=json_prod.get("attendance_mode"),
     )
+
+    tag_urls = json_prod.get("genres")
+    if tag_urls:
+        tag_ids = [int(url.split("/")[-1]) for url in tag_urls]
+    else:
+        tag_ids = []
 
     fields_to_check = (
         "title",
@@ -41,7 +49,7 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
     for lang_code in appearing_languages:
         lang = get_accepted_language(lang_code)
         if lang is None:
-            logging.warning(
+            logger.warning(
                 f"ignoring language {lang_code} for Production(id={production_id})"
             )
             continue
@@ -59,17 +67,14 @@ def api_prod_to_model_prod(json_prod: dict) -> Production:
 
         production.info.append(prod_info)
 
-    return production
+    return production, tag_ids
 
 
-def csv_prod_to_model_prod(csv_prod: dict) -> Production:
+def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
     """
     This function takes care of molding the csv format of a production,
     into a Production object for our archive database.
     """
-    production = Production(
-        viernulvier_id=int(csv_prod[5]),
-    )
 
     prod_info = ProdInfo(
         language=Languages.NEDERLANDS,
@@ -78,6 +83,14 @@ def csv_prod_to_model_prod(csv_prod: dict) -> Production:
         description=(csv_prod[2] + "\n" + csv_prod[3]),
     )
 
-    production.info.append(prod_info)
+    production = Production(info=[prod_info])
+
+    genres = set(csv_prod[4].split(","))
+    seen_ids = set()
+    for genre in genres:
+        tag = tag_map[genre]
+        if tag.id not in seen_ids:
+            production.tags.append(tag_map[genre])
+            seen_ids.add(tag.id)
 
     return production
