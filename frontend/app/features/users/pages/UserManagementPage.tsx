@@ -65,15 +65,18 @@ export default function UserManagementPage() {
   const [pageError, setPageError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Ignore any in-flight response once this effect is cleaned up or rerun.
     let isDisposed = false;
 
     async function loadData() {
+      // Reset the request state before fetching the current user list.
       setIsLoading(true);
       setPageError(null);
 
       try {
         const fetchedUsers = await listUsers();
 
+        // The component may have unmounted while the request was pending.
         if (isDisposed) {
           return;
         }
@@ -95,6 +98,7 @@ export default function UserManagementPage() {
     void loadData();
 
     return () => {
+      // Prevent late async state updates after unmount or dependency changes.
       isDisposed = true;
     };
   }, [reloadToken, t]);
