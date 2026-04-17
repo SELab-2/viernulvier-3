@@ -23,7 +23,7 @@ def build_media_response(media: Media, base_url: str) -> MediaResponse:
     host_url = f"{parsed.scheme}://{parsed.netloc}"
     return MediaResponse(
         id_url=f"{base_url}/productions/{media.production_id}/media/{media.id}",
-        production=f"{base_url}/productions/{media.production_id}",
+        production_id_url=f"{base_url}/productions/{media.production_id}",
         url=f"{host_url}/media/{media.object_key}",
         content_type=media.content_type,
         uploaded_at=media.uploaded_at,

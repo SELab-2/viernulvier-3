@@ -82,9 +82,7 @@ def test_refresh_token_invalid_after_password_change(db_session: Session):
     tokens = login_user(db_session, "refresh_pw_change", password)
 
     user_service.patch_user(
-        db_session,
-        user.id,
-        UserPatch(password="newpassword"),
+        db_session, user.id, UserPatch(password="newpassword"), base_url=""
     )
 
     with pytest.raises(HTTPException) as excinfo:

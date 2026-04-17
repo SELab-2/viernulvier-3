@@ -33,10 +33,10 @@ def _ensure_username_is_available(db: Session, user_id: int, username: str) -> N
         )
 
 
-def _commit_user_changes(db: Session, user: User) -> UserResponse:
+def _commit_user_changes(db: Session, user: User, base_url: str) -> UserResponse:
     db.commit()
     db.refresh(user)
-    return _to_user_response(user)
+    return _to_user_response(user, base_url)
 
 
 def get_user_permission_names(user: User) -> List[str]:
@@ -48,10 +48,10 @@ def get_user_permission_names(user: User) -> List[str]:
     )
 
 
-def _to_user_response(user: User) -> UserResponse:
+def _to_user_response(user: User, base_url: str) -> UserResponse:
     roles = sorted(role.name for role in user.roles)
     return UserResponse(
-        id=user.id,
+        id_url=f"{base_url}/auth/users/{user.id}",
         username=user.username,
         super_user=user.super_user,
         created_at=user.created_at,
@@ -77,12 +77,12 @@ def _get_roles_by_name(db: Session, role_names: List[str]) -> List[Role]:
     return [roles_by_name[name] for name in unique_role_names]
 
 
-def list_users(db: Session) -> List[UserResponse]:
+def list_users(db: Session, base_url: str) -> List[UserResponse]:
     users = db.query(User).order_by(User.id).all()
-    return [_to_user_response(user) for user in users]
+    return [_to_user_response(user, base_url) for user in users]
 
 
-def create_user(db: Session, user: UserCreate) -> UserResponse:
+def create_user(db: Session, user: UserCreate, base_url: str) -> UserResponse:
     if get_user(db, user.username):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Username already exists"
@@ -96,14 +96,16 @@ def create_user(db: Session, user: UserCreate) -> UserResponse:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return _to_user_response(db_user)
+    return _to_user_response(db_user, base_url)
 
 
-def get_user_detail(db: Session, user_id: int) -> UserResponse:
-    return _to_user_response(_get_user_or_404(db, user_id))
+def get_user_detail(db: Session, user_id: int, base_url) -> UserResponse:
+    return _to_user_response(_get_user_or_404(db, user_id), base_url)
 
 
-def replace_user(db: Session, user_id: int, replacement: UserReplace) -> UserResponse:
+def replace_user(
+    db: Session, user_id: int, replacement: UserReplace, base_url: str
+) -> UserResponse:
     user = _get_user_or_404(db, user_id)
 
     if replacement.username != user.username:
@@ -114,10 +116,12 @@ def replace_user(db: Session, user_id: int, replacement: UserReplace) -> UserRes
     user.token_version += 1
     user.roles = _get_roles_by_name(db, replacement.roles)
 
-    return _commit_user_changes(db, user)
+    return _commit_user_changes(db, user, base_url)
 
 
-def patch_user(db: Session, user_id: int, update: UserPatch) -> UserResponse:
+def patch_user(
+    db: Session, user_id: int, update: UserPatch, base_url: str
+) -> UserResponse:
     user = _get_user_or_404(db, user_id)
 
     if "username" in update.model_fields_set and update.username is not None:
@@ -132,7 +136,7 @@ def patch_user(db: Session, user_id: int, update: UserPatch) -> UserResponse:
     if "roles" in update.model_fields_set and update.roles is not None:
         user.roles = _get_roles_by_name(db, update.roles)
 
-    return _commit_user_changes(db, user)
+    return _commit_user_changes(db, user, base_url)
 
 
 def delete_user(db: Session, user_id: int, current_user: User) -> None:
@@ -154,5 +158,5 @@ def delete_user(db: Session, user_id: int, current_user: User) -> None:
     db.commit()
 
 
-def get_user_profile(user: User) -> UserResponse:
-    return _to_user_response(user)
+def get_user_profile(user: User, base_url: str) -> UserResponse:
+    return _to_user_response(user, base_url)

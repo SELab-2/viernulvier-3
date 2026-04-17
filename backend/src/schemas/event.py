@@ -1,11 +1,13 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
 from datetime import datetime
-from src.schemas.hall import HallSchema
+from typing import List, Optional
+
+from pydantic import ConfigDict
+from src.schemas.base_schema import StrictModel
+from src.schemas.hall import HallResponse
 
 
-class PriceResponse(BaseModel):
-    id: str
+class PriceResponse(StrictModel):
+    id_url: str
     amount: Optional[float] = None
     available: Optional[int] = None
     expires_at: Optional[datetime] = None
@@ -16,19 +18,18 @@ class PriceResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class EventResponse(BaseModel):
-    id: str  # ids are url's
-    production_id: str
-    hall_id: Optional[str] = None
+class EventResponse(StrictModel):
+    id_url: str
+    production_id_url: str
 
-    hall: Optional[HallSchema] = None
+    hall: Optional[HallResponse] = None
 
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
 
     order_url: Optional[str] = None
 
-    prices: List[str] = []  # list of price urls
+    price_urls: List[str] = []
 
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -36,16 +37,16 @@ class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class EventCreate(BaseModel):
-    production_id: str
-    hall_id: str
+class EventCreate(StrictModel):
+    production_id_url: str
+    hall_id_url: str
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
 
 
-class EventUpdate(BaseModel):
-    hall_id: Optional[str] = None
+class EventUpdate(StrictModel):
+    hall_id_url: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None
