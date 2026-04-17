@@ -16,26 +16,30 @@ def store_new_productions(db_session: Session, productions: list[dict]):
     tag_map: dict[int, Tag] = {tag.viernulvier_id: tag for (tag,) in existing_tags}
 
     for json_prod in productions:
-        # The production contains a list of info's with its relation.
-        # sqlalchemy should automatically create all the required objects.
-        prod, vnv_tag_ids = api_prod_to_model_prod(json_prod)
-        tags = []
-        for tag in vnv_tag_ids:
-            internal_tag_id = tag_map.get(tag)
-            if not internal_tag_id:
-                logger.warning(
-                    f"Genre (id={tag}) does not exist in the database, skipping "
-                    f"this tag for production (id={prod.viernulvier_id})"
-                )
-            else:
-                tags.append(internal_tag_id)
+        try:
+            # The production contains a list of info's with its relation.
+            # sqlalchemy should automatically create all the required objects.
+            prod, vnv_tag_ids = api_prod_to_model_prod(json_prod)
+            tags = []
+            for tag in vnv_tag_ids:
+                internal_tag_id = tag_map.get(tag)
+                if not internal_tag_id:
+                    logger.warning(
+                        f"Genre (id={tag}) does not exist in the database, skipping "
+                        f"this tag for production (id={prod.viernulvier_id})"
+                    )
+                else:
+                    tags.append(internal_tag_id)
 
-        prod.tags.extend(tags)
+            prod.tags.extend(tags)
 
-        db_session.merge(prod)
+            db_session.merge(prod)
 
-        created_at = datetime.fromisoformat(json_prod["created_at"])
-        if newest_timestamp is None or created_at > newest_timestamp:
-            newest_timestamp = created_at
+            created_at = datetime.fromisoformat(json_prod["created_at"])
+            if newest_timestamp is None or created_at > newest_timestamp:
+                newest_timestamp = created_at
+
+        except Exception as e:
+            logger.warn(f"Error storing genre ({json_prod}):\n{e}")
 
     return newest_timestamp
