@@ -10,13 +10,6 @@ prod_tags = Table(
     Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
 )
 
-prod_genres = Table(
-    "prod_genres",
-    Base.metadata,
-    Column("genre_id", Integer, ForeignKey("genres.id"), primary_key=True),
-    Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
-)
-
 user_roles = Table(
     "user_roles",
     Base.metadata,

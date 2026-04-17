@@ -10,11 +10,7 @@ import {
   updateHall,
   deleteHall,
 } from "~/features/archive/services/hallService";
-import type {
-  Hall,
-  HallResponse,
-  HallUpdate,
-} from "~/features/archive/types/hallTypes";
+import type { Hall, HallCreate, HallUpdate } from "~/features/archive/types/hallTypes";
 
 describe("hallService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -31,9 +27,9 @@ describe("hallService", () => {
 
   describe("getAllHalls", () => {
     it("returns all halls on success", async () => {
-      const mockHalls: HallResponse[] = [
-        { id: 1, name: "Hall A", address: "Street 1" },
-        { id: 2, name: "Hall B", address: "Street 2" },
+      const mockHalls: Hall[] = [
+        { id_url: "1", name: "Hall A", address: "Street 1" },
+        { id_url: "2", name: "Hall B", address: "Street 2" },
       ];
 
       mockAdapter.onGet("/api/v1/archive/halls").reply(200, mockHalls);
@@ -53,8 +49,8 @@ describe("hallService", () => {
 
   describe("getHall", () => {
     it("returns a single hall by id on success", async () => {
-      const mockHall: HallResponse = {
-        id: 1,
+      const mockHall: Hall = {
+        id_url: "1",
         name: "Hall A",
         address: "Street 1",
       };
@@ -64,7 +60,7 @@ describe("hallService", () => {
       const result = await getHall(1);
 
       expect(result).toEqual(mockHall);
-      expect(result.id).toBe(1);
+      expect(result.id_url).toBe("1");
       expect(result.name).toBe("Hall A");
     });
 
@@ -77,13 +73,13 @@ describe("hallService", () => {
 
   describe("createHall", () => {
     it("creates a new hall and returns it with id", async () => {
-      const hallData: Hall = {
+      const hallData: HallCreate = {
         name: "New Hall",
         address: "New Street 1",
       };
 
-      const mockResponse: HallResponse = {
-        id: 3,
+      const mockResponse: Hall = {
+        id_url: "3",
         ...hallData,
       };
 
@@ -92,12 +88,12 @@ describe("hallService", () => {
       const result = await createHall(hallData);
 
       expect(result).toEqual(mockResponse);
-      expect(result.id).toBe(3);
+      expect(result.id_url).toBe("3");
       expect(result.name).toBe("New Hall");
     });
 
     it("throws when create request fails", async () => {
-      const hallData: Hall = {
+      const hallData: HallCreate = {
         name: "New Hall",
         address: "New Street 1",
       };
@@ -115,8 +111,8 @@ describe("hallService", () => {
         address: "Updated Street 1",
       };
 
-      const mockResponse: HallResponse = {
-        id: 1,
+      const mockResponse: Hall = {
+        id_url: "1",
         name: "Updated Hall",
         address: "Updated Street 1",
       };

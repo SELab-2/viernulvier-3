@@ -10,7 +10,7 @@ def build_tag_response(
     tag: Tag, tag_names: List[TagName], base_url: str
 ) -> TagResponse:
     return TagResponse(
-        id=f"{base_url}/tags/{tag.id}",
+        id_url=f"{base_url}/tags/{tag.id}",
         names=tag_names,
     )
 
