@@ -110,7 +110,9 @@ describe("multiple toggles", () => {
 describe("props", () => {
   it("renders any title string", () => {
     renderCard("My custom title");
-    expect(screen.getByRole("heading", { name: "My custom title" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "My custom title" })
+    ).toBeInTheDocument();
   });
 
   it("renders complex children when open", async () => {
