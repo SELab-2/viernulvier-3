@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from src.schemas.pagination import Pagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo, Tag
@@ -71,6 +72,8 @@ def build_production_response(
         attendance_mode=production.attendance_mode,
         created_at=production.created_at,
         updated_at=production.updated_at,
+        earliest_at=production.earliest_at,
+        latest_at=production.latest_at,
         production_infos=production_infos,
         event_id_urls=event_urls,
         tags=tags,
@@ -112,6 +115,26 @@ def get_productions_paginated(
             for production in productions
         ],
         pagination=Pagination(next_cursor=next_cursor, has_more=has_more),
+    )
+
+
+# Updates a production's earliest_at and latest_at fields
+def update_production_dates(db: Session, production_id: int):
+    result = (
+        db.query(
+            func.min(Event.starts_at),
+            func.max(Event.starts_at),
+        )
+        .filter(Event.production_id == production_id)
+        .one()
+    )
+
+    earliest_at, latest_at = result
+    db.query(Production).filter(Production.id == production_id).update(
+        {
+            "earliest_at": earliest_at,
+            "latest_at": latest_at,
+        }
     )
 
 
