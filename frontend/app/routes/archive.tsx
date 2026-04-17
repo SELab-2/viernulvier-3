@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
-import FilterSidebar from "~/shared/components/FilterSidebar";
+import FilterSidebar from "../features/archive/components/FilterSidebar";
 
 export default function Archive() {
   const [showFilters, setShowFilters] = useState(false);
