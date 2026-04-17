@@ -47,7 +47,7 @@ class Settings(BaseSettings):
             + f"/{self.POSTGRES_DB}"
         )
 
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://192.168.129.16:5173"]
+    # CORS_ORIGINS: list[str] = ["http://localhost"]
 
 
 settings = Settings()
