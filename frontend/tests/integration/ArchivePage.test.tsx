@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import * as productionService from "~/features/archive/services/productionService";
 import { mockProductions } from "tests/mocks/productions.mock";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { afterEach } from "node:test";
 
 vi.mock("~/features/archive/services/productionService");
 
@@ -22,7 +23,21 @@ function mockFetchedProductions(productions: Production[]) {
   });
 }
 
+function expectEveryProductionVisible(productions: Production[]) {
+  for (const prod of productions) {
+    const exists = prod.production_infos.some(
+      (info) => info.title && screen.queryByText(info.title)
+    );
+
+    expect(exists).toBe(true);
+  }
+}
+
 describe("Archive", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders title", async () => {
     await renderArchiveAndNavigate();
     expect(screen.getByText("I18N_Archive_Title")).toBeInTheDocument();
@@ -35,13 +50,7 @@ describe("Archive", () => {
     mockFetchedProductions(mockProductions);
     await renderArchiveAndNavigate();
 
-    for (const prod of mockProductions) {
-      const exists = prod.production_infos.some(
-        (info) => info.title && screen.queryByText(info.title)
-      );
-
-      expect(exists).toBe(true);
-    }
+    expectEveryProductionVisible(mockProductions);
   });
   describe("Result count", async () => {
     it("displays correct result count", async () => {
@@ -55,6 +64,53 @@ describe("Archive", () => {
       mockFetchedProductions([mockProductions[0]]);
       await renderArchiveAndNavigate();
       expect(screen.getByText(`1 archive.result`)).toBeInTheDocument();
+    });
+  });
+
+  describe("Show More", async () => {
+    it("Shows a button when there is more data", async () => {
+      vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
+        productions: [mockProductions[0]],
+        pagination: { has_more: true, next_cursor: 100 },
+      });
+      await renderArchiveAndNavigate();
+
+      expect(screen.getByText("archive.show_more")).toBeInTheDocument();
+    });
+    it("Does not shows a button when there is no more data", async () => {
+      vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
+        productions: mockProductions,
+        pagination: { has_more: false },
+      });
+      await renderArchiveAndNavigate();
+
+      expect(screen.queryByText("archive.show_more")).toBeNull();
+    });
+    it("loads more productions when clicking show more", async () => {
+      const user = userEvent.setup();
+      vi.mocked(productionService.getProductionsPaginated)
+        .mockResolvedValueOnce({
+          productions: [mockProductions[0]],
+          pagination: { has_more: true, next_cursor: 123 },
+        })
+        .mockResolvedValueOnce({
+          productions: mockProductions.slice(1),
+          pagination: { has_more: false },
+        });
+      await renderArchiveAndNavigate();
+
+      // Before clicking show more
+      expectEveryProductionVisible([mockProductions[0]]);
+      expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1);
+
+      await user.click(screen.getByText("archive.show_more"));
+
+      // After clicking show more
+      expectEveryProductionVisible(mockProductions.slice(1));
+
+      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
+        cursor: 123,
+      });
     });
   });
 

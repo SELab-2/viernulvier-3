@@ -114,7 +114,6 @@ function ShowMoreButton({
         onClick={onClick}
         className="bg-archive-accent/90 hover:bg-archive-accent cursor-pointer rounded-md px-5 py-2 font-sans text-sm font-bold tracking-[0.2em] uppercase transition-all"
       >
-        {productionList.pagination.next_cursor}
         {t("archive.show_more")}
       </button>
     </div>
