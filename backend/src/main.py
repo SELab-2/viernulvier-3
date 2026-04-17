@@ -5,6 +5,7 @@ Viernulvier Archief API — entrypoint.
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from minio import Minio
 from src.api.exceptions import NotFoundError, ValidationError
@@ -45,13 +46,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=settings.CORS_ORIGINS,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(api_router, prefix="/v1")
 

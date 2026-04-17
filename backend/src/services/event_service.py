@@ -149,6 +149,8 @@ def update_event(
         if not db_production:
             raise NotFoundError("Production", production_id)
 
+        update_dict["production_id_url"] = production_id
+
     # starts_at / ends_at validation
     starts_at = update_dict.get("starts_at", event.starts_at)
     ends_at = update_dict.get("ends_at", event.ends_at)
