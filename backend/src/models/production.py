@@ -6,7 +6,6 @@ from sqlalchemy.sql import func
 
 from src.database import Base
 from src.models.associations import prod_tags
-from src.models.event import Event
 
 
 class Production(Base):
