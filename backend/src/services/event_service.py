@@ -5,7 +5,6 @@ from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResp
 from src.schemas.hall import HallResponse
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
-from src.services.production import update_production_dates
 
 
 def extract_id(url: str | None) -> int | None:
@@ -57,11 +56,7 @@ def delete_event_by_id(db: Session, event_id: int) -> bool:
     if not event:
         raise NotFoundError("Event", event_id)
 
-    prod_id = event.production_id
-
     db.delete(event)
-    db.flush()
-    update_production_dates(db, prod_id)
     db.commit()
     return True
 
@@ -101,8 +96,6 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
     )
 
     db.add(db_event)
-    db.flush()
-    update_production_dates(db, production_id)
     db.commit()
     db.refresh(db_event)
 
@@ -118,9 +111,6 @@ def update_event(
         raise NotFoundError("Event", event_id)
 
     update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
-
-    old_production_id = event.production_id
-    old_starts_at = event.starts_at
 
     # hall_id update
     if "hall_id_url" in update_dict:
@@ -162,16 +152,6 @@ def update_event(
     # update fields
     for field, value in update_dict.items():
         setattr(event, field, value)
-    db.flush()
-
-    new_production_id = event.production_id
-    new_starts_at = event.starts_at
-
-    if old_production_id != new_production_id:
-        update_production_dates(db, old_production_id)
-        update_production_dates(db, new_production_id)
-    elif old_starts_at != new_starts_at:
-        update_production_dates(db, new_production_id)
 
     db.commit()
     db.refresh(event)
