@@ -1,5 +1,13 @@
 from fastapi import APIRouter
-from src.api.v1.archive import events, productions, halls, tags, media, statistics, artists
+from src.api.v1.archive import (
+    events,
+    productions,
+    halls,
+    tags,
+    media,
+    statistics,
+    artists,
+)
 
 
 router = APIRouter()
