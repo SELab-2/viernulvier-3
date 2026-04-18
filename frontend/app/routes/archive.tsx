@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Add } from "@mui/icons-material";
+
 import FilterSidebar from "~/shared/components/FilterSidebar";
 import {
   ArchiveSortOrder,
@@ -11,6 +13,7 @@ import { getProductionsPaginated } from "~/features/archive/services/productionS
 import { getByUrl } from "~/shared/services/sharedService";
 import type { Event } from "~/features/archive/types/eventTypes";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
+import { Protected } from "~/features/auth";
 
 function SortOrderSelection({
   sortOrder,
@@ -47,6 +50,20 @@ function SortOrderSelection({
   );
 }
 
+function CreateProductionButton({ onClick }: { onClick?: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <Protected permissions={["archive:create"]}>
+      <div
+        className="bg-archive-accent/90 hover:bg-archive-accent flex cursor-pointer items-center justify-between rounded-lg px-2 py-1"
+        onClick={onClick}
+      >
+        <Add /> <p>{t("archive.create_production")}</p>
+      </div>
+    </Protected>
+  );
+}
+
 function FilterIcon() {
   return (
     <svg
@@ -66,7 +83,7 @@ function FilterIcon() {
   );
 }
 
-function MobileToggleButton({ onClick }: { onClick: () => void }) {
+function MobileToggleButton({ onClick }: { onClick?: () => void }) {
   const { t } = useTranslation();
   return (
     <button
@@ -191,10 +208,14 @@ export default function Archive() {
         <div className="w-full">
           {/* Production list header */}
           <div className="mb-4 flex flex-row items-center justify-between">
-            <p className="italic opacity-60 md:text-lg">
-              {productions.length}{" "}
-              {productions.length == 1 ? t("archive.result") : t("archive.results")}
-            </p>
+            <div className="center-items flex justify-between space-x-4">
+              <p className="italic opacity-60 md:text-lg">
+                {/* Result count */}
+                {productions.length}{" "}
+                {productions.length == 1 ? t("archive.result") : t("archive.results")}
+              </p>
+              <CreateProductionButton />
+            </div>
             <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
           </div>
           <Divider className="bg-archive-ink/5" />
@@ -204,6 +225,7 @@ export default function Archive() {
             <ProductionTimeline productions={productions} sortOrder={sortOrder} />
           ) : (
             <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+              {/* No Results */}
               <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
                 {t("archive.no_results.header")}
               </p>
