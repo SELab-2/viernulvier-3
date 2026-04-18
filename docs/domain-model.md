@@ -15,6 +15,9 @@ Table productions {
 
     created_at timestamp
     updated_at timestamp
+
+    earliest_at timestamp
+    latest_at timestamp
 }
 
 Table prod_info {

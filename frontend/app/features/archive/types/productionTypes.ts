@@ -32,6 +32,9 @@ export interface Production {
   created_at?: string;
   updated_at?: string;
 
+  earliest_at?: string;
+  latest_at?: string;
+
   production_infos: ProductionInfo[];
   event_id_urls: string[];
   tags: Tag[];
