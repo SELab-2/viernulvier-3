@@ -1,8 +1,9 @@
 import { useState, type JSX } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Protected, useAuthSession } from "~/features/auth";
+import { USER_PERMISSIONS } from "~/features/users";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
@@ -12,6 +13,11 @@ const NAV_ITEMS = [
   { i18n_key: "nav.home", path: "/" },
   { i18n_key: "nav.archive", path: "/archive" },
   { i18n_key: "nav.history", path: "/history" },
+  {
+    i18n_key: "nav.users",
+    path: "/users",
+    permissions: [USER_PERMISSIONS.read],
+  },
 ];
 
 type LogoProps = { nav_name: string };
@@ -52,25 +58,33 @@ type NavLinksProps = { onNavigate?: () => void };
 function NavLinks({ onNavigate }: NavLinksProps) {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
-  const { pathname } = useLocation();
 
   return (
     <>
-      {NAV_ITEMS.map(({ i18n_key, path }) => (
-        <li key={i18n_key}>
-          <NavLink
-            to={lp(path)}
-            className={() => {
-              const current = pathname.replace(/\/+$/, "");
-              const target = lp(path).replace(/\/+$/, "");
-              return navLinkClass({ isActive: current === target });
-            }}
-            onClick={onNavigate}
-          >
-            {t(i18n_key)}
-          </NavLink>
-        </li>
-      ))}
+      {NAV_ITEMS.map(({ i18n_key, path, permissions }) => {
+        const link = (
+          <li key={i18n_key}>
+            <NavLink
+              to={lp(path)}
+              className={navLinkClass}
+              end={path === "/"}
+              onClick={onNavigate}
+            >
+              {t(i18n_key)}
+            </NavLink>
+          </li>
+        );
+
+        if (!permissions) {
+          return link;
+        }
+
+        return (
+          <Protected key={i18n_key} permissions={permissions} fallback={null}>
+            {link}
+          </Protected>
+        );
+      })}
     </>
   );
 }

@@ -2,7 +2,8 @@
   "nav": {
     "home": "Home",
     "archive": "Archief",
-    "history": "Geschiedenis"
+    "history": "Geschiedenis",
+    "users": "Gebruikers"
   },
   "footer": {
     "website": "Onze officiële website"
@@ -105,6 +106,50 @@
         "invalidCredentials": "De opgegeven gebruikersnaam of het opgegeven wachtwoord is ongeldig.",
         "generic": "Aanmelden lukt momenteel niet. Probeer het opnieuw."
       }
+    }
+  },
+
+  "users": {
+    "eyebrow": "Beheer",
+    "title": "Gebruikersbeheer",
+    "description": "Bekijk accounts en hun effectieve toegang in een helder overzicht.",
+    "loading": "Gebruikers worden geladen",
+    "summary": {
+      "totalUsers": "Totaal aantal gebruikers",
+      "superUsers": "Supergebruikers"
+    },
+    "fields": {
+      "username": "Gebruikersnaam",
+      "roles": "Rollen",
+      "permissions": "Permissies"
+    },
+    "actions": {
+      "retry": "Opnieuw proberen"
+    },
+    "badges": {
+      "superUser": "Supergebruiker"
+    },
+    "meta": {
+      "createdAt": "Aangemaakt op",
+      "lastLoginAt": "Laatst aangemeld"
+    },
+    "messages": {
+      "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden."
+    },
+    "empty": {
+      "title": "Geen gebruikers gevonden",
+      "description": "Zodra accounts zijn aangemaakt, verschijnen ze hier met hun toegewezen rollen en afgeleide permissies.",
+      "roles": "Geen rollen toegewezen",
+      "permissions": "Geen permissies toegewezen",
+      "date": "Nooit"
+    },
+    "card": {
+      "userLabel": "Gebruiker #{{id}}"
+    },
+    "accessDenied": {
+      "eyebrow": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot gebruikersbeheer",
+      "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
     }
   }
 }
