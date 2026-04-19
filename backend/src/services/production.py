@@ -1,3 +1,8 @@
+import base64
+import json
+from typing import Literal
+from datetime import datetime
+from sqlalchemy import asc, desc, or_, and_
 from src.schemas.pagination import Pagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo, Tag
@@ -79,17 +84,48 @@ def build_production_response(
     )
 
 
+# Encodes a production cursor as a base64 encoded json string
+def encode_cursor(date: datetime | None, id: int) -> str:
+    if date:
+        payload = {"earliest_at": date.isoformat(), "id": id}
+    else:
+        payload = {"earliest_at": None, "id": id}
+    json_str = json.dumps(payload, separators=(",", ":"))
+    return base64.urlsafe_b64encode(json_str.encode()).decode()
+
+
+# Decodes an ealiest_at timestamp and production id from a base64 encoded json string
+def decode_cursor(cursor: str) -> tuple[datetime | None, int]:
+    try:
+        decoded = base64.urlsafe_b64decode(cursor.encode()).decode()
+        data = json.loads(decoded)
+
+        return (datetime.fromisoformat(data["earliest_at"]), int(data["id"]))
+    except Exception:
+        raise ValidationError("Invalid cursor")
+
+
 # Uses pagination to return a part of all productions.
 # A list of tags can be given as a paramter to filter.
 def get_productions_paginated(
     db: Session,
     base_url: str,
-    cursor: int | None = None,
+    cursor: str | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
     artists: list[str] | None = None,
+    sort_order: Literal["Ascending", "Descending"] = "Descending",
 ) -> ProductionListResponse:
-    query = db.query(Production).order_by(Production.id)
+    # TODO: NULLS LAST still has to happen.. so does comparison with cursor_date = null
+    if sort_order == "Ascending":
+        query = db.query(Production).order_by(
+            asc(Production.earliest_at), asc(Production.id)
+        )
+    else:
+        query = db.query(Production).order_by(
+            desc(Production.earliest_at), desc(Production.id)
+        )
+
     if tags:
         subq = (
             db.query(Production.id)
@@ -110,12 +146,33 @@ def get_productions_paginated(
         query = query.filter(Production.id.in_(subq))
 
     if cursor is not None:
-        query = query.filter(Production.id > cursor)
+        cursor_date, cursor_id = decode_cursor(cursor)
+        if sort_order == "Ascending":
+            query = query.filter(
+                or_(
+                    Production.earliest_at > cursor_date,
+                    and_(
+                        Production.earliest_at == cursor_date, Production.id > cursor_id
+                    ),
+                )
+            )
+        else:
+            query = query.filter(
+                or_(
+                    Production.earliest_at < cursor_date,
+                    and_(
+                        Production.earliest_at == cursor_date, Production.id < cursor_id
+                    ),
+                )
+            )
 
     productions = query.limit(limit + 1).all()
     has_more = len(productions) > limit
     productions = productions[:limit]
-    next_cursor = productions[-1].id if has_more else None
+    last_prod = productions[-1]
+    next_cursor = (
+        encode_cursor(last_prod.earliest_at, last_prod.id) if has_more else None
+    )
 
     # When returning all productions, just returs infos in all languages.
     return ProductionListResponse(
