@@ -358,6 +358,11 @@ export default function UserManagementPage() {
     setPendingDeleteUser(null);
   }
 
+  function openDeleteDialog(user: IUser) {
+    setMutationError(null);
+    setPendingDeleteUser(user);
+  }
+
   async function handleCreateUser(payload: IUserCreateRequest) {
     setIsMutating(true);
     setMutationError(null);
@@ -414,6 +419,7 @@ export default function UserManagementPage() {
   }
 
   const superUserCount = users.filter((managedUser) => managedUser.isSuperUser).length;
+  const currentUserId = currentUser?.id;
   const canCreateUsers = hasPermission(
     currentUser?.permissions,
     currentUser?.isSuperUser,
@@ -424,6 +430,10 @@ export default function UserManagementPage() {
     currentUser?.isSuperUser,
     USER_PERMISSIONS.delete
   );
+
+  function canDeleteManagedUser(user: IUser) {
+    return Boolean(canDeleteUsers && currentUserId !== user.id && !user.isSuperUser);
+  }
 
   return (
     <>
@@ -490,7 +500,7 @@ export default function UserManagementPage() {
         ) : (
           <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
             {users.map((managedUser) => {
-              const isCurrentManagedUser = currentUser?.id === managedUser.id;
+              const isCurrentManagedUser = currentUserId === managedUser.id;
 
               return (
                 <UserCard
@@ -499,11 +509,8 @@ export default function UserManagementPage() {
                   formatDateTime={formatDateTime}
                   isCurrentUser={isCurrentManagedUser}
                   onDelete={
-                    canDeleteUsers && !isCurrentManagedUser && !managedUser.isSuperUser
-                      ? () => {
-                          setMutationError(null);
-                          setPendingDeleteUser(managedUser);
-                        }
+                    canDeleteManagedUser(managedUser)
+                      ? () => openDeleteDialog(managedUser)
                       : undefined
                   }
                 />

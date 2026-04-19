@@ -188,7 +188,16 @@ describe("UserManagementPage", () => {
       username: "fresh-account",
       password: "temporary-secret",
     });
-    expect(await screen.findByText("fresh-account")).toBeInTheDocument();
+
+    const createdUserCard = (await screen.findByText("fresh-account")).closest("article");
+
+    expect(createdUserCard).not.toBeNull();
+    expect(
+      within(createdUserCard as HTMLElement).queryByText("users.badges.currentUser")
+    ).toBeNull();
+    expect(
+      within(createdUserCard as HTMLElement).getByText("users.actions.delete")
+    ).toBeInTheDocument();
   });
 
   it("deletes a non-protected user from the confirmation dialog", async () => {
