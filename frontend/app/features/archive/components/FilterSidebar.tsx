@@ -17,6 +17,7 @@ const FilterSearchCard: React.FC<SearchCardProps> = ({
   setSearchQuery,
 }) => {
   const { t } = useTranslation();
+
   return (
     <FilterCard title={t("filter.search")}>
       <div className="relative">
@@ -51,6 +52,7 @@ interface DateCardProps {
   dateTo: string;
   setDateTo: React.Dispatch<React.SetStateAction<string>>;
 }
+
 const FilterDateCard: React.FC<DateCardProps> = ({
   dateFrom,
   setDateFrom,
@@ -58,6 +60,7 @@ const FilterDateCard: React.FC<DateCardProps> = ({
   setDateTo,
 }) => {
   const { t } = useTranslation();
+
   return (
     <FilterCard title={t("filter.period")}>
       <div className="grid grid-cols-1 gap-4">
@@ -94,10 +97,12 @@ interface TagCardProps {
 }
 
 const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }) => {
-  const { t } = useTranslation();
   const [tags, setTags] = useState<Tag[]>([]);
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
+
+  const { t } = useTranslation();
+
   const toggleTag = (tag: Tag) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
@@ -151,6 +156,7 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
       }
     );
   }, [tags]);
+
   return (
     <FilterCard title={t("filter.tags")}>
       <div className="space-y-4">
@@ -244,13 +250,16 @@ const FilterHallCard: React.FC<HallCardProps> = ({
   selectedHalls,
   setSelectedHalls,
 }) => {
-  const { t } = useTranslation();
   const [hallMap, setHallMap] = useState<Record<string, string>>({});
+
+  const { t } = useTranslation();
+
   const toggleHall = (hall: string) => {
     setSelectedHalls((prev) =>
       prev.includes(hall) ? prev.filter((v) => v !== hall) : [...prev, hall]
     );
   };
+
   useEffect(() => {
     const searchHallNames = ["Balzaal", "Café", "Domzaal", "Filmzaal", "Theaterzaal"];
 
@@ -272,6 +281,7 @@ const FilterHallCard: React.FC<HallCardProps> = ({
       setHallMap(map);
     });
   }, []);
+
   return (
     <FilterCard title={t("filter.halls")}>
       <div className="space-y-3">
@@ -307,20 +317,25 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
   setSelectedArtists,
   sidebarRef,
 }) => {
-  const { t } = useTranslation();
   const [dropdownAbove, setDropdownAbove] = useState(false);
   const [artists, setArtists] = useState<string[]>([]);
   const [artistQuery, setArtistQuery] = useState("");
+
+  const { t } = useTranslation();
+
   const artistInputRef = useRef<HTMLDivElement>(null);
+
   const selectArtist = (artist: string) => {
     if (!selectedArtists.includes(artist)) {
       setSelectedArtists((prev) => [...prev, artist]);
     }
     setArtistQuery("");
   };
+
   useEffect(() => {
     getArtists("nl").then(setArtists).catch(console.error);
   }, []);
+
   const filteredArtists =
     artistQuery.trim().length > 0
       ? artists.filter(
@@ -350,6 +365,7 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
   const removeArtist = (artist: string) => {
     setSelectedArtists((prev) => prev.filter((a) => a !== artist));
   };
+
   return (
     <FilterCard title={t("filter.artists")}>
       <div>
