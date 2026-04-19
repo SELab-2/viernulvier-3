@@ -71,6 +71,8 @@ def build_production_response(
         attendance_mode=production.attendance_mode,
         created_at=production.created_at,
         updated_at=production.updated_at,
+        earliest_at=production.earliest_at,
+        latest_at=production.latest_at,
         production_infos=production_infos,
         event_id_urls=event_urls,
         tags=tags,

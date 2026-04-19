@@ -29,6 +29,9 @@ class ProductionResponse(StrictModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+    earliest_at: Optional[datetime] = None
+    latest_at: Optional[datetime] = None
+
     # A production has a list of event urls (for the different events of that production).
     # A production has a list of infos (for different languages).
     # A production has a list of tags.

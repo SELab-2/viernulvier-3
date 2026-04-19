@@ -20,6 +20,8 @@ class Production(Base):
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
     )
+    earliest_at = Column(TIMESTAMP)
+    latest_at = Column(TIMESTAMP)
 
     info = relationship("ProdInfo", back_populates="production")
     tags = relationship("Tag", secondary=prod_tags, back_populates="productions")
