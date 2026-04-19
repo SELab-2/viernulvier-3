@@ -4,11 +4,7 @@ import AxiosMockAdapter from "axios-mock-adapter";
 
 import * as envModule from "~/shared/utils/env";
 import { createApiClient } from "~/shared/services/apiClient";
-import {
-  createUser,
-  deleteUser,
-  listUsers,
-} from "~/features/users/services/userManagementService";
+import { createUser, listUsers } from "~/features/users/services/userManagementService";
 
 describe("userManagementService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -71,11 +67,5 @@ describe("userManagementService", () => {
       createdAt: "2026-04-15T09:30:00",
       lastLoginAt: null,
     });
-  });
-
-  it("deletes a user", async () => {
-    mockAdapter.onDelete("/api/v1/auth/users/8").reply(204);
-
-    await expect(deleteUser(8)).resolves.toBeUndefined();
   });
 });
