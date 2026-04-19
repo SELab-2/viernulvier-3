@@ -39,7 +39,15 @@ describe("ProductionTimeline", () => {
     it("displays when a production's date is not known", () => {
       render(
         <ProductionTimeline
-          productions={[...mockProductions, { ...mockProductions[0], events: [] }]}
+          productions={[
+            ...mockProductions,
+            {
+              ...mockProductions[0],
+              earliest_at: undefined,
+              latest_at: undefined,
+              events: [],
+            },
+          ]}
         />
       );
 

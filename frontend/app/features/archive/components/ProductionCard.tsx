@@ -109,41 +109,26 @@ function getProductionStartLabel(
   production: Production,
   lang?: string
 ): string | undefined {
-  if (!production.events || production.events.length === 0) {
+  if (!production.earliest_at || !production.latest_at) {
     return;
   }
 
-  // Extract valid dates
-  const dates = production.events
-    .map((e) => e.starts_at)
-    .filter((d): d is string => !!d)
-    .map((d) => {
-      const date = new Date(d);
-      if (isNaN(date.getTime())) return null;
+  const earliest_date = new Date(production.earliest_at);
+  const latest_date = new Date(production.latest_at);
 
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    })
-    .filter((d): d is Date => d !== null);
+  const firstStr = formatDateDDMonYYYY(earliest_date, lang);
+  const lastStr = formatDateDDMonYYYY(latest_date, lang);
 
-  if (dates.length === 0) return;
-
-  dates.sort((a, b) => a.getTime() - b.getTime());
-
-  const first = dates[0];
-  const last = dates[dates.length - 1];
-
-  const firstStr = formatDateDDMonYYYY(first, lang);
-  const lastStr = formatDateDDMonYYYY(last, lang);
-
-  if (!firstStr || !lastStr) return;
-
-  // If there is only one date, only return that day
-  if (first.getTime() === last.getTime()) {
+  // If production only ocurred on a single day, we only list that day
+  if (
+    earliest_date.getUTCFullYear() === latest_date.getUTCFullYear() &&
+    earliest_date.getMonth() === latest_date.getMonth() &&
+    earliest_date.getDate() === latest_date.getDate()
+  ) {
     return firstStr;
+  } else {
+    return `${firstStr} - ${lastStr}`;
   }
-
-  // When production is on multiples days return range from min to max date
-  return `${firstStr} - ${lastStr}`;
 }
 
 function getVenues(production: Production): string[] | undefined {
@@ -195,8 +180,6 @@ export function ProductionCard({
   const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
-  // NOTE: update this after id_url becomes standard
-  // const productionId = production.id_url;
   const productionId = production.id_url;
 
   const handleOpenDetails = () => {

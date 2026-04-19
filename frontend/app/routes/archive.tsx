@@ -106,19 +106,9 @@ function ShowMoreButton({
   const { t } = useTranslation();
 
   async function onClick() {
-    let next_productions = await getProductionsPaginated({
+    const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
     });
-    // TODO make this not fetch all events for every production.
-    const productions = await Promise.all(
-      next_productions.productions.map(async (production) => ({
-        ...production,
-        events: await Promise.all(
-          production.event_id_urls.map((eventUrl) => getByUrl<Event>(eventUrl))
-        ),
-      }))
-    );
-    next_productions = { ...next_productions, productions };
 
     setProductionList({
       productions: [...productionList.productions, ...next_productions.productions],
@@ -162,19 +152,7 @@ export default function Archive() {
 
   const { data: productionList, setData: setProductionList } =
     useAsyncFetch<ProductionList>(
-      useCallback(async () => {
-        const productionList = await getProductionsPaginated();
-        // TODO make this not fetch all events for every production.
-        const productions = await Promise.all(
-          productionList.productions.map(async (production) => ({
-            ...production,
-            events: await Promise.all(
-              production.event_id_urls.map((eventUrl) => getByUrl<Event>(eventUrl))
-            ),
-          }))
-        );
-        return { ...productionList, productions };
-      }, [])
+      useCallback(async () => await getProductionsPaginated(), [])
     );
   const productions = productionList?.productions ?? [];
 

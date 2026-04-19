@@ -11,6 +11,8 @@ export const mockProductions: Production[] = [
       },
     ],
     event_id_urls: [],
+    earliest_at: "2026-04-16T14:42:48.359Z",
+    latest_at: "2026-04-16T14:42:48.359Z",
     events: [
       {
         id_url: "http://test/api/v1/archive/events/1",
@@ -36,6 +38,8 @@ export const mockProductions: Production[] = [
         title: "test_production_2",
       },
     ],
+    earliest_at: "2025-04-16T14:42:48.359Z",
+    latest_at: "2025-04-16T14:42:48.359Z",
     event_id_urls: [],
     events: [
       {
@@ -63,6 +67,8 @@ export const mockProductions: Production[] = [
       },
     ],
     event_id_urls: [],
+    earliest_at: "2026-06-16T14:42:48.359Z",
+    latest_at: "2026-06-16T14:42:48.359Z",
     events: [
       {
         id_url: "http://test/api/v1/archive/events/3",

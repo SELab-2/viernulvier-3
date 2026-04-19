@@ -36,23 +36,12 @@ function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => numb
     });
 }
 
-function getEarliestProductionStartDate(production: Production): Date | null {
-  return production.events
-    ? production.events.reduce<Date | null>((min, event) => {
-        if (!event.starts_at) return min;
-
-        const current = new Date(event.starts_at);
-        return !min || current < min ? current : min;
-      }, null)
-    : null;
-}
-
 // Groups productions per year per month
 function groupProductions(productions: Production[]): GroupedProductions {
   const grouped: GroupedProductions = new Map();
 
   for (const prod of productions) {
-    const date = getEarliestProductionStartDate(prod);
+    const date = prod.earliest_at ? new Date(prod.earliest_at) : null;
     const year = date ? date.getFullYear() : -1;
     const month = date ? date.getMonth() : -1;
 
