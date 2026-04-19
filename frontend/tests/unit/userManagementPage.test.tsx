@@ -189,7 +189,9 @@ describe("UserManagementPage", () => {
       password: "temporary-secret",
     });
 
-    const createdUserCard = (await screen.findByText("fresh-account")).closest("article");
+    const createdUserCard = (await screen.findByText("fresh-account")).closest(
+      "article"
+    );
 
     expect(createdUserCard).not.toBeNull();
     expect(createdUserCard).not.toBeNull();

@@ -43,10 +43,7 @@ function UserBadge({ children }: { children: string }) {
   );
 }
 
-export function UserCard({
-  user,
-  formatDateTime,
-}: UserCardProps) {
+export function UserCard({ user, formatDateTime }: UserCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -61,7 +58,9 @@ export function UserCard({
 
         {user.isSuperUser ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            {user.isSuperUser ? <UserBadge>{t("users.badges.superUser")}</UserBadge> : null}
+            {user.isSuperUser ? (
+              <UserBadge>{t("users.badges.superUser")}</UserBadge>
+            ) : null}
           </div>
         ) : null}
       </div>
