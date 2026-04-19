@@ -26,6 +26,7 @@ describe("Navbar", () => {
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
     // Once for the logo, once for the link
     expect(screen.getAllByText("I18N_Archive").length).toBe(2);
+    expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
   });
 
   it("toggles mobile menu when clicking hamburger button", async () => {
@@ -173,5 +174,18 @@ describe("Navbar", () => {
     expect(logoutSpy).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("button", { name: "I18N_Logout" })).toBeNull();
     expect(screen.queryByRole("link", { name: "I18N_Login" })).toBeNull();
+  });
+
+  it("shows the users link for authenticated users with users:read", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue({
+      ...authenticatedUser,
+      permissions: ["users:read"],
+    });
+
+    renderWithRouterAndTheme({});
+
+    const userLinks = await screen.findAllByRole("link", { name: "I18N_Users" });
+
+    expect(userLinks.length).toBeGreaterThanOrEqual(1);
   });
 });
