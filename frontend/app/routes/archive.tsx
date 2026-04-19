@@ -10,8 +10,6 @@ import {
 import { Divider } from "@mui/material";
 import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
-import { getByUrl } from "~/shared/services/sharedService";
-import type { Event } from "~/features/archive/types/eventTypes";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import { Protected } from "~/features/auth";
 

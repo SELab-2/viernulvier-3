@@ -149,7 +149,7 @@ const FilterSidebar: React.FC<Props> = ({
     <aside
       ref={sidebarRef}
       id="archive-sidebar"
-      className={`${show ? "block" : "hidden"} sticky-scroll min-w-1/4 mb-10 max-h-[calc(100vh-120px)] w-full space-y-6 overflow-y-auto pr-0 lg:sticky lg:top-24 lg:mb-0 lg:block lg:w-80 lg:overflow-y-auto lg:pr-4`}
+      className={`${show ? "block" : "hidden"} sticky-scroll mb-10 max-h-[calc(100vh-120px)] w-full min-w-1/4 space-y-6 overflow-y-auto pr-0 lg:sticky lg:top-24 lg:mb-0 lg:block lg:w-80 lg:overflow-y-auto lg:pr-4`}
     >
       <div className="bg-archive-ink/5 dark:bg-archive-ink-dark/5 border-archive-ink/5 dark:border-archive-ink-dark/5 rounded-2xl border p-6 shadow-sm">
         <h3 className="mb-4 text-xs font-bold tracking-[0.2em] uppercase opacity-40 md:mb-6">
