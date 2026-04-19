@@ -89,15 +89,16 @@ function CreateUserDialog({
 
   const trimmedUsername = username.trim();
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
+  function resetForm() {
     setUsername("");
     setPassword("");
     setValidationError(null);
-  }, [open]);
+  }
+
+  function handleClose() {
+    resetForm();
+    onClose();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -119,7 +120,7 @@ function CreateUserDialog({
   return (
     <Dialog
       open={open}
-      onClose={isSubmitting ? undefined : onClose}
+      onClose={isSubmitting ? undefined : handleClose}
       fullWidth
       maxWidth="sm"
       slotProps={{
@@ -139,7 +140,11 @@ function CreateUserDialog({
 
         <UserMutationAlert message={validationError || errorMessage} />
 
-        <form id="user-form-dialog" onSubmit={handleSubmit} className="mt-6 flex flex-col gap-5">
+        <form
+          id="user-form-dialog"
+          onSubmit={handleSubmit}
+          className="mt-6 flex flex-col gap-5"
+        >
           <TextField
             label={t("users.fields.username")}
             name="username"
@@ -181,7 +186,7 @@ function CreateUserDialog({
         </form>
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
-        <Button onClick={onClose} disabled={isSubmitting} sx={secondaryButtonSx}>
+        <Button onClick={handleClose} disabled={isSubmitting} sx={secondaryButtonSx}>
           {t("users.actions.cancel")}
         </Button>
         <Button
@@ -327,7 +332,6 @@ export default function UserManagementPage() {
   }
 
   const superUserCount = users.filter((managedUser) => managedUser.isSuperUser).length;
-  const currentUserId = currentUser?.id;
   const canCreateUsers = hasPermission(
     currentUser?.permissions,
     currentUser?.isSuperUser,
@@ -444,9 +448,9 @@ const secondaryButtonSx = {
 
 const primaryButtonSx = {
   ...secondaryButtonSx,
-  color: "#f6f0e8",
-  borderColor: "transparent",
-  backgroundColor: "var(--archive-accent)",
+  "color": "#f6f0e8",
+  "borderColor": "transparent",
+  "backgroundColor": "var(--archive-accent)",
   "&:hover": {
     backgroundColor: "#92653e",
   },
@@ -486,10 +490,10 @@ const fieldSx = {
     color: "var(--archive-accent)",
   },
   "& .MuiInputBase-root": {
-    borderRadius: "1rem",
-    color: "var(--archive-ink)",
-    backgroundColor: "var(--archive-surface)",
-    transition: "background-color 160ms ease, border-color 160ms ease",
+    "borderRadius": "1rem",
+    "color": "var(--archive-ink)",
+    "backgroundColor": "var(--archive-surface)",
+    "transition": "background-color 160ms ease, border-color 160ms ease",
     "&:hover": {
       backgroundColor: "var(--archive-control)",
     },
