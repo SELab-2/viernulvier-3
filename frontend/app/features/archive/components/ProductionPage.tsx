@@ -353,11 +353,9 @@ export function ProductionPage({
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
-      <main className="mx-auto w-full max-w-[1400px] px-6 pt-10 pb-16 md:px-12">
-        <div className="flex flex-col gap-4">
-          <BackToCollectionLink />
-          <ProductionHeader production_info={productionInfo} image_url={imageUrl} />
-        </div>
+      <main className="flex flex-col gap-4 mx-auto w-full max-w-[1400px] px-6 pt-10 pb-16 md:px-12">
+        <BackToCollectionLink />
+        <ProductionHeader production_info={productionInfo} image_url={imageUrl} />
 
         <Tags performer_type={production.performer_type} tags={tags} />
 
