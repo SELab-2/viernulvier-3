@@ -146,11 +146,11 @@ export default function UserManagementPage() {
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         <SummaryCard
-          value={String(users.length)}
+          value={isLoading ? "—" : String(users.length)}
           label={t("users.summary.totalUsers")}
         />
         <SummaryCard
-          value={String(superUserCount)}
+          value={isLoading ? "—" : String(superUserCount)}
           label={t("users.summary.superUsers")}
         />
       </div>
