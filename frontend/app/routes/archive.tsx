@@ -168,7 +168,6 @@ export default function Archive() {
       <MobileToggleButton onClick={toggleMobileFilters} />
       <div className="relative mb-0 flex flex-col items-start gap-5 lg:flex-row">
         <FilterSidebar
-          className="min-w-1/4"
           show={showFilters}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
