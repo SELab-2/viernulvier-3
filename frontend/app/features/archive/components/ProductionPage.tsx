@@ -353,7 +353,7 @@ export function ProductionPage({
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
-      <main className="flex flex-col gap-4 mx-auto w-full max-w-[1400px] px-6 pt-10 pb-16 md:px-12">
+      <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader production_info={productionInfo} image_url={imageUrl} />
 

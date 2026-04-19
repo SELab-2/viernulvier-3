@@ -1,16 +1,16 @@
-import type { PaginationRequest, PaginationResponse } from "./productionTypes";
+import type { PaginationResponse } from "./paginationTypes";
 
-export interface ProductionMedia {
-  id_url: string;
-  url: string;
-  production: string;
+export interface MediaItem {
+  id: number;
+  production_id: number;
+  filename: string;
   content_type: string;
-  uploaded_at: string;
+  url: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface ProductionMediaListResponse {
-  media: ProductionMedia[];
+export interface MediaList {
+  media: MediaItem[];
   pagination: PaginationResponse;
 }
-
-export type ProductionMediaQuery = PaginationRequest;

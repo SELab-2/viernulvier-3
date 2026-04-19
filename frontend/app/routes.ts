@@ -10,5 +10,6 @@ export default [
     route("history", "routes/history.tsx"),
     route("productions/:productionId", "routes/productions.$productionId.tsx"),
     route("login", "routes/login.tsx"),
+    route("users", "routes/users.tsx"),
   ]),
 ] satisfies RouteConfig;

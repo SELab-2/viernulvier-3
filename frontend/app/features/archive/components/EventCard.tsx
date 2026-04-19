@@ -72,11 +72,11 @@ type EventCardProps = {
 export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
-  const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateTbd");
-  const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateTbd");
+  const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
+  const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
   const eventLocation = getTextOrDefault(
     event.resolvedHall?.name ?? event.hall?.name,
-    t("productionPage.fallback.locationTbd")
+    t("productionPage.fallback.locationUnknown")
   );
   const eventPrice =
     event.resolvedPrices.length > 0

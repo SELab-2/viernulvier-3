@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
-import { getMediaForProductionPaginated } from "~/features/archive/services/mediaService";
+import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
 // extract numeric production id from id_url for media requests
 function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
@@ -73,7 +73,7 @@ export function ProductionPageMediaGallery({
 
         // continue paginated requests until there are no more pages
         while (hasMore) {
-          const response = await getMediaForProductionPaginated(productionNumericId, {
+          const response = await getMediaForProduction(productionNumericId, {
             cursor,
             limit: 50,
           });

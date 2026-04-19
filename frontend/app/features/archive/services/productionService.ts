@@ -10,9 +10,9 @@ import type {
   ProductionList,
   ProductionCreate,
   ProductionUpdate,
-  PaginationRequest,
 } from "../types/productionTypes";
 import { createApiClient } from "~/shared/services/apiClient";
+import type { PaginationRequest } from "../types/paginationTypes";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
