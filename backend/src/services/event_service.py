@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from src.models.production import Production
 from src.models import Event, Hall, EventPrice
 from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
-from src.schemas.hall import HallSchema
+from src.schemas.hall import HallResponse
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
 
@@ -22,19 +22,23 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
         f"{base_url}/events/{event.id}/prices/{price.id}" for price in prices_db
     ]
 
+    hall_id_url = f"{base_url}/halls/{event.hall_id}" if hall else None
+    hall = (
+        HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
+        if hall
+        else None
+    )
+
     return EventResponse(
-        id=f"{base_url}/events/{event.id}",
-        production_id=f"{base_url}/productions/{event.production_id}",
-        hall_id=(
-            f"{base_url}/halls/{event.hall_id}" if event.hall_id is not None else None
-        ),
-        hall=HallSchema(name=hall.name, address=hall.address) if hall else None,
+        id_url=f"{base_url}/events/{event.id}",
+        production_id_url=f"{base_url}/productions/{event.production_id}",
+        hall=hall,
         starts_at=event.starts_at,
         ends_at=event.ends_at,
         order_url=event.order_url,
         created_at=event.created_at,
         updated_at=event.updated_at,
-        prices=price_urls,
+        price_urls=price_urls,
     )
 
 
@@ -66,10 +70,10 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
     try:
-        production_id = extract_id(event_in.production_id)
-        hall_id = extract_id(event_in.hall_id)
+        production_id = extract_id(event_in.production_id_url)
+        hall_id = extract_id(event_in.hall_id_url)
     except ValueError:
-        raise ValidationError("Invalid production_id or hall_id format")
+        raise ValidationError("Invalid production_id_url or hall_id_url format")
 
     db_production = db.query(Production).filter(Production.id == production_id).first()
     if not db_production:
@@ -109,24 +113,24 @@ def update_event(
     update_dict: dict[str, Any] = update_data.model_dump(exclude_unset=True)
 
     # hall_id update
-    if "hall_id" in update_dict:
+    if "hall_id_url" in update_dict:
         try:
-            hall_id = extract_id(update_dict["hall_id"])
+            hall_id = extract_id(update_dict["hall_id_url"])
         except ValueError:
-            raise ValidationError("Invalid hall_id format")
+            raise ValidationError("Invalid hall_id_url format")
 
         db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
         if not db_hall:
             raise NotFoundError("Hall", hall_id)
 
-        update_dict["hall_id"] = hall_id
+        update_dict["hall_id_url"] = hall_id
 
     # production_id update
-    if "production_id" in update_dict:
+    if "production_id_url" in update_dict:
         try:
-            production_id = extract_id(update_dict["production_id"])
+            production_id = extract_id(update_dict["production_id_url"])
         except ValueError:
-            raise ValidationError("Invalid production_id format")
+            raise ValidationError("Invalid production_id_url format")
 
         db_production = (
             db.query(Production).filter(Production.id == production_id).first()
@@ -135,7 +139,7 @@ def update_event(
         if not db_production:
             raise NotFoundError("Production", production_id)
 
-        update_dict["production_id"] = production_id
+        update_dict["production_id_url"] = production_id
 
     # starts_at / ends_at validation
     starts_at = update_dict.get("starts_at", event.starts_at)
@@ -169,7 +173,7 @@ def get_prices_for_event(
     for price in prices:
         result.append(
             PriceResponse(
-                id=f"{base_url}/events/{event_id}/prices/{price.id}",
+                id_url=f"{base_url}/events/{event_id}/prices/{price.id}",
                 amount=float(price.amount) if price.amount else None,
                 available=price.available,
                 expires_at=price.expires_at,
@@ -195,7 +199,7 @@ def get_event_price(
         raise NotFoundError("Price", price_id)
 
     return PriceResponse(
-        id=f"{base_url}/events/{event_id}/prices/{price.id}",
+        id_url=f"{base_url}/events/{event_id}/prices/{price.id}",
         amount=float(price.amount) if price.amount else None,
         available=price.available,
         expires_at=price.expires_at,

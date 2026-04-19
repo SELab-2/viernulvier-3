@@ -24,22 +24,20 @@ type LogoProps = { nav_name: string };
 
 function Logo({ nav_name }: LogoProps) {
   return (
-    <header className="sticky top-0 z-50">
-      <div className="group flex items-center space-x-2">
-        <img
-          src="/logo.svg"
-          alt={`${nav_name} logo`}
-          className="h-8 w-auto md:h-10"
-          style={{ filter: "var(--archive-logo-filter)" }}
-        />
-        <span
-          aria-hidden="true"
-          className="font-serif text-base italic opacity-50 md:text-[1.125rem]"
-        >
-          {nav_name}
-        </span>
-      </div>
-    </header>
+    <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
+      <img
+        src="/logo.svg"
+        alt={`${nav_name} logo`}
+        className="xs:h-8 h-6 w-auto md:h-10"
+        style={{ filter: "var(--archive-logo-filter)" }}
+      />
+      <span
+        aria-hidden="true"
+        className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
+      >
+        {nav_name}
+      </span>
+    </div>
   );
 }
 
@@ -53,7 +51,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 const authActionClassName =
-  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors";
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden lg:flex";
 
 type NavLinksProps = { onNavigate?: () => void };
 
@@ -91,7 +89,11 @@ function NavLinks({ onNavigate }: NavLinksProps) {
   );
 }
 
-function NavbarAuthControls({ onNavigate }: NavLinksProps) {
+function NavbarAuthControls({
+  onNavigate,
+  className,
+  asList,
+}: NavLinksProps & { className?: string; asList?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -103,17 +105,29 @@ function NavbarAuthControls({ onNavigate }: NavLinksProps) {
     navigate(lp("/"), { replace: true });
   }
 
+  const button = (
+    <button
+      type="button"
+      className={authActionClassName}
+      onClick={handleLogout}
+      aria-label={t("auth.actions.logout")}
+    >
+      <LogoutOutlinedIcon fontSize="small" />
+      <span>{t("auth.actions.logout")}</span>
+    </button>
+  );
+
+  if (asList) {
+    return (
+      <Protected>
+        <li>{button}</li>
+      </Protected>
+    );
+  }
+
   return (
     <Protected>
-      <button
-        type="button"
-        className={authActionClassName}
-        onClick={handleLogout}
-        aria-label={t("auth.actions.logout")}
-      >
-        <LogoutOutlinedIcon fontSize="small" />
-        <span>{t("auth.actions.logout")}</span>
-      </button>
+      <div className={className}>{button}</div>
     </Protected>
   );
 }
@@ -130,7 +144,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 md:hidden"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 lg:hidden"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -141,10 +155,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
 }
 
 function Navbar(): JSX.Element {
-  // Mobile dropdown state
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // i18n
   const { t } = useTranslation();
 
   return (
@@ -152,37 +163,29 @@ function Navbar(): JSX.Element {
       aria-label="Main navigation bar"
       className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md"
     >
-      <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-6 md:px-24">
+      <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
           <NavLinks />
         </ul>
-        <div className="hidden items-center space-x-8 text-sm font-medium tracking-widest uppercase md:flex">
-          <LanguageSwitcher className="hidden sm:flex" />
+        <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
+          <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls />
+          <NavbarAuthControls className="hidden lg:flex" />
+          <HamburgerMenuButton
+            isOpen={menuOpen}
+            onToggle={() => setMenuOpen(!menuOpen)}
+          />
         </div>
-        <HamburgerMenuButton
-          isOpen={menuOpen}
-          onToggle={() => setMenuOpen(!menuOpen)}
-        />
         {menuOpen && (
           <div
             data-testid="mobile-menu"
             id="mobile-menu"
-            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t md:hidden"
+            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t lg:hidden"
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />
-              <li>
-                <NavbarAuthControls onNavigate={() => setMenuOpen(false)} />
-              </li>
-              <li>
-                <LanguageSwitcher />
-              </li>
-              <li>
-                <ThemeToggle />
-              </li>
+              <NavbarAuthControls asList={true} onNavigate={() => setMenuOpen(false)} />
             </ul>
             <div className="bg-archive-ink/10 h-px" />
           </div>

@@ -13,7 +13,6 @@ from src.worker.fetchers.event import EventFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.halls import HallFetcher
 from src.worker.fetchers.genres import GenreFetcher
-from src.worker.fetchers.tags import TagFetcher
 from src.worker.fetchers.gallery import GalleryFetcher
 
 
@@ -25,7 +24,6 @@ from src.worker.fetchers.gallery import GalleryFetcher
         (EventPriceFetcher, "/events/prices"),
         (HallFetcher, "/halls"),
         (GenreFetcher, "/genres"),
-        (TagFetcher, "/tags"),
         (GalleryFetcher, "/media/galleries"),
     ],
 )

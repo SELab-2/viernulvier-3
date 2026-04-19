@@ -6,6 +6,7 @@ from src.worker.fetchers.event import EventFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
+from src.worker.fetchers.genres import GenreFetcher
 from src.worker.sync.sync_new import sync_new_items
 from src.worker.vnv_wrapper import VNV_Wrapper
 
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 # The order in which to sync is defined here. If one type relies (via Foreign
 # Key constraints) on another, it should appear after the other in this list.
 SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
+    (ResourceType.GENRES, GenreFetcher),
     (ResourceType.PRODUCTION, ProductionFetcher),
     (ResourceType.EVENT, EventFetcher),
     (ResourceType.EVENT_PRICES, EventPriceFetcher),

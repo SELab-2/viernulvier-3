@@ -23,6 +23,8 @@
   --leading-archive-body: var(--archive-leading-body);
   --weight-archive-semibold: var(--archive-weight-semibold);
   --weight-archive-bold: var(--archive-weight-bold);
+
+  --breakpoint-xs: 30rem;
 }
 
 @utility archive-artist-chic {
