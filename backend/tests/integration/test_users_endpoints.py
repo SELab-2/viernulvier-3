@@ -77,7 +77,8 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     assert created["super_user"] is False
     assert created["roles"] == ["viewer"]
     assert created["permissions"] == [Permissions.USERS_READ]
-    user_id = created["id_url"].rstrip("/").split("/")[-1]
+    assert isinstance(created["id"], int)
+    user_id = created["id"]
 
     response = client.get(f"/api/v1/auth/users/{user_id}", headers=headers)
     assert response.status_code == 200

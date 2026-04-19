@@ -1,14 +1,13 @@
 import type { AxiosInstance } from "axios";
 
 import { createApiClient } from "~/shared/services/apiClient";
-import { parseResourceId } from "~/shared/utils/resourceId";
 
 import { USERS_API_PATH } from "../users.constants";
 import type { IUser, IUserCreateRequest, IUserResponse } from "../users.types";
 
 function mapUser(response: IUserResponse): IUser {
   return {
-    id: parseResourceId(response.id_url),
+    id: response.id,
     username: response.username,
     isSuperUser: response.super_user,
     roles: response.roles,

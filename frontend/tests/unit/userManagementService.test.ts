@@ -22,6 +22,7 @@ describe("userManagementService", () => {
   it("lists users and maps the backend payload", async () => {
     mockAdapter.onGet("/api/v1/auth/users").reply(200, [
       {
+        id: 8,
         id_url: "http://localhost/api/v1/auth/users/8",
         username: "operator",
         super_user: false,
@@ -47,6 +48,7 @@ describe("userManagementService", () => {
 
   it("creates a user and returns the mapped result", async () => {
     mockAdapter.onPost("/api/v1/auth/users").reply(201, {
+      id: 12,
       id_url: "http://localhost/api/v1/auth/users/12",
       username: "new-user",
       super_user: false,

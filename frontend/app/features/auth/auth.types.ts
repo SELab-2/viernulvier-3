@@ -15,6 +15,7 @@ export interface IAccessTokenResponse {
 }
 
 export interface IAuthUserResponse {
+  id: number;
   id_url: string;
   username: string;
   super_user: boolean;

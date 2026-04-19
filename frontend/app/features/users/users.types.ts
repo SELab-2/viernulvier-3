@@ -1,4 +1,5 @@
 export interface IUserResponse {
+  id: number;
   id_url: string;
   username: string;
   super_user: boolean;
