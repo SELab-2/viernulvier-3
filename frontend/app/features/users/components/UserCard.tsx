@@ -1,4 +1,3 @@
-import { Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import type { IUser } from "../users.types";
@@ -6,8 +5,6 @@ import type { IUser } from "../users.types";
 type UserCardProps = {
   user: IUser;
   formatDateTime: (value: string | null) => string;
-  isCurrentUser?: boolean;
-  onDelete?: () => void;
 };
 
 function MetaRow({ label, value }: { label: string; value: string }) {
@@ -38,22 +35,8 @@ function TokenList({ values, emptyLabel }: { values: string[]; emptyLabel: strin
   );
 }
 
-function UserBadge({ children }: { children: string }) {
-  return (
-    <span className="border-archive-border bg-archive-control rounded-full border px-3 py-1 text-[0.65rem] font-bold tracking-[0.18em] uppercase">
-      {children}
-    </span>
-  );
-}
-
-export function UserCard({
-  user,
-  formatDateTime,
-  isCurrentUser = false,
-  onDelete,
-}: UserCardProps) {
+export function UserCard({ user, formatDateTime }: UserCardProps) {
   const { t } = useTranslation();
-  const hasActions = Boolean(onDelete);
 
   return (
     <article className="border-archive-border bg-archive-surface flex h-full flex-col rounded-[1.75rem] border p-6 shadow-[0_20px_70px_rgba(45,40,37,0.05)] backdrop-blur-sm">
@@ -65,10 +48,11 @@ export function UserCard({
           {user.username}
         </h2>
 
-        {user.isSuperUser || isCurrentUser ? (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {user.isSuperUser ? <UserBadge>{t("users.badges.superUser")}</UserBadge> : null}
-            {isCurrentUser ? <UserBadge>{t("users.badges.currentUser")}</UserBadge> : null}
+        {user.isSuperUser ? (
+          <div className="mt-4">
+            <span className="border-archive-border bg-archive-control rounded-full border px-3 py-1 text-[0.65rem] font-bold tracking-[0.18em] uppercase">
+              {t("users.badges.superUser")}
+            </span>
           </div>
         ) : null}
       </div>
@@ -102,30 +86,6 @@ export function UserCard({
           />
         </section>
       </div>
-
-      {hasActions ? (
-        <div className="border-archive-border mt-6 flex flex-wrap gap-3 border-t pt-5">
-          {onDelete ? (
-            <Button sx={dangerButtonSx} onClick={onDelete}>
-              {t("users.actions.delete")}
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
     </article>
   );
 }
-
-const dangerButtonSx = {
-  py: 1,
-  px: 2.15,
-  borderRadius: "999px",
-  textTransform: "none" as const,
-  fontFamily: "var(--font-sans)",
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.16em",
-  borderColor: "rgba(156, 57, 37, 0.25)",
-  color: "#8f3726",
-  border: "1px solid rgba(156, 57, 37, 0.25)",
-};

@@ -3,23 +3,6 @@ import userEvent from "@testing-library/user-event";
 import type { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const authSessionValue = {
-  isAuthenticated: true,
-  isLoading: false,
-  user: {
-    id: 99,
-    username: "manager",
-    isSuperUser: false,
-    roles: [],
-    permissions: ["users:read", "users:create", "users:delete"],
-    createdAt: "2026-04-09T10:00:00",
-    lastLoginAt: null,
-  },
-  login: vi.fn(),
-  logout: vi.fn(),
-  refreshSession: vi.fn(),
-};
-
 const pageI18n = { language: "en" };
 
 function pageTranslate(key: string) {
@@ -41,10 +24,6 @@ vi.mock("react-i18next", async () => {
     }),
   };
 });
-
-vi.mock("~/features/auth", () => ({
-  useAuthSession: () => authSessionValue,
-}));
 
 import UserManagementPage from "~/features/users/pages/UserManagementPage";
 import * as userManagementServiceModule from "~/features/users/services/userManagementService";
@@ -82,15 +61,6 @@ const users: IUser[] = [
 describe("UserManagementPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    authSessionValue.user = {
-      id: 99,
-      username: "manager",
-      isSuperUser: false,
-      roles: [],
-      permissions: ["users:read", "users:create", "users:delete"],
-      createdAt: "2026-04-09T10:00:00",
-      lastLoginAt: null,
-    };
   });
 
   it("renders the empty state when no users are returned", async () => {
@@ -159,105 +129,5 @@ describe("UserManagementPage", () => {
     render(<UserManagementPage />);
 
     expect(await screen.findByText("users.messages.loadFailed")).toBeInTheDocument();
-  });
-
-  it("creates a user from the add dialog", async () => {
-    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
-    vi.spyOn(userManagementServiceModule, "createUser").mockResolvedValue({
-      id: 7,
-      username: "fresh-account",
-      isSuperUser: false,
-      roles: [],
-      permissions: [],
-      createdAt: "2026-04-15T10:00:00",
-      lastLoginAt: null,
-    });
-
-    const user = userEvent.setup();
-
-    render(<UserManagementPage />);
-
-    await screen.findByText("users.empty.title");
-    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
-    await user.type(screen.getByLabelText("users.fields.username"), " fresh-account ");
-    await user.type(screen.getByLabelText("users.fields.password"), "temporary-secret");
-    await user.click(screen.getByRole("button", { name: "users.actions.create" }));
-
-    expect(userManagementServiceModule.createUser).toHaveBeenCalledWith({
-      username: "fresh-account",
-      password: "temporary-secret",
-    });
-    expect(await screen.findByText("fresh-account")).toBeInTheDocument();
-  });
-
-  it("deletes a non-protected user from the confirmation dialog", async () => {
-    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
-    vi.spyOn(userManagementServiceModule, "deleteUser").mockResolvedValue(undefined);
-
-    const user = userEvent.setup();
-
-    render(<UserManagementPage />);
-
-    const curatorCard = (await screen.findByText("curator")).closest("article");
-
-    expect(curatorCard).not.toBeNull();
-
-    await user.click(
-      within(curatorCard as HTMLElement).getByRole("button", {
-        name: "users.actions.delete",
-      })
-    );
-    await user.click(screen.getByRole("button", { name: "users.actions.confirmDelete" }));
-
-    expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(5);
-    expect(screen.queryByText("curator")).not.toBeInTheDocument();
-  });
-
-  it("hides delete actions for the current user", async () => {
-    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([
-      {
-        id: 99,
-        username: "manager",
-        isSuperUser: false,
-        roles: [],
-        permissions: ["users:read"],
-        createdAt: "2026-04-09T10:00:00",
-        lastLoginAt: null,
-      },
-    ]);
-
-    render(<UserManagementPage />);
-
-    const managerCard = (await screen.findByText("manager")).closest("article");
-
-    expect(managerCard).not.toBeNull();
-    expect(within(managerCard as HTMLElement).getByText("users.badges.currentUser")).toBeInTheDocument();
-    expect(
-      within(managerCard as HTMLElement).queryByRole("button", {
-        name: "users.actions.delete",
-      })
-    ).toBeNull();
-  });
-
-  it("hides create and delete actions without the matching permissions", async () => {
-    authSessionValue.user = {
-      ...authSessionValue.user,
-      permissions: ["users:read"],
-    };
-    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
-
-    render(<UserManagementPage />);
-
-    expect(await screen.findByText("curator")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "users.actions.add" })).toBeNull();
-
-    const curatorCard = screen.getByText("curator").closest("article");
-
-    expect(curatorCard).not.toBeNull();
-    expect(
-      within(curatorCard as HTMLElement).queryByRole("button", {
-        name: "users.actions.delete",
-      })
-    ).toBeNull();
   });
 });

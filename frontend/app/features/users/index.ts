@@ -3,8 +3,4 @@ export {
   UserManagementAccessDenied,
   default as UserManagementPage,
 } from "./pages/UserManagementPage";
-export {
-  createUser,
-  deleteUser,
-  listUsers,
-} from "./services/userManagementService";
+export { createUser, deleteUser, listUsers } from "./services/userManagementService";
