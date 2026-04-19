@@ -131,16 +131,12 @@
       "retry": "Opnieuw proberen",
       "refresh": "Verversen",
       "add": "Gebruiker toevoegen",
-      "delete": "Verwijderen",
       "cancel": "Annuleren",
       "create": "Gebruiker aanmaken",
-      "creating": "Gebruiker wordt aangemaakt",
-      "confirmDelete": "Gebruiker verwijderen",
-      "deleting": "Gebruiker wordt verwijderd"
+      "creating": "Gebruiker wordt aangemaakt"
     },
     "badges": {
-      "superUser": "Supergebruiker",
-      "currentUser": "Huidige sessie"
+      "superUser": "Supergebruiker"
     },
     "meta": {
       "createdAt": "Aangemaakt op",
@@ -149,7 +145,6 @@
     "messages": {
       "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
       "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
-      "deleteFailed": "De gebruiker kon nu niet worden verwijderd.",
       "usernameRequired": "Een gebruikersnaam is verplicht.",
       "passwordRequired": "Een wachtwoord is verplicht."
     },
@@ -157,10 +152,6 @@
       "create": {
         "title": "Gebruiker toevoegen",
         "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
-      },
-      "delete": {
-        "title": "Gebruiker verwijderen",
-        "description": "Verwijder {{username}} definitief. Deze actie kan niet ongedaan worden gemaakt."
       }
     },
     "empty": {

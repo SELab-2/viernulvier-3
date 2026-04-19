@@ -30,10 +30,3 @@ export async function createUser(
   const response = await apiClient.post<IUserResponse>(USERS_API_PATH, payload);
   return mapUser(response.data);
 }
-
-export async function deleteUser(
-  userId: number,
-  apiClient: AxiosInstance = createApiClient()
-) {
-  await apiClient.delete(`${USERS_API_PATH}/${userId}`);
-}

@@ -131,16 +131,12 @@
       "retry": "Retry",
       "refresh": "Refresh",
       "add": "Add user",
-      "delete": "Delete",
       "cancel": "Cancel",
       "create": "Create user",
-      "creating": "Creating user",
-      "confirmDelete": "Delete user",
-      "deleting": "Deleting user"
+      "creating": "Creating user"
     },
     "badges": {
-      "superUser": "Super user",
-      "currentUser": "Current session"
+      "superUser": "Super user"
     },
     "meta": {
       "createdAt": "Created",
@@ -149,7 +145,6 @@
     "messages": {
       "loadFailed": "We could not load the user administration data right now.",
       "createFailed": "We could not create the user right now.",
-      "deleteFailed": "We could not delete the user right now.",
       "usernameRequired": "A username is required.",
       "passwordRequired": "A password is required."
     },
@@ -157,10 +152,6 @@
       "create": {
         "title": "Add user",
         "description": "Create a basic account with a username and password. Roles can be assigned later."
-      },
-      "delete": {
-        "title": "Delete user",
-        "description": "Delete {{username}} permanently. This action cannot be undone."
       }
     },
     "empty": {

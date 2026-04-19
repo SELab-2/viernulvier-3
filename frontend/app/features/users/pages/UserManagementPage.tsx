@@ -16,7 +16,7 @@ import { useAuthSession } from "~/features/auth";
 
 import { UserCard } from "../components/UserCard";
 import { USER_PERMISSIONS } from "../users.constants";
-import { createUser, deleteUser, listUsers } from "../services/userManagementService";
+import { createUser, listUsers } from "../services/userManagementService";
 import type { IUser, IUserCreateRequest } from "../users.types";
 
 function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
@@ -204,62 +204,6 @@ function CreateUserDialog({
   );
 }
 
-function DeleteUserDialog({
-  user,
-  isSubmitting,
-  errorMessage,
-  onClose,
-  onConfirm,
-}: {
-  user: IUser | null;
-  isSubmitting: boolean;
-  errorMessage: string | null;
-  onClose: () => void;
-  onConfirm: () => Promise<void>;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <Dialog
-      open={user !== null}
-      onClose={isSubmitting ? undefined : onClose}
-      fullWidth
-      maxWidth="xs"
-      slotProps={{
-        paper: {
-          sx: dialogPaperSx,
-        },
-        backdrop: {
-          sx: dialogBackdropSx,
-        },
-      }}
-    >
-      <DialogTitle sx={dialogTitleSx}>{t("users.dialogs.delete.title")}</DialogTitle>
-      <DialogContent sx={dialogContentSx}>
-        <p className="text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
-          {t("users.dialogs.delete.description", { username: user?.username ?? "" })}
-        </p>
-        <UserMutationAlert message={errorMessage} />
-      </DialogContent>
-      <DialogActions sx={dialogActionsSx}>
-        <Button onClick={onClose} disabled={isSubmitting} sx={secondaryButtonSx}>
-          {t("users.actions.cancel")}
-        </Button>
-        <Button onClick={() => void onConfirm()} disabled={isSubmitting} sx={dangerButtonSx}>
-          {isSubmitting ? (
-            <>
-              <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
-              {t("users.actions.deleting")}
-            </>
-          ) : (
-            t("users.actions.confirmDelete")
-          )}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 export function UserManagementAccessDenied() {
   const { t } = useTranslation();
 
@@ -288,7 +232,6 @@ export default function UserManagementPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [pageError, setPageError] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [pendingDeleteUser, setPendingDeleteUser] = useState<IUser | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [isMutating, setIsMutating] = useState(false);
 
@@ -349,20 +292,6 @@ export default function UserManagementPage() {
     setIsCreateDialogOpen(false);
   }
 
-  function closeDeleteDialog() {
-    if (isMutating) {
-      return;
-    }
-
-    setMutationError(null);
-    setPendingDeleteUser(null);
-  }
-
-  function openDeleteDialog(user: IUser) {
-    setMutationError(null);
-    setPendingDeleteUser(user);
-  }
-
   async function handleCreateUser(payload: IUserCreateRequest) {
     setIsMutating(true);
     setMutationError(null);
@@ -373,27 +302,6 @@ export default function UserManagementPage() {
       setIsCreateDialogOpen(false);
     } catch (error) {
       setMutationError(getApiErrorMessage(error, t("users.messages.createFailed")));
-    } finally {
-      setIsMutating(false);
-    }
-  }
-
-  async function handleDeleteConfirm() {
-    if (!pendingDeleteUser) {
-      return;
-    }
-
-    setIsMutating(true);
-    setMutationError(null);
-
-    try {
-      await deleteUser(pendingDeleteUser.id);
-      setUsers((currentUsers) =>
-        currentUsers.filter((managedUser) => managedUser.id !== pendingDeleteUser.id)
-      );
-      setPendingDeleteUser(null);
-    } catch (error) {
-      setMutationError(getApiErrorMessage(error, t("users.messages.deleteFailed")));
     } finally {
       setIsMutating(false);
     }
@@ -425,15 +333,6 @@ export default function UserManagementPage() {
     currentUser?.isSuperUser,
     USER_PERMISSIONS.create
   );
-  const canDeleteUsers = hasPermission(
-    currentUser?.permissions,
-    currentUser?.isSuperUser,
-    USER_PERMISSIONS.delete
-  );
-
-  function canDeleteManagedUser(user: IUser) {
-    return Boolean(canDeleteUsers && currentUserId !== user.id && !user.isSuperUser);
-  }
 
   return (
     <>
@@ -499,23 +398,13 @@ export default function UserManagementPage() {
           </div>
         ) : (
           <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-            {users.map((managedUser) => {
-              const isCurrentManagedUser = currentUserId === managedUser.id;
-
-              return (
-                <UserCard
-                  key={managedUser.id}
-                  user={managedUser}
-                  formatDateTime={formatDateTime}
-                  isCurrentUser={isCurrentManagedUser}
-                  onDelete={
-                    canDeleteManagedUser(managedUser)
-                      ? () => openDeleteDialog(managedUser)
-                      : undefined
-                  }
-                />
-              );
-            })}
+            {users.map((managedUser) => (
+              <UserCard
+                key={managedUser.id}
+                user={managedUser}
+                formatDateTime={formatDateTime}
+              />
+            ))}
           </div>
         )}
       </section>
@@ -526,13 +415,6 @@ export default function UserManagementPage() {
         errorMessage={isCreateDialogOpen ? mutationError : null}
         onClose={closeUserDialog}
         onSubmit={handleCreateUser}
-      />
-      <DeleteUserDialog
-        user={pendingDeleteUser}
-        isSubmitting={isMutating}
-        errorMessage={pendingDeleteUser ? mutationError : null}
-        onClose={closeDeleteDialog}
-        onConfirm={handleDeleteConfirm}
       />
     </>
   );
@@ -567,16 +449,6 @@ const primaryButtonSx = {
   backgroundColor: "var(--archive-accent)",
   "&:hover": {
     backgroundColor: "#92653e",
-  },
-};
-
-const dangerButtonSx = {
-  ...secondaryButtonSx,
-  color: "#f6f0e8",
-  borderColor: "transparent",
-  backgroundColor: "#8f3726",
-  "&:hover": {
-    backgroundColor: "#752d1f",
   },
 };
 
