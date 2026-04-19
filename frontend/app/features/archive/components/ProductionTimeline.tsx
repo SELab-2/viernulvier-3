@@ -37,8 +37,8 @@ function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => numb
 }
 
 function getEarliestProductionStartDate(production: Production): Date | null {
-  return production.eventsExpanded
-    ? production.eventsExpanded.reduce<Date | null>((min, event) => {
+  return production.events
+    ? production.events.reduce<Date | null>((min, event) => {
         if (!event.starts_at) return min;
 
         const current = new Date(event.starts_at);
@@ -96,7 +96,7 @@ function MonthDisplay({
       {/* Productions */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
         {productions.map((prod) => (
-          <ProductionCard key={prod.id} production={prod} className="" />
+          <ProductionCard key={prod.id_url} production={prod} className="" />
         ))}
       </div>
     </div>

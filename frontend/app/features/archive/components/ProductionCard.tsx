@@ -109,12 +109,12 @@ function getProductionStartLabel(
   production: Production,
   lang?: string
 ): string | undefined {
-  if (!production.eventsExpanded || production.eventsExpanded.length === 0) {
+  if (!production.events || production.events.length === 0) {
     return;
   }
 
   // Extract valid dates
-  const dates = production.eventsExpanded
+  const dates = production.events
     .map((e) => e.starts_at)
     .filter((d): d is string => !!d)
     .map((d) => {
@@ -147,9 +147,9 @@ function getProductionStartLabel(
 }
 
 function getVenues(production: Production): string[] | undefined {
-  if (!production.eventsExpanded?.length) return;
+  if (!production.events?.length) return;
 
-  const halls = production.eventsExpanded
+  const halls = production.events
     .map((e) => e.hall?.name)
     .filter((name): name is string => !!name);
 
