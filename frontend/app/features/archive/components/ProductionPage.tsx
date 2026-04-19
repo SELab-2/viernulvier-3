@@ -1,7 +1,6 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type {
   Production,
@@ -9,7 +8,6 @@ import type {
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getMediaForProductionPaginated } from "~/features/archive/services/mediaService";
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "./EventCard";
@@ -54,17 +52,6 @@ function getEventTimestamp(startsAt?: string): number {
   }
 
   return parsedDate.getTime();
-}
-
-// extract numeric production id from id_url for media requests
-function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
-  const match = idUrl.match(/\/productions\/(\d+)(?:[/?#]|$)/);
-  if (!match) {
-    return undefined;
-  }
-
-  const parsedId = Number(match[1]);
-  return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : undefined;
 }
 
 // prefer active language, then dutch, then first available tag name
@@ -166,15 +153,15 @@ type TagsProps = {
 
 function Tags({ performer_type, tags }: TagsProps) {
   return (
-	<section id="production-tags" aria-label="Production tags">
+    <section id="production-tags" aria-label="Production tags">
       <ul className="mt-6 flex flex-wrap gap-2">
         {/* Performer type badge */}
         {performer_type && (
           <li
-		    id="tag-performer-type"
-			aria-label="Performer type"
-		    className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] px-4 py-1.5 text-[0.68rem] font-semibold tracking-[var(--archive-tracking-label)] uppercase opacity-90"
-		  >
+            id="tag-performer-type"
+            aria-label="Performer type"
+            className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] px-4 py-1.5 text-[0.68rem] font-semibold tracking-[var(--archive-tracking-label)] uppercase opacity-90"
+          >
             {performer_type}
           </li>
         )}
@@ -183,14 +170,14 @@ function Tags({ performer_type, tags }: TagsProps) {
         {tags.map((tag) => (
           <li
             key={tag}
-			aria-label="Tag"
+            aria-label="Tag"
             className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase"
           >
             {tag}
           </li>
         ))}
       </ul>
-	</section>
+    </section>
   );
 }
 
@@ -202,13 +189,13 @@ function Events({ event_objects }: EventsProps) {
 
   if (event_objects.length > 0) {
     return (
-	  <div id="events-listing">
+      <div id="events-listing">
         <ul className="mt-6 space-y-2.5">
           {event_objects.map((event) => (
             <EventCard event={event} />
           ))}
         </ul>
-	  </div>
+      </div>
     );
   } else {
     return (
@@ -226,9 +213,7 @@ export function ProductionPage({
   preferredLanguage = "nl",
 }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
-  const [mediaImageUrlsByProductionId] = useState<
-    Record<string, string[]>
-  >({});
+  const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
@@ -389,7 +374,10 @@ export function ProductionPage({
           </article>
         </section>
 
-		<ProductionPageMediaGallery production_id_url={production.id_url} title={title} />
+        <ProductionPageMediaGallery
+          production_id_url={production.id_url}
+          title={title}
+        />
       </main>
     </div>
   );

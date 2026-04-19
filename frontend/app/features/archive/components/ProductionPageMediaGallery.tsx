@@ -15,12 +15,14 @@ function getProductionNumericIdFromUrl(idUrl: string): number | undefined {
   return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : undefined;
 }
 
-
 type MediaGalleryProps = {
-	production_id_url: string,
-	title: string,
-}
-export function ProductionPageMediaGallery({ production_id_url, title }: MediaGalleryProps) {
+  production_id_url: string;
+  title: string;
+};
+export function ProductionPageMediaGallery({
+  production_id_url,
+  title,
+}: MediaGalleryProps) {
   const { t } = useTranslation();
   const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
   const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
@@ -198,63 +200,63 @@ export function ProductionPageMediaGallery({ production_id_url, title }: MediaGa
     };
   }, [imageUrls]);
 
-	return (
-        <section className="mt-16 border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] pt-14">
-          <div className="mb-8 flex items-end justify-between gap-6">
-            <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
-              {t("productionPage.visualEvidence")}
-            </h2>
-          </div>
+  return (
+    <section className="mt-16 border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] pt-14">
+      <div className="mb-8 flex items-end justify-between gap-6">
+        <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
+          {t("productionPage.visualEvidence")}
+        </h2>
+      </div>
 
-          <>
-            <div
-              ref={evidenceTrackRef}
-              onScroll={syncEvidenceSlider}
-              onMouseDown={handleEvidenceMouseDown}
-              onMouseMove={handleEvidenceMouseMove}
-              onMouseUp={stopEvidenceDragging}
-              onMouseLeave={stopEvidenceDragging}
-              className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
-                hasEvidenceOverflow
-                  ? "cursor-grab active:cursor-grabbing"
-                  : "cursor-default"
-              }`}
+      <>
+        <div
+          ref={evidenceTrackRef}
+          onScroll={syncEvidenceSlider}
+          onMouseDown={handleEvidenceMouseDown}
+          onMouseMove={handleEvidenceMouseMove}
+          onMouseUp={stopEvidenceDragging}
+          onMouseLeave={stopEvidenceDragging}
+          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
+            hasEvidenceOverflow
+              ? "cursor-grab active:cursor-grabbing"
+              : "cursor-default"
+          }`}
+        >
+          {imageUrls.map((url, index) => (
+            <figure
+              key={`${production_id_url}-${url}-${index}`}
+              className="group bg-archive-surface min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
             >
-              {imageUrls.map((url, index) => (
-                <figure
-                  key={`${production_id_url}-${url}-${index}`}
-                  className="group bg-archive-surface min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
-                >
-                  <img
-                    src={url}
-                    alt={t("productionPage.archivePhotoAlt", {
-                      title,
-                      index: index + 1,
-                    })}
-                    loading="lazy"
-                    className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  />
-                </figure>
-              ))}
-            </div>
+              <img
+                src={url}
+                alt={t("productionPage.archivePhotoAlt", {
+                  title,
+                  index: index + 1,
+                })}
+                loading="lazy"
+                className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+              />
+            </figure>
+          ))}
+        </div>
 
-            {hasEvidenceOverflow ? (
-              <div className="mt-2">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={Math.round(evidenceScrollPercent)}
-                  onChange={(event) =>
-                    handleEvidenceSliderChange(Number(event.target.value))
-                  }
-                  aria-label={t("productionPage.archiveSchema")}
-                  className="accent-archive-accent w-full"
-                />
-              </div>
-            ) : null}
-          </>
-        </section>
-	);
+        {hasEvidenceOverflow ? (
+          <div className="mt-2">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round(evidenceScrollPercent)}
+              onChange={(event) =>
+                handleEvidenceSliderChange(Number(event.target.value))
+              }
+              aria-label={t("productionPage.archiveSchema")}
+              className="accent-archive-accent w-full"
+            />
+          </div>
+        ) : null}
+      </>
+    </section>
+  );
 }

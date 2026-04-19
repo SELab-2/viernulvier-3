@@ -28,18 +28,18 @@ describe("productionService", () => {
 
   // Mock tags
   const tag1: Tag = {
-    id: "/api/v1/archive/tags/1",
+    id_url: "/api/v1/archive/tags/1",
     names: [],
   };
 
   const tag2: Tag = {
-    id: "/api/v1/archive/tags/2",
+    id_url: "/api/v1/archive/tags/2",
     names: [],
   };
 
   // Mock productions (+ info)
   const mockProductionInfo1NL: ProductionInfo = {
-    prod_id: "/api/v1/archive/productions/1",
+    production_id_url: "/api/v1/archive/productions/1",
     language: "nl",
     title: "De Simpsons: Achter de schermen...",
     artist: "Homer Simpson",
@@ -48,7 +48,7 @@ describe("productionService", () => {
   };
 
   const mockProductionInfo1EN: ProductionInfo = {
-    prod_id: "/api/v1/archive/productions/1",
+    production_id_url: "/api/v1/archive/productions/1",
     language: "en",
     title: "De Simpsons: Behind the schenes...",
     artist: "Homer Simpson",
@@ -57,7 +57,7 @@ describe("productionService", () => {
   };
 
   const mockProductionInfo2NL: ProductionInfo = {
-    prod_id: "/api/v1/archive/productions/2",
+    production_id_url: "/api/v1/archive/productions/2",
     language: "nl",
     title: "Tegen beter weten in...",
     artist: "Jokke",
@@ -72,7 +72,7 @@ describe("productionService", () => {
     updated_at: "2026-03-29T14:00:00",
 
     production_infos: [mockProductionInfo1NL, mockProductionInfo1EN],
-    events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
+    event_id_urls: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
     tags: [tag1, tag2],
   };
 
@@ -84,7 +84,7 @@ describe("productionService", () => {
     updated_at: "2026-03-29T14:00:00",
 
     production_infos: [mockProductionInfo2NL],
-    events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
+    event_id_urls: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
     tags: [tag2],
   };
 
@@ -137,15 +137,15 @@ describe("productionService", () => {
         ])
       );
 
-      expect(result.events).toHaveLength(2);
-      expect(result.events).toEqual(mockProduction1.events);
+      expect(result.event_id_urls).toHaveLength(2);
+      expect(result.event_id_urls).toEqual(mockProduction1.event_id_urls);
     });
   });
 
   describe("createProduction", () => {
     it("creates a new production and returns it", async () => {
       const production_info: ProductionInfo = {
-        prod_id: "/api/v1/archive/productions/3",
+        production_id_url: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
         artist: "William Shatner",
@@ -154,13 +154,13 @@ describe("productionService", () => {
         performer_type: "singer",
         attendance_mode: "online",
         production_info: production_info,
-        tag_ids: [1, 2],
+        tag_id_urls: ["1", "2"],
       };
 
       const mockResponse: Production = {
         id_url: "/api/v1/archive/productions/3",
         production_infos: [production_info],
-        events: [],
+        event_id_urls: [],
         tags: [tag1],
       };
 
@@ -172,7 +172,7 @@ describe("productionService", () => {
 
     it("throws when create request fails", async () => {
       const production_info: ProductionInfo = {
-        prod_id: "/api/v1/archive/productions/3",
+        production_id_url: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
         artist: "William Shatner",
@@ -181,7 +181,7 @@ describe("productionService", () => {
         performer_type: "singer",
         attendance_mode: "online",
         production_info: production_info,
-        tag_ids: [1, 2],
+        tag_id_urls: ["1", "2"],
       };
 
       mockAdapter.onPost("/api/v1/archive/productions").reply(400);
@@ -203,7 +203,7 @@ describe("productionService", () => {
         updated_at: "2026-03-29T14:00:00",
 
         production_infos: [mockProductionInfo2NL],
-        events: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
+        event_id_urls: ["/api/v1/archive/events/1", "/api/v1/archive/events/2"],
         tags: [tag1],
       };
 
@@ -215,7 +215,7 @@ describe("productionService", () => {
 
       expect(result).toEqual(mockProduction2_updated);
       expect(result.attendance_mode).toBe("online");
-      expect(result.tags[0]["id"]).toBe("/api/v1/archive/tags/1");
+      expect(result.tags[0]["id_url"]).toBe("/api/v1/archive/tags/1");
     });
 
     it("throws when update request fails", async () => {

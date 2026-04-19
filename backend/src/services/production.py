@@ -62,7 +62,7 @@ def build_production_response(
 
     # Get events of this production.
     # Get tags of this productoin.
-    events = get_events_for_production(db, production.id, base_url)
+    event_urls = get_event_urls_for_production(db, production.id, base_url)
     tags = get_tags_for_production(db, production.id, base_url)
 
     return ProductionResponse(
@@ -72,7 +72,7 @@ def build_production_response(
         created_at=production.created_at,
         updated_at=production.updated_at,
         production_infos=production_infos,
-        events=events,
+        event_id_urls=event_urls,
         tags=tags,
     )
 
@@ -116,7 +116,7 @@ def get_productions_paginated(
 
 
 # Returns all event-urls for a given production.
-def get_events_for_production(
+def get_event_urls_for_production(
     db: Session, production_id: int, base_url: str
 ) -> list[str]:
     events = db.query(Event).filter(Event.production_id == production_id).all()
@@ -176,7 +176,9 @@ def create_production(
             f"Language '{production_info_in.language}' not supported."
         )
 
-    tag_ids = production_in.tag_ids or []
+    tag_id_urls = production_in.tag_id_urls or []
+    tag_ids = [int(tag_url.rstrip("/").split("/")[-1]) for tag_url in tag_id_urls]
+
     existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
     existing_tag_ids = {t.id for t in existing_tags}
     missing_tag_ids = set(tag_ids) - existing_tag_ids
@@ -219,8 +221,9 @@ def update_production_by_id(
         setattr(production, field, value)
 
     # Check for tags.
-    if production_in.tag_ids is not None:
-        tag_ids = production_in.tag_ids or []
+    if production_in.tag_id_urls is not None:
+        tag_id_urls = production_in.tag_id_urls or []
+        tag_ids = [int(id_url.rstrip("/").split("/")[-1]) for id_url in tag_id_urls]
         existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
         existing_tag_ids = {t.id for t in existing_tags}
         missing_tag_ids = set(tag_ids) - existing_tag_ids
