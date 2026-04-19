@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
 
 import { createApiClient } from "~/shared/services/apiClient";
+import { parseResourceId } from "~/shared/utils/resourceId";
 
 import { AUTH_API_PATH } from "../auth.constants";
 import type {
@@ -19,7 +20,7 @@ import { refreshAccessToken } from "./tokenRefresh";
 
 function mapAuthUser(response: IAuthUserResponse): IAuthUser {
   return {
-    id: response.id,
+    id: parseResourceId(response.id_url),
     username: response.username,
     isSuperUser: response.super_user,
     roles: response.roles,
