@@ -118,6 +118,65 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_artist(
+    client: TestClient, db_session: Session, many_productions
+):
+    # 5 productions by Steve, 5 by Bob, 0 by Alice.
+    # Artist need to be conform in each production info.
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Steve"]}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            info_response["artist"] == "Steve"
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Bob"]})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            info_response["artist"] == "Bob"
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    # Bob and Steve together gives 10 productions, Alice gives 0, but does not affect the result.
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Bob", "Steve", "Alice"]}
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 10
+    assert all(
+        all(
+            info_response["artist"] in ["Bob", "Steve"]
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
     response = client.get(BASE_PROD_URL + "/", params={"limit": 5})

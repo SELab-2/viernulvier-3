@@ -35,9 +35,12 @@ async def get_productions(
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
     tags: list[int] | None = Query(None),
+    artists: list[str] | None = Query(None),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
-    return get_productions_paginated(db, base_url, cursor, limit, tags=tags)
+    return get_productions_paginated(
+        db, base_url, cursor, limit, tags=tags, artists=artists
+    )
 
 
 @router.post(

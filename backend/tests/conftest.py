@@ -173,6 +173,7 @@ def many_productions(db_session):
     db_session.add_all([tag1, tag2])
 
     for i in range(10):
+        artist = "Steve" if i % 2 == 0 else "Bob"
         add_tags = [tag1]
         if i % 2 == 0:
             add_tags = [tag2]
@@ -186,10 +187,16 @@ def many_productions(db_session):
         db_session.flush()
 
         info_nl = ProdInfo(
-            production_id=prod.id, language=Languages.NEDERLANDS, title=f"prod{i}_nl"
+            production_id=prod.id,
+            language=Languages.NEDERLANDS,
+            title=f"prod{i}_nl",
+            artist=artist,
         )
         info_en = ProdInfo(
-            production_id=prod.id, language=Languages.ENGLISH, title=f"prod{i}_en"
+            production_id=prod.id,
+            language=Languages.ENGLISH,
+            title=f"prod{i}_en",
+            artist=artist,
         )
         db_session.add_all([info_nl, info_en])
         productions.append(prod)
