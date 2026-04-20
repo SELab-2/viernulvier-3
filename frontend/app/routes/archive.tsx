@@ -13,6 +13,11 @@ import { getProductionsPaginated } from "~/features/archive/services/productionS
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import { Protected } from "~/features/auth";
 
+const archiveSortOrderToBackendSortOrder: Record<ArchiveSortOrder, string> = {
+  [ArchiveSortOrder.NewestFirst]: "Descending",
+  [ArchiveSortOrder.OldestFirst]: "Ascending",
+};
+
 function SortOrderSelection({
   sortOrder,
   setSortOrder,
@@ -97,15 +102,18 @@ function MobileToggleButton({ onClick }: { onClick?: () => void }) {
 function ShowMoreButton({
   productionList,
   setProductionList,
+  sortOrder,
 }: {
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
+  sortOrder: ArchiveSortOrder;
 }) {
   const { t } = useTranslation();
 
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
+      sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
     });
 
     setProductionList({
@@ -150,7 +158,13 @@ export default function Archive() {
 
   const { data: productionList, setData: setProductionList } =
     useAsyncFetch<ProductionList>(
-      useCallback(async () => await getProductionsPaginated(), [])
+      useCallback(
+        async () =>
+          await getProductionsPaginated({
+            sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+          }),
+        [sortOrder]
+      )
     );
   const productions = productionList?.productions ?? [];
 
@@ -212,6 +226,7 @@ export default function Archive() {
             <ShowMoreButton
               productionList={productionList}
               setProductionList={setProductionList}
+              sortOrder={sortOrder}
             />
           )}
         </div>
