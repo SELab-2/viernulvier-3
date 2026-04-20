@@ -93,6 +93,7 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
   const [tags, setTags] = useState<Tag[]>([]);
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   const { t } = useTranslation();
 
@@ -192,12 +193,14 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
             className="archive-filter-input pr-9"
             value={tagQuery}
             onChange={(e) => setTagQuery(e.target.value)}
+			onFocus={() => setIsFocused(true)}
+			onBlur={() => setIsFocused(false)}
           />
 	      <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
 		    fontSize="inherit"
 		  />
-          {tagQuery.trim().length > 0 && (
+          {isFocused && tagQuery.trim().length > 0 && (
             <ul className="border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg bg-archive-paper">
               {tags
                 .filter((tag) =>
@@ -304,6 +307,7 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
   const [dropdownAbove, setDropdownAbove] = useState(false);
   const [artists, setArtists] = useState<string[]>([]);
   const [artistQuery, setArtistQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   const { t } = useTranslation();
 
@@ -360,12 +364,14 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
             className="archive-filter-input pr-9"
             value={artistQuery}
             onChange={(e) => setArtistQuery(e.target.value)}
+			onFocus={() => setIsFocused(true)}
+			onBlur={() => setIsFocused(false)}
           />
 	      <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
 		    fontSize="inherit"
 		  />
-          {filteredArtists.length > 0 && (
+          {isFocused && filteredArtists.length > 0 && (
             <ul
               className={`border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-archive-paper ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
             >
