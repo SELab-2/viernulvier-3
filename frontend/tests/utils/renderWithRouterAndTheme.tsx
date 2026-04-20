@@ -7,6 +7,7 @@ import { vi } from "vitest";
 import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
+import Users from "~/routes/users";
 import NotFound from "~/routes/not-found";
 
 vi.mock("~/shared/hooks/useLocalizedPath", () => ({
@@ -17,6 +18,7 @@ export function renderWithRouterAndTheme({
   useRealHome = false,
   useRealArchive = false,
   useRealHistory = false,
+  useRealUsers = false,
   useRealNotFound = false,
   initialPath = "/",
 }) {
@@ -53,6 +55,17 @@ export function renderWithRouterAndTheme({
           </>
         ) : (
           <History />
+        ),
+      },
+      {
+        path: "/users",
+        element: !useRealUsers ? (
+          <>
+            <Navbar />
+            <div>TEST_USERS_PAGE</div>
+          </>
+        ) : (
+          <Users />
         ),
       },
       {

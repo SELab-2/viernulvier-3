@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from src.database import Base
-from src.models.associations import prod_genres, prod_tags
+from src.models.associations import prod_tags
 
 
 class Production(Base):
@@ -20,10 +20,11 @@ class Production(Base):
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), server_onupdate=func.now()
     )
+    earliest_at = Column(TIMESTAMP)
+    latest_at = Column(TIMESTAMP)
 
     info = relationship("ProdInfo", back_populates="production")
     tags = relationship("Tag", secondary=prod_tags, back_populates="productions")
-    genres = relationship("Genre", secondary=prod_genres, back_populates="productions")
     events = relationship("Event", back_populates="production")
     media = relationship("Media", back_populates="production")
 

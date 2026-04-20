@@ -1,10 +1,12 @@
 export interface Hall {
+  id_url: string;
   name: string;
-  address: string;
+  address?: string;
 }
 
-export interface HallResponse extends Hall {
-  id: number;
+export interface HallCreate {
+  name: string;
+  address?: string;
 }
 
 export interface HallUpdate {

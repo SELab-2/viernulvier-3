@@ -67,7 +67,7 @@ def test_create_tag(client: TestClient, create_headers):
     assert response.status_code == 201
 
     data = response.json()
-    assert "id" in data
+    assert "id_url" in data
     assert len(data["names"]) == 1
     assert data["names"][0]["name"] == "tag1"
 
@@ -96,7 +96,7 @@ def test_get_tag(client: TestClient, create_headers):
         headers=create_headers,
     )
 
-    tag_url = created_tag.json()["id"]
+    tag_url = created_tag.json()["id_url"]
     tag_id = tag_url.split("/")[-1]
 
     response = client.get(f"{TAGS_URL}/{tag_id}")
@@ -158,7 +158,7 @@ def test_patch_tag(client: TestClient, db_session: Session, create_headers):
         json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
-    tag_id = created_tag.json()["id"].split("/")[-1]
+    tag_id = created_tag.json()["id_url"].split("/")[-1]
 
     patch_headers = create_user_and_login(
         client, db_session, "patch_tag_user", permissions=[Permissions.ARCHIVE_UPDATE]
@@ -189,7 +189,7 @@ def test_patch_tag_unauthorized(client: TestClient, create_headers):
         json={"names": [{"language": Languages.NEDERLANDS, "name": "tag1"}]},
         headers=create_headers,
     )
-    tag_id = created_tag.json()["id"].split("/")[-1]
+    tag_id = created_tag.json()["id_url"].split("/")[-1]
 
     response = client.patch(
         f"{TAGS_URL}/{tag_id}",
@@ -217,7 +217,7 @@ def test_delete_tag(client: TestClient, db_session: Session, create_headers):
         headers=create_headers,
     )
 
-    tag_id = created_tag.json()["id"].split("/")[-1]
+    tag_id = created_tag.json()["id_url"].split("/")[-1]
 
     delete_headers = create_user_and_login(
         client, db_session, "delete_tag_user", permissions=[Permissions.ARCHIVE_DELETE]
@@ -236,7 +236,7 @@ def test_delete_unauthorized(client: TestClient, create_headers):
         headers=create_headers,
     )
 
-    tag_id = created_tag.json()["id"].split("/")[-1]
+    tag_id = created_tag.json()["id_url"].split("/")[-1]
 
     response = client.delete(f"{TAGS_URL}/{tag_id}")
     assert response.status_code == 401
@@ -263,7 +263,7 @@ def test_tag_url_contains_full_path(client: TestClient, db_session: Session):
     assert response.status_code == 201
     data = response.json()
 
-    tag_url = data.get("id")
+    tag_url = data.get("id_url")
     assert tag_url is not None
 
     assert "/api/v1/archive/tags" in tag_url

@@ -13,10 +13,11 @@ Table productions {
     performer_type varchar // e.g., "group", "individual"
     attendance_mode varchar // e.g., "offline", "online", "hybrid"
 
-    media_gallery_id int [ref: - gallery.id]
-
     created_at timestamp
     updated_at timestamp
+
+    earliest_at timestamp
+    latest_at timestamp
 }
 
 Table prod_info {
@@ -32,19 +33,9 @@ Table prod_info {
   info varchar
 }
 
-Table genres {
-  id int [pk]
-}
-
-Table genre_names {
-  genre_id int [ref: > genres.id]
-  language varchar [pk]
-  name varchar
-}
-
 Table tags {
   id int [pk]
-  name varchar
+  viernulvier_id int [unique]
 }
 
 Table tag_names {
@@ -55,11 +46,6 @@ Table tag_names {
 
 Table prod_tags {
   tag_id int [ref: - tags.id]
-  prod_id int [ref: - productions.id]
-}
-
-Table prod_genres {
-  genre_id int [ref: - genres.id]
   prod_id int [ref: - productions.id]
 }
 
@@ -100,9 +86,12 @@ Table halls {
 
 }
 
-Table gallery {
+Table media {
   id int [pk]
-  media media
+  production_id int [ref: > productions.id]
+  object_key varchar
+  content_type varchar
+  uploaded_at datetime
 }
 ```
 </details>

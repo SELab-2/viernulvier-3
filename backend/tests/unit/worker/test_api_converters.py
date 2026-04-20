@@ -2,6 +2,7 @@ from datetime import datetime
 from src.worker.converters.production import api_prod_to_model_prod
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
+from src.worker.converters.genres import api_genre_to_model_tag
 from src.services.language import Languages
 
 
@@ -27,14 +28,19 @@ def test_api_prod_to_model_prod():
         "info": {
             "nl": '<p><img src="https://www.viernulvier.gent/cms_files/Image/Nastymonday_6-55bf5bcav1_site_icon.png" alt="" width="100" height="100" /></p>'
         },
-        "genres": [],
+        "genres": [
+            "/api/v1/genres/10",
+            "/api/v1/genres/12",
+        ],
         "events": ["/api/v1/events/8370"],
         "media_gallery": "/api/v1/media/galleries/10365",
         "uitdatabank_keywords": [],
     }
 
-    prod = api_prod_to_model_prod(test_input)
+    prod, tags = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
+
+    assert tags == [10, 12]
 
     # Check prod
     assert prod.viernulvier_id == 5604
@@ -88,9 +94,10 @@ def test_api_prod_to_model_prod_unknown_language():
         "title": {"es": "Poplife - NYE", "en": "Poplife - NYE"},
     }
 
-    prod = api_prod_to_model_prod(test_input)
+    prod, tags = api_prod_to_model_prod(test_input)
     prod_infos = prod.info
 
+    assert tags == []
     assert len(prod_infos) == 1
 
     pi = prod_infos[0]
@@ -200,8 +207,71 @@ def test_api_eventprice_to_model_eventprice():
 def test_api_eventprice_to_none():
     test_input = {"@id": "/api/v1/events/prices/6464"}
 
-    eventprice, prod_id = api_eventprice_to_model_eventprice(test_input)
+    eventprice, event_id = api_eventprice_to_model_eventprice(test_input)
 
     assert eventprice is not None
     assert eventprice.viernulvier_id == 6464
-    assert prod_id is None
+    assert event_id is None
+
+
+# Test normal test case from the actual API
+def test_api_genre_to_model_tag():
+    test_input = {
+        "@id": "/api/v1/genres/100",
+        "@type": "Genres",
+        "created_at": "2023-03-31T12:29:23+00:00",
+        "updated_at": "2025-12-04T12:15:34+00:00",
+        "type": "theater",
+        "use_as": "tag",
+        "vendor_id": "Met voeltoer",
+        "name": {"nl": "Met voeltoer", "en": "With feeling tour"},
+        "slug": {"nl": "Met voeltoer"},
+    }
+
+    tag, tag_names = api_genre_to_model_tag(test_input)
+
+    assert tag.viernulvier_id == 100
+    assert len(tag_names) == 2
+
+    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
+    tagname_en = [tn for tn in tag_names if tn.language == Languages.ENGLISH][0]
+
+    assert tagname_nl.name == "Met voeltoer"
+    assert tagname_en.name == "With feeling tour"
+
+    assert len(tag.productions) == 0
+
+
+# Test fallback test case from the actual API
+def test_api_genre_to_model_tag_fallback():
+    test_input = {
+        "@id": "/api/v1/genres/1",
+        "@type": "Genres",
+        "created_at": "2008-07-11T08:49:18+00:00",
+        "updated_at": "2025-12-04T12:15:37+00:00",
+        "type": "theater",
+        "use_as": "genre",
+        "vendor_id": "cabaret",
+    }
+
+    tag, tag_names = api_genre_to_model_tag(test_input)
+
+    assert tag.viernulvier_id == 1
+    assert len(tag_names) == 1
+
+    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
+
+    assert tagname_nl.name == "cabaret"
+
+    assert len(tag.productions) == 0
+
+
+# Test tags without name should just return an empty list
+def test_api_genre_to_none():
+    test_input = {"@id": "/api/v1/genres/7"}
+
+    tag, tag_names = api_genre_to_model_tag(test_input)
+
+    assert tag is not None
+    assert tag.viernulvier_id == 7
+    assert len(tag_names) == 0

@@ -23,13 +23,13 @@ export function LanguageSwitcher({ className }: Props) {
   return (
     <div
       onClick={toggleLanguage}
-      className={`bg-archive-ink/5 cursor-pointer items-center rounded-full p-1 text-[10px] font-bold ${className ?? ""}`}
+      className={`bg-archive-ink/5 cursor-pointer items-center rounded-full p-1 text-[8px] font-bold sm:text-[10px] ${className ?? ""}`}
     >
       {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
           aria-label="Switch language"
-          className={`cursor-pointer px-3 py-1 ${
+          className={`cursor-pointer px-2 py-1 sm:px-3 ${
             code === lang
               ? "bg-archive-ink bg-archive-ink-dark text-archive-paper text-archive-paper-dark rounded-full"
               : "opacity-50"
