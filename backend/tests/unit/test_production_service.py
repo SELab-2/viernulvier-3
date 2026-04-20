@@ -1,6 +1,7 @@
 from typing import List
 from src.models.production import Production
 from src.services.production import (
+    encode_cursor,
     get_production_by_id,
     get_productions_paginated,
     get_event_urls_for_production,
@@ -43,8 +44,11 @@ def test_get_productions_paginated_limited(
 
 # More productions than limit: multiple pages.
 def test_get_productions_paginated(db_session, many_productions):
-    # TODO rewrite this test so that it properly tests the pagination with cursors
-    result = get_productions_paginated(db_session, BASE_URL, limit=5)
+    # TODO rewrite this test so that it properly tests the pagination with date-based cursors
+    sort_order = "Ascending"
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=5, sort_order=sort_order
+    )
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
@@ -58,18 +62,19 @@ def test_get_productions_paginated(db_session, many_productions):
 
     next_cursor = result.pagination.next_cursor
     result = get_productions_paginated(
-        db_session, BASE_URL, cursor=next_cursor, limit=5
+        db_session, BASE_URL, cursor=next_cursor, limit=5, sort_order=sort_order
     )
-    assert len(result.productions) == 5
-    assert not result.pagination.has_more
-    assert result.pagination.next_cursor is None
 
+    assert len(result.productions) == 5
     for i in range(5, 10):
         assert (
             result.productions[i - 5].id_url
             == f"{BASE_URL}/productions/{many_productions[i].id}"
         )
         assert len(result.productions[i - 5].production_infos) == 2
+
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
 
 
 # Only get productions with a certain tag (in total 10 productions).

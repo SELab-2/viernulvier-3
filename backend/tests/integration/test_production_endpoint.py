@@ -65,6 +65,7 @@ def test_get_productions_success(
     response = client.get(
         BASE_PROD_URL + "/", params={"cursor": next_cursor, "limit": 5}
     )
+    print(response.json())
     assert response.status_code == 200
 
     # Check second (last) page.

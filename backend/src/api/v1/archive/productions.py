@@ -8,6 +8,7 @@ from src.schemas.production import (
     ProductionUpdate,
 )
 from src.services.production import (
+    ProductionSortOrder,
     create_production,
     get_production_by_id,
     get_productions_paginated,
@@ -32,14 +33,15 @@ router = APIRouter()
 async def get_productions(
     request: Request,
     db: Session = Depends(get_db),
-    cursor: int | None = Query(None),
+    cursor: str | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
     tags: list[int] | None = Query(None),
     artists: list[str] | None = Query(None),
+    sort_order: ProductionSortOrder = Query("Ascending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     return get_productions_paginated(
-        db, base_url, cursor, limit, tags=tags, artists=artists
+        db, base_url, cursor, limit, tags=tags, artists=artists, sort_order=sort_order
     )
 
 

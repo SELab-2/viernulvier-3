@@ -211,10 +211,6 @@ def many_productions(db_session):
             artist=artist,
         )
         db_session.add_all([info_nl, info_en])
-
-        db_session.add(
-            Event(production_id=prod.id, starts_at=datetime.fromtimestamp(100000 - i))
-        )
         productions.append(prod)
 
     db_session.commit()

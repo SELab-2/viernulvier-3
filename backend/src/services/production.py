@@ -100,9 +100,16 @@ def decode_cursor(cursor: str) -> tuple[datetime | None, int]:
         decoded = base64.urlsafe_b64decode(cursor.encode()).decode()
         data = json.loads(decoded)
 
-        return (datetime.fromisoformat(data["earliest_at"]), int(data["id"]))
+        cursor_date = data.get("earliest_at")
+        if cursor_date:
+            cursor_date = datetime.fromisoformat(cursor_date)
+
+        return (cursor_date, int(data["id"]))
     except Exception:
         raise ValidationError("Invalid cursor")
+
+
+type ProductionSortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
@@ -114,16 +121,15 @@ def get_productions_paginated(
     limit: int = 20,
     tags: list[int] | None = None,
     artists: list[str] | None = None,
-    sort_order: Literal["Ascending", "Descending"] = "Descending",
+    sort_order: ProductionSortOrder = "Descending",
 ) -> ProductionListResponse:
-    # TODO: NULLS LAST still has to happen.. so does comparison with cursor_date = null
     if sort_order == "Ascending":
         query = db.query(Production).order_by(
-            asc(Production.earliest_at), asc(Production.id)
+            asc(Production.earliest_at).nulls_last(), asc(Production.id)
         )
     else:
         query = db.query(Production).order_by(
-            desc(Production.earliest_at), desc(Production.id)
+            desc(Production.earliest_at).nulls_last(), desc(Production.id)
         )
 
     if tags:
@@ -148,31 +154,55 @@ def get_productions_paginated(
     if cursor is not None:
         cursor_date, cursor_id = decode_cursor(cursor)
         if sort_order == "Ascending":
-            query = query.filter(
-                or_(
-                    Production.earliest_at > cursor_date,
+            if cursor_date is not None:
+                query = query.filter(
+                    or_(
+                        Production.earliest_at > cursor_date,
+                        Production.earliest_at.is_(None),
+                        and_(
+                            Production.earliest_at == cursor_date,
+                            Production.id > cursor_id,
+                        ),
+                    )
+                )
+            else:
+                query = query.filter(
                     and_(
-                        Production.earliest_at == cursor_date, Production.id > cursor_id
+                        Production.earliest_at.is_(None),
+                        Production.id > cursor_id,
                     ),
                 )
-            )
         else:
-            query = query.filter(
-                or_(
-                    Production.earliest_at < cursor_date,
+            if cursor_date is not None:
+                query = query.filter(
+                    or_(
+                        Production.earliest_at < cursor_date,
+                        Production.earliest_at.is_(None),
+                        and_(
+                            Production.earliest_at == cursor_date,
+                            Production.id < cursor_id,
+                        ),
+                    )
+                )
+            else:
+                query = query.filter(
                     and_(
-                        Production.earliest_at == cursor_date, Production.id < cursor_id
+                        Production.earliest_at.is_(None),
+                        Production.id < cursor_id,
                     ),
                 )
-            )
 
     productions = query.limit(limit + 1).all()
+    print(productions, len(productions))
     has_more = len(productions) > limit
     productions = productions[:limit]
-    last_prod = productions[-1]
-    next_cursor = (
-        encode_cursor(last_prod.earliest_at, last_prod.id) if has_more else None
-    )
+    if has_more:
+        last_prod = productions[-1]
+        next_cursor = (
+            encode_cursor(last_prod.earliest_at, last_prod.id) if has_more else None
+        )
+    else:
+        next_cursor = None
 
     # When returning all productions, just returs infos in all languages.
     return ProductionListResponse(
