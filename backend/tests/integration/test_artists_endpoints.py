@@ -11,6 +11,8 @@ MOCK_ROWS = [
     (3, "nl", "Artiest C"),
 ]
 
+BASE_URL = "/api/v1/archive/artists/"
+
 
 @pytest.fixture
 def client():
@@ -23,7 +25,7 @@ def client():
 
 
 def test_get_all_artists(client):
-    response = client.get("/api/v1/archive/artists/")
+    response = client.get(BASE_URL)
 
     assert response.status_code == 200
 
@@ -41,7 +43,7 @@ def test_get_all_artists(client):
 
 
 def test_get_all_artists_response_structure(client):
-    response = client.get("/api/v1/archive/artists/")
+    response = client.get(BASE_URL)
     data = response.json()
 
     assert isinstance(data["en"], list)
