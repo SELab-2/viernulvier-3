@@ -8,6 +8,7 @@ import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
 import Users from "~/routes/users";
+import NotFound from "~/routes/not-found";
 
 vi.mock("~/shared/hooks/useLocalizedPath", () => ({
   useLocalizedPath: () => (path: string) => path,
@@ -18,6 +19,8 @@ export function renderWithRouterAndTheme({
   useRealArchive = false,
   useRealHistory = false,
   useRealUsers = false,
+  useRealNotFound = false,
+  initialPath = "/",
 }) {
   const router = createMemoryRouter(
     [
@@ -65,9 +68,20 @@ export function renderWithRouterAndTheme({
           <Users />
         ),
       },
+      {
+        path: "*",
+        element: !useRealNotFound ? (
+          <>
+            <Navbar />
+            <div>TEST_NOT_FOUND_PAGE</div>
+          </>
+        ) : (
+          <NotFound />
+        ),
+      },
     ],
     {
-      initialEntries: ["/"],
+      initialEntries: [initialPath],
     }
   );
 
