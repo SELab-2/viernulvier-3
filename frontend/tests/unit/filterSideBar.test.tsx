@@ -12,17 +12,12 @@ vi.mock("~/features/archive/services/artistService", () => ({
   getArtists: vi.fn(),
 }));
 
-vi.mock("~/features/archive/services/hallService", () => ({
-  getHallByName: vi.fn(),
-}));
-
 vi.mock("~/features/archive/services/tagService", () => ({
   getAllTags: vi.fn(),
   getTagByName: vi.fn(),
 }));
 
 import { getArtists } from "~/features/archive/services/artistService";
-import { getHallByName } from "~/features/archive/services/hallService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 
 const makeTag = (id: string, nl: string, en: string): Tag => ({
@@ -49,8 +44,6 @@ const defaultProps = () => ({
   setDateTo: vi.fn(),
   selectedTags: [] as Tag[],
   setSelectedTags: vi.fn(),
-  selectedHalls: [] as string[],
-  setSelectedHalls: vi.fn(),
   selectedArtists: [] as string[],
   setSelectedArtists: vi.fn(),
 });
@@ -65,9 +58,6 @@ beforeEach(() => {
       ? Promise.resolve(tag)
       : Promise.reject(new Error(`Tag "${name}" not found`));
   });
-  (getHallByName as ReturnType<typeof vi.fn>).mockImplementation((name: string) =>
-    Promise.resolve({ id_url: `hall-${name.toLowerCase()}` })
-  );
   (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue([
     "Alice",
     "Bob",
@@ -141,31 +131,6 @@ describe("FilterSidebar – tags filter", () => {
     fireEvent.mouseDown(screen.getByText("Dans"));
     expect(props.setSelectedTags).toHaveBeenCalled();
     expect(tagInput).toHaveValue("");
-  });
-});
-
-describe("FilterSidebar – halls filter", () => {
-  it("calls setSelectedHalls when a hall checkbox is toggled", async () => {
-    const props = defaultProps();
-    render(<FilterSidebar {...props} />);
-    fireEvent.click(screen.getByText("filter.halls"));
-    const checkbox = await screen.findByRole("checkbox", {
-      name: "Balzaal",
-    });
-    fireEvent.click(checkbox);
-    expect(props.setSelectedHalls).toHaveBeenCalled();
-  });
-
-  it("still renders halls when one hall fetch fails", async () => {
-    (getHallByName as ReturnType<typeof vi.fn>).mockImplementation((name: string) => {
-      if (name === "Café") return Promise.reject(new Error("not found"));
-      return Promise.resolve({ id_url: `hall-${name.toLowerCase()}` });
-    });
-    render(<FilterSidebar {...defaultProps()} />);
-    fireEvent.click(screen.getByText("filter.halls"));
-    await waitFor(() => screen.getByText("Andere locaties"));
-    expect(screen.getByText("Balzaal")).toBeInTheDocument();
-    expect(screen.queryByText("Café")).not.toBeInTheDocument();
   });
 });
 
