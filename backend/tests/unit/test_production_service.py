@@ -118,6 +118,48 @@ def test_get_productions_with_artist(db_session, many_productions):
     assert result.pagination.next_cursor is None
 
 
+# Only get productions with a specific name (case-insensitive, in total 10 productions).
+def test_get_productions_with_name(db_session, many_productions):
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, production_name="prod0_nl"
+    )
+    assert len(result.productions) == 1
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert (
+        result.productions[0].id_url
+        == f"{BASE_URL}/productions/{many_productions[0].id}"
+    )
+
+    # Case does not affect results.
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, production_name="PROD1_EN"
+    )
+    assert len(result.productions) == 1
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert (
+        result.productions[0].id_url
+        == f"{BASE_URL}/productions/{many_productions[1].id}"
+    )
+
+    # Partial matches are allowed.
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, production_name="prod"
+    )
+    assert len(result.productions) == 10
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+    # No match results in empty list.
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, production_name="nonsense"
+    )
+    assert len(result.productions) == 0
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+
 # Get events for production: check if correct event urls are returned.
 def test_get_event_urls_for_production(db_session, productions_limited):
     events_prod1 = get_event_urls_for_production(

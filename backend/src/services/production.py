@@ -88,8 +88,19 @@ def get_productions_paginated(
     limit: int = 20,
     tags: list[int] | None = None,
     artists: list[str] | None = None,
+    production_name: str | None = None,
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
+
+    if production_name:
+        subq = (
+            db.query(ProdInfo.production_id)
+            .filter(ProdInfo.title.ilike(f"%{production_name}%"))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
     if tags:
         subq = (
             db.query(Production.id)
