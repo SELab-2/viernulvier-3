@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { NavLink } from "react-router";
 import { getArchiveStatistics } from "~/features/archive/services/statisticsService";
 import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
-import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
+import NavigateButton from "~/shared/components/NavigateButton";
 
 function HomeStatistic({ count, label }: { count: number; label: string }) {
   return (
@@ -17,36 +16,6 @@ function HomeStatistic({ count, label }: { count: number; label: string }) {
         {label}
       </div>
     </div>
-  );
-}
-
-function HomeButton({
-  location,
-  name,
-  variant = "primary",
-}: {
-  location: string;
-  name: string;
-  variant?: "primary" | "secondary";
-}) {
-  const lp = useLocalizedPath();
-
-  const base =
-    "px-8 md:px-10 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-all inline-block hover:scale-105 shadow-xl shadow-archive-ink/10";
-
-  const styles = {
-    primary: "bg-archive-ink text-archive-paper",
-    secondary: "border border-archive-ink/20",
-  };
-
-  return (
-    <NavLink
-      to={lp(location)}
-      data-testid={`home-button-${name}`}
-      className={`${base} ${styles[variant]}`}
-    >
-      {name}
-    </NavLink>
   );
 }
 
@@ -77,8 +46,8 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8">
-          <HomeButton location="archive" name={t("home.buttons.explore")} />
-          <HomeButton
+          <NavigateButton location="archive" name={t("home.buttons.explore")} />
+          <NavigateButton
             location="history"
             name={t("home.buttons.history")}
             variant="secondary"
