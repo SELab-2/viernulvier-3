@@ -6,6 +6,8 @@ import { getAllTags, getTagByName } from "~/features/archive/services/tagService
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
 import FilterCard from "./FilterCard";
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface SearchCardProps {
   searchQuery: string;
@@ -28,19 +30,10 @@ const FilterSearchCard: React.FC<SearchCardProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <svg
+	    <SearchIcon
           className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+		  fontSize="inherit"
+		/>
       </div>
     </FilterCard>
   );
@@ -200,19 +193,10 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
             value={tagQuery}
             onChange={(e) => setTagQuery(e.target.value)}
           />
-          <svg
+	      <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+		    fontSize="inherit"
+		  />
           {tagQuery.trim().length > 0 && (
             <ul className="border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900">
               {tags
@@ -333,6 +317,7 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
   };
 
   useEffect(() => {
+	  setSelectedArtists(["testr"])
     getArtists("nl").then(setArtists).catch(console.error);
   }, []);
 
@@ -377,19 +362,10 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
             value={artistQuery}
             onChange={(e) => setArtistQuery(e.target.value)}
           />
-          <svg
+	      <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+		    fontSize="inherit"
+		  />
           {filteredArtists.length > 0 && (
             <ul
               className={`border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900 ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
@@ -419,19 +395,10 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
                   onClick={() => removeArtist(artist)}
                   className="leading-none opacity-70 transition-opacity hover:opacity-100"
                 >
-                  <svg
+                  <ClearIcon
                     className="h-2.5 w-2.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+					fontSize="inherit"
+                  />
                 </button>
               </span>
             ))}
