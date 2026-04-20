@@ -5,8 +5,8 @@ import { getAllTags, getTagByName } from "~/features/archive/services/tagService
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
 import FilterCard from "./FilterCard";
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 
 interface SearchCardProps {
   searchQuery: string;
@@ -29,10 +29,10 @@ const FilterSearchCard: React.FC<SearchCardProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-	    <SearchIcon
+        <SearchIcon
           className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-		  fontSize="inherit"
-		/>
+          fontSize="inherit"
+        />
       </div>
     </FilterCard>
   );
@@ -192,15 +192,15 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
             className="archive-filter-input pr-9"
             value={tagQuery}
             onChange={(e) => setTagQuery(e.target.value)}
-			onFocus={() => setIsFocused(true)}
-			onBlur={() => setIsFocused(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
-	      <SearchIcon
+          <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-		    fontSize="inherit"
-		  />
+            fontSize="inherit"
+          />
           {isFocused && tagQuery.trim().length > 0 && (
-            <ul className="border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg bg-archive-paper">
+            <ul className="border-archive-ink/10 border-archive-ink-dark/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
               {tags
                 .filter((tag) =>
                   tag.names.some((tn) =>
@@ -298,16 +298,16 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
             className="archive-filter-input pr-9"
             value={artistQuery}
             onChange={(e) => setArtistQuery(e.target.value)}
-			onFocus={() => setIsFocused(true)}
-			onBlur={() => setIsFocused(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
-	      <SearchIcon
+          <SearchIcon
             className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-		    fontSize="inherit"
-		  />
+            fontSize="inherit"
+          />
           {isFocused && filteredArtists.length > 0 && (
             <ul
-              className={`border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-archive-paper ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
+              className={`border-archive-ink/10 border-archive-ink-dark/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
             >
               {filteredArtists.map((artist) => (
                 <li
@@ -334,10 +334,7 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
                   onClick={() => removeArtist(artist)}
                   className="leading-none opacity-70 transition-opacity hover:opacity-100"
                 >
-                  <ClearIcon
-                    className="h-2.5 w-2.5"
-					fontSize="inherit"
-                  />
+                  <ClearIcon className="h-2.5 w-2.5" fontSize="inherit" />
                 </button>
               </span>
             ))}

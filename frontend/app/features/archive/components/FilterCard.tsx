@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 interface FilterCardProps {
   title: string;
@@ -18,10 +18,10 @@ const FilterCard: React.FC<FilterCardProps> = ({ title, children }) => {
         <h3 className="text-xs font-bold tracking-[0.2em] uppercase opacity-40">
           {title}
         </h3>
-		<KeyboardArrowDownIcon
+        <KeyboardArrowDownIcon
           className={`h-3 w-3 opacity-30 transition-transform group-hover:opacity-100 ${open ? "rotate-180" : ""}`}
-		  fontSize="small"
-		/>
+          fontSize="small"
+        />
       </div>
 
       {open && children}
