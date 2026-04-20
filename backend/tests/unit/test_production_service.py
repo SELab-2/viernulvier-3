@@ -1,7 +1,6 @@
 from typing import List
 from src.models.production import Production
 from src.services.production import (
-    encode_cursor,
     get_production_by_id,
     get_productions_paginated,
     get_event_urls_for_production,
