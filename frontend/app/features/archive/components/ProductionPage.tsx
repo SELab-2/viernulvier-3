@@ -166,7 +166,7 @@ function Tags({ performer_type, tags }: TagsProps) {
           </li>
         )}
 
-        {/* Bestaande tags */}
+        {/* existing tags */}
         {tags.map((tag) => (
           <li
             key={tag}
@@ -237,20 +237,8 @@ export function ProductionPage({
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrls = useMemo(
-    () =>
-      (mediaImageUrlsByProductionId[production.id_url] ?? []).length > 0
-        ? mediaImageUrlsByProductionId[production.id_url]!
-        : [
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-          ],
-    [fallbackImageUrl, mediaImageUrlsByProductionId, production.id_url]
-  );
-  const imageUrl = imageUrls[0];
+  const imageUrl =
+    mediaImageUrlsByProductionId[production.id_url]?.[0] ?? fallbackImageUrl;
   const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
