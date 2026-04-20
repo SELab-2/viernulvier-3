@@ -6,7 +6,7 @@ export default function NotFound() {
 
   return (
     <main>
-      <title>{`${t("nav.home")} | VIERNULVIER`}</title>
+      <title>{`Not Found | VIERNULVIER`}</title>
       <div className="mx-auto max-w-5xl py-12 text-center md:py-24">
         <h1 className="mb-6 font-serif text-5xl italic md:mb-12 md:text-8xl">
           {t("notFound.title")}
