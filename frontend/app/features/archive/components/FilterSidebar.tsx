@@ -317,7 +317,6 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
   };
 
   useEffect(() => {
-	  setSelectedArtists(["testr"])
     getArtists("nl").then(setArtists).catch(console.error);
   }, []);
 
