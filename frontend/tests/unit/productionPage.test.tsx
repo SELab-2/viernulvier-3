@@ -142,7 +142,9 @@ describe("ProductionPage", () => {
       tags: [],
     });
 
-    expect(screen.getByRole("heading", { name: "Unknown production" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Unknown production" })
+    ).toBeInTheDocument();
     expect(screen.getByText("Unknown artist")).toBeInTheDocument();
     expect(screen.getByText("No description")).toBeInTheDocument();
     expect(await screen.findByText("No events available")).toBeInTheDocument();
