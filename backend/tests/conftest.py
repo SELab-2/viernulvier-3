@@ -182,6 +182,8 @@ def many_productions(db_session):
             performer_type="theater",
             attendance_mode="offline",
             tags=add_tags,
+            earliest_at=datetime(2026, 3, 1+i%2),
+            latest_at=datetime(2026, 3, 2+i%5),
         )
         db_session.add(prod)
         db_session.flush()

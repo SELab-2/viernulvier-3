@@ -73,7 +73,7 @@ def test_get_productions_success(
     assert data["pagination"]["next_cursor"] is None
     assert not data["pagination"]["has_more"]
 
-
+# Productions can be filtered on tags.
 def test_get_productions_with_tag(
     client: TestClient, db_session: Session, many_productions
 ):
@@ -117,7 +117,7 @@ def test_get_productions_with_tag(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
-
+# Productions can be filtered on artist.
 def test_get_productions_with_artist(
     client: TestClient, db_session: Session, many_productions
 ):
@@ -176,7 +176,7 @@ def test_get_productions_with_artist(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
-
+# Productions can be filtered on name.
 def test_get_productions_with_name(
     client: TestClient, db_session: Session, many_productions
 ):
@@ -210,6 +210,19 @@ def test_get_productions_with_name(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
+# Productions can be filtered on dates.
+def test_get_productions_between_dates(client: TestClient, db_session: Session, many_productions):
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "earliest_at": "2026-03-01T00:00:00", "latest_at": "2026-03-01T00:00:00"}
+    )
+    assert response.status_code == 200
+    assert len(response.json()["productions"]) == 5
+
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "earliest_at": "2026-04-01T00:00:00"}
+    )
+    assert response.status_code == 200
+    assert len(response.json()["productions"]) == 0
 
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
