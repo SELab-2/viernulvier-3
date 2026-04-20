@@ -123,15 +123,12 @@ def get_productions_paginated(
     artists: list[str] | None = None,
     sort_order: ProductionSortOrder = "Descending",
 ) -> ProductionListResponse:
-    if sort_order == "Ascending":
-        query = db.query(Production).order_by(
-            asc(Production.earliest_at).nulls_last(), asc(Production.id)
-        )
-    else:
-        query = db.query(Production).order_by(
-            desc(Production.earliest_at).nulls_last(), desc(Production.id)
-        )
+    is_asc = sort_order == "Ascending"
+    order_func = asc if is_asc else desc
 
+    query = db.query(Production).order_by(
+        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
+    )
     if tags:
         subq = (
             db.query(Production.id)
@@ -153,47 +150,35 @@ def get_productions_paginated(
 
     if cursor is not None:
         cursor_date, cursor_id = decode_cursor(cursor)
-        if sort_order == "Ascending":
-            if cursor_date is not None:
-                query = query.filter(
-                    or_(
-                        Production.earliest_at > cursor_date,
-                        Production.earliest_at.is_(None),
-                        and_(
-                            Production.earliest_at == cursor_date,
-                            Production.id > cursor_id,
-                        ),
-                    )
-                )
-            else:
-                query = query.filter(
+
+        cmp_id = Production.id > cursor_id if is_asc else Production.id < cursor_id
+
+        if cursor_date is not None:
+            cmp_date = (
+                Production.earliest_at > cursor_date
+                if is_asc
+                else Production.earliest_at < cursor_date
+            )
+
+            query = query.filter(
+                or_(
+                    cmp_date,
+                    Production.earliest_at.is_(None),
                     and_(
-                        Production.earliest_at.is_(None),
-                        Production.id > cursor_id,
+                        Production.earliest_at == cursor_date,
+                        cmp_id,
                     ),
                 )
+            )
         else:
-            if cursor_date is not None:
-                query = query.filter(
-                    or_(
-                        Production.earliest_at < cursor_date,
-                        Production.earliest_at.is_(None),
-                        and_(
-                            Production.earliest_at == cursor_date,
-                            Production.id < cursor_id,
-                        ),
-                    )
+            query = query.filter(
+                and_(
+                    Production.earliest_at.is_(None),
+                    cmp_id,
                 )
-            else:
-                query = query.filter(
-                    and_(
-                        Production.earliest_at.is_(None),
-                        Production.id < cursor_id,
-                    ),
-                )
+            )
 
     productions = query.limit(limit + 1).all()
-    print(productions, len(productions))
     has_more = len(productions) > limit
     productions = productions[:limit]
     if has_more:
