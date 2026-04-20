@@ -90,7 +90,6 @@ def test_create_hall(client: TestClient, db_session: Session):
         headers=headers,
     )
 
-    print(response.json())
     assert response.status_code == 201
     data = response.json()
 
