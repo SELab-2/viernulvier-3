@@ -18,15 +18,30 @@
     "tags": "Tags",
     "venues": "Venues",
     "artists": "Artists",
-    "search_artists": "Search for artists"
+    "search_artists": "Search for artists",
+    "toggle_menu": "Filter & Search"
   },
 
   "archive": {
     "title": "The Collection",
+    "results": "results",
+    "result": "result",
+    "no_results": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less filters or keywords"
+    },
+    "create_production": "Create production",
+    "show_more": "Show more",
+    "sortBy": "Sort by",
+    "sortOrder": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "unknownDate": "Unknown date",
     "card": {
       "defaults": {
         "title": "Unknown production",
-        "dateLabel": "Unknown",
+        "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
     }
