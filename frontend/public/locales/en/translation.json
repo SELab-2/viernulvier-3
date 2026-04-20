@@ -2,7 +2,8 @@
   "nav": {
     "home": "Home",
     "archive": "Archive",
-    "history": "History"
+    "history": "History",
+    "users": "Users"
   },
   "footer": {
     "website": "Our official website"
@@ -105,6 +106,50 @@
         "invalidCredentials": "The provided username or password is incorrect.",
         "generic": "We could not sign you in right now. Please try again."
       }
+    }
+  },
+
+  "users": {
+    "eyebrow": "Administration",
+    "title": "User management",
+    "description": "Review active accounts and their effective access in a single overview.",
+    "loading": "Loading users",
+    "summary": {
+      "totalUsers": "Total users",
+      "superUsers": "Super users"
+    },
+    "fields": {
+      "username": "Username",
+      "roles": "Roles",
+      "permissions": "Permissions"
+    },
+    "actions": {
+      "retry": "Retry"
+    },
+    "badges": {
+      "superUser": "Super user"
+    },
+    "meta": {
+      "createdAt": "Created",
+      "lastLoginAt": "Last login"
+    },
+    "messages": {
+      "loadFailed": "We could not load the user administration data right now."
+    },
+    "empty": {
+      "title": "No users found",
+      "description": "Once accounts are created, they will appear here with their assigned roles and derived permissions.",
+      "roles": "No roles assigned",
+      "permissions": "No permissions assigned",
+      "date": "Never"
+    },
+    "card": {
+      "userLabel": "User #{{id}}"
+    },
+    "accessDenied": {
+      "eyebrow": "Restricted area",
+      "title": "You do not have access to user management",
+      "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
     }
   }
 }

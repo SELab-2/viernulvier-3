@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
+import { getArchiveStatistics } from "~/features/archive/services/statisticsService";
+import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 function HomeStatistic({ count, label }: { count: number; label: string }) {
@@ -50,6 +52,12 @@ function HomeButton({
 
 export default function Home() {
   const { t } = useTranslation();
+  const { data: statistics } = useAsyncFetch(getArchiveStatistics);
+
+  const productionsCount = statistics?.productions_count ?? 0;
+  const eventsCount = statistics?.events_count ?? 0;
+  const artistsCount = statistics?.unique_artists_count ?? 0;
+  const tagsCount = statistics?.tags_count ?? 0;
 
   return (
     <main>
@@ -62,11 +70,10 @@ export default function Home() {
           {t("home.description")}
         </p>
         <div className="border-archive-ink/5 mb-16 flex flex-wrap items-center justify-center gap-x-12 gap-y-10 border-y py-10 opacity-80 sm:gap-x-16">
-          {/* Deze cijfers zijn placeholders en moeten nog vervangen worden (vanaf endpoint beschikbaar is). */}
-          <HomeStatistic count={1254} label={t("home.stats.productions")} />
-          <HomeStatistic count={4037} label={t("home.stats.events")} />
-          <HomeStatistic count={248} label={t("home.stats.artists")} />
-          <HomeStatistic count={56} label={t("home.stats.genres")} />
+          <HomeStatistic count={productionsCount} label={t("home.stats.productions")} />
+          <HomeStatistic count={eventsCount} label={t("home.stats.events")} />
+          <HomeStatistic count={artistsCount} label={t("home.stats.artists")} />
+          <HomeStatistic count={tagsCount} label={t("home.stats.genres")} />
         </div>
 
         <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-8">
