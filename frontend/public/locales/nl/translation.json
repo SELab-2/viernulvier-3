@@ -129,7 +129,7 @@
     },
     "actions": {
       "retry": "Opnieuw proberen",
-      "refresh": "Verversen",
+      "refresh": "Herladen",
       "add": "Gebruiker toevoegen",
       "cancel": "Annuleren",
       "create": "Gebruiker aanmaken",
