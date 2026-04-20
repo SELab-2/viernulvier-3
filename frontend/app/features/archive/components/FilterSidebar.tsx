@@ -161,7 +161,7 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
               className={`cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase transition-all ${
                 selectedTags.includes(tag)
                   ? "bg-archive-accent border-archive-accent text-white"
-                  : "border-archive-ink/10 dark:border-archive-ink-dark/10 hover:border-archive-accent"
+                  : "border-archive-ink/10 border-archive-ink-dark/10 hover:border-archive-accent"
               }`}
             >
               {getLocalizedTagName(tag)}
@@ -198,7 +198,7 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
 		    fontSize="inherit"
 		  />
           {tagQuery.trim().length > 0 && (
-            <ul className="border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900">
+            <ul className="border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg bg-archive-paper">
               {tags
                 .filter((tag) =>
                   tag.names.some((tn) =>
@@ -367,7 +367,7 @@ const FilterArtistCard: React.FC<ArtistCardProps> = ({
 		  />
           {filteredArtists.length > 0 && (
             <ul
-              className={`border-archive-ink/10 dark:border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-900 ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
+              className={`border-archive-ink/10 border-archive-ink-dark/10 absolute right-0 left-0 z-10 overflow-hidden rounded-xl border bg-archive-paper ${dropdownAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
             >
               {filteredArtists.map((artist) => (
                 <li
