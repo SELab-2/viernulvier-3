@@ -8,11 +8,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import { useAuthSession } from "~/features/auth";
+import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
 import { UserCard } from "../components/UserCard";
 import { USER_PERMISSIONS } from "../users.constants";
@@ -145,13 +145,11 @@ function CreateUserDialog({
           onSubmit={handleSubmit}
           className="mt-6 flex flex-col gap-5"
         >
-          <TextField
+          <ArchiveTextField
             label={t("users.fields.username")}
             name="username"
             autoComplete="username"
             autoFocus
-            fullWidth
-            size="small"
             value={username}
             onChange={(event) => {
               setUsername(event.target.value);
@@ -159,15 +157,12 @@ function CreateUserDialog({
                 setValidationError(null);
               }
             }}
-            sx={fieldSx}
           />
-          <TextField
+          <ArchiveTextField
             label={t("users.fields.password")}
             name="password"
             type="password"
             autoComplete="new-password"
-            fullWidth
-            size="small"
             value={password}
             helperText={t("users.form.passwordCreateHint")}
             slotProps={{
@@ -181,7 +176,6 @@ function CreateUserDialog({
                 setValidationError(null);
               }
             }}
-            sx={fieldSx}
           />
         </form>
       </DialogContent>
@@ -479,47 +473,6 @@ const dialogActionsSx = {
   pb: 3,
   gap: 1.5,
   borderTop: "1px solid var(--archive-border)",
-};
-
-const fieldSx = {
-  "& .MuiInputLabel-root": {
-    fontFamily: "var(--font-sans)",
-    color: "color-mix(in srgb, var(--archive-ink) 68%, transparent)",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "var(--archive-accent)",
-  },
-  "& .MuiInputBase-root": {
-    "borderRadius": "1rem",
-    "color": "var(--archive-ink)",
-    "backgroundColor": "var(--archive-surface)",
-    "transition": "background-color 160ms ease, border-color 160ms ease",
-    "&:hover": {
-      backgroundColor: "var(--archive-control)",
-    },
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "var(--archive-border)",
-  },
-  "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: "var(--archive-border-hover)",
-  },
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderColor: "var(--archive-accent)",
-    borderWidth: "1px",
-  },
-  "& .MuiInputBase-input": {
-    color: "var(--archive-ink)",
-  },
-  "& .MuiInputBase-input:-webkit-autofill": {
-    WebkitBoxShadow: "0 0 0 100px var(--archive-surface) inset",
-    WebkitTextFillColor: "var(--archive-ink)",
-  },
-  "& .MuiFormHelperText-root": {
-    fontFamily: "var(--font-sans)",
-    marginLeft: 0,
-    color: "color-mix(in srgb, var(--archive-ink) 72%, transparent)",
-  },
 };
 
 const helperTextSx = {
