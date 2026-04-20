@@ -39,7 +39,7 @@ async def get_productions(
     artists: list[str] | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
-    latest_at: datetime | None = Query(None)
+    latest_at: datetime | None = Query(None),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     return get_productions_paginated(
@@ -51,7 +51,7 @@ async def get_productions(
         artists=artists,
         production_name=production_name,
         earliest_at=earliest_at,
-        latest_at=latest_at
+        latest_at=latest_at,
     )
 
 

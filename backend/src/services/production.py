@@ -91,7 +91,7 @@ def get_productions_paginated(
     artists: list[str] | None = None,
     production_name: str | None = None,
     earliest_at: datetime | None = None,
-    latest_at: datetime | None = None
+    latest_at: datetime | None = None,
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
 

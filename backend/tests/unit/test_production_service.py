@@ -160,50 +160,64 @@ def test_get_productions_with_name(db_session, many_productions):
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
 
+
 # Only get productions by specific start/end dates (in total 10 productions).
 def test_get_productions_between_dates(db_session, many_productions):
-    # dates: 
+    # dates:
     # 01/03-02/03 // 02/03-03/03 // 01/03-04/03 // 02/03-05/03 // 01/03-06/03
     # 02/03-02/03 // 01/03-03/03 // 02/03-04/03 // 01/03-05/04 // 02/03-06/03
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10, 
+        db_session,
+        BASE_URL,
+        limit=10,
         earliest_at=datetime(2026, 3, 1),
-        latest_at=datetime(2026, 3, 1)
+        latest_at=datetime(2026, 3, 1),
     )
     assert len(result.productions) == 5
 
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10, 
+        db_session,
+        BASE_URL,
+        limit=10,
         earliest_at=datetime(2026, 3, 1),
-        latest_at=datetime(2026, 3, 2)
+        latest_at=datetime(2026, 3, 2),
     )
     assert len(result.productions) == 10
 
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10, 
+        db_session,
+        BASE_URL,
+        limit=10,
         earliest_at=datetime(2026, 4, 1),
-        latest_at=datetime(2026, 5, 1)
+        latest_at=datetime(2026, 5, 1),
     )
     assert len(result.productions) == 0
 
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10, 
+        db_session,
+        BASE_URL,
+        limit=10,
         earliest_at=datetime(2026, 2, 1),
-        latest_at=datetime(2026, 2, 15)
+        latest_at=datetime(2026, 2, 15),
     )
     assert len(result.productions) == 0
 
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10,
+        db_session,
+        BASE_URL,
+        limit=10,
         earliest_at=datetime(2026, 3, 5),
     )
-    assert len(result.productions) == 4 
+    assert len(result.productions) == 4
 
     result = get_productions_paginated(
-        db_session, BASE_URL, limit=10,
+        db_session,
+        BASE_URL,
+        limit=10,
         latest_at=datetime(2026, 3, 1),
     )
     assert len(result.productions) == 5
+
 
 # Get events for production: check if correct event urls are returned.
 def test_get_event_urls_for_production(db_session, productions_limited):
