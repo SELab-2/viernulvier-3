@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getArtists } from "~/features/archive/services/artistService";
-import { getHallByName } from "~/features/archive/services/hallService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import i18n from "~/i18n";
@@ -228,71 +227,6 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
   );
 };
 
-interface HallCardProps {
-  selectedHalls: string[];
-  setSelectedHalls: React.Dispatch<React.SetStateAction<string[]>>;
-}
-
-const FilterHallCard: React.FC<HallCardProps> = ({
-  selectedHalls,
-  setSelectedHalls,
-}) => {
-  const [hallMap, setHallMap] = useState<Record<string, string>>({});
-
-  const { t } = useTranslation();
-
-  const toggleHall = (hall: string) => {
-    setSelectedHalls((prev) =>
-      prev.includes(hall) ? prev.filter((v) => v !== hall) : [...prev, hall]
-    );
-  };
-
-  useEffect(() => {
-    const searchHallNames = ["Balzaal", "Café", "Domzaal", "Filmzaal", "Theaterzaal"];
-
-    Promise.all(
-      searchHallNames.map(async (hall) => {
-        try {
-          const result = await getHallByName(hall);
-          return [hall, result.id_url] as [string, string];
-        } catch (error) {
-          console.error(`Failed to fetch hall "${hall}":`, error);
-          return null;
-        }
-      })
-    ).then((entries) => {
-      const map: Record<string, string> = Object.fromEntries(
-        entries.filter((e): e is [string, string] => e !== null)
-      );
-      map["Andere locaties"] = "none";
-      setHallMap(map);
-    });
-  }, []);
-
-  return (
-    <FilterCard title={t("filter.halls")}>
-      <div className="space-y-3">
-        {Object.keys(hallMap).map((hall) => (
-          <label
-            key={hall}
-            className="group flex cursor-pointer items-center space-x-3"
-          >
-            <input
-              type="checkbox"
-              checked={selectedHalls.includes(hallMap[hall])}
-              onChange={() => toggleHall(hallMap[hall])}
-              className="border-archive-ink/20 text-archive-accent focus:ring-archive-accent cursor-pointer rounded"
-            />
-            <span className="text-xs font-medium opacity-60 transition-opacity group-hover:opacity-100">
-              {hall}
-            </span>
-          </label>
-        ))}
-      </div>
-    </FilterCard>
-  );
-};
-
 interface ArtistCardProps {
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
@@ -424,8 +358,6 @@ interface FilterSidebarProps {
   setDateTo: React.Dispatch<React.SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
-  selectedHalls: string[];
-  setSelectedHalls: React.Dispatch<React.SetStateAction<string[]>>;
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -440,8 +372,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setDateTo,
   selectedTags,
   setSelectedTags,
-  selectedHalls,
-  setSelectedHalls,
   selectedArtists,
   setSelectedArtists,
 }) => {
@@ -461,10 +391,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         setDateTo={setDateTo}
       />
       <FilterTagCard selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
-      <FilterHallCard
-        selectedHalls={selectedHalls}
-        setSelectedHalls={setSelectedHalls}
-      />
       <FilterArtistCard
         selectedArtists={selectedArtists}
         setSelectedArtists={setSelectedArtists}
