@@ -152,5 +152,13 @@
       "title": "You do not have access to user management",
       "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
     }
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "description": "The page you are looking for does not exist. It might have been removed, had its name changed, or is temporarily unavailable.",
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
+    }
   }
 }

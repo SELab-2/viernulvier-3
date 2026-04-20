@@ -152,5 +152,13 @@
       "title": "Je hebt geen toegang tot gebruikersbeheer",
       "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
     }
+  },
+  "notFound": {
+    "title": "VIERNULVIER - Pagina niet gevonden",
+    "description": "De pagina die u zoekt bestaat niet. Deze kan zijn verwijderd, de naam gewijzigd of tijdelijk niet beschikbaar.",
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
   }
 }
