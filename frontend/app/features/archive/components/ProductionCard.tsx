@@ -320,7 +320,8 @@ export function ProductionCard({
                 textTransform: "uppercase",
               }}
             >
-              {venues && venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
+              {venues &&
+                venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
             </Typography>
           </Stack>
 
