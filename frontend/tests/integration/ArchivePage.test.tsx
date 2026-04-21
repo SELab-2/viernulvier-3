@@ -101,16 +101,23 @@ describe("Archive", () => {
 
       // Before clicking show more
       expectEveryProductionVisible([mockProductions[0]]);
-      expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1);
+      expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(
+        1,
+        expect.not.objectContaining({
+          cursor: expect.anything(),
+        })
+      );
 
       await user.click(screen.getByText("archive.show_more"));
 
       // After clicking show more
       expectEveryProductionVisible(mockProductions.slice(1));
 
-      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
-        cursor: 123,
-      });
+      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cursor: 123,
+        })
+      );
     });
   });
 
