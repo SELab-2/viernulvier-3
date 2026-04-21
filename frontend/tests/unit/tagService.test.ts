@@ -10,6 +10,7 @@ import {
   editTag,
   getTagById,
   getAllTags,
+  getTagByName,
 } from "~/features/archive/services/tagService";
 
 describe("tagService", () => {
@@ -62,6 +63,22 @@ describe("tagService", () => {
       mockAdapter.onGet("/api/v1/archive/tags/1").reply(200, mockTag1);
 
       const result = await getTagById(1);
+      expect(result).toEqual(mockTag1);
+    });
+  });
+
+  describe("getTagByName", () => {
+    it("returns a tag object on success (nl)", async () => {
+      mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
+
+      const result = await getTagByName("tag naam");
+      expect(result).toEqual(mockTag1);
+    });
+
+    it("returns a tag object on success (en)", async () => {
+      mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
+
+      const result = await getTagByName("tag name");
       expect(result).toEqual(mockTag1);
     });
   });

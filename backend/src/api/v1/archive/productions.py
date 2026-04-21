@@ -20,6 +20,7 @@ from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
 from src.services.archive import get_base_url
+from datetime import datetime
 
 router = APIRouter()
 
@@ -37,11 +38,23 @@ async def get_productions(
     limit: int = Query(20, ge=1, le=50),
     tags: list[int] | None = Query(None),
     artists: list[str] | None = Query(None),
+    production_name: str | None = Query(None),
+    earliest_at: datetime | None = Query(None),
+    latest_at: datetime | None = Query(None),
     sort_order: ProductionSortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     return get_productions_paginated(
-        db, base_url, cursor, limit, tags=tags, artists=artists, sort_order=sort_order
+        db,
+        base_url,
+        cursor,
+        limit,
+        tags=tags,
+        artists=artists,
+        production_name=production_name,
+        earliest_at=earliest_at,
+        latest_at=latest_at,
+        sort_order=sort_order,
     )
 
 

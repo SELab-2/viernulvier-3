@@ -16,7 +16,8 @@
     "from": "Van",
     "to": "Tot",
     "tags": "Tags",
-    "venues": "Locaties",
+    "search_tags": "Zoek naar andere tags",
+    "halls": "Locaties",
     "artists": "Artiesten",
     "search_artists": "Zoek naar artiesten",
     "toggle_menu": "Filteren & Zoeken"

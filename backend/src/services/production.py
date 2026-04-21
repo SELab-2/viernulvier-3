@@ -121,6 +121,9 @@ def get_productions_paginated(
     limit: int = 20,
     tags: list[int] | None = None,
     artists: list[str] | None = None,
+    production_name: str | None = None,
+    earliest_at: datetime | None = None,
+    latest_at: datetime | None = None,
     sort_order: ProductionSortOrder = "Descending",
 ) -> ProductionListResponse:
     is_asc = sort_order == "Ascending"
@@ -129,6 +132,25 @@ def get_productions_paginated(
     query = db.query(Production).order_by(
         order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
     )
+
+    # Name filter
+    if production_name:
+        subq = (
+            db.query(ProdInfo.production_id)
+            .filter(ProdInfo.title.ilike(f"%{production_name}%"))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
+    # Date filter
+    if earliest_at:
+        query = query.filter(Production.latest_at >= earliest_at)
+
+    if latest_at:
+        query = query.filter(Production.earliest_at <= latest_at)
+
+    # Tags filter
     if tags:
         subq = (
             db.query(Production.id)
@@ -139,6 +161,7 @@ def get_productions_paginated(
         )
         query = query.filter(Production.id.in_(subq))
 
+    # Artists filter
     if artists:
         subq = (
             db.query(ProdInfo.production_id)
