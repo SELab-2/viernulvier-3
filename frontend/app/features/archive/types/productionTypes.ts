@@ -1,3 +1,4 @@
+import type { Event } from "./eventTypes";
 import type { Tag } from "./tagTypes";
 import type { PaginationResponse } from "./paginationTypes";
 
@@ -20,6 +21,7 @@ export interface Production {
   performer_type?: string;
   attendance_mode?: string;
   media_gallery_id?: number; // Maybe update after merge media pr.
+  image_url?: string; // NOTE: Temporary field for main production image, will need to figure out how to properly model images in production once frontend media PR is present
   created_at?: string;
   updated_at?: string;
 
@@ -29,6 +31,8 @@ export interface Production {
   production_infos: ProductionInfo[];
   event_id_urls: string[];
   tags: Tag[];
+
+  events?: Event[]; // event data
 }
 
 export interface ProductionList {
