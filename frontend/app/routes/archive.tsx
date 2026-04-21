@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "../features/archive/components/FilterSidebar";
@@ -9,7 +9,6 @@ import {
   ProductionTimeline,
 } from "~/features/archive/components/ProductionTimeline";
 import { Divider } from "@mui/material";
-import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import { Protected } from "~/features/auth";
@@ -103,7 +102,7 @@ function ShowMoreButton({
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
   filters: {
-	production_name?: string;
+    production_name?: string;
     earliest_at?: string;
     latest_at?: string;
     tags?: number[];
@@ -115,7 +114,7 @@ function ShowMoreButton({
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
-	  ...filters,
+      ...filters,
     });
 
     setProductionList({
@@ -165,7 +164,10 @@ export default function Archive() {
         production_name: debouncedSearch || undefined,
         earliest_at: dateFrom || undefined,
         latest_at: dateTo || undefined,
-		tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop())) : undefined,
+        tags:
+          selectedTags.length > 0
+            ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop()))
+            : undefined,
         artists: selectedArtists.length > 0 ? selectedArtists : undefined,
       });
       setProductionList(result);
@@ -237,13 +239,16 @@ export default function Archive() {
             <ShowMoreButton
               productionList={productionList}
               setProductionList={setProductionList}
-			  filters={{
-				production_name: debouncedSearch || undefined,
-				earliest_at: dateFrom || undefined,
-				latest_at: dateTo || undefined,
-				tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop())) : undefined,
-				artists: selectedArtists.length > 0 ? selectedArtists : undefined,
-			  }}
+              filters={{
+                production_name: debouncedSearch || undefined,
+                earliest_at: dateFrom || undefined,
+                latest_at: dateTo || undefined,
+                tags:
+                  selectedTags.length > 0
+                    ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop()))
+                    : undefined,
+                artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+              }}
             />
           )}
         </div>
