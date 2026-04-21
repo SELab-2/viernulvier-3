@@ -177,6 +177,40 @@ def test_get_productions_with_artist(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_name(
+    client: TestClient, db_session: Session, many_productions
+):
+    # 1 production with prod1 in name, 0 with prod100 in name.
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "production_name": "prod1"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 1
+    assert all(
+        any(
+            "prod1" in info_response["title"]
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "production_name": "prod100"}
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 0
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
 # User gets empty list because no productions in database.
 def test_get_productions_empty(client: TestClient, db_session: Session):
     response = client.get(BASE_PROD_URL + "/", params={"limit": 5})
