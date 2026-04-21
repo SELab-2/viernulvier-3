@@ -487,12 +487,13 @@ def test_delete_production(db_session, productions_limited):
 
 # Delete a not existing production (does nothing).
 def test_delete_production_invalid(db_session, productions_limited):
-    result = get_productions_paginated(db_session, BASE_URL)
-    assert len(result.productions) == 2
+    original_result = get_productions_paginated(db_session, BASE_URL)
+    assert len(original_result.productions) == 2
 
     # Give a non-existing production id.
     with pytest.raises(NotFoundError):
         delete_production_by_id(db_session, 4)
 
-    result = get_productions_paginated(db_session, BASE_URL)
-    assert len(result.productions) == 2
+    new_result = get_productions_paginated(db_session, BASE_URL)
+    assert len(new_result.productions) == 2
+    assert original_result.productions == new_result.productions

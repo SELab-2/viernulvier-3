@@ -37,7 +37,7 @@ async def get_productions(
     limit: int = Query(20, ge=1, le=50),
     tags: list[int] | None = Query(None),
     artists: list[str] | None = Query(None),
-    sort_order: ProductionSortOrder = Query("Ascending"),
+    sort_order: ProductionSortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     return get_productions_paginated(
