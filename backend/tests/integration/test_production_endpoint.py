@@ -125,9 +125,7 @@ def test_get_productions_with_artist(
 ):
     # 5 productions by Steve, 5 by Bob, 0 by Alice.
     # Artist need to be conform in each production info.
-    response = client.get(
-        BASE_PROD_URL + "/", params={"limit": 10, "artists": "Steve"}
-    )
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": "Steve"})
     assert response.status_code == 200
     data = response.json()
     assert len(data["productions"]) == 5
