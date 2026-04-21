@@ -73,6 +73,30 @@ function getTagNamesByLanguage(production: Production, language: string): string
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
+function isFieldDirty(
+  original: string | undefined,
+  draft: string | undefined
+): boolean {
+  return (original ?? "") !== (draft ?? "");
+}
+
+function isInfoDirty(
+  originalInfo: ProductionInfo | null,
+  draftInfo: ProductionInfo | null
+): boolean {
+  if (!originalInfo || !draftInfo) return false;
+
+  return (
+    originalInfo.title !== draftInfo.title ||
+    originalInfo.supertitle !== draftInfo.supertitle ||
+    originalInfo.artist !== draftInfo.artist ||
+    originalInfo.tagline !== draftInfo.tagline ||
+    originalInfo.teaser !== draftInfo.teaser ||
+    originalInfo.description !== draftInfo.description ||
+    originalInfo.info !== draftInfo.info
+  );
+}
+
 function BackToCollectionLink() {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -87,28 +111,60 @@ function BackToCollectionLink() {
   );
 }
 
+type SimpleEditableFieldProps = {
+  value: string;
+  isEditing: boolean;
+  onChange: (value: string) => void;
+  renderView: (value: string) => React.ReactNode;
+  isDirty: boolean;
+};
+// <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+// </Protected>
+export function SimpleEditableField({
+  value,
+  isEditing,
+  onChange,
+  renderView,
+  isDirty,
+}: SimpleEditableFieldProps) {
+  if (isEditing) {
+    const border_style = isDirty
+      ? "border-l-4 border-l-orange-400 border-white/20"
+      : "border-white/30 bg-black/70";
+    return (
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded-md border ${border_style} focus:ring-archive-accent bg-black/70 px-2 py-1 text-white placeholder-white/40 focus:ring-2 focus:outline-none`}
+      />
+    );
+  }
+
+  return <>{renderView(value)}</>;
+}
+
 type ProductionHeaderProps = {
   production_info: ProductionInfo;
   image_url: string;
+  isEditing: boolean;
+  originalInfo: ProductionInfo | null;
+  draftInfo: ProductionInfo | null;
+  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
 };
 
 /* ProductionHeader contains main image, supertitle, title and artist */
 function ProductionHeader({
   production_info,
-  image_url: imageUrl,
+  image_url,
+  isEditing,
+  originalInfo,
+  draftInfo,
+  setDraftInfo,
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
   const title = getTextOrDefault(
     production_info?.title,
     t("productionPage.fallback.unknownProduction")
-  );
-  const supertitle = getTextOrDefault(
-    production_info?.supertitle,
-    t("productionPage.fallback.archive")
-  );
-  const artist = getTextOrDefault(
-    production_info?.artist,
-    t("productionPage.fallback.defaultArtist")
   );
 
   return (
@@ -117,30 +173,72 @@ function ProductionHeader({
       className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
     >
       <img
-        src={imageUrl}
+        src={image_url}
         alt={title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
       <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-        <p
-          id="supertitle"
-          className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
-        >
-          {supertitle}
-        </p>
-        <h1
-          id="title"
-          className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-        >
-          {title}
-        </h1>
-        <p
-          id="artist"
-          className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
-        >
-          {artist}
-        </p>
+        <SimpleEditableField
+          value={draftInfo?.supertitle ?? ""}
+          isEditing={isEditing}
+          isDirty={isFieldDirty(originalInfo?.supertitle, draftInfo?.supertitle)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              // Overwrite supertitle
+              if (prev) return { ...prev, supertitle: newValue };
+              // !prev => prev ~= null => simple not initialised yet
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <p
+              id="supertitle"
+              className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
+            >
+              {getTextOrDefault(value, "")}
+            </p>
+          )}
+        />
+        <SimpleEditableField
+          value={draftInfo?.title ?? ""}
+          isEditing={isEditing}
+          isDirty={isFieldDirty(originalInfo?.title, draftInfo?.title)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              // Overwrite title
+              if (prev) return { ...prev, title: newValue };
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <h1
+              id="title"
+              className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
+            >
+              {value}
+            </h1>
+          )}
+        />
+        <SimpleEditableField
+          value={draftInfo?.artist ?? ""}
+          isEditing={isEditing}
+          isDirty={isFieldDirty(originalInfo?.artist, draftInfo?.artist)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              if (prev) return { ...prev, artist: newValue };
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <p
+              id="artist"
+              className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
+            >
+              {value}
+            </p>
+          )}
+        />
       </div>
     </section>
   );
@@ -407,7 +505,14 @@ export function ProductionPage({
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        <ProductionHeader production_info={productionInfo} image_url={imageUrl} />
+        <ProductionHeader
+          production_info={productionInfo}
+          image_url={imageUrl}
+          isEditing={isEditing}
+          originalInfo={originalInfo}
+          draftInfo={draftInfo}
+          setDraftInfo={setDraftInfo}
+        />
 
         <Tags performer_type={production.performer_type} tags={tags} />
 
