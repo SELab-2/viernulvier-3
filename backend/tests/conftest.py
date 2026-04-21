@@ -208,6 +208,37 @@ def many_productions(db_session):
 
 
 @pytest.fixture
+def productions_with_different_artists(db_session):
+    productions = []
+    artists = [["Steven", "Bob", ""], ["Steve", "", "Donald"]]
+    for i in range(10):
+        prod = Production(
+            performer_type="theater",
+            attendance_mode="offline",
+        )
+        db_session.add(prod)
+        db_session.flush()
+
+        info_nl = ProdInfo(
+            production_id=prod.id,
+            language=Languages.NEDERLANDS,
+            title=f"prod{i}_nl",
+            artist=artists[0][i % 3],
+        )
+        info_en = ProdInfo(
+            production_id=prod.id,
+            language=Languages.ENGLISH,
+            title=f"prod{i}_en",
+            artist=artists[1][i % 3],
+        )
+        db_session.add_all([info_nl, info_en])
+        productions.append(prod)
+
+    db_session.commit()
+    return productions
+
+
+@pytest.fixture
 def production_with_no_media(db_session: Session) -> Production:
     prod = Production(
         performer_type="band",

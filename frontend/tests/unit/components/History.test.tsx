@@ -1,14 +1,10 @@
 import { screen } from "@testing-library/react";
 import { describe, it, expect, beforeEach } from "vitest";
-import userEvent from "@testing-library/user-event";
 import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
 
 describe("History", async () => {
   beforeEach(async () => {
-    renderWithRouterAndTheme({ useRealHistory: true });
-    const user = userEvent.setup();
-    const links = screen.getAllByRole("link", { name: "I18N_History" });
-    await user.click(links[0]);
+    renderWithRouterAndTheme({ useRealHistory: true, initialPath: "/history" });
   });
 
   it("renders title and entries correctly", () => {
