@@ -11,9 +11,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
+import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -44,17 +45,11 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-export type ProductionCardData = Production & {
-  starts_at?: string;
-  hall_name?: string;
-  tag_names?: string[];
-  image_url?: string;
-  id_url?: string;
-};
-
 interface ProductionCardProps {
-  production: ProductionCardData;
+  production: Production;
+  onOpen?: (productionId: string) => void;
   preferredLanguage?: string;
+  className?: string;
 }
 
 function getProductionInfoByLanguage(
@@ -94,14 +89,7 @@ function getOptionalText(value: string | null | undefined): string | undefined {
   return trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
-function getTagNamesByLanguage(
-  production: ProductionCardData,
-  language: string
-): string[] {
-  if (production.tag_names && production.tag_names.length > 0) {
-    return production.tag_names;
-  }
-
+function getTagNamesByLanguage(production: Production, language: string): string[] {
   if (!production.tags || production.tags.length === 0) {
     return DEFAULT_CARD_VALUES.tagNames;
   }
@@ -119,13 +107,58 @@ function getProductionNumericIdFromUrl(idUrl: string): string | undefined {
   return match?.[1];
 }
 
+function getProductionStartLabel(
+  production: Production,
+  lang?: string
+): string | undefined {
+  if (!production.earliest_at || !production.latest_at) {
+    return;
+  }
+
+  const earliest_date = new Date(production.earliest_at);
+  const latest_date = new Date(production.latest_at);
+
+  const firstStr = formatDateDDMonYYYY(earliest_date, lang);
+  const lastStr = formatDateDDMonYYYY(latest_date, lang);
+
+  // If production only ocurred on a single day, we only list that day
+  if (
+    earliest_date.getUTCFullYear() === latest_date.getUTCFullYear() &&
+    earliest_date.getMonth() === latest_date.getMonth() &&
+    earliest_date.getDate() === latest_date.getDate()
+  ) {
+    return firstStr;
+  } else {
+    return `${firstStr} - ${lastStr}`;
+  }
+}
+
+function getVenues(production: Production): string[] | undefined {
+  if (!production.events?.length) return;
+
+  const halls = production.events
+    .map((e) => e.hall?.name)
+    .filter((name): name is string => !!name);
+
+  if (halls.length === 0) return;
+
+  // Remove duplicates
+  const uniqueHalls = Array.from(new Set(halls));
+
+  return uniqueHalls;
+}
+
 export function ProductionCard({
   production,
-  preferredLanguage = "nl",
+  onOpen,
+  className,
+  preferredLanguage,
 }: ProductionCardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
+  const { lang } = useParams();
+  if (!preferredLanguage) preferredLanguage = lang || "nl";
   const defaultCardValues = {
     title: t("archive.card.defaults.title"),
     dateLabel: t("archive.card.defaults.dateLabel"),
@@ -142,12 +175,16 @@ export function ProductionCard({
   const supertitle = getOptionalText(primaryInfo?.supertitle);
   const artist = getOptionalText(primaryInfo?.artist);
   const tagline = getOptionalText(primaryInfo?.tagline);
-  const dateLabel = getTextOrDefault(production.starts_at, defaultCardValues.dateLabel);
-  const venueLabel = getTextOrDefault(
-    production.hall_name,
-    defaultCardValues.venueLabel
+  const dateLabel = getTextOrDefault(
+    getProductionStartLabel(production, preferredLanguage),
+    defaultCardValues.dateLabel
   );
-  const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
+  const dateParts = dateLabel.split(" - ");
+  const venues = getVenues(production);
+  const imageUrl = getTextOrDefault(
+    (production as { image_url?: string }).image_url,
+    defaultCardValues.imageUrl
+  );
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
@@ -172,6 +209,7 @@ export function ProductionCard({
       role="button"
       tabIndex={0}
       aria-label={`Open details for ${title}`}
+      className={className}
       sx={{
         "height": "100%",
         "display": "flex",
@@ -263,9 +301,23 @@ export function ProductionCard({
               letterSpacing: "var(--tracking-archive-meta)",
               fontWeight: "var(--weight-archive-semibold)",
               textTransform: "uppercase",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              gap: { xs: 0, sm: 0.5 },
             }}
           >
-            {dateLabel}
+            {dateParts.length === 1 ? (
+              dateParts[0]
+            ) : (
+              <>
+                <span className="text-center">{dateParts[0]}</span>
+
+                <span className="block min-w-4 text-center"> - </span>
+
+                <span className="text-center">{dateParts[1]}</span>
+              </>
+            )}
           </Typography>
 
           <Typography
@@ -277,7 +329,7 @@ export function ProductionCard({
               textTransform: "uppercase",
             }}
           >
-            @ {venueLabel}
+            {venues && venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
           </Typography>
         </Stack>
 
@@ -404,7 +456,7 @@ export function ProductionCard({
 }
 
 export interface ProductionCardGridProps {
-  productions: ProductionCardData[];
+  productions: Production[];
 }
 
 export function ProductionCardGrid({ productions }: ProductionCardGridProps) {
