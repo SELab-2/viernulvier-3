@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "../features/archive/components/FilterSidebar";
@@ -98,15 +98,24 @@ function MobileToggleButton({ onClick }: { onClick?: () => void }) {
 function ShowMoreButton({
   productionList,
   setProductionList,
+  filters,
 }: {
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
+  filters: {
+	production_name?: string;
+    earliest_at?: string;
+    latest_at?: string;
+    tags?: number[];
+    artists?: string[];
+  };
 }) {
   const { t } = useTranslation();
 
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
+	  ...filters,
     });
 
     setProductionList({
@@ -141,6 +150,28 @@ export default function Archive() {
   );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
+  const [productionList, setProductionList] = useState<ProductionList | null>(null);
+  // Debounce searchQuery so we don't fire on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Re-fetch whenever any filter changes
+  useEffect(() => {
+    async function fetchProductions() {
+      const result = await getProductionsPaginated({
+        production_name: debouncedSearch || undefined,
+        earliest_at: dateFrom || undefined,
+        latest_at: dateTo || undefined,
+		tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/")[-1])): undefined,
+        artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+      });
+      setProductionList(result);
+    }
+    fetchProductions();
+  }, [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists]);
 
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
@@ -148,10 +179,6 @@ export default function Archive() {
 
   const { t } = useTranslation();
 
-  const { data: productionList, setData: setProductionList } =
-    useAsyncFetch<ProductionList>(
-      useCallback(async () => await getProductionsPaginated(), [])
-    );
   const productions = productionList?.productions ?? [];
 
   return (
@@ -210,6 +237,13 @@ export default function Archive() {
             <ShowMoreButton
               productionList={productionList}
               setProductionList={setProductionList}
+			  filters={{
+				production_name: debouncedSearch || undefined,
+				earliest_at: dateFrom || undefined,
+				latest_at: dateTo || undefined,
+				tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/")[-1])): undefined,
+				artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+			  }}
             />
           )}
         </div>
