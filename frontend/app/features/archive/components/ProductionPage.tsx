@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import type {
   Production,
@@ -208,6 +208,58 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
+type EditButtonProps = {
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  originalInfo: ProductionInfo | null;
+  draftInfo: ProductionInfo | null;
+  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+};
+
+function EditButton({
+  isEditing,
+  setIsEditing,
+  originalInfo,
+  draftInfo,
+  setDraftInfo,
+}: EditButtonProps) {
+  return (
+    <>
+      {!isEditing ? (
+        <button
+          id="edit-production-button"
+          onClick={() => setIsEditing(true)}
+          className="bg-archive-accent fixed right-6 bottom-6 z-50 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-lg"
+        >
+          Edit
+        </button>
+      ) : (
+        <div id="edit-actions" className="fixed right-6 bottom-6 z-50 flex gap-3">
+          <button
+            onClick={() => {
+              setDraftInfo(originalInfo);
+              setIsEditing(false);
+            }}
+            className="rounded-full bg-gray-300 px-5 py-2 text-sm"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={() => {
+              console.log("Saving draft:", draftInfo);
+              setIsEditing(false);
+            }}
+            className="bg-archive-accent rounded-full px-5 py-2 text-sm text-white"
+          >
+            Save
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
 export function ProductionPage({
   production,
   preferredLanguage = "nl",
@@ -217,12 +269,24 @@ export function ProductionPage({
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
+
+  // States for editing the production info shown
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(null);
+  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(null);
+
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
     language
   );
+
+  // Initialize edit states
+  useEffect(() => {
+    setOriginalInfo(productionInfo);
+    setDraftInfo(productionInfo);
+  }, [productionInfo]);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -365,6 +429,13 @@ export function ProductionPage({
           title={title}
         />
       </main>
+      <EditButton
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        originalInfo={originalInfo}
+        draftInfo={draftInfo}
+        setDraftInfo={setDraftInfo}
+      />
     </div>
   );
 }
