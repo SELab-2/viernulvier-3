@@ -312,6 +312,7 @@ type EditButtonProps = {
   originalInfo: ProductionInfo | null;
   draftInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  enable_save: boolean;
 };
 
 function EditButton({
@@ -320,7 +321,9 @@ function EditButton({
   originalInfo,
   draftInfo,
   setDraftInfo,
+  enable_save,
 }: EditButtonProps) {
+  // TODO: prettier CSS
   return (
     <>
       {!isEditing ? (
@@ -349,6 +352,7 @@ function EditButton({
               setIsEditing(false);
             }}
             className="bg-archive-accent rounded-full px-5 py-2 text-sm text-white"
+            disabled={!enable_save}
           >
             Save
           </button>
@@ -372,6 +376,11 @@ export function ProductionPage({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(null);
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(null);
+
+  const isDirty = useMemo(
+    () => isInfoDirty(originalInfo, draftInfo),
+    [originalInfo, draftInfo]
+  );
 
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
@@ -540,6 +549,7 @@ export function ProductionPage({
         originalInfo={originalInfo}
         draftInfo={draftInfo}
         setDraftInfo={setDraftInfo}
+        enable_save={isDirty}
       />
     </div>
   );
