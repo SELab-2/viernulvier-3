@@ -30,7 +30,7 @@ export async function getProductionsPaginated(
     params: {
       ...params,
       tags: params?.tags?.join(","),
-	  artists: params?.artists?.join("")
+	  artists: params?.artists?.join(",")
     },
   });
 

@@ -35,13 +35,18 @@ async def get_productions(
     db: Session = Depends(get_db),
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
-    tags: list[int] | None = Query(None),
-    artists: list[str] | None = Query(None),
+    tags: str | None = Query(None),
+    artists: str | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
     latest_at: datetime | None = Query(None),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
+    if tags:
+        tags = [int(t) for t in tags.split(",")]
+
+    if artists:
+        artists = artists.split(",")
     return get_productions_paginated(
         db,
         base_url,

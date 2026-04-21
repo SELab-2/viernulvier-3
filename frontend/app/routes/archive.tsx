@@ -165,7 +165,7 @@ export default function Archive() {
         production_name: debouncedSearch || undefined,
         earliest_at: dateFrom || undefined,
         latest_at: dateTo || undefined,
-		tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/")[-1])): undefined,
+		tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop())) : undefined,
         artists: selectedArtists.length > 0 ? selectedArtists : undefined,
       });
       setProductionList(result);
@@ -241,7 +241,7 @@ export default function Archive() {
 				production_name: debouncedSearch || undefined,
 				earliest_at: dateFrom || undefined,
 				latest_at: dateTo || undefined,
-				tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/")[-1])): undefined,
+				tags: selectedTags.length > 0 ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop())) : undefined,
 				artists: selectedArtists.length > 0 ? selectedArtists : undefined,
 			  }}
             />
