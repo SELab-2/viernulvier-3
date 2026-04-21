@@ -16,7 +16,8 @@
     "from": "From",
     "to": "To",
     "tags": "Tags",
-    "venues": "Venues",
+    "search_tags": "Search for more tags",
+    "halls": "Venues",
     "artists": "Artists",
     "search_artists": "Search for artists",
     "toggle_menu": "Filter & Search"

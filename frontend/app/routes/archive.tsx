@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { Tag } from "~/features/archive/types/tagTypes";
+import FilterSidebar from "../features/archive/components/FilterSidebar";
 import { Add } from "@mui/icons-material";
 
-import FilterSidebar from "~/shared/components/FilterSidebar";
 import {
   ArchiveSortOrder,
   ProductionTimeline,
@@ -138,8 +139,7 @@ export default function Archive() {
   const [dateTo, setDateTo] = useState(
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   );
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
 
   const toggleMobileFilters = () => {
@@ -175,8 +175,6 @@ export default function Archive() {
           setDateFrom={setDateFrom}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
-          selectedVenues={selectedVenues}
-          setSelectedVenues={setSelectedVenues}
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
