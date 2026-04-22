@@ -190,7 +190,7 @@ export function SimpleEditableField({
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
         <div
-          className={`backdrop-blur-md bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
+          className={`bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm backdrop-blur-md transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
         >
           {/* Header (like FilterCard) */}
           <div className="mb-1 flex items-center justify-between">
