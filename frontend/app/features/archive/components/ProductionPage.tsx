@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useBlocker } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
@@ -145,15 +145,29 @@ async function handleSave(
 
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
-    console.log("Saved");
 
     setIsEditing(false);
   } catch (err) {
-    console.error("Save failed:", err);
-    // later: toast / error UI
+    window.alert(`Save failed: ${err}`);
   } finally {
     setIsSaving(false);
   }
+}
+
+function useUnsavedChangesBlocker(when: boolean) {
+  const blocker = useBlocker(when);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+
+      if (confirmLeave) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
 }
 
 function BackToCollectionLink() {
@@ -494,11 +508,22 @@ export function ProductionPage({
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // State when editing, keeps track if something has changed
-  // (to disable)
+  // (to enable save button)
   const isModified = useMemo(
     () => isInfoModified(originalInfo, draftInfo),
     [originalInfo, draftInfo]
   );
+
+  // Prevent moving away from page when edit is modified (browser aways)
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isEditing && isModified) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isEditing, isModified]);
+  // And the same but for React links
+  useUnsavedChangesBlocker(isEditing && isModified);
 
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
