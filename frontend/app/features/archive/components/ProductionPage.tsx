@@ -307,51 +307,74 @@ function Events({ event_objects }: EventsProps) {
 }
 
 type EditButtonProps = {
+  production_id_url: string;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
   draftInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   enable_save: boolean;
 };
 
 function EditButton({
+  production_id_url,
   isEditing,
   setIsEditing,
   originalInfo,
   draftInfo,
   setDraftInfo,
+  setOriginalInfo,
   enable_save,
 }: EditButtonProps) {
-  // TODO: prettier CSS
+  const shared_css = `
+	shadow-lg
+	hover:bg-archive-control-hover
+	rounded-full
+	cursor-pointer
+	transition-colors
+	duration-150
+	text-archive-ink
+	inline-flex
+	px-6 py-3
+	font-semibold text-white
+  `;
   return (
     <>
       {!isEditing ? (
         <button
           id="edit-production-button"
           onClick={() => setIsEditing(true)}
-          className="bg-archive-accent fixed right-6 bottom-6 z-50 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-lg"
+          className={`${shared_css} bg-archive-accent fixed right-6 bottom-6 z-50`}
         >
           Edit
         </button>
       ) : (
         <div id="edit-actions" className="fixed right-6 bottom-6 z-50 flex gap-3">
           <button
+            id="cancel-edit-production-button"
             onClick={() => {
               setDraftInfo(originalInfo);
               setIsEditing(false);
             }}
-            className="rounded-full bg-gray-300 px-5 py-2 text-sm"
+            className={`${shared_css} bg-gray-300`}
           >
             Cancel
           </button>
 
           <button
+            id="save-edit-production-button"
             onClick={() => {
               console.log("Saving draft:", draftInfo);
-              setIsEditing(false);
+              handleSave(
+                production_id_url,
+                originalInfo,
+                draftInfo,
+                setOriginalInfo,
+                setIsEditing
+              );
             }}
-            className="bg-archive-accent rounded-full px-5 py-2 text-sm text-white"
+            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save}
           >
             Save
@@ -544,9 +567,11 @@ export function ProductionPage({
         />
       </main>
       <EditButton
+        production_id_url={production.id_url}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         originalInfo={originalInfo}
+        setOriginalInfo={setOriginalInfo}
         draftInfo={draftInfo}
         setDraftInfo={setDraftInfo}
         enable_save={isDirty}
