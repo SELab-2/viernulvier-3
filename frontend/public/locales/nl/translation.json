@@ -71,6 +71,9 @@
     "visualEvidence": "Foto's",
 
     "edit": {
+	  "edit": "Pas aan",
+	  "save": "Sla op",
+	  "cancel": "Annuleer",
       "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",

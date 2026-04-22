@@ -434,6 +434,7 @@ function EditButton({
   is_saving,
   _handleSave,
 }: EditButtonProps) {
+  const { t } = useTranslation();
   const shared_css = `
 	shadow-lg
 	hover:bg-archive-control-hover
@@ -454,7 +455,7 @@ function EditButton({
           onClick={() => setIsEditing(true)}
           className={`${shared_css} bg-archive-accent fixed right-6 bottom-6 z-50`}
         >
-          Edit
+		  {t("productionPage.edit.edit")}
         </button>
       ) : (
         <div id="edit-actions" className="fixed right-6 bottom-6 z-50 flex gap-3">
@@ -467,7 +468,7 @@ function EditButton({
             }}
             className={`${shared_css} bg-gray-300`}
           >
-            Cancel
+		  {t("productionPage.edit.cancel")}
           </button>
 
           <button
@@ -476,7 +477,7 @@ function EditButton({
             className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save || is_saving}
           >
-            {is_saving ? <Spinner /> : "Save"}
+            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
           </button>
         </div>
       )}
