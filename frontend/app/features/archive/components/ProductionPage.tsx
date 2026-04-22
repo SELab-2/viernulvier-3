@@ -190,16 +190,15 @@ export function SimpleEditableField({
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
         <div
-          className={`bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm backdrop-blur-md transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
+          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-4 backdrop-blur-md transition ${isDirty ? "border-l-10 border-archive-accent" : "border-archive-ink/5 border-archive-ink-dark/5 "} `}
         >
-          {/* Header (like FilterCard) */}
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
               {label}
             </h3>
 
             {isDirty && (
-              <span className="text-archive-accent text-[10px] tracking-widest uppercase opacity-80">
+              <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
                 modified
               </span>
             )}
@@ -486,7 +485,6 @@ export function ProductionPage({
 
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
-  // console.log("Reloading productionInfo for language: ", language);
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
     language
