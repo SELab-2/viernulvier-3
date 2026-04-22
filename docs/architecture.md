@@ -227,6 +227,11 @@ Naast de sync worker bestaat er ook een aparte CSV-importworker.
 - Ze draait alleen via het `csv`-profiel.
 - De worker leest lokale CSV-bestanden en zet die om naar production-, event-,
   hall- en tagrecords in dezelfde databank.
+- In de praktijk voer je deze worker best pas uit nadat de sync worker al een
+  initiële lading data in de databank heeft geplaatst, omdat de CSV-import voor
+  halls en tags eerst controleert of die records al bestaan. De sync worker
+  ondersteunt voorlopig zelf nog geen halls, waardoor die referentiedata waar
+  nodig nog apart voorbereid moet worden.
 - Dit is een eenmalige of ad-hoc importtool, geen langlevende runtime-service.
 
 ### 3.9 Certbot in productie
