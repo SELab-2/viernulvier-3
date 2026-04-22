@@ -12,6 +12,7 @@ import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventS
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "./EventCard";
 import { ProductionPageMediaGallery } from "./ProductionPageMediaGallery";
+import { updateProductionByUrl } from "../services/productionService";
 
 interface ProductionPageProps {
   production: Production;
@@ -95,6 +96,42 @@ function isInfoDirty(
     originalInfo.description !== draftInfo.description ||
     originalInfo.info !== draftInfo.info
   );
+}
+
+async function handleSave(
+  production_id_url: string,
+  originalInfo: ProductionInfo | null,
+  draftInfo: ProductionInfo | null,
+  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  if (!draftInfo || !originalInfo) return;
+
+  try {
+    await updateProductionByUrl(production_id_url, {
+      production_infos: [
+        {
+          language: draftInfo.language,
+          title: draftInfo.title,
+          supertitle: draftInfo.supertitle,
+          artist: draftInfo.artist,
+          tagline: draftInfo.tagline,
+          teaser: draftInfo.teaser,
+          description: draftInfo.description,
+          info: draftInfo.info,
+        },
+      ],
+    });
+
+    // sync local "source of truth"
+    setOriginalInfo(draftInfo);
+    console.log("Saved");
+
+    setIsEditing(false);
+  } catch (err) {
+    console.error("Save failed:", err);
+    // later: toast / error UI
+  }
 }
 
 function BackToCollectionLink() {
