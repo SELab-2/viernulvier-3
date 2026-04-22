@@ -185,6 +185,7 @@ export function SimpleEditableField({
   isDirty,
 }: SimpleEditableFieldProps) {
   const normal_view = <>{renderView(value)}</>;
+  const { t } = useTranslation();
 
   if (isEditing) {
     return (
@@ -199,7 +200,7 @@ export function SimpleEditableField({
 
             {isDirty && (
               <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
-                modified
+			    {t("productionPage.edit.modified")}
               </span>
             )}
           </div>
@@ -255,7 +256,7 @@ function ProductionHeader({
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
       <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
         <SimpleEditableField
-          label="Supertitle"
+          label={t("productionPage.edit.supertitle")}
           value={draftInfo?.supertitle ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.supertitle, draftInfo?.supertitle)}
@@ -277,7 +278,7 @@ function ProductionHeader({
           )}
         />
         <SimpleEditableField
-          label="Title"
+          label={t("productionPage.edit.title")}
           value={draftInfo?.title ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.title, draftInfo?.title)}
@@ -298,7 +299,7 @@ function ProductionHeader({
           )}
         />
         <SimpleEditableField
-          label="Artist"
+          label={t("productionPage.edit.artist")}
           value={draftInfo?.artist ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.artist, draftInfo?.artist)}
