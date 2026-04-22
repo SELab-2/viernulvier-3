@@ -101,23 +101,30 @@ describe("Archive", () => {
 
       // Before clicking show more
       expectEveryProductionVisible([mockProductions[0]]);
-      expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(
-        1,
-        expect.not.objectContaining({
-          cursor: expect.anything(),
-        })
-      );
+
+      expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1, {
+        artists: undefined,
+        earliest_at: "1970-01-01",
+        latest_at: "2026-04-22",
+        production_name: undefined,
+        sort_order: "Descending",
+        tag_ids: undefined,
+      });
 
       await user.click(screen.getByText("archive.show_more"));
 
       // After clicking show more
       expectEveryProductionVisible(mockProductions.slice(1));
 
-      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cursor: 123,
-        })
-      );
+      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
+        cursor: 123,
+        artists: undefined,
+        earliest_at: "1970-01-01",
+        latest_at: "2026-04-22",
+        sort_order: "Descending",
+        production_name: undefined,
+        tag_ids: undefined,
+      });
     });
   });
 
