@@ -170,7 +170,7 @@ export function ProductionCard({
   const title = getTextOrDefault(primaryInfo?.title, defaultCardValues.title);
   const supertitle = getOptionalText(primaryInfo?.supertitle);
   const artist = getOptionalText(primaryInfo?.artist);
-  const tagline = getOptionalText(primaryInfo?.tagline);
+  const tagline = getOptionalText(primaryInfo?.tagline) ?? "";
   const dateLabel = getTextOrDefault(
     getProductionStartLabel(production, preferredLanguage),
     defaultCardValues.dateLabel
@@ -236,7 +236,7 @@ export function ProductionCard({
         <CardMedia
           className="production-card-image"
           component="img"
-          height="268"
+          height="236"
           image={imageUrl}
           alt={title}
           sx={{
@@ -276,101 +276,107 @@ export function ProductionCard({
           py: 1.5,
           display: "flex",
           flexDirection: "column",
+          height: "100%",
           transform: "translateY(0)",
           transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
           willChange: "transform",
         }}
       >
-        <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
-          <Typography
-            className="production-card-text"
-            sx={{
-              color: CARD_COLORS.accent,
-              fontSize: "var(--text-archive-meta)",
-              letterSpacing: "var(--tracking-archive-meta)",
-              fontWeight: "var(--weight-archive-semibold)",
-              textTransform: "uppercase",
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              gap: { xs: 0, sm: 0.5 },
-            }}
-          >
-            {dateParts.length === 1 ? (
-              dateParts[0]
-            ) : (
-              <>
-                <span className="text-center">{dateParts[0]}</span>
-
-                <span className="block min-w-4 text-center"> - </span>
-
-                <span className="text-center">{dateParts[1]}</span>
-              </>
-            )}
-          </Typography>
-
-          <Typography
-            className="production-card-text"
-            sx={{
-              color: colorWithOpacity(CARD_COLORS.accent, 0.92),
-              fontSize: "var(--text-archive-meta)",
-              letterSpacing: "var(--tracking-archive-label)",
-              textTransform: "uppercase",
-            }}
-          >
-            {venues && venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
-          </Typography>
-        </Stack>
-
-        <Box
-          sx={{
-            mb: 1.2,
-            minHeight: { xs: 188, md: 204 },
-          }}
-        >
-          <Typography
-            className="production-card-text"
-            component="h3"
-            sx={{
-              mb: 0.7,
-              pb: "0.09em",
-              fontFamily: "var(--font-serif)",
-              fontSize: "var(--text-archive-title-lg)",
-              lineHeight: "var(--leading-archive-title)",
-              color: CARD_COLORS.textPrimary,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {title}
-          </Typography>
-
-          {artist ? (
+        <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
             <Typography
-              className="production-card-text archive-artist-chic"
+              className="production-card-text"
               sx={{
-                mb: 0.5,
-                color: colorWithOpacity(CARD_COLORS.textSecondary, 0.95),
-                fontSize: "var(--text-archive-body)",
+                color: CARD_COLORS.accent,
+                fontSize: "var(--text-archive-meta)",
+                letterSpacing: "var(--tracking-archive-meta)",
+                fontWeight: "var(--weight-archive-semibold)",
+                textTransform: "uppercase",
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "center" },
+                gap: { xs: 0, sm: 0.5 },
+              }}
+            >
+              {dateParts.length === 1 ? (
+                dateParts[0]
+              ) : (
+                <>
+                  <span className="text-center">{dateParts[0]}</span>
+
+                  <span className="block min-w-4 text-center"> - </span>
+
+                  <span className="text-center">{dateParts[1]}</span>
+                </>
+              )}
+            </Typography>
+
+            <Typography
+              className="production-card-text"
+              sx={{
+                color: colorWithOpacity(CARD_COLORS.accent, 0.92),
+                fontSize: "var(--text-archive-meta)",
+                letterSpacing: "var(--tracking-archive-label)",
+                textTransform: "uppercase",
+              }}
+            >
+              {venues &&
+                venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
+            </Typography>
+          </Stack>
+
+          <Box
+            sx={{
+              mb: 1.2,
+              minHeight: { xs: 168, md: 184 },
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+            }}
+          >
+            <Typography
+              className="production-card-text"
+              component="h3"
+              sx={{
+                mb: 0.7,
+                pb: "0.09em",
+                fontFamily: "var(--font-serif)",
+                fontSize: "var(--text-archive-title-lg)",
+                lineHeight: "var(--leading-archive-title)",
+                color: CARD_COLORS.textPrimary,
                 display: "-webkit-box",
-                WebkitLineClamp: 1,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
               }}
             >
-              {artist}
+              {title}
             </Typography>
-          ) : null}
 
-          {tagline ? (
+            {artist ? (
+              <Typography
+                className="production-card-text archive-artist-chic"
+                sx={{
+                  mb: 0.5,
+                  color: colorWithOpacity(CARD_COLORS.textSecondary, 0.95),
+                  fontSize: "var(--text-archive-body)",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {artist}
+              </Typography>
+            ) : null}
+
             <Box
               sx={{
                 minHeight:
-                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 6)",
+                  "calc(var(--text-archive-body) * var(--leading-archive-body) * 4)",
                 display: "flex",
                 alignItems: "center",
+                flexGrow: 1,
               }}
             >
               <Typography
@@ -381,16 +387,16 @@ export function ProductionCard({
                   fontSize: "var(--text-archive-body)",
                   lineHeight: "var(--leading-archive-body)",
                   display: "-webkit-box",
-                  WebkitLineClamp: artist ? 5 : 6,
+                  WebkitLineClamp: artist ? 4 : 5,
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
                   overflowWrap: "anywhere",
                 }}
               >
-                {tagline}
+                {tagline || ""}
               </Typography>
             </Box>
-          ) : null}
+          </Box>
         </Box>
 
         <Divider
