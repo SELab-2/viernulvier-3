@@ -121,10 +121,12 @@ async function handleSave(
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   if (!draftInfo || !originalInfo) return;
 
+  setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
       production_infos: [
@@ -149,6 +151,8 @@ async function handleSave(
   } catch (err) {
     console.error("Save failed:", err);
     // later: toast / error UI
+  } finally {
+    setIsSaving(false);
   }
 }
 
@@ -385,6 +389,10 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
+const Spinner = () => (
+  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+);
+
 type EditButtonProps = {
   production_id_url: string;
   isEditing: boolean;
@@ -394,6 +402,8 @@ type EditButtonProps = {
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   enable_save: boolean;
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
+  is_saving: boolean;
 };
 
 function EditButton({
@@ -405,6 +415,8 @@ function EditButton({
   setDraftInfo,
   setOriginalInfo,
   enable_save,
+  setIsSaving,
+  is_saving,
 }: EditButtonProps) {
   const shared_css = `
 	shadow-lg
@@ -450,13 +462,14 @@ function EditButton({
                 originalInfo,
                 draftInfo,
                 setOriginalInfo,
-                setIsEditing
+                setIsEditing,
+                setIsSaving
               );
             }}
-            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent disabled:cursor-not-allowed disabled:opacity-40`}
-            disabled={!enable_save}
+            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
+            disabled={!enable_save || is_saving}
           >
-            Save
+            {is_saving ? <Spinner /> : "Save"}
           </button>
         </div>
       )}
@@ -478,6 +491,7 @@ export function ProductionPage({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(null);
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const isDirty = useMemo(
     () => isInfoDirty(originalInfo, draftInfo),
@@ -683,6 +697,7 @@ export function ProductionPage({
         draftInfo={draftInfo}
         setDraftInfo={setDraftInfo}
         enable_save={isDirty}
+        is_saving={isSaving}
       />
     </div>
   );
