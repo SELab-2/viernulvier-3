@@ -47,9 +47,9 @@ async def get_productions(
             tag_ids = [int(t) for t in tag_ids.split(",")]
         except ValueError:
             raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                    detail="tag_ids must be a comma-separated list of integers."
-                    )
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="tag_ids must be a comma-separated list of integers.",
+            )
 
     if artists:
         artists = artists.split(",")
