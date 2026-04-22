@@ -82,7 +82,7 @@ def test_get_productions_with_tag(
     tag_id2 = many_productions[1].tags[0].id
 
     # Only asking tag_id1 gives 5 productions.
-    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tags": [tag_id1]})
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tag_ids": tag_id1})
     assert response.status_code == 200
     data = response.json()
     assert len(data["productions"]) == 5
@@ -100,7 +100,7 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
     # Only asking tag_id2 gives 5 productions.
-    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tags": [tag_id2]})
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tag_ids": tag_id2})
     assert response.status_code == 200
 
     data = response.json()
@@ -125,9 +125,7 @@ def test_get_productions_with_artist(
 ):
     # 5 productions by Steve, 5 by Bob, 0 by Alice.
     # Artist need to be conform in each production info.
-    response = client.get(
-        BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Steve"]}
-    )
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": "Steve"})
     assert response.status_code == 200
     data = response.json()
     assert len(data["productions"]) == 5
@@ -143,7 +141,7 @@ def test_get_productions_with_artist(
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
 
-    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Bob"]})
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": "Bob"})
     assert response.status_code == 200
 
     data = response.json()
@@ -161,7 +159,7 @@ def test_get_productions_with_artist(
 
     # Bob and Steve together gives 10 productions, Alice gives 0, but does not affect the result.
     response = client.get(
-        BASE_PROD_URL + "/", params={"limit": 10, "artists": ["Bob", "Steve", "Alice"]}
+        BASE_PROD_URL + "/", params={"limit": 10, "artists": "Bob,Steve,Alice"}
     )
     assert response.status_code == 200
 
@@ -473,7 +471,6 @@ def test_patch_production_tags_failure(
         json={"tag_id_urls": [f"{BASE_TAG_URL}/{tag_id}" for tag_id in (1, 2, 124)]},
         headers=headers,
     )
-    print(response.json())
 
     assert response.status_code == 400  # bad request: at least one invalid tag
 
@@ -573,7 +570,6 @@ def test_create_production_with_tags_failure(
         headers=headers,
     )
 
-    print(response.json())
     assert response.status_code == 400  # bad request: at least one invalid tag
 
 
@@ -678,7 +674,6 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
     assert production_url is not None
     assert BASE_PROD_URL in production_url
 
-    print(prod_data)
     events_urls = prod_data.get("event_id_urls", [])
     assert len(events_urls) == 2
     for event_url, event in zip(events_urls, [event1, event2]):

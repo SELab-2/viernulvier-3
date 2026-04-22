@@ -53,6 +53,8 @@ vi.mock("react-i18next", async () => {
           "users.accessDenied.title": "I18N_Users_Access_Denied_Title",
           "users.accessDenied.description": "I18N_Users_Access_Denied_Description",
           "users.loading": "I18N_Users_Loading",
+          "users.actions.add": "I18N_Users_Add",
+          "users.actions.refresh": "I18N_Users_Refresh",
           "history.heroAlt": "I18N_History_Hero_Alt",
           "history.entries": [
             {

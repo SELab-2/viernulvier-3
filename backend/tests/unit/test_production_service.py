@@ -1,3 +1,5 @@
+from typing import List
+from src.models.production import Production
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
@@ -25,49 +27,63 @@ BASE_URL = "http://test"
 
 
 # Limited amount of productions: only one page.
-def test_get_productions_paginated_limited(db_session, productions_limited):
+def test_get_productions_paginated_limited(
+    db_session, productions_limited: List[Production]
+):
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2
-    assert (
-        result.productions[0].id_url
-        == f"{BASE_URL}/productions/{productions_limited[0].id}"
-    )
-    assert len(result.productions[0].production_infos) == 2
-    assert (
-        result.productions[1].id_url
-        == f"{BASE_URL}/productions/{productions_limited[1].id}"
-    )
-    assert len(result.productions[1].production_infos) == 1
+
+    # Build lookup by id
+    result_by_id = {p.id_url: p for p in result.productions}
+    for expected in productions_limited:
+        prod_url = f"{BASE_URL}/productions/{expected.id}"
+        prod = result_by_id[prod_url]
+        assert prod.id_url == prod_url
+        assert len(prod.production_infos) == len(expected.info)
 
 
 # More productions than limit: multiple pages.
 def test_get_productions_paginated(db_session, many_productions):
-    result = get_productions_paginated(db_session, BASE_URL, limit=5)
+    sort_order = "Ascending"
+
+    # Keep a set of seen ids to keep track of duplicates
+    seen_ids = set()
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=5, sort_order=sort_order
+    )
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
 
-    for i in range(5):
-        assert (
-            result.productions[i].id_url
-            == f"{BASE_URL}/productions/{many_productions[i].id}"
-        )
-        assert len(result.productions[i].production_infos) == 2
+    # Check if each returned production is valid without relying on order
+    for prod in result.productions:
+        prod_id = int(prod.id_url.split("/")[-1])
+
+        # Ensure no duplicates
+        assert prod_id not in seen_ids
+        seen_ids.add(prod_id)
+
+        # Check if production comes from our dataset
+        assert any(prod_id == expected_prod.id for expected_prod in many_productions)
+
+        assert len(prod.production_infos) == 2
 
     next_cursor = result.pagination.next_cursor
     result = get_productions_paginated(
-        db_session, BASE_URL, cursor=next_cursor, limit=5
+        db_session, BASE_URL, cursor=next_cursor, limit=5, sort_order=sort_order
     )
+
     assert len(result.productions) == 5
+    for prod in result.productions:
+        prod_id = int(prod.id_url.split("/")[-1])
+        assert prod_id not in seen_ids
+        seen_ids.add(prod_id)
+        assert any(prod_id == expected_prod.id for expected_prod in many_productions)
+        assert len(prod.production_infos) == 2
+
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
-
-    for i in range(5, 10):
-        assert (
-            result.productions[i - 5].id_url
-            == f"{BASE_URL}/productions/{many_productions[i].id}"
-        )
-        assert len(result.productions[i - 5].production_infos) == 2
 
 
 # Only get productions with a certain tag (in total 10 productions).
@@ -581,13 +597,13 @@ def test_delete_production(db_session, productions_limited):
 
 # Delete a not existing production (does nothing).
 def test_delete_production_invalid(db_session, productions_limited):
-    result = get_productions_paginated(db_session, BASE_URL)
-    assert len(result.productions) == 2
+    original_result = get_productions_paginated(db_session, BASE_URL)
+    assert len(original_result.productions) == 2
 
     # Give a non-existing production id.
     with pytest.raises(NotFoundError):
         delete_production_by_id(db_session, 4)
 
-    result = get_productions_paginated(db_session, BASE_URL)
-    assert len(result.productions) == 2
-    assert result.productions[0].performer_type == "theater"
+    new_result = get_productions_paginated(db_session, BASE_URL)
+    assert len(new_result.productions) == 2
+    assert original_result.productions == new_result.productions

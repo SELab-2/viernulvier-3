@@ -125,10 +125,16 @@ def productions_limited(db_session):
     prod1 = Production(
         performer_type="theater",
         attendance_mode="offline",
+        earliest_at=datetime.fromtimestamp(123123),
+        latest_at=datetime.fromtimestamp(223123),
         tags=[tag1, tag3],
     )
     prod2 = Production(
-        performer_type="concert", attendance_mode="online", tags=[tag2, tag3, tag4]
+        performer_type="concert",
+        attendance_mode="online",
+        tags=[tag2, tag3, tag4],
+        earliest_at=datetime.fromtimestamp(423123),
+        latest_at=datetime.fromtimestamp(823123),
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
@@ -146,8 +152,14 @@ def productions_limited(db_session):
     db_session.add_all([info1_nl, info1_en, info2_nl])
     db_session.commit()
 
-    events1 = [Event(production_id=prod1.id) for _ in range(2)]
-    events2 = [Event(production_id=prod2.id) for _ in range(4)]
+    events1 = [
+        Event(production_id=prod1.id, starts_at=datetime.fromtimestamp(123123))
+        for _ in range(2)
+    ]
+    events2 = [
+        Event(production_id=prod2.id, starts_at=datetime.fromtimestamp(223123))
+        for _ in range(4)
+    ]
 
     db_session.add_all(events1 + events2)
     db_session.commit()
@@ -182,8 +194,6 @@ def many_productions(db_session):
             performer_type="theater",
             attendance_mode="offline",
             tags=add_tags,
-            earliest_at=datetime(2026, 3, 1 + i % 2),
-            latest_at=datetime(2026, 3, 2 + i % 5),
         )
         db_session.add(prod)
         db_session.flush()
@@ -199,6 +209,12 @@ def many_productions(db_session):
             language=Languages.ENGLISH,
             title=f"prod{i}_en",
             artist=artist,
+        )
+        db_session.add_all(
+            [
+                Event(production_id=prod.id, starts_at=datetime(2026, 3, 1 + i % 2)),
+                Event(production_id=prod.id, starts_at=datetime(2026, 3, 2 + i % 5)),
+            ]
         )
         db_session.add_all([info_nl, info_en])
         productions.append(prod)

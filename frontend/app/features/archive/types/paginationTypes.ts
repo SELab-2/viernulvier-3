@@ -1,9 +1,9 @@
 export interface PaginationRequest {
-  cursor?: number;
+  cursor?: string | number;
   limit?: number;
 }
 
 export interface PaginationResponse {
-  next_cursor?: number;
+  next_cursor?: string | number;
   has_more: boolean;
 }

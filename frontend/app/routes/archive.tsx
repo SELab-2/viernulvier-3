@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "../features/archive/components/FilterSidebar";
@@ -10,10 +10,14 @@ import {
   ProductionTimeline,
 } from "~/features/archive/components/ProductionTimeline";
 import { Divider } from "@mui/material";
-import { useAsyncFetch } from "~/shared/hooks/useAsyncFetch";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import { Protected } from "~/features/auth";
+
+const archiveSortOrderToBackendSortOrder: Record<ArchiveSortOrder, string> = {
+  [ArchiveSortOrder.NewestFirst]: "Descending",
+  [ArchiveSortOrder.OldestFirst]: "Ascending",
+};
 
 function SortOrderSelection({
   sortOrder,
@@ -99,15 +103,27 @@ function MobileToggleButton({ onClick }: { onClick?: () => void }) {
 function ShowMoreButton({
   productionList,
   setProductionList,
+  sortOrder,
+  filters,
 }: {
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
+  sortOrder: ArchiveSortOrder;
+  filters: {
+    production_name?: string;
+    earliest_at?: string;
+    latest_at?: string;
+    tag_ids?: string[];
+    artists?: string[];
+  };
 }) {
   const { t } = useTranslation();
 
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
+      sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+      ...filters,
     });
 
     setProductionList({
@@ -142,18 +158,39 @@ export default function Archive() {
   );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
+  const [productionList, setProductionList] = useState<ProductionList | null>(null);
+  // Debounce searchQuery so we don't fire on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Re-fetch whenever any filter changes
+  useEffect(() => {
+    async function fetchProductions() {
+      const result = await getProductionsPaginated({
+        production_name: debouncedSearch || undefined,
+        earliest_at: dateFrom || undefined,
+        latest_at: dateTo || undefined,
+        sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+        tag_ids:
+          selectedTags.length > 0
+            ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
+            : undefined,
+        artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+      });
+      setProductionList(result);
+    }
+    fetchProductions();
+  }, [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists, sortOrder]);
+  const productions = productionList?.productions ?? [];
 
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
   };
 
   const { t } = useTranslation();
-
-  const { data: productionList, setData: setProductionList } =
-    useAsyncFetch<ProductionList>(
-      useCallback(async () => await getProductionsPaginated(), [])
-    );
-  const productions = productionList?.productions ?? [];
 
   return (
     <div className="mx-6 md:mx-10">
@@ -211,6 +248,17 @@ export default function Archive() {
             <ShowMoreButton
               productionList={productionList}
               setProductionList={setProductionList}
+              sortOrder={sortOrder}
+              filters={{
+                production_name: debouncedSearch || undefined,
+                earliest_at: dateFrom || undefined,
+                latest_at: dateTo || undefined,
+                tag_ids:
+                  selectedTags.length > 0
+                    ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
+                    : undefined,
+                artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+              }}
             />
           )}
         </div>

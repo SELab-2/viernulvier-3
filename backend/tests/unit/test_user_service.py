@@ -45,6 +45,7 @@ def test_create_user_hashes_password_and_assigns_roles(db_session):
     )
 
     db_user = user_service.get_user(db_session, "alice")
+    assert created.id == db_user.id
     assert created.username == "alice"
     assert created.roles == ["admin"]
     assert created.permissions == ["users:read"]
@@ -87,11 +88,9 @@ def test_replace_user_can_change_username_password_and_roles(db_session):
         base_url="",
     )
 
-    user_id = created.id_url.rstrip("/").split("/")[-1]
-
     updated = user_service.replace_user(
         db_session,
-        user_id,
+        created.id,
         UserReplace(username="alice-updated", password="new-secret", roles=["editor"]),
         base_url="",
     )
@@ -114,11 +113,9 @@ def test_patch_user_updates_only_provided_fields(db_session):
         base_url="",
     )
 
-    user_id = created.id_url.rstrip("/").split("/")[-1]
-
     updated = user_service.patch_user(
         db_session,
-        user_id,
+        created.id,
         UserPatch(username="alice-renamed", roles=["editor"]),
         base_url="",
     )
@@ -153,11 +150,9 @@ def test_patch_user_invalid_role(db_session):
         base_url="",
     )
 
-    user_id = created.id_url.rstrip("/").split("/")[-1]
-
     with pytest.raises(HTTPException) as excinfo:
         user_service.patch_user(
-            db_session, user_id, UserPatch(roles=["missing"]), base_url=""
+            db_session, created.id, UserPatch(roles=["missing"]), base_url=""
         )
 
     assert excinfo.value.status_code == 400
