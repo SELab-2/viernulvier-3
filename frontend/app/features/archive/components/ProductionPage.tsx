@@ -171,24 +171,29 @@ export function SimpleEditableField({
   const normal_view = <>{renderView(value)}</>;
 
   if (isEditing) {
-    const border_style = isDirty
-      ? "border-l-8 border-l-archive-accent"
-      : "border-archive";
-
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
-        <div className="relative mt-4">
-          {/* Label sitting in the border */}
-          <span
-            className={`bg-archive-paper absolute -top-2 left-3 px-1 text-xs tracking-wide uppercase ${isDirty ? "text-archive-accent" : "text-white/60"} `}
-          >
-            {label}
-          </span>
+        <div
+          className={`bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
+        >
+          {/* Header (like FilterCard) */}
+          <div className="mb-1 flex items-center justify-between">
+            <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
+              {label}
+            </h3>
 
+            {isDirty && (
+              <span className="text-archive-accent text-[10px] tracking-widest uppercase opacity-80">
+                changed
+              </span>
+            )}
+          </div>
+
+          {/* Input */}
           <input
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className={`bg-archive-surface w-full rounded-lg border-2 px-3 py-2 text-white transition ${border_style} focus:ring-archive-accent/40 focus:border-archive-accent focus:ring-2 focus:outline-none`}
+            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none`}
           />
         </div>
       </Protected>
@@ -618,6 +623,30 @@ export function ProductionPage({
             </section>
           </article>
         </section>
+
+        {productionInfo.teaser ? (
+          <p>
+            <div dangerouslySetInnerHTML={{ __html: productionInfo.teaser }} />
+          </p>
+        ) : (
+          <p>No teaser</p>
+        )}
+
+        {productionInfo.description ? (
+          <p>
+            <div dangerouslySetInnerHTML={{ __html: productionInfo.description }} />
+          </p>
+        ) : (
+          <p>No description</p>
+        )}
+
+        {productionInfo.info ? (
+          <p>
+            <div dangerouslySetInnerHTML={{ __html: productionInfo.info }} />
+          </p>
+        ) : (
+          <p>No info</p>
+        )}
 
         <ProductionPageMediaGallery
           production_id_url={production.id_url}
