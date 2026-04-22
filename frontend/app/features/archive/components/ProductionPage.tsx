@@ -42,7 +42,9 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
-function getSanitizedHtmlOrUndefined(value: string | null | undefined): string | undefined {
+function getSanitizedHtmlOrUndefined(
+  value: string | null | undefined
+): string | undefined {
   if (typeof value !== "string") {
     return undefined;
   }

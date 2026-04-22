@@ -103,8 +103,8 @@ vi.mock("react-i18next", async () => {
           "productionPage.fallback.noDescription":
             "I18N_Production_Fallback_NoDescription",
           "productionPage.fallback.noEvents": "I18N_Production_Fallback_NoEvents",
-           "productionPage.fallback.noTeaser": "I18N_Production_Fallback_NoTeaser",
-           "productionPage.fallback.noInfo": "I18N_Production_Fallback_NoInfo",
+          "productionPage.fallback.noTeaser": "I18N_Production_Fallback_NoTeaser",
+          "productionPage.fallback.noInfo": "I18N_Production_Fallback_NoInfo",
           "productionPage.fallback.dateUnknown": "I18N_Production_Fallback_DateUnknown",
           "productionPage.fallback.locationUnknown":
             "I18N_Production_Fallback_LocationUnknown",
