@@ -14,7 +14,7 @@ from src.services.production import (
     update_production_by_id,
     delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status, HTTPException
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
@@ -35,15 +35,21 @@ async def get_productions(
     db: Session = Depends(get_db),
     cursor: int | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
-    tags: str | None = Query(None),
+    tag_ids: str | None = Query(None),
     artists: str | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
     latest_at: datetime | None = Query(None),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
-    if tags:
-        tags = [int(t) for t in tags.split(",")]
+    if tag_ids:
+        try:
+            tag_ids = [int(t) for t in tag_ids.split(",")]
+        except ValueError:
+            raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="tag_ids must be a comma-separated list of integers."
+                    )
 
     if artists:
         artists = artists.split(",")
@@ -52,7 +58,7 @@ async def get_productions(
         base_url,
         cursor,
         limit,
-        tags=tags,
+        tags=tag_ids,
         artists=artists,
         production_name=production_name,
         earliest_at=earliest_at,

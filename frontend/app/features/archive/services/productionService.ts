@@ -17,7 +17,7 @@ const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getProductionsPaginated(
   params?: PaginationRequest & {
-    tags?: number[];
+    tag_ids?: string[];
     artists?: string[];
     production_name?: string;
     earliest_at?: string;
@@ -29,7 +29,7 @@ export async function getProductionsPaginated(
   const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions`, {
     params: {
       ...params,
-      tags: params?.tags?.join(","),
+      tag_ids: params?.tag_ids?.join(","),
       artists: params?.artists?.join(","),
     },
   });

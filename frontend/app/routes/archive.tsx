@@ -105,7 +105,7 @@ function ShowMoreButton({
     production_name?: string;
     earliest_at?: string;
     latest_at?: string;
-    tags?: number[];
+    tag_ids?: string[];
     artists?: string[];
   };
 }) {
@@ -164,9 +164,9 @@ export default function Archive() {
         production_name: debouncedSearch || undefined,
         earliest_at: dateFrom || undefined,
         latest_at: dateTo || undefined,
-        tags:
+        tag_ids:
           selectedTags.length > 0
-            ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop()))
+            ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
             : undefined,
         artists: selectedArtists.length > 0 ? selectedArtists : undefined,
       });
@@ -243,9 +243,9 @@ export default function Archive() {
                 production_name: debouncedSearch || undefined,
                 earliest_at: dateFrom || undefined,
                 latest_at: dateTo || undefined,
-                tags:
+                tag_ids:
                   selectedTags.length > 0
-                    ? selectedTags.map((tag) => Number(tag.id_url.split("/").pop()))
+                    ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
                     : undefined,
                 artists: selectedArtists.length > 0 ? selectedArtists : undefined,
               }}
