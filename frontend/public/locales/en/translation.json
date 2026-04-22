@@ -72,12 +72,12 @@
 
     "visualEvidence": "Photos",
 
-	"edit": {
-		"modified": "Modified",
-		"supertitle": "Supertitle",
-		"title": "Title",
-		"artist": "Artist"
-	}
+    "edit": {
+      "modified": "Modified",
+      "supertitle": "Supertitle",
+      "title": "Title",
+      "artist": "Artist"
+    }
   },
 
   "home": {

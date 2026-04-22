@@ -70,12 +70,12 @@
     "noPrice": "Geen prijs beschikbaar",
     "visualEvidence": "Foto's",
 
-	"edit": {
-		"modified": "Aangepast",
-		"supertitle": "Supertitel",
-		"title": "Titel",
-		"artist": "Artiest"
-	}
+    "edit": {
+      "modified": "Aangepast",
+      "supertitle": "Supertitel",
+      "title": "Titel",
+      "artist": "Artiest"
+    }
   },
 
   "home": {
