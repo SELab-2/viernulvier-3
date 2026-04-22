@@ -1,6 +1,6 @@
 # ADR-002: Keuze Architectuur: Vier-Container-Opzet
 
-**Status:** Accepted **Datum:** 2026-02-14
+**Status:** Superseded by ADR-014 **Datum:** 2026-02-14
 
 ## Context
 
@@ -39,5 +39,6 @@ image deelt met de backend.
 - De `docker-compose.yml` orkestreert alle containers met expliciete
   `depends_on`-relaties.
 - Elke container heeft een eigen `Dockerfile` en wordt afzonderlijk gebouwd.
-- Toekomstige wijzigingen aan de containerindeling moeten worden vastgelegd in
-  een nieuwe ADR of door de status te wijzigen naar `Superseded`.
+- Deze beslissing is later uitgebreid voor object storage en extra
+  worker-profielen; zie ADR-014 voor de huidige runtime-topologie.
+
