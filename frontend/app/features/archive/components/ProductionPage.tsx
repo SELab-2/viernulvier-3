@@ -155,15 +155,7 @@ async function handleSave(
 }
 
 function useUnsavedChangesBlocker(when: boolean) {
-  let blocker: ReturnType<typeof useBlocker> | null = null;
-
-  try {
-    blocker = useBlocker(when);
-  } catch {
-    // When this feature is not available, just ignore it.
-    // Handy for our tests
-    return;
-  }
+  const blocker = useBlocker(when);
 
   useEffect(() => {
     if (blocker.state === "blocked") {
@@ -490,6 +482,13 @@ export function ProductionPage({
   preferredLanguage = "nl",
 }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
+
+  const language = i18n.resolvedLanguage ?? preferredLanguage;
+  const productionInfo = getProductionInfoByLanguage(
+    production.production_infos,
+    language
+  );
+
   const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
@@ -497,8 +496,12 @@ export function ProductionPage({
 
   // States for editing the production info shown
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(null);
-  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(null);
+  const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(
+    productionInfo
+  );
+  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
+    ...productionInfo!,
+  });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const _handleSave = () =>
@@ -528,21 +531,6 @@ export function ProductionPage({
   }, [isEditing, isModified]);
   // And the same but for React links
   useUnsavedChangesBlocker(isEditing && isModified);
-
-  const language = i18n.resolvedLanguage ?? preferredLanguage;
-
-  const productionInfo = getProductionInfoByLanguage(
-    production.production_infos,
-    language
-  );
-
-  // Initialize edit states
-  useEffect(() => {
-    if (!isEditing) {
-      setOriginalInfo(productionInfo);
-      setDraftInfo(productionInfo);
-    }
-  }, [productionInfo]);
 
   const title = getTextOrDefault(
     productionInfo?.title,

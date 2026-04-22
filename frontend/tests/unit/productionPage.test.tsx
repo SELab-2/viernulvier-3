@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("~/features/archive/services/eventService", () => ({
@@ -24,16 +24,21 @@ import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
 
 function renderPage(production: Production) {
+  const router = createMemoryRouter(
+    [
+      {
+        path: "/:lang/productions/:productionId",
+        element: <ProductionPage production={production} />,
+      },
+    ],
+    {
+      initialEntries: ["/nl/productions/1"],
+    }
+  );
+
   return render(
     <AuthSessionProvider>
-      <MemoryRouter initialEntries={["/nl/productions/1"]}>
-        <Routes>
-          <Route
-            path="/:lang/productions/:productionId"
-            element={<ProductionPage production={production} />}
-          />
-        </Routes>
-      </MemoryRouter>
+      <RouterProvider router={router} />
     </AuthSessionProvider>
   );
 }
