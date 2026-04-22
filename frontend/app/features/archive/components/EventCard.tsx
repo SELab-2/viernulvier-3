@@ -36,18 +36,12 @@ function formatEventDateTimeRange(
   const startTimeLabel = formatEventTime(startDate);
 
   if (!endsAt) {
-    return {
-      dateLabel,
-      timeLabel: startTimeLabel,
-    };
+    return { dateLabel, timeLabel: startTimeLabel };
   }
 
   const endDate = new Date(endsAt);
   if (Number.isNaN(endDate.getTime())) {
-    return {
-      dateLabel,
-      timeLabel: startTimeLabel,
-    };
+    return { dateLabel, timeLabel: startTimeLabel };
   }
 
   return {
@@ -65,12 +59,74 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
+function formatPrices(prices: Price[], language: string, fallback: string): string {
+  if (prices.length === 0) {
+    return fallback;
+  }
+
+  const formatted = prices
+    .map((price) =>
+      typeof price.amount === "number"
+        ? new Intl.NumberFormat(language, {
+            style: "currency",
+            currency: "EUR",
+          }).format(price.amount)
+        : undefined
+    )
+    .filter((amount): amount is string => typeof amount === "string" && amount.length > 0)
+    .join(", ");
+
+  return formatted || fallback;
+}
+
+type EventCardDetailProps = {
+  label: string;
+  value: string;
+};
+
+function EventCardDetail({ label, value }: EventCardDetailProps) {
+  return (
+    <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
+      <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">{label}</dt>
+      <dd className="mt-1 font-medium opacity-95">{value}</dd>
+    </div>
+  );
+}
+
+type EventCardSummaryProps = {
+  dateLabel: string;
+  locationLabel: string;
+  dateText: string;
+  locationText: string;
+};
+
+function EventCardSummary({ dateLabel, locationLabel, dateText, locationText }: EventCardSummaryProps) {
+  return (
+    <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
+      <div className="min-w-0">
+        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">{dateLabel}</p>
+        <p className="truncate text-sm font-semibold opacity-95 md:text-base">{dateText}</p>
+      </div>
+
+      <div className="min-w-0">
+        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">{locationLabel}</p>
+        <p className="truncate text-sm font-semibold opacity-95 md:text-base">{locationText}</p>
+      </div>
+
+      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
+        Meer
+      </span>
+    </summary>
+  );
+}
+
 type EventCardProps = {
   event: EventWithResolvedRelations;
 };
 
 export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
+
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
   const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
   const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
@@ -78,66 +134,22 @@ export function EventCard({ event }: EventCardProps) {
     event.resolvedHall?.name ?? event.hall?.name,
     t("productionPage.fallback.locationUnknown")
   );
-  const eventPrice =
-    event.resolvedPrices.length > 0
-      ? event.resolvedPrices
-          .map((price) =>
-            typeof price.amount === "number"
-              ? new Intl.NumberFormat(i18n.language, {
-                  style: "currency",
-                  currency: "EUR",
-                }).format(price.amount)
-              : undefined
-          )
-          .filter(
-            (amount): amount is string =>
-              typeof amount === "string" && amount.length > 0
-          )
-          .join(", ") || t("productionPage.noPrice")
-      : t("productionPage.noPrice");
+  const eventPrice = formatPrices(event.resolvedPrices, i18n.language, t("productionPage.noPrice"));
 
   return (
     <li key={event.id_url}>
       <details className="bg-archive-surface group rounded-xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] transition open:border-[color:color-mix(in_srgb,var(--archive-accent)_35%,transparent)]">
-        <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
-          <div className="min-w-0">
-            <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
-              {t("productionPage.dateLabel")}
-            </p>
-            <p className="truncate text-sm font-semibold opacity-95 md:text-base">
-              {eventDate}
-            </p>
-          </div>
-
-          <div className="min-w-0">
-            <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
-              {t("productionPage.placeLabel")}
-            </p>
-            <p className="truncate text-sm font-semibold opacity-95 md:text-base">
-              {eventLocation}
-            </p>
-          </div>
-
-          <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
-            Meer
-          </span>
-        </summary>
+        <EventCardSummary
+          dateLabel={t("productionPage.dateLabel")}
+          locationLabel={t("productionPage.placeLabel")}
+          dateText={eventDate}
+          locationText={eventLocation}
+        />
 
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
           <div className="grid gap-3 text-sm sm:grid-cols-2">
-            <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
-              <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-                {t("productionPage.timeLabel")}
-              </dt>
-              <dd className="mt-1 font-medium opacity-95">{eventTime}</dd>
-            </div>
-
-            <div className="bg-archive-control rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-3">
-              <dt className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-                {t("productionPage.priceLabel")}
-              </dt>
-              <dd className="mt-1 font-medium opacity-95">{eventPrice}</dd>
-            </div>
+            <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
+            <EventCardDetail label={t("productionPage.priceLabel")} value={eventPrice} />
           </div>
         </div>
       </details>
