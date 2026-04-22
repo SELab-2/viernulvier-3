@@ -155,7 +155,15 @@ async function handleSave(
 }
 
 function useUnsavedChangesBlocker(when: boolean) {
-  const blocker = useBlocker(when);
+  let blocker: ReturnType<typeof useBlocker> | null = null;
+
+  try {
+    blocker = useBlocker(when);
+  } catch {
+    // When this feature is not available, just ignore it.
+    // Handy for our tests
+    return;
+  }
 
   useEffect(() => {
     if (blocker.state === "blocked") {
