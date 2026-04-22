@@ -73,9 +73,9 @@
     "visualEvidence": "Photos",
 
     "edit": {
-	  "edit": "Edit",
-	  "save": "Save",
-	  "cancel": "Cancel",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
       "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",

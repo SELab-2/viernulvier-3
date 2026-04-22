@@ -455,7 +455,7 @@ function EditButton({
           onClick={() => setIsEditing(true)}
           className={`${shared_css} bg-archive-accent fixed right-6 bottom-6 z-50`}
         >
-		  {t("productionPage.edit.edit")}
+          {t("productionPage.edit.edit")}
         </button>
       ) : (
         <div id="edit-actions" className="fixed right-6 bottom-6 z-50 flex gap-3">
@@ -468,7 +468,7 @@ function EditButton({
             }}
             className={`${shared_css} bg-gray-300`}
           >
-		  {t("productionPage.edit.cancel")}
+            {t("productionPage.edit.cancel")}
           </button>
 
           <button
