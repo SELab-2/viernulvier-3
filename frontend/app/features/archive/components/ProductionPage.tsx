@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState } from "react";
+import DOMPurify from "dompurify";
 
 import type {
   Production,
@@ -42,6 +43,21 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
 
   const trimmedValue = value.trim();
   return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
+
+function getSanitizedHtmlOrUndefined(
+  value: string | null | undefined
+): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return undefined;
+  }
+
+  return DOMPurify.sanitize(trimmedValue);
 }
 
 function getEventTimestamp(startsAt?: string): number {
@@ -174,7 +190,7 @@ export function SimpleEditableField({
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
         <div
-          className={`bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
+          className={`backdrop-blur-md bg-archive-ink/60 bg-archive-ink-dark/60 border-archive-ink/5 border-archive-ink-dark/5 mb-1 rounded-2xl border p-4 shadow-sm transition ${isDirty ? "ring-archive-accent/70 ring-2" : ""} `}
         >
           {/* Header (like FilterCard) */}
           <div className="mb-1 flex items-center justify-between">
@@ -184,7 +200,7 @@ export function SimpleEditableField({
 
             {isDirty && (
               <span className="text-archive-accent text-[10px] tracking-widest uppercase opacity-80">
-                changed
+                modified
               </span>
             )}
           </div>
@@ -257,7 +273,7 @@ function ProductionHeader({
               id="supertitle"
               className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
             >
-              {getTextOrDefault(value, "")}
+              {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
         />
@@ -278,7 +294,7 @@ function ProductionHeader({
               id="title"
               className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
             >
-              {value}
+              {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
         />
@@ -298,7 +314,7 @@ function ProductionHeader({
               id="artist"
               className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
             >
-              {value}
+              {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
         />
@@ -470,6 +486,7 @@ export function ProductionPage({
 
   const language = i18n.resolvedLanguage ?? preferredLanguage;
 
+  // console.log("Reloading productionInfo for language: ", language);
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
     language
@@ -485,10 +502,10 @@ export function ProductionPage({
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(
-    productionInfo?.tagline,
-    t("productionPage.fallback.noDescription")
-  );
+  const tagline = getTextOrDefault(productionInfo?.tagline, "");
+  const teaserHtml = getSanitizedHtmlOrUndefined(productionInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(productionInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(productionInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
   const fallbackImageUrl =
@@ -613,7 +630,36 @@ export function ProductionPage({
 
         <section id="production-events" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            <p id="tagline">{tagline}</p>
+            {tagline && <p id="tagline">{tagline}</p>}
+
+            {teaserHtml && (
+              <div
+                id="teaser"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: teaserHtml }}
+              />
+            )}
+
+            {descriptionHtml && (
+              <div
+                id="description"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+              />
+            )}
+
+            {infoHtml ? (
+              <div
+                id="info"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: infoHtml }}
+              />
+            ) : (
+              <p id="info" className="opacity-75">
+                {t("productionPage.fallback.noInfo")}
+              </p>
+            )}
+
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
               <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
                 {t("productionPage.archiveSchema")}

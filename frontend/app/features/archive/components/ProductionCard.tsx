@@ -11,10 +11,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { useParams } from "react-router";
 import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
 
 const DEFAULT_IMAGE =
@@ -180,7 +179,10 @@ export function ProductionCard({
   );
   const dateParts = dateLabel.split(" - ");
   const venues = getVenues(production);
-  const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
+  const imageUrl = getTextOrDefault(
+    (production as { image_url?: string }).image_url,
+    defaultCardValues.imageUrl
+  );
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
@@ -190,7 +192,7 @@ export function ProductionCard({
       return;
     }
 
-    navigate(lp(`/productions/${productionId}`));
+    navigate(lp(`/archive/productions/${productionId}`));
   };
 
   return (

@@ -24,6 +24,7 @@ export async function getProductionsPaginated(
     production_name?: string;
     earliest_at?: string;
     latest_at?: string;
+    sort_order?: string;
   }
 ): Promise<ProductionList> {
   const apiClient = createApiClient();

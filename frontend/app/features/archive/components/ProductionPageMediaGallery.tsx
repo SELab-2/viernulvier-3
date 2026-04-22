@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
 
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
@@ -24,8 +23,6 @@ export function ProductionPageMediaGallery({
   title,
 }: MediaGalleryProps) {
   const { t } = useTranslation();
-  const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
-  const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
   const [mediaImageUrlsByProductionId, setMediaImageUrlsByProductionId] = useState<
     Record<string, string[]>
   >({});
@@ -34,9 +31,6 @@ export function ProductionPageMediaGallery({
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
-  const isDraggingEvidenceRef = useRef(false);
-  const evidenceDragStartXRef = useRef(0);
-  const evidenceStartScrollLeftRef = useRef(0);
 
   const imageUrls = useMemo(
     () =>
@@ -68,7 +62,7 @@ export function ProductionPageMediaGallery({
     const loadAllMediaImages = async () => {
       try {
         const imageUrlsSet = new Set<string>();
-        let cursor: number | undefined;
+        let cursor: string | number | undefined;
         let hasMore = true;
 
         // continue paginated requests until there are no more pages
@@ -91,7 +85,7 @@ export function ProductionPageMediaGallery({
           cursor = response.pagination.next_cursor;
           hasMore =
             response.pagination.has_more &&
-            typeof response.pagination.next_cursor === "number";
+            response.pagination.next_cursor !== undefined;
         }
 
         if (!isCancelled) {
@@ -118,86 +112,11 @@ export function ProductionPageMediaGallery({
     };
   }, [production_id_url, productionNumericId]);
 
-  const syncEvidenceSlider = () => {
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    const hasOverflow = maxScroll > 0;
-    setHasEvidenceOverflow(hasOverflow);
-
-    if (maxScroll <= 0) {
-      setEvidenceScrollPercent(0);
-      return;
-    }
-
-    setEvidenceScrollPercent((track.scrollLeft / maxScroll) * 100);
-  };
-
-  const handleEvidenceSliderChange = (nextPercent: number) => {
-    const track = evidenceTrackRef.current;
-    if (!track || !hasEvidenceOverflow) {
-      return;
-    }
-
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    track.scrollLeft = (Math.max(0, Math.min(100, nextPercent)) / 100) * maxScroll;
-    setEvidenceScrollPercent(nextPercent);
-  };
-
-  const handleEvidenceMouseDown = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!hasEvidenceOverflow) {
-      return;
-    }
-
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    isDraggingEvidenceRef.current = true;
-    evidenceDragStartXRef.current = event.clientX;
-    evidenceStartScrollLeftRef.current = track.scrollLeft;
-  };
-
-  const handleEvidenceMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!isDraggingEvidenceRef.current) {
-      return;
-    }
-
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    const dragDelta = event.clientX - evidenceDragStartXRef.current;
-    track.scrollLeft = evidenceStartScrollLeftRef.current - dragDelta;
-    syncEvidenceSlider();
-  };
-
-  const stopEvidenceDragging = () => {
-    isDraggingEvidenceRef.current = false;
-  };
-
   useEffect(() => {
     const track = evidenceTrackRef.current;
     if (!track) {
       return;
     }
-
-    syncEvidenceSlider();
-
-    const resizeObserver = new ResizeObserver(() => {
-      syncEvidenceSlider();
-    });
-
-    resizeObserver.observe(track);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
   }, [imageUrls]);
 
   return (
@@ -214,16 +133,7 @@ export function ProductionPageMediaGallery({
       <>
         <div
           ref={evidenceTrackRef}
-          onScroll={syncEvidenceSlider}
-          onMouseDown={handleEvidenceMouseDown}
-          onMouseMove={handleEvidenceMouseMove}
-          onMouseUp={stopEvidenceDragging}
-          onMouseLeave={stopEvidenceDragging}
-          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
-            hasEvidenceOverflow
-              ? "cursor-grab active:cursor-grabbing"
-              : "cursor-default"
-          }`}
+          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${"cursor-default"}`}
         >
           {imageUrls.map((url, index) => (
             <figure
@@ -242,23 +152,6 @@ export function ProductionPageMediaGallery({
             </figure>
           ))}
         </div>
-
-        {hasEvidenceOverflow ? (
-          <div className="mt-2">
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={1}
-              value={Math.round(evidenceScrollPercent)}
-              onChange={(event) =>
-                handleEvidenceSliderChange(Number(event.target.value))
-              }
-              aria-label={t("productionPage.archiveSchema")}
-              className="accent-archive-accent w-full"
-            />
-          </div>
-        ) : null}
       </>
     </section>
   );

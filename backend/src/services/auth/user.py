@@ -51,6 +51,7 @@ def get_user_permission_names(user: User) -> List[str]:
 def _to_user_response(user: User, base_url: str) -> UserResponse:
     roles = sorted(role.name for role in user.roles)
     return UserResponse(
+        id=user.id,
         id_url=f"{base_url}/auth/users/{user.id}",
         username=user.username,
         super_user=user.super_user,

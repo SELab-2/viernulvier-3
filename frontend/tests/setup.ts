@@ -53,6 +53,8 @@ vi.mock("react-i18next", async () => {
           "users.accessDenied.title": "I18N_Users_Access_Denied_Title",
           "users.accessDenied.description": "I18N_Users_Access_Denied_Description",
           "users.loading": "I18N_Users_Loading",
+          "users.actions.add": "I18N_Users_Add",
+          "users.actions.refresh": "I18N_Users_Refresh",
           "history.heroAlt": "I18N_History_Hero_Alt",
           "history.entries": [
             {
@@ -92,6 +94,28 @@ vi.mock("react-i18next", async () => {
           "notFound.description": "I18N_NotFound_Description",
           "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
           "notFound.buttons.history": "I18N_NotFound_Button_History",
+          "productionPage.backToCollection": "I18N_Production_BackToCollection",
+          "productionPage.fallback.unknownProduction":
+            "I18N_Production_Fallback_UnknownProduction",
+          "productionPage.fallback.archive": "I18N_Production_Fallback_Archive",
+          "productionPage.fallback.defaultArtist":
+            "I18N_Production_Fallback_DefaultArtist",
+          "productionPage.fallback.noDescription":
+            "I18N_Production_Fallback_NoDescription",
+          "productionPage.fallback.noEvents": "I18N_Production_Fallback_NoEvents",
+          "productionPage.fallback.noTeaser": "I18N_Production_Fallback_NoTeaser",
+          "productionPage.fallback.noInfo": "I18N_Production_Fallback_NoInfo",
+          "productionPage.fallback.dateUnknown": "I18N_Production_Fallback_DateUnknown",
+          "productionPage.fallback.locationUnknown":
+            "I18N_Production_Fallback_LocationUnknown",
+          "productionPage.archiveSchema": "I18N_Production_ArchiveSchema",
+          "productionPage.visualEvidence": "I18N_Production_VisualEvidence",
+          "productionPage.archivePhotoAlt": "I18N_Production_ArchivePhotoAlt",
+          "productionPage.dateLabel": "I18N_Production_DateLabel",
+          "productionPage.placeLabel": "I18N_Production_PlaceLabel",
+          "productionPage.timeLabel": "I18N_Production_TimeLabel",
+          "productionPage.priceLabel": "I18N_Production_PriceLabel",
+          "productionPage.noPrice": "I18N_Production_NoPrice",
         };
 
         if (options?.returnObjects) {
@@ -99,6 +123,10 @@ vi.mock("react-i18next", async () => {
         }
 
         return typeof map[key] === "string" ? map[key] : key;
+      },
+      i18n: {
+        language: "en",
+        resolvedLanguage: "en",
       },
     }),
   };

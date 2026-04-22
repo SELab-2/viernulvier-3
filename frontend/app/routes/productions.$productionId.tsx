@@ -91,5 +91,6 @@ export default function ProductionDetailRoute() {
     return <div>Production not found.</div>;
   }
 
+  console.log(production.production_infos);
   return <ProductionPage production={production} />;
 }

@@ -1,5 +1,6 @@
 export interface IUserResponse {
   id: number;
+  id_url: string;
   username: string;
   super_user: boolean;
   roles: string[];
@@ -16,4 +17,9 @@ export interface IUser {
   permissions: string[];
   createdAt: string;
   lastLoginAt: string | null;
+}
+
+export interface IUserCreateRequest {
+  username: string;
+  password: string;
 }

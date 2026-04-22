@@ -54,6 +54,7 @@ def test_get_me_integration(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "me_int_user"
+    assert data["id"] == user.id
 
 
 def test_refresh_token_integration(client: TestClient, db_session: Session):

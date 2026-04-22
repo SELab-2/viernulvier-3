@@ -12,6 +12,7 @@ class UserBase(StrictModel):
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int
     id_url: str
     super_user: bool
     roles: List[str]
