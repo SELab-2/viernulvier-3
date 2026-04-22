@@ -35,6 +35,7 @@ describe("loginService", () => {
       });
       mockAdapter.onGet("/api/v1/auth/users/me").reply(200, {
         id: 7,
+        id_url: "http://localhost/api/v1/auth/users/7",
         username: "test",
         super_user: false,
         roles: ["editor"],
@@ -102,6 +103,7 @@ describe("loginService", () => {
     it("maps the backend user payload to the frontend session model", async () => {
       mockAdapter.onGet("/api/v1/auth/users/me").reply(200, {
         id: 2,
+        id_url: "http://localhost/api/v1/auth/users/2",
         username: "admin",
         super_user: true,
         roles: ["admin"],
@@ -196,6 +198,7 @@ describe("loginService", () => {
       });
       mockAdapter.onGet("/api/v1/auth/users/me").reply(200, {
         id: 3,
+        id_url: "http://localhost/api/v1/auth/users/3",
         username: "restored",
         super_user: false,
         roles: [],
@@ -281,6 +284,7 @@ describe("loginService", () => {
       });
       mockAdapter.onGet("/api/v1/auth/users/me").reply(200, {
         id: 1,
+        id_url: "http://localhost/api/v1/auth/users/1",
         username: "test",
         super_user: false,
         roles: [],

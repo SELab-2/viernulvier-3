@@ -35,6 +35,14 @@ function TokenList({ values, emptyLabel }: { values: string[]; emptyLabel: strin
   );
 }
 
+function UserBadge({ children }: { children: string }) {
+  return (
+    <span className="border-archive-border bg-archive-control rounded-full border px-3 py-1 text-[0.65rem] font-bold tracking-[0.18em] uppercase">
+      {children}
+    </span>
+  );
+}
+
 export function UserCard({ user, formatDateTime }: UserCardProps) {
   const { t } = useTranslation();
 
@@ -49,10 +57,10 @@ export function UserCard({ user, formatDateTime }: UserCardProps) {
         </h2>
 
         {user.isSuperUser ? (
-          <div className="mt-4">
-            <span className="border-archive-border bg-archive-control rounded-full border px-3 py-1 text-[0.65rem] font-bold tracking-[0.18em] uppercase">
-              {t("users.badges.superUser")}
-            </span>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {user.isSuperUser ? (
+              <UserBadge>{t("users.badges.superUser")}</UserBadge>
+            ) : null}
           </div>
         ) : null}
       </div>

@@ -128,7 +128,7 @@
   "users": {
     "eyebrow": "Beheer",
     "title": "Gebruikersbeheer",
-    "description": "Bekijk accounts en hun effectieve toegang in een helder overzicht.",
+    "description": "Bekijk accounts en voer eenvoudige accountwijzigingen uit zonder het overzicht te verlaten.",
     "loading": "Gebruikers worden geladen",
     "summary": {
       "totalUsers": "Totaal aantal gebruikers",
@@ -136,11 +136,20 @@
     },
     "fields": {
       "username": "Gebruikersnaam",
+      "password": "Wachtwoord",
       "roles": "Rollen",
       "permissions": "Permissies"
     },
+    "form": {
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt."
+    },
     "actions": {
-      "retry": "Opnieuw proberen"
+      "retry": "Opnieuw proberen",
+      "refresh": "Herladen",
+      "add": "Gebruiker toevoegen",
+      "cancel": "Annuleren",
+      "create": "Gebruiker aanmaken",
+      "creating": "Gebruiker wordt aangemaakt"
     },
     "badges": {
       "superUser": "Supergebruiker"
@@ -150,7 +159,16 @@
       "lastLoginAt": "Laatst aangemeld"
     },
     "messages": {
-      "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden."
+      "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
+      "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "usernameRequired": "Een gebruikersnaam is verplicht.",
+      "passwordRequired": "Een wachtwoord is verplicht."
+    },
+    "dialogs": {
+      "create": {
+        "title": "Gebruiker toevoegen",
+        "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+      }
     },
     "empty": {
       "title": "Geen gebruikers gevonden",
