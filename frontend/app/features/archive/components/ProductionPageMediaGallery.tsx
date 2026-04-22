@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
+
 
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
@@ -24,8 +24,6 @@ export function ProductionPageMediaGallery({
   title,
 }: MediaGalleryProps) {
   const { t } = useTranslation();
-  const [evidenceScrollPercent, setEvidenceScrollPercent] = useState(0);
-  const [hasEvidenceOverflow, setHasEvidenceOverflow] = useState(false);
   const [mediaImageUrlsByProductionId, setMediaImageUrlsByProductionId] = useState<
     Record<string, string[]>
   >({});
@@ -34,9 +32,6 @@ export function ProductionPageMediaGallery({
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
-  const isDraggingEvidenceRef = useRef(false);
-  const evidenceDragStartXRef = useRef(0);
-  const evidenceStartScrollLeftRef = useRef(0);
 
   const imageUrls = useMemo(
     () =>
@@ -140,10 +135,7 @@ export function ProductionPageMediaGallery({
       <>
         <div
           ref={evidenceTrackRef}
-          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
-            hasEvidenceOverflow
-              ? "cursor-grab active:cursor-grabbing"
-              : "cursor-default"
+          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${"cursor-default"
           }`}
         >
           {imageUrls.map((url, index) => (
@@ -163,20 +155,6 @@ export function ProductionPageMediaGallery({
             </figure>
           ))}
         </div>
-
-        {hasEvidenceOverflow ? (
-          <div className="mt-2">
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={1}
-              value={Math.round(evidenceScrollPercent)}
-              aria-label={t("productionPage.archiveSchema")}
-              className="accent-archive-accent w-full"
-            />
-          </div>
-        ) : null}
       </>
     </section>
   );
