@@ -624,30 +624,6 @@ export function ProductionPage({
           </article>
         </section>
 
-        {productionInfo.teaser ? (
-          <p>
-            <div dangerouslySetInnerHTML={{ __html: productionInfo.teaser }} />
-          </p>
-        ) : (
-          <p>No teaser</p>
-        )}
-
-        {productionInfo.description ? (
-          <p>
-            <div dangerouslySetInnerHTML={{ __html: productionInfo.description }} />
-          </p>
-        ) : (
-          <p>No description</p>
-        )}
-
-        {productionInfo.info ? (
-          <p>
-            <div dangerouslySetInnerHTML={{ __html: productionInfo.info }} />
-          </p>
-        ) : (
-          <p>No info</p>
-        )}
-
         <ProductionPageMediaGallery
           production_id_url={production.id_url}
           title={title}
