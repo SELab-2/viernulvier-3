@@ -62,7 +62,7 @@ export function ProductionPageMediaGallery({
     const loadAllMediaImages = async () => {
       try {
         const imageUrlsSet = new Set<string>();
-        let cursor: number | undefined;
+        let cursor: string | number | undefined;
         let hasMore = true;
 
         // continue paginated requests until there are no more pages
@@ -85,7 +85,7 @@ export function ProductionPageMediaGallery({
           cursor = response.pagination.next_cursor;
           hasMore =
             response.pagination.has_more &&
-            typeof response.pagination.next_cursor === "number";
+            response.pagination.next_cursor !== undefined;
         }
 
         if (!isCancelled) {
