@@ -2,40 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const pageI18n = { language: "en", resolvedLanguage: "en" };
-
-function pageTranslate(key: string) {
-  const map: Record<string, string> = {
-    "productionPage.backToCollection": "Back to collection",
-    "productionPage.fallback.unknownProduction": "Unknown production",
-    "productionPage.fallback.archive": "Archive",
-    "productionPage.fallback.defaultArtist": "Unknown artist",
-    "productionPage.fallback.noDescription": "No description",
-    "productionPage.fallback.noEvents": "No events available",
-    "productionPage.archiveSchema": "Archive schema",
-    "productionPage.visualEvidence": "Visual evidence",
-    "productionPage.dateLabel": "Date",
-    "productionPage.placeLabel": "Place",
-    "productionPage.timeLabel": "Time",
-    "productionPage.priceLabel": "Price",
-    "productionPage.noPrice": "No price",
-  };
-
-  return map[key] || key;
-}
-
-vi.mock("react-i18next", async () => {
-  const actual = await vi.importActual<typeof import("react-i18next")>("react-i18next");
-
-  return {
-    ...actual,
-    useTranslation: () => ({
-      t: pageTranslate,
-      i18n: pageI18n,
-    }),
-  };
-});
-
 vi.mock("~/features/archive/services/eventService", () => ({
   getEventByUrl: vi.fn(),
   getPriceByUrl: vi.fn(),
@@ -105,8 +71,6 @@ const baseProduction: Production = {
 describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    pageI18n.language = "en";
-    pageI18n.resolvedLanguage = "en";
   });
 
   it("renders title, tags and gallery for the active language", async () => {
@@ -117,16 +81,13 @@ describe("ProductionPage", () => {
     expect(screen.getByText("English tagline")).toBeInTheDocument();
     expect(screen.getByText("Opera")).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
-    expect(screen.getByText("Back to collection")).toBeInTheDocument();
+    expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
     expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(
       "Mock gallery for English Title"
     );
   });
 
   it("falls back to default texts and shows no-events state", async () => {
-    pageI18n.language = "fr";
-    pageI18n.resolvedLanguage = "fr";
-
     renderPage({
       ...baseProduction,
       production_infos: [
@@ -143,11 +104,11 @@ describe("ProductionPage", () => {
     });
 
     expect(
-      screen.getByRole("heading", { name: "Unknown production" })
+      screen.getByRole("heading", { name: "I18N_Production_Fallback_UnknownProduction" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Unknown artist")).toBeInTheDocument();
-    expect(screen.getByText("No description")).toBeInTheDocument();
-    expect(await screen.findByText("No events available")).toBeInTheDocument();
+    expect(screen.getByText("I18N_Production_Fallback_DefaultArtist")).toBeInTheDocument();
+    expect(screen.getByText("I18N_Production_Fallback_NoDescription")).toBeInTheDocument();
+    expect(await screen.findByText("I18N_Production_Fallback_NoEvents")).toBeInTheDocument();
   });
 
   it("loads related event data and renders chronologically sorted events", async () => {
