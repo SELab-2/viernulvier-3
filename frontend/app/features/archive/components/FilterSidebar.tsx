@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { getArtists } from "~/features/archive/services/artistService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
-import i18n from "~/i18n";
 import FilterCard from "./FilterCard";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -91,6 +90,7 @@ interface TagCardProps {
 }
 
 const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }) => {
+  const { i18n } = useTranslation();
   const [tags, setTags] = useState<Tag[]>([]);
   const [popTags, setPopTags] = useState<Tag[]>([]);
   const [tagQuery, setTagQuery] = useState("");
@@ -116,7 +116,7 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
 
   useEffect(() => {
     getAllTags().then(setTags).catch(console.error);
-  }, []);
+  }, [i18n.resolvedLanguage]);
 
   useEffect(() => {
     const mostPopularTags = [

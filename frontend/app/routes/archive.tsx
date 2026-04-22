@@ -144,6 +144,8 @@ function ShowMoreButton({
 }
 
 export default function Archive() {
+  const { t, i18n } = useTranslation();
+
   const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
     ArchiveSortOrder.NewestFirst
   );
@@ -183,14 +185,20 @@ export default function Archive() {
       setProductionList(result);
     }
     fetchProductions();
-  }, [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists, sortOrder]);
+  }, [
+    debouncedSearch,
+    dateFrom,
+    dateTo,
+    selectedTags,
+    selectedArtists,
+    sortOrder,
+    i18n.resolvedLanguage,
+  ]);
   const productions = productionList?.productions ?? [];
 
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
   };
-
-  const { t } = useTranslation();
 
   return (
     <div className="mx-6 md:mx-10">
