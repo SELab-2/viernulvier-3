@@ -398,9 +398,9 @@ type EditButtonProps = {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
+  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   draftInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   enable_save: boolean;
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
   is_saving: boolean;
