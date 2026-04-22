@@ -12,6 +12,8 @@ import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventS
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "./EventCard";
 import { ProductionPageMediaGallery } from "./ProductionPageMediaGallery";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 
 interface ProductionPageProps {
@@ -149,6 +151,7 @@ function BackToCollectionLink() {
 }
 
 type SimpleEditableFieldProps = {
+  label: string;
   value: string;
   isEditing: boolean;
   onChange: (value: string) => void;
@@ -158,26 +161,41 @@ type SimpleEditableFieldProps = {
 // <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
 // </Protected>
 export function SimpleEditableField({
+  label,
   value,
   isEditing,
   onChange,
   renderView,
   isDirty,
 }: SimpleEditableFieldProps) {
+  const normal_view = <>{renderView(value)}</>;
+
   if (isEditing) {
     const border_style = isDirty
-      ? "border-l-4 border-l-orange-400 border-white/20"
-      : "border-white/30 bg-black/70";
+      ? "border-l-8 border-l-archive-accent"
+      : "border-archive";
+
     return (
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-md border ${border_style} focus:ring-archive-accent bg-black/70 px-2 py-1 text-white placeholder-white/40 focus:ring-2 focus:outline-none`}
-      />
+      <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
+        <div className="relative mt-4">
+          {/* Label sitting in the border */}
+          <span
+            className={`bg-archive-paper absolute -top-2 left-3 px-1 text-xs tracking-wide uppercase ${isDirty ? "text-archive-accent" : "text-white/60"} `}
+          >
+            {label}
+          </span>
+
+          <input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`bg-archive-surface w-full rounded-lg border-2 px-3 py-2 text-white transition ${border_style} focus:ring-archive-accent/40 focus:border-archive-accent focus:ring-2 focus:outline-none`}
+          />
+        </div>
+      </Protected>
     );
   }
 
-  return <>{renderView(value)}</>;
+  return normal_view;
 }
 
 type ProductionHeaderProps = {
@@ -217,6 +235,7 @@ function ProductionHeader({
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
       <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
         <SimpleEditableField
+          label="Supertitle"
           value={draftInfo?.supertitle ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.supertitle, draftInfo?.supertitle)}
@@ -238,6 +257,7 @@ function ProductionHeader({
           )}
         />
         <SimpleEditableField
+          label="Title"
           value={draftInfo?.title ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.title, draftInfo?.title)}
@@ -258,6 +278,7 @@ function ProductionHeader({
           )}
         />
         <SimpleEditableField
+          label="Artist"
           value={draftInfo?.artist ?? ""}
           isEditing={isEditing}
           isDirty={isFieldDirty(originalInfo?.artist, draftInfo?.artist)}
@@ -377,7 +398,7 @@ function EditButton({
 	font-semibold text-white
   `;
   return (
-    <>
+    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
       {!isEditing ? (
         <button
           id="edit-production-button"
@@ -418,7 +439,7 @@ function EditButton({
           </button>
         </div>
       )}
-    </>
+    </Protected>
   );
 }
 
