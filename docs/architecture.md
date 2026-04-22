@@ -28,36 +28,7 @@ extra importworker. Die actuele uitbreiding is vastgelegd in
 
 ## 2. Runtime-topologie
 
-```mermaid
-flowchart TD
-    Browser[Browser]
-    ExternalAPI[Externe VIERNULVIER API]
-
-    subgraph Host[Server Host]
-        subgraph Docker[Intern Docker Network]
-            Proxy[Proxy\nNginx]
-            Frontend[Frontend\nNode 24 + React Router SSR]
-            Backend[Backend API\nFastAPI + Uvicorn]
-            Database[(PostgreSQL)]
-            MinIO[(MinIO object storage)]
-            Sync[Sync worker]
-            CSV[CSV worker]
-            Certbot[Certbot]
-        end
-    end
-
-    Browser -->|HTTP 80 / HTTPS 443| Proxy
-    Browser -.->|Dev/ops toegang 9000/9001| MinIO
-    Proxy -->|/| Frontend
-    Proxy -->|/api/| Backend
-    Proxy -->|/media/ in lokale stack| MinIO
-    Backend --> Database
-    Backend --> MinIO
-    Sync --> Database
-    Sync --> ExternalAPI
-    CSV --> Database
-    Certbot <-. certificaten .-> Proxy
-```
+![Architectuurdiagram](assets/architecture_diagram.png)
 
 ### 2.1 Netwerkgrenzen
 
