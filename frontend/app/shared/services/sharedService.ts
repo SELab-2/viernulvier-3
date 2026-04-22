@@ -47,6 +47,12 @@ export async function patchToArchive<T>(url: string, data: unknown): Promise<T> 
   return response.data;
 }
 
+export async function patchByUrl<T>(url: string, data: unknown): Promise<T> {
+  const apiClient = createApiClient();
+  const response = await apiClient.patch<T>(normalizeRequestUrl(url), data);
+  return response.data;
+}
+
 export async function deleteFromArchive(url: string): Promise<void> {
   const apiClient = createApiClient();
   await apiClient.delete(`${ARCHIVE_PATH}${url}`);
