@@ -156,7 +156,7 @@ export function EventCard({ event }: EventCardProps) {
   );
 
   return (
-    <li key={event.id_url}>
+    <li>
       <details className="bg-archive-surface group rounded-xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] transition open:border-[color:color-mix(in_srgb,var(--archive-accent)_35%,transparent)]">
         <EventCardSummary
           dateLabel={t("productionPage.dateLabel")}

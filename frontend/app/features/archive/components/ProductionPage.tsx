@@ -395,7 +395,7 @@ function Events({ event_objects }: EventsProps) {
       <div id="events-listing">
         <ul className="mt-6 space-y-2.5">
           {event_objects.map((event) => (
-            <EventCard event={event} />
+            <EventCard event={event} key={event.id_url} />
           ))}
         </ul>
       </div>
