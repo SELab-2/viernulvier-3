@@ -112,8 +112,10 @@ describe("ProductionPage", () => {
       screen.getByText("I18N_Production_Fallback_DefaultArtist")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("I18N_Production_Fallback_NoDescription")
-    ).toBeInTheDocument();
+      screen.queryByText("I18N_Production_Fallback_NoDescription")
+    ).toBeNull();
+    expect(screen.queryByText("I18N_Production_Fallback_NoTeaser")).toBeNull();
+    expect(screen.getByText("I18N_Production_Fallback_NoInfo")).toBeInTheDocument();
     expect(
       await screen.findByText("I18N_Production_Fallback_NoEvents")
     ).toBeInTheDocument();

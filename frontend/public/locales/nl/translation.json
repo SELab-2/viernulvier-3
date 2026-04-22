@@ -52,7 +52,9 @@
       "unknownProduction": "Onbekende productie",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
+      "noTeaser": "Geen teaser beschikbaar voor deze productie.",
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
+      "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"

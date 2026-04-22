@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
+import DOMPurify from "dompurify";
 
 import type {
   Production,
@@ -39,6 +40,19 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
 
   const trimmedValue = value.trim();
   return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
+
+function getSanitizedHtmlOrUndefined(value: string | null | undefined): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return undefined;
+  }
+
+  return DOMPurify.sanitize(trimmedValue);
 }
 
 function getEventTimestamp(startsAt?: string): number {
@@ -228,10 +242,10 @@ export function ProductionPage({
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(
-    productionInfo?.tagline,
-    t("productionPage.fallback.noDescription")
-  );
+  const tagline = getTextOrDefault(productionInfo?.tagline, "");
+  const teaserHtml = getSanitizedHtmlOrUndefined(productionInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(productionInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(productionInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
   const fallbackImageUrl =
@@ -349,7 +363,36 @@ export function ProductionPage({
 
         <section id="production-events" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            <p id="tagline">{tagline}</p>
+            {tagline && <p id="tagline">{tagline}</p>}
+
+            {teaserHtml && (
+              <div
+                id="teaser"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: teaserHtml }}
+              />
+            )}
+
+            {descriptionHtml && (
+              <div
+                id="description"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+              />
+            )}
+
+            {infoHtml ? (
+              <div
+                id="info"
+                className="opacity-90"
+                dangerouslySetInnerHTML={{ __html: infoHtml }}
+              />
+            ) : (
+              <p id="info" className="opacity-75">
+                {t("productionPage.fallback.noInfo")}
+              </p>
+            )}
+
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
               <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
                 {t("productionPage.archiveSchema")}

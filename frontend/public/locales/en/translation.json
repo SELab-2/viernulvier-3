@@ -53,7 +53,9 @@
       "unknownProduction": "Unknown production",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
+      "noTeaser": "No teaser available for this production.",
       "noDescription": "No additional description is available for this production.",
+      "noInfo": "No extra information is available for this production.",
       "noEvents": "No events recorded for this production.",
       "dateUnknown": "Date unknown",
       "locationUnknown": "Location unknown"
