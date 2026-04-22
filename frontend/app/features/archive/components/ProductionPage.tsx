@@ -459,7 +459,8 @@ function EditButton({
           <button
             id="cancel-edit-production-button"
             onClick={() => {
-              setDraftInfo(originalInfo);
+              // Copy (not by reference)
+              setDraftInfo(originalInfo ? { ...originalInfo } : null);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}
@@ -470,7 +471,6 @@ function EditButton({
           <button
             id="save-edit-production-button"
             onClick={() => {
-              console.log("Saving draft:", draftInfo);
               handleSave(
                 production_id_url,
                 originalInfo,
@@ -534,8 +534,10 @@ export function ProductionPage({
 
   // Initialize edit states
   useEffect(() => {
-    setOriginalInfo(productionInfo);
-    setDraftInfo(productionInfo);
+    if (!isEditing) {
+      setOriginalInfo(productionInfo);
+      setDraftInfo(productionInfo);
+    }
   }, [productionInfo]);
 
   const title = getTextOrDefault(
