@@ -408,29 +408,23 @@ const Spinner = () => (
 );
 
 type EditButtonProps = {
-  production_id_url: string;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
-  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-  draftInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
   enable_save: boolean;
-  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
   is_saving: boolean;
+  _handleSave: () => Promise<void>;
 };
 
 function EditButton({
-  production_id_url,
   isEditing,
   setIsEditing,
   originalInfo,
-  setOriginalInfo,
-  draftInfo,
   setDraftInfo,
   enable_save,
-  setIsSaving,
   is_saving,
+  _handleSave,
 }: EditButtonProps) {
   const shared_css = `
 	shadow-lg
@@ -470,16 +464,7 @@ function EditButton({
 
           <button
             id="save-edit-production-button"
-            onClick={() => {
-              handleSave(
-                production_id_url,
-                originalInfo,
-                draftInfo,
-                setOriginalInfo,
-                setIsEditing,
-                setIsSaving
-              );
-            }}
+            onClick={_handleSave}
             className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save || is_saving}
           >
@@ -506,6 +491,16 @@ export function ProductionPage({
   const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(null);
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const _handleSave = () =>
+    handleSave(
+      production.id_url,
+      originalInfo,
+      draftInfo,
+      setOriginalInfo,
+      setIsEditing,
+      setIsSaving
+    );
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
@@ -718,16 +713,13 @@ export function ProductionPage({
         />
       </main>
       <EditButton
-        production_id_url={production.id_url}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         originalInfo={originalInfo}
-        setOriginalInfo={setOriginalInfo}
-        draftInfo={draftInfo}
         setDraftInfo={setDraftInfo}
         enable_save={isModified}
-        setIsSaving={setIsSaving}
         is_saving={isSaving}
+        _handleSave={_handleSave}
       />
     </div>
   );
