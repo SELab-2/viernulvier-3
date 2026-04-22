@@ -7,6 +7,7 @@ import {
   getProductionByUrl,
 } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { useTranslation } from "react-i18next";
 
 function getProductionNumericIdFromInput(
   productionIdInput: string
@@ -31,6 +32,7 @@ export default function ProductionDetailRoute() {
     () => decodeURIComponent(productionId),
     [productionId]
   );
+  const { i18n } = useTranslation();
   const [production, setProduction] = useState<Production | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -77,7 +79,7 @@ export default function ProductionDetailRoute() {
     return () => {
       isCancelled = true;
     };
-  }, [decodedProductionId]);
+  }, [decodedProductionId, i18n.resolvedLanguage]);
 
   if (isLoading) {
     return <div>Loading production...</div>;

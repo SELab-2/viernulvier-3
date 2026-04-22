@@ -645,7 +645,7 @@ export function ProductionPage({
     return () => {
       isCancelled = true;
     };
-  }, [production.event_id_urls]);
+  }, [production.event_id_urls, i18n.resolvedLanguage]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
