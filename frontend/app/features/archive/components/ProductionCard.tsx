@@ -150,7 +150,6 @@ function getVenues(production: Production): string[] | undefined {
 
 export function ProductionCard({
   production,
-  onOpen,
   className,
   preferredLanguage,
 }: ProductionCardProps) {
