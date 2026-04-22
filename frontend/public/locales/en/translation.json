@@ -16,17 +16,33 @@
     "from": "From",
     "to": "To",
     "tags": "Tags",
-    "venues": "Venues",
+    "search_tags": "Search for more tags",
+    "halls": "Venues",
     "artists": "Artists",
-    "search_artists": "Search for artists"
+    "search_artists": "Search for artists",
+    "toggle_menu": "Filter & Search"
   },
 
   "archive": {
     "title": "The Collection",
+    "results": "results",
+    "result": "result",
+    "no_results": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less filters or keywords"
+    },
+    "create_production": "Create production",
+    "show_more": "Show more",
+    "sortBy": "Sort by",
+    "sortOrder": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "unknownDate": "Unknown date",
     "card": {
       "defaults": {
         "title": "Unknown production",
-        "dateLabel": "Unknown",
+        "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
     }
@@ -173,6 +189,14 @@
       "eyebrow": "Restricted area",
       "title": "You do not have access to user management",
       "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
+    }
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "description": "The page you are looking for does not exist. It might have been removed, had its name changed, or is temporarily unavailable.",
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
     }
   }
 }

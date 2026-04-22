@@ -74,6 +74,7 @@ def test_get_productions_success(
     assert not data["pagination"]["has_more"]
 
 
+# Productions can be filtered on tags.
 def test_get_productions_with_tag(
     client: TestClient, db_session: Session, many_productions
 ):
@@ -81,7 +82,7 @@ def test_get_productions_with_tag(
     tag_id2 = many_productions[1].tags[0].id
 
     # Only asking tag_id1 gives 5 productions.
-    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tags": [tag_id1]})
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tag_ids": tag_id1})
     assert response.status_code == 200
     data = response.json()
     assert len(data["productions"]) == 5
@@ -99,7 +100,7 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
     # Only asking tag_id2 gives 5 productions.
-    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tags": [tag_id2]})
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "tag_ids": tag_id2})
     assert response.status_code == 200
 
     data = response.json()
@@ -116,6 +117,121 @@ def test_get_productions_with_tag(
     next_cursor = data["pagination"]["next_cursor"]
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
+
+
+# Productions can be filtered on artist.
+def test_get_productions_with_artist(
+    client: TestClient, db_session: Session, many_productions
+):
+    # 5 productions by Steve, 5 by Bob, 0 by Alice.
+    # Artist need to be conform in each production info.
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": "Steve"})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            info_response["artist"] == "Steve"
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    response = client.get(BASE_PROD_URL + "/", params={"limit": 10, "artists": "Bob"})
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 5
+    assert all(
+        all(
+            info_response["artist"] == "Bob"
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    # Bob and Steve together gives 10 productions, Alice gives 0, but does not affect the result.
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "artists": "Bob,Steve,Alice"}
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 10
+    assert all(
+        all(
+            info_response["artist"] in ["Bob", "Steve"]
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
+# Productions can be filtered on name.
+def test_get_productions_with_name(
+    client: TestClient, db_session: Session, many_productions
+):
+    # 1 production with prod1 in name, 0 with prod100 in name.
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "production_name": "prod1"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["productions"]) == 1
+    assert all(
+        any(
+            "prod1" in info_response["title"]
+            for info_response in production["production_infos"]
+        )
+        for production in data["productions"]
+    )
+
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "production_name": "prod100"}
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["productions"]) == 0
+    next_cursor = data["pagination"]["next_cursor"]
+    assert next_cursor is None
+    assert not data["pagination"]["has_more"]
+
+
+# Productions can be filtered on dates.
+def test_get_productions_between_dates(
+    client: TestClient, db_session: Session, many_productions
+):
+    response = client.get(
+        BASE_PROD_URL + "/",
+        params={
+            "limit": 10,
+            "earliest_at": "2026-03-01T00:00:00",
+            "latest_at": "2026-03-01T00:00:00",
+        },
+    )
+    assert response.status_code == 200
+    assert len(response.json()["productions"]) == 5
+
+    response = client.get(
+        BASE_PROD_URL + "/", params={"limit": 10, "earliest_at": "2026-04-01T00:00:00"}
+    )
+    assert response.status_code == 200
+    assert len(response.json()["productions"]) == 0
 
 
 # User gets empty list because no productions in database.

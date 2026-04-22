@@ -173,6 +173,7 @@ def many_productions(db_session):
     db_session.add_all([tag1, tag2])
 
     for i in range(10):
+        artist = "Steve" if i % 2 == 0 else "Bob"
         add_tags = [tag1]
         if i % 2 == 0:
             add_tags = [tag2]
@@ -181,15 +182,54 @@ def many_productions(db_session):
             performer_type="theater",
             attendance_mode="offline",
             tags=add_tags,
+            earliest_at=datetime(2026, 3, 1 + i % 2),
+            latest_at=datetime(2026, 3, 2 + i % 5),
         )
         db_session.add(prod)
         db_session.flush()
 
         info_nl = ProdInfo(
-            production_id=prod.id, language=Languages.NEDERLANDS, title=f"prod{i}_nl"
+            production_id=prod.id,
+            language=Languages.NEDERLANDS,
+            title=f"prod{i}_nl",
+            artist=artist,
         )
         info_en = ProdInfo(
-            production_id=prod.id, language=Languages.ENGLISH, title=f"prod{i}_en"
+            production_id=prod.id,
+            language=Languages.ENGLISH,
+            title=f"prod{i}_en",
+            artist=artist,
+        )
+        db_session.add_all([info_nl, info_en])
+        productions.append(prod)
+
+    db_session.commit()
+    return productions
+
+
+@pytest.fixture
+def productions_with_different_artists(db_session):
+    productions = []
+    artists = [["Steven", "Bob", ""], ["Steve", "", "Donald"]]
+    for i in range(10):
+        prod = Production(
+            performer_type="theater",
+            attendance_mode="offline",
+        )
+        db_session.add(prod)
+        db_session.flush()
+
+        info_nl = ProdInfo(
+            production_id=prod.id,
+            language=Languages.NEDERLANDS,
+            title=f"prod{i}_nl",
+            artist=artists[0][i % 3],
+        )
+        info_en = ProdInfo(
+            production_id=prod.id,
+            language=Languages.ENGLISH,
+            title=f"prod{i}_en",
+            artist=artists[1][i % 3],
         )
         db_session.add_all([info_nl, info_en])
         productions.append(prod)

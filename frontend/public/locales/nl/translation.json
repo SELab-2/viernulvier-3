@@ -16,17 +16,33 @@
     "from": "Van",
     "to": "Tot",
     "tags": "Tags",
-    "venues": "Locaties",
+    "search_tags": "Zoek naar andere tags",
+    "halls": "Locaties",
     "artists": "Artiesten",
-    "search_artists": "Zoek naar artiesten"
+    "search_artists": "Zoek naar artiesten",
+    "toggle_menu": "Filteren & Zoeken"
   },
 
   "archive": {
     "title": "De Collectie",
+    "results": "resultaten",
+    "result": "resultaat",
+    "show_more": "Toon meer",
+    "no_results": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
+    },
+    "create_production": "Nieuwe productie",
+    "sortBy": "Sorteer op",
+    "sortOrder": {
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst"
+    },
+    "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
         "title": "Onbekende productie",
-        "dateLabel": "Onbekend",
+        "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
     }
@@ -171,6 +187,14 @@
       "eyebrow": "Beperkt gebied",
       "title": "Je hebt geen toegang tot gebruikersbeheer",
       "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
+    }
+  },
+  "notFound": {
+    "title": "VIERNULVIER - Pagina niet gevonden",
+    "description": "De pagina die u zoekt bestaat niet. Deze kan zijn verwijderd, de naam gewijzigd of tijdelijk niet beschikbaar.",
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
     }
   }
 }

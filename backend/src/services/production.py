@@ -13,6 +13,7 @@ from src.schemas.production import (
     ProductionListResponse,
 )
 from src.api.exceptions import NotFoundError, ValidationError
+from datetime import datetime
 
 
 # The response functions: both return copies.
@@ -87,13 +88,46 @@ def get_productions_paginated(
     cursor: int | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
+    artists: list[str] | None = None,
+    production_name: str | None = None,
+    earliest_at: datetime | None = None,
+    latest_at: datetime | None = None,
 ) -> ProductionListResponse:
     query = db.query(Production).order_by(Production.id)
+
+    # Name filter
+    if production_name:
+        subq = (
+            db.query(ProdInfo.production_id)
+            .filter(ProdInfo.title.ilike(f"%{production_name}%"))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
+    # Date filter
+    if earliest_at:
+        query = query.filter(Production.latest_at >= earliest_at)
+
+    if latest_at:
+        query = query.filter(Production.earliest_at <= latest_at)
+
+    # Tags filter
     if tags:
         subq = (
             db.query(Production.id)
             .join(Production.tags)
             .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Production.id.in_(subq))
+
+    # Artists filter
+    if artists:
+        subq = (
+            db.query(ProdInfo.production_id)
+            .filter(ProdInfo.artist.in_(artists))
             .distinct()
             .subquery()
         )

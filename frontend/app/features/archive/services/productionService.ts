@@ -18,14 +18,21 @@ import type { PaginationRequest } from "../types/paginationTypes";
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getProductionsPaginated(
-  params?: PaginationRequest & { tags?: number[] }
+  params?: PaginationRequest & {
+    tag_ids?: string[];
+    artists?: string[];
+    production_name?: string;
+    earliest_at?: string;
+    latest_at?: string;
+  }
 ): Promise<ProductionList> {
   const apiClient = createApiClient();
 
   const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions`, {
     params: {
       ...params,
-      tags: params?.tags?.join(","),
+      tag_ids: params?.tag_ids?.join(","),
+      artists: params?.artists?.join(","),
     },
   });
 

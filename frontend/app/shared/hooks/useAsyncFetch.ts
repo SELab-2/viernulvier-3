@@ -5,6 +5,7 @@ export type UseAsyncReturn<T> = {
   loading: boolean;
   error: Error | null;
   refresh: () => void;
+  setData: React.Dispatch<React.SetStateAction<T | null>>;
 };
 
 export function useAsyncFetch<T>(asyncFn: () => Promise<T>): UseAsyncReturn<T> {
@@ -31,5 +32,5 @@ export function useAsyncFetch<T>(asyncFn: () => Promise<T>): UseAsyncReturn<T> {
     refresh();
   }, [refresh]);
 
-  return { data, loading, error, refresh };
+  return { data, loading, error, refresh, setData };
 }
