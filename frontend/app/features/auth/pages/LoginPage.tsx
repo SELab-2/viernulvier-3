@@ -8,13 +8,13 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
-  TextField,
   type TextFieldProps,
 } from "@mui/material";
 import { Navigate, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { useAuthSession } from "~/features/auth";
+import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 function getLoginErrorMessage(
@@ -53,7 +53,7 @@ function LoginErrorAlert({ errorMessage }: { errorMessage: string | null }) {
 }
 
 function LoginTextField(props: Omit<TextFieldProps, "fullWidth" | "size" | "sx">) {
-  return <TextField fullWidth size="small" sx={fieldSx} {...props} />;
+  return <ArchiveTextField {...props} />;
 }
 
 function PasswordVisibilityAdornment({
@@ -273,33 +273,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
-const fieldSx = {
-  "& .MuiInputLabel-root": {
-    fontFamily: "var(--font-sans)",
-    fontSize: "0.8125rem",
-    color: "color-mix(in srgb, var(--archive-ink) 55%, transparent)",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "var(--archive-accent)",
-  },
-  "& .MuiOutlinedInput-root": {
-    "fontFamily": "var(--font-sans)",
-    "fontSize": "0.875rem",
-    "color": "var(--archive-ink)",
-    "borderRadius": "0.5rem",
-    "& fieldset": {
-      borderColor: "var(--archive-border)",
-    },
-    "&:hover fieldset": {
-      borderColor: "var(--archive-border-hover)",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "var(--archive-accent)",
-      borderWidth: "1px",
-    },
-  },
-};
 
 const submitSx = {
   "py": 1.25,

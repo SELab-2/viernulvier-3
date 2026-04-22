@@ -9,6 +9,7 @@ import {
   createHall,
   updateHall,
   deleteHall,
+  getHallByName,
 } from "~/features/archive/services/hallService";
 import type { Hall, HallCreate, HallUpdate } from "~/features/archive/types/hallTypes";
 
@@ -68,6 +69,19 @@ describe("hallService", () => {
       mockAdapter.onGet("/api/v1/archive/halls/999").reply(404);
 
       await expect(getHall(999)).rejects.toThrow();
+    });
+  });
+
+  describe("getHallByName", () => {
+    it("returns a hall object on success", async () => {
+      const mockHalls: Hall[] = [
+        { id_url: "1", name: "Hall A", address: "Street 1" },
+        { id_url: "2", name: "Hall B", address: "Street 2" },
+      ];
+      mockAdapter.onGet("/api/v1/archive/halls").reply(200, mockHalls);
+
+      const result = await getHallByName("hall A");
+      expect(result).toEqual(mockHalls[0]);
     });
   });
 
