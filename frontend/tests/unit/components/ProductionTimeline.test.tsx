@@ -1,4 +1,6 @@
 import { screen, within, render } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import type { ReactElement } from "react";
 import { mockProductions } from "tests/mocks/productions.mock";
 import { describe, it, expect } from "vitest";
 import {
@@ -6,9 +8,13 @@ import {
   ProductionTimeline,
 } from "~/features/archive/components/ProductionTimeline";
 
+function renderTimeline(ui: ReactElement) {
+  return render(<MemoryRouter initialEntries={["/en/archive"]}>{ui}</MemoryRouter>);
+}
+
 describe("ProductionTimeline", () => {
   it("displays all passed productions", () => {
-    render(<ProductionTimeline productions={mockProductions} />);
+    renderTimeline(<ProductionTimeline productions={mockProductions} />);
 
     for (const prod of mockProductions) {
       const exists = prod.production_infos.some(
@@ -20,7 +26,7 @@ describe("ProductionTimeline", () => {
   });
 
   it("displays months grouped per year", async () => {
-    render(<ProductionTimeline productions={mockProductions} />);
+    renderTimeline(<ProductionTimeline productions={mockProductions} />);
 
     // Check if we can find a year header
     const yearHeader = screen.getByText("2026");
@@ -37,7 +43,7 @@ describe("ProductionTimeline", () => {
 
   describe("unknown date header", () => {
     it("displays when a production's date is not known", () => {
-      render(
+      renderTimeline(
         <ProductionTimeline
           productions={[
             ...mockProductions,
@@ -54,14 +60,14 @@ describe("ProductionTimeline", () => {
       expect(screen.getByText("archive.unknownDate")).toBeInTheDocument();
     });
     it("does not display when all production's dates are known", () => {
-      render(<ProductionTimeline productions={mockProductions} />);
+      renderTimeline(<ProductionTimeline productions={mockProductions} />);
       expect(screen.queryByText("archive.unknownDate")).toBeNull();
     });
   });
 
   describe("sort order", () => {
     it("lists years in descending order when passing ArchiveSortOrder.NewestFirst", () => {
-      render(
+      renderTimeline(
         <ProductionTimeline
           sortOrder={ArchiveSortOrder.NewestFirst}
           productions={mockProductions}
@@ -78,7 +84,7 @@ describe("ProductionTimeline", () => {
     });
 
     it("lists years in ascending order when passing ArchiveSortOrder.OldestFirst", () => {
-      render(
+      renderTimeline(
         <ProductionTimeline
           sortOrder={ArchiveSortOrder.OldestFirst}
           productions={mockProductions}
