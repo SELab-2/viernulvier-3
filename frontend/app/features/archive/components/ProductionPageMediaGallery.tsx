@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
 // extract numeric production id from id_url for media requests
@@ -113,7 +112,6 @@ export function ProductionPageMediaGallery({
     };
   }, [production_id_url, productionNumericId]);
 
-
   useEffect(() => {
     const track = evidenceTrackRef.current;
     if (!track) {
@@ -135,8 +133,7 @@ export function ProductionPageMediaGallery({
       <>
         <div
           ref={evidenceTrackRef}
-          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${"cursor-default"
-          }`}
+          className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${"cursor-default"}`}
         >
           {imageUrls.map((url, index) => (
             <figure

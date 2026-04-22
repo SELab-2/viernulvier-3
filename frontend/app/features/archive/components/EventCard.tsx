@@ -73,7 +73,9 @@ function formatPrices(prices: Price[], language: string, fallback: string): stri
           }).format(price.amount)
         : undefined
     )
-    .filter((amount): amount is string => typeof amount === "string" && amount.length > 0)
+    .filter(
+      (amount): amount is string => typeof amount === "string" && amount.length > 0
+    )
     .join(", ");
 
   return formatted || fallback;
@@ -100,17 +102,30 @@ type EventCardSummaryProps = {
   locationText: string;
 };
 
-function EventCardSummary({ dateLabel, locationLabel, dateText, locationText }: EventCardSummaryProps) {
+function EventCardSummary({
+  dateLabel,
+  locationLabel,
+  dateText,
+  locationText,
+}: EventCardSummaryProps) {
   return (
     <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
       <div className="min-w-0">
-        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">{dateLabel}</p>
-        <p className="truncate text-sm font-semibold opacity-95 md:text-base">{dateText}</p>
+        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+          {dateLabel}
+        </p>
+        <p className="truncate text-sm font-semibold opacity-95 md:text-base">
+          {dateText}
+        </p>
       </div>
 
       <div className="min-w-0">
-        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">{locationLabel}</p>
-        <p className="truncate text-sm font-semibold opacity-95 md:text-base">{locationText}</p>
+        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+          {locationLabel}
+        </p>
+        <p className="truncate text-sm font-semibold opacity-95 md:text-base">
+          {locationText}
+        </p>
       </div>
 
       <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
@@ -134,7 +149,11 @@ export function EventCard({ event }: EventCardProps) {
     event.resolvedHall?.name ?? event.hall?.name,
     t("productionPage.fallback.locationUnknown")
   );
-  const eventPrice = formatPrices(event.resolvedPrices, i18n.language, t("productionPage.noPrice"));
+  const eventPrice = formatPrices(
+    event.resolvedPrices,
+    i18n.language,
+    t("productionPage.noPrice")
+  );
 
   return (
     <li key={event.id_url}>
@@ -149,7 +168,10 @@ export function EventCard({ event }: EventCardProps) {
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
           <div className="grid gap-3 text-sm sm:grid-cols-2">
             <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
-            <EventCardDetail label={t("productionPage.priceLabel")} value={eventPrice} />
+            <EventCardDetail
+              label={t("productionPage.priceLabel")}
+              value={eventPrice}
+            />
           </div>
         </div>
       </details>

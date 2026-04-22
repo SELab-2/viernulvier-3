@@ -104,11 +104,19 @@ describe("ProductionPage", () => {
     });
 
     expect(
-      screen.getByRole("heading", { name: "I18N_Production_Fallback_UnknownProduction" })
+      screen.getByRole("heading", {
+        name: "I18N_Production_Fallback_UnknownProduction",
+      })
     ).toBeInTheDocument();
-    expect(screen.getByText("I18N_Production_Fallback_DefaultArtist")).toBeInTheDocument();
-    expect(screen.getByText("I18N_Production_Fallback_NoDescription")).toBeInTheDocument();
-    expect(await screen.findByText("I18N_Production_Fallback_NoEvents")).toBeInTheDocument();
+    expect(
+      screen.getByText("I18N_Production_Fallback_DefaultArtist")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("I18N_Production_Fallback_NoDescription")
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_Production_Fallback_NoEvents")
+    ).toBeInTheDocument();
   });
 
   it("loads related event data and renders chronologically sorted events", async () => {

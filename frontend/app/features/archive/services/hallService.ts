@@ -15,7 +15,6 @@ export async function getHall(hallId: number): Promise<Hall> {
   return getFromArchive<Hall>(`/halls/${hallId}`);
 }
 
-
 export async function getHallByUrl(hallUrl: string): Promise<Hall> {
   return getByUrl<Hall>(hallUrl);
 }
