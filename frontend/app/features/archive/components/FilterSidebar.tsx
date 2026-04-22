@@ -63,6 +63,7 @@ const FilterDateCard: React.FC<DateCardProps> = ({
           <input
             type="date"
             value={dateFrom}
+			max={dateTo}
             onChange={(e) => setDateFrom(e.target.value)}
             className="archive-filter-input"
           />
@@ -74,6 +75,7 @@ const FilterDateCard: React.FC<DateCardProps> = ({
           <input
             type="date"
             value={dateTo}
+			min={dateFrom}
             onChange={(e) => setDateTo(e.target.value)}
             className="archive-filter-input"
           />
