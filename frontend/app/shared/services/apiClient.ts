@@ -7,6 +7,7 @@ import {
 } from "~/features/auth/services/tokenStorage";
 
 import { getEnv } from "../utils/env";
+import i18n from "~/i18n";
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -39,9 +40,15 @@ export function createApiClient() {
 
   apiClient.interceptors.request.use((config) => {
     const accessToken = getStoredAccessToken();
+    const lang = i18n.language;
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    if (lang) {
+      config.headers["Accept-Language"] = lang;
+      config.headers["Preferred-Language"] = lang;
     }
 
     return config;
