@@ -697,6 +697,7 @@ export function ProductionPage({
         draftInfo={draftInfo}
         setDraftInfo={setDraftInfo}
         enable_save={isDirty}
+        setIsSaving={setIsSaving}
         is_saving={isSaving}
       />
     </div>
