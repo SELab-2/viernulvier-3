@@ -11,8 +11,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router";
 import type { Production, ProductionInfo } from "../types/productionTypes";
-import { useParams } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
 
 const DEFAULT_IMAGE =
@@ -52,13 +53,9 @@ interface ProductionCardProps {
 }
 
 function getProductionInfoByLanguage(
-  productionInfos: ProductionInfo[] | undefined,
+  productionInfos: ProductionInfo[],
   language: string
-): ProductionInfo | undefined {
-  if (!productionInfos || productionInfos.length === 0) {
-    return undefined;
-  }
-
+): ProductionInfo {
   const normalizedLanguage = language.toLowerCase();
   const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
 
@@ -105,6 +102,11 @@ function getTagNamesByLanguage(production: Production, language: string): string
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
+function getProductionNumericIdFromUrl(idUrl: string): string | undefined {
+  const match = idUrl.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+  return match?.[1];
+}
+
 function getProductionStartLabel(
   production: Production,
   lang?: string
@@ -148,11 +150,12 @@ function getVenues(production: Production): string[] | undefined {
 
 export function ProductionCard({
   production,
-  onOpen,
   className,
   preferredLanguage,
 }: ProductionCardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
   const { lang } = useParams();
   if (!preferredLanguage) preferredLanguage = lang || "nl";
   const defaultCardValues = {
@@ -177,13 +180,20 @@ export function ProductionCard({
   );
   const dateParts = dateLabel.split(" - ");
   const venues = getVenues(production);
-  const imageUrl = getTextOrDefault(production.image_url, defaultCardValues.imageUrl);
+  const imageUrl = getTextOrDefault(
+    (production as { image_url?: string }).image_url,
+    defaultCardValues.imageUrl
+  );
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
-  const productionId = production.id_url;
+  const productionId = getProductionNumericIdFromUrl(production.id_url);
 
   const handleOpenDetails = () => {
-    onOpen?.(productionId);
+    if (!productionId) {
+      return;
+    }
+
+    navigate(lp(`/archive/productions/${productionId}`));
   };
 
   return (

@@ -2,6 +2,21 @@ import { createApiClient } from "./apiClient";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
+function normalizeRequestUrl(url: string): string {
+  const trimmedUrl = url.trim();
+
+  if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+      return `${parsedUrl.pathname}${parsedUrl.search}`;
+    } catch {
+      return trimmedUrl;
+    }
+  }
+
+  return trimmedUrl;
+}
+
 export interface PaginationParams {
   cursor?: number;
   has_more?: boolean;
@@ -10,7 +25,7 @@ export interface PaginationParams {
 
 export async function getByUrl<T>(url: string): Promise<T> {
   const apiClient = createApiClient();
-  const data = await apiClient.get<T>(url);
+  const data = await apiClient.get<T>(normalizeRequestUrl(url));
   return data.data;
 }
 

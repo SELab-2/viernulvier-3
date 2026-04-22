@@ -47,6 +47,29 @@
       }
     }
   },
+  "productionPage": {
+    "fallback": {
+      "unknownProduction": "Onbekende productie",
+      "archive": "Archief",
+      "defaultArtist": "viernulvier",
+      "noTeaser": "Geen teaser beschikbaar voor deze productie.",
+      "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
+      "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
+      "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "dateUnknown": "Datum onbekend",
+      "locationUnknown": "Locatie onbekend"
+    },
+    "headerBrandAria": "VIERNULVIER Archief",
+    "archiveLabel": "Archief",
+    "backToCollection": "Terug naar de collectie",
+    "archiveSchema": "Archiefschema",
+    "dateLabel": "Datum",
+    "timeLabel": "Tijd",
+    "placeLabel": "Plaats",
+    "priceLabel": "Prijs",
+    "noPrice": "Geen prijs beschikbaar",
+    "visualEvidence": "Foto's"
+  },
 
   "home": {
     "title": "Vensters naar het Verleden",

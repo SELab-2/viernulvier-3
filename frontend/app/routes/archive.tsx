@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "../features/archive/components/FilterSidebar";
 import { Add } from "@mui/icons-material";
+import { Outlet } from "react-router";
 
 import {
   ArchiveSortOrder,
@@ -262,6 +263,7 @@ export default function Archive() {
           )}
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

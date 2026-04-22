@@ -48,6 +48,31 @@
     }
   },
 
+  "productionPage": {
+    "fallback": {
+      "unknownProduction": "Unknown production",
+      "archive": "Archive",
+      "defaultArtist": "viernulvier",
+      "noTeaser": "No teaser available for this production.",
+      "noDescription": "No additional description is available for this production.",
+      "noInfo": "No extra information is available for this production.",
+      "noEvents": "No events recorded for this production.",
+      "dateUnknown": "Date unknown",
+      "locationUnknown": "Location unknown"
+    },
+    "headerBrandAria": "VIERNULVIER Archive",
+    "archiveLabel": "Archive",
+    "backToCollection": "Back to the collection",
+    "archiveSchema": "Archive schema",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "placeLabel": "Venue",
+    "priceLabel": "Price",
+    "noPrice": "No price available",
+
+    "visualEvidence": "Photos"
+  },
+
   "home": {
     "title": "Windows to the Past",
     "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
