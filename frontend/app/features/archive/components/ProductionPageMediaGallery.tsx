@@ -118,86 +118,12 @@ export function ProductionPageMediaGallery({
     };
   }, [production_id_url, productionNumericId]);
 
-  const syncEvidenceSlider = () => {
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    const hasOverflow = maxScroll > 0;
-    setHasEvidenceOverflow(hasOverflow);
-
-    if (maxScroll <= 0) {
-      setEvidenceScrollPercent(0);
-      return;
-    }
-
-    setEvidenceScrollPercent((track.scrollLeft / maxScroll) * 100);
-  };
-
-  const handleEvidenceSliderChange = (nextPercent: number) => {
-    const track = evidenceTrackRef.current;
-    if (!track || !hasEvidenceOverflow) {
-      return;
-    }
-
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    track.scrollLeft = (Math.max(0, Math.min(100, nextPercent)) / 100) * maxScroll;
-    setEvidenceScrollPercent(nextPercent);
-  };
-
-  const handleEvidenceMouseDown = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!hasEvidenceOverflow) {
-      return;
-    }
-
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    isDraggingEvidenceRef.current = true;
-    evidenceDragStartXRef.current = event.clientX;
-    evidenceStartScrollLeftRef.current = track.scrollLeft;
-  };
-
-  const handleEvidenceMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!isDraggingEvidenceRef.current) {
-      return;
-    }
-
-    const track = evidenceTrackRef.current;
-    if (!track) {
-      return;
-    }
-
-    const dragDelta = event.clientX - evidenceDragStartXRef.current;
-    track.scrollLeft = evidenceStartScrollLeftRef.current - dragDelta;
-    syncEvidenceSlider();
-  };
-
-  const stopEvidenceDragging = () => {
-    isDraggingEvidenceRef.current = false;
-  };
 
   useEffect(() => {
     const track = evidenceTrackRef.current;
     if (!track) {
       return;
     }
-
-    syncEvidenceSlider();
-
-    const resizeObserver = new ResizeObserver(() => {
-      syncEvidenceSlider();
-    });
-
-    resizeObserver.observe(track);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
   }, [imageUrls]);
 
   return (
@@ -214,11 +140,6 @@ export function ProductionPageMediaGallery({
       <>
         <div
           ref={evidenceTrackRef}
-          onScroll={syncEvidenceSlider}
-          onMouseDown={handleEvidenceMouseDown}
-          onMouseMove={handleEvidenceMouseMove}
-          onMouseUp={stopEvidenceDragging}
-          onMouseLeave={stopEvidenceDragging}
           className={`flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] ${
             hasEvidenceOverflow
               ? "cursor-grab active:cursor-grabbing"
@@ -251,9 +172,6 @@ export function ProductionPageMediaGallery({
               max={100}
               step={1}
               value={Math.round(evidenceScrollPercent)}
-              onChange={(event) =>
-                handleEvidenceSliderChange(Number(event.target.value))
-              }
               aria-label={t("productionPage.archiveSchema")}
               className="accent-archive-accent w-full"
             />
