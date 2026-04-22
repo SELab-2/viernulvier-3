@@ -101,11 +101,13 @@ describe("Archive", () => {
 
       // Before clicking show more
       expectEveryProductionVisible([mockProductions[0]]);
+
       expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1, {
         artists: undefined,
         earliest_at: "1970-01-01",
         latest_at: "2026-04-22",
         production_name: undefined,
+        sort_order: "Descending",
         tag_ids: undefined,
       });
 
@@ -119,6 +121,7 @@ describe("Archive", () => {
         artists: undefined,
         earliest_at: "1970-01-01",
         latest_at: "2026-04-22",
+        sort_order: "Descending",
         production_name: undefined,
         tag_ids: undefined,
       });

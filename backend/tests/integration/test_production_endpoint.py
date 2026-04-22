@@ -471,7 +471,6 @@ def test_patch_production_tags_failure(
         json={"tag_id_urls": [f"{BASE_TAG_URL}/{tag_id}" for tag_id in (1, 2, 124)]},
         headers=headers,
     )
-    print(response.json())
 
     assert response.status_code == 400  # bad request: at least one invalid tag
 
@@ -571,7 +570,6 @@ def test_create_production_with_tags_failure(
         headers=headers,
     )
 
-    print(response.json())
     assert response.status_code == 400  # bad request: at least one invalid tag
 
 
@@ -676,7 +674,6 @@ def test_production_urls_contain_full_path(client: TestClient, db_session: Sessi
     assert production_url is not None
     assert BASE_PROD_URL in production_url
 
-    print(prod_data)
     events_urls = prod_data.get("event_id_urls", [])
     assert len(events_urls) == 2
     for event_url, event in zip(events_urls, [event1, event2]):

@@ -13,6 +13,11 @@ import { getProductionsPaginated } from "~/features/archive/services/productionS
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import { Protected } from "~/features/auth";
 
+const archiveSortOrderToBackendSortOrder: Record<ArchiveSortOrder, string> = {
+  [ArchiveSortOrder.NewestFirst]: "Descending",
+  [ArchiveSortOrder.OldestFirst]: "Ascending",
+};
+
 function SortOrderSelection({
   sortOrder,
   setSortOrder,
@@ -97,10 +102,12 @@ function MobileToggleButton({ onClick }: { onClick?: () => void }) {
 function ShowMoreButton({
   productionList,
   setProductionList,
+  sortOrder,
   filters,
 }: {
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
+  sortOrder: ArchiveSortOrder;
   filters: {
     production_name?: string;
     earliest_at?: string;
@@ -114,6 +121,7 @@ function ShowMoreButton({
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
+      sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
       ...filters,
     });
 
@@ -164,6 +172,7 @@ export default function Archive() {
         production_name: debouncedSearch || undefined,
         earliest_at: dateFrom || undefined,
         latest_at: dateTo || undefined,
+        sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
         tag_ids:
           selectedTags.length > 0
             ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
@@ -173,15 +182,14 @@ export default function Archive() {
       setProductionList(result);
     }
     fetchProductions();
-  }, [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists]);
+  }, [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists, sortOrder]);
+  const productions = productionList?.productions ?? [];
 
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
   };
 
   const { t } = useTranslation();
-
-  const productions = productionList?.productions ?? [];
 
   return (
     <div className="mx-6 md:mx-10">
@@ -239,6 +247,7 @@ export default function Archive() {
             <ShowMoreButton
               productionList={productionList}
               setProductionList={setProductionList}
+              sortOrder={sortOrder}
               filters={{
                 production_name: debouncedSearch || undefined,
                 earliest_at: dateFrom || undefined,
