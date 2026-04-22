@@ -7,8 +7,8 @@ export default [
   route(":lang", "shared/components/LanguageWrapper.tsx", [
     index("routes/home.tsx"),
     route("archive", "routes/archive.tsx"),
+    route("archive/productions/:productionId", "routes/productions.$productionId.tsx"),
     route("history", "routes/history.tsx"),
-    route("productions/:productionId", "routes/productions.$productionId.tsx"),
     route("login", "routes/login.tsx"),
     route("users", "routes/users.tsx"),
     route("*", "routes/not-found.tsx"),

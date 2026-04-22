@@ -194,7 +194,7 @@ export function ProductionCard({
       return;
     }
 
-    navigate(lp(`/productions/${productionId}`));
+    navigate(lp(`/archive/productions/${productionId}`));
   };
 
   return (
