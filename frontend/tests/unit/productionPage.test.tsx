@@ -28,7 +28,7 @@ function renderPage(production: Production) {
     [
       {
         path: "/:lang/productions/:productionId",
-        element: <ProductionPage production={production} />,
+        element: <ProductionPage production={production} preferredLanguage="en" />,
       },
     ],
     {
