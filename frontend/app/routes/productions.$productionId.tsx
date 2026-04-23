@@ -33,6 +33,7 @@ export default function ProductionDetailRoute() {
     [productionId]
   );
   const { i18n } = useTranslation();
+  const { lang } = useParams();
   const [production, setProduction] = useState<Production | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -47,10 +48,18 @@ export default function ProductionDetailRoute() {
       try {
         const numericId = getProductionNumericIdFromInput(decodedProductionId);
 
-        const productionData =
+        let productionData =
           typeof numericId === "number"
             ? await getProduction(numericId)
             : await getProductionByUrl(decodedProductionId);
+
+        if (productionData.production_infos.length == 0 && !isCancelled) {
+          const otherLanguage = lang == "en" ? "nl" : "en";
+          productionData =
+            typeof numericId === "number"
+              ? await getProduction(numericId, otherLanguage)
+              : await getProductionByUrl(decodedProductionId, otherLanguage);
+        }
 
         if (!isCancelled) {
           setProduction(productionData);
@@ -79,7 +88,7 @@ export default function ProductionDetailRoute() {
     return () => {
       isCancelled = true;
     };
-  }, [decodedProductionId, i18n.resolvedLanguage]);
+  }, [decodedProductionId, i18n.resolvedLanguage, lang]);
 
   if (isLoading) {
     return <div>Loading production...</div>;
