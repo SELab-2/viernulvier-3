@@ -4,6 +4,7 @@ import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import * as envModule from "~/shared/utils/env";
 import * as tokenRefreshModule from "~/features/auth/services/tokenRefresh";
+import i18n from "~/i18n";
 import { getByUrl } from "~/shared/services/sharedService";
 
 vi.mock("~/features/auth");
@@ -51,6 +52,26 @@ describe("createApiClient", () => {
 
     await client.get("/test");
     expect(capturedAuthHeader).toBe("Bearer test_token1234");
+  });
+  it("adds language headers when i18n.language is set", async () => {
+    vi.spyOn(i18n, "language", "get").mockReturnValue("en");
+
+    const client = createApiClient();
+
+    let acceptLanguage: string | undefined;
+    let preferredLanguage: string | undefined;
+
+    const mockAdapter = new AxiosMockAdapter(client);
+    mockAdapter.onGet("/test-lang").reply((config) => {
+      acceptLanguage = config.headers?.["Accept-Language"] as string;
+      preferredLanguage = config.headers?.["Preferred-Language"] as string;
+      return [200, {}];
+    });
+
+    await client.get("/test-lang");
+
+    expect(acceptLanguage).toBe("en");
+    expect(preferredLanguage).toBe("en");
   });
 
   it("returns response data on GET request", async () => {

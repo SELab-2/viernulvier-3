@@ -40,12 +40,18 @@ export async function getProductionsPaginated(
   return response.data;
 }
 
-export async function getProduction(productionId: number): Promise<Production> {
-  return getFromArchive<Production>(`/productions/${productionId}`);
+export async function getProduction(
+  productionId: number,
+  lang?: string
+): Promise<Production> {
+  return getFromArchive<Production>(`/productions/${productionId}`, lang);
 }
 
-export async function getProductionByUrl(productionUrl: string): Promise<Production> {
-  return getByUrl<Production>(productionUrl);
+export async function getProductionByUrl(
+  productionUrl: string,
+  lang?: string
+): Promise<Production> {
+  return getByUrl<Production>(productionUrl, lang);
 }
 
 export async function createProduction(
