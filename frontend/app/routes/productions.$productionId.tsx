@@ -53,8 +53,8 @@ export default function ProductionDetailRoute() {
             ? await getProduction(numericId)
             : await getProductionByUrl(decodedProductionId);
 
-        if (productionData.production_infos.length == 0 && !isCancelled) {
-          const otherLanguage = lang == "en" ? "nl" : "en";
+        if (productionData.production_infos.length === 0 && !isCancelled) {
+          const otherLanguage = lang === "en" ? "nl" : "en";
           productionData =
             typeof numericId === "number"
               ? await getProduction(numericId, otherLanguage)

@@ -231,7 +231,7 @@ export default function Archive() {
               <p className="italic opacity-60 md:text-lg">
                 {/* Result count */}
                 {productions.length}{" "}
-                {productions.length == 1 ? t("archive.result") : t("archive.results")}
+                {productions.length === 1 ? t("archive.result") : t("archive.results")}
               </p>
               <CreateProductionButton />
             </div>

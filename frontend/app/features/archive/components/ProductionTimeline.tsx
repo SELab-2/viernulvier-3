@@ -72,7 +72,7 @@ function MonthDisplay({
       {month != -1 ? (
         <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
           <div className="upper text-[14px] font-bold tracking-[0.28em] uppercase opacity-25">
-            {month == -1 ? t("Unknown") : getLongMonthName(month, lang)}
+            {month === -1 ? t("Unknown") : getLongMonthName(month, lang)}
           </div>
           <Divider className="bg-archive-ink/15 flex-1" />
         </div>
@@ -109,7 +109,7 @@ function YearDisplay({
   return (
     <div>
       <h2 className="mt-5 min-h-18 font-serif text-6xl font-black tracking-tighter opacity-20 transition-all">
-        {year == -1 ? t("archive.unknownDate") : year}
+        {year === -1 ? t("archive.unknownDate") : year}
       </h2>
       <Divider className="bg-archive-accent/15 flex-1" />
 
