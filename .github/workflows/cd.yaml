@@ -38,6 +38,7 @@ jobs:
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
           echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env
           echo "MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}" >> .env
+          echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env
 
       - name: Build and Restart Containers
         run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans
