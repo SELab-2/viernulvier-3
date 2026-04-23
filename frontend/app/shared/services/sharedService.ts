@@ -23,14 +23,14 @@ export interface PaginationParams {
   limit?: number;
 }
 
-export async function getByUrl<T>(url: string): Promise<T> {
-  const apiClient = createApiClient();
+export async function getByUrl<T>(url: string, lang?: string): Promise<T> {
+  const apiClient = createApiClient(lang);
   const data = await apiClient.get<T>(normalizeRequestUrl(url));
   return data.data;
 }
 
-export async function getFromArchive<T>(url: string): Promise<T> {
-  const apiClient = createApiClient();
+export async function getFromArchive<T>(url: string, lang?: string): Promise<T> {
+  const apiClient = createApiClient(lang);
   const data = await apiClient.get<T>(`${ARCHIVE_PATH}${url}`);
   return data.data;
 }

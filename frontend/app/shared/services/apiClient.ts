@@ -7,6 +7,7 @@ import {
 } from "~/features/auth/services/tokenStorage";
 
 import { getEnv } from "../utils/env";
+import i18n from "~/i18n";
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -26,7 +27,7 @@ function shouldRetryUnauthorized(request: RetryableRequestConfig | undefined): b
 
 let activeRefreshRequest: Promise<string> | null = null;
 
-export function createApiClient() {
+export function createApiClient(lang?: string) {
   const { API_BASE_URL } = getEnv();
 
   const apiClient = axios.create({
@@ -34,14 +35,22 @@ export function createApiClient() {
     timeout: 5000,
     headers: {
       "Content-Type": "application/json",
+      "Accept-Language": lang,
+      "Preferred-Language": lang,
     },
   });
 
   apiClient.interceptors.request.use((config) => {
     const accessToken = getStoredAccessToken();
+    const i18nlang = i18n.language;
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    if (!lang && i18nlang) {
+      config.headers["Accept-Language"] = i18nlang;
+      config.headers["Preferred-Language"] = i18nlang;
     }
 
     return config;
