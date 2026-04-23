@@ -4,6 +4,7 @@ import {
   postToArchive,
   patchToArchive,
   deleteFromArchive,
+  patchByUrl,
 } from "~/shared/services/sharedService";
 import type {
   Production,
@@ -51,6 +52,13 @@ export async function createProduction(
   productionData: ProductionCreate
 ): Promise<Production> {
   return postToArchive<Production>("/productions", productionData);
+}
+
+export async function updateProductionByUrl(
+  production_url: string,
+  productionData: ProductionUpdate
+): Promise<Production> {
+  return patchByUrl<Production>(production_url, productionData);
 }
 
 export async function updateProduction(

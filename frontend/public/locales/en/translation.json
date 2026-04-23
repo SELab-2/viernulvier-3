@@ -70,7 +70,17 @@
     "priceLabel": "Price",
     "noPrice": "No price available",
 
-    "visualEvidence": "Photos"
+    "visualEvidence": "Photos",
+
+    "edit": {
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "modified": "Modified",
+      "supertitle": "Supertitle",
+      "title": "Title",
+      "artist": "Artist"
+    }
   },
 
   "home": {

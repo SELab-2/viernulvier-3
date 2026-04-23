@@ -1,6 +1,6 @@
-import { Link } from "react-router";
+import { Link, useBlocker } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -13,6 +13,9 @@ import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventS
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "./EventCard";
 import { ProductionPageMediaGallery } from "./ProductionPageMediaGallery";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { updateProductionByUrl } from "../services/productionService";
 
 interface ProductionPageProps {
   production: Production;
@@ -89,6 +92,84 @@ function getTagNamesByLanguage(production: Production, language: string): string
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
+function isFieldModified(
+  original: string | undefined,
+  draft: string | undefined
+): boolean {
+  return (original ?? "") !== (draft ?? "");
+}
+
+function isInfoModified(
+  originalInfo: ProductionInfo | null,
+  draftInfo: ProductionInfo | null
+): boolean {
+  if (!originalInfo || !draftInfo) return false;
+
+  return (
+    originalInfo.title !== draftInfo.title ||
+    originalInfo.supertitle !== draftInfo.supertitle ||
+    originalInfo.artist !== draftInfo.artist ||
+    originalInfo.tagline !== draftInfo.tagline ||
+    originalInfo.teaser !== draftInfo.teaser ||
+    originalInfo.description !== draftInfo.description ||
+    originalInfo.info !== draftInfo.info
+  );
+}
+
+async function handleSave(
+  production_id_url: string,
+  originalInfo: ProductionInfo | null,
+  draftInfo: ProductionInfo | null,
+  setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  if (!draftInfo || !originalInfo) return;
+
+  setIsSaving(true);
+  try {
+    await updateProductionByUrl(production_id_url, {
+      production_infos: [
+        {
+          language: draftInfo.language,
+          title: draftInfo.title,
+          supertitle: draftInfo.supertitle,
+          artist: draftInfo.artist,
+          tagline: draftInfo.tagline,
+          teaser: draftInfo.teaser,
+          description: draftInfo.description,
+          info: draftInfo.info,
+        },
+      ],
+    });
+
+    // sync local "source of truth"
+    setOriginalInfo(draftInfo);
+
+    setIsEditing(false);
+  } catch (err) {
+    window.alert(`Save failed: ${err}`);
+  } finally {
+    setIsSaving(false);
+  }
+}
+
+function useUnsavedChangesBlocker(when: boolean) {
+  const blocker = useBlocker(when);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+
+      if (confirmLeave) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
+}
+
 function BackToCollectionLink() {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -103,28 +184,81 @@ function BackToCollectionLink() {
   );
 }
 
+type SimpleEditableFieldProps = {
+  label: string;
+  value: string;
+  isEditing: boolean;
+  onChange: (value: string) => void;
+  renderView: (value: string) => React.ReactNode;
+  isModified: boolean;
+};
+// <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+// </Protected>
+export function SimpleEditableField({
+  label,
+  value,
+  isEditing,
+  onChange,
+  renderView,
+  isModified,
+}: SimpleEditableFieldProps) {
+  const normal_view = <>{renderView(value)}</>;
+  const { t } = useTranslation();
+
+  if (isEditing) {
+    return (
+      <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
+        <div
+          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-4 backdrop-blur-md transition ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
+        >
+          <div className="mb-1 flex items-center justify-between">
+            <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
+              {label}
+            </h3>
+
+            {isModified && (
+              <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
+                {t("productionPage.edit.modified")}
+              </span>
+            )}
+          </div>
+
+          {/* Input */}
+          <input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none`}
+          />
+        </div>
+      </Protected>
+    );
+  }
+
+  return normal_view;
+}
+
 type ProductionHeaderProps = {
   production_info: ProductionInfo;
   image_url: string;
+  isEditing: boolean;
+  originalInfo: ProductionInfo | null;
+  draftInfo: ProductionInfo | null;
+  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
 };
 
 /* ProductionHeader contains main image, supertitle, title and artist */
 function ProductionHeader({
   production_info,
-  image_url: imageUrl,
+  image_url,
+  isEditing,
+  originalInfo,
+  draftInfo,
+  setDraftInfo,
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
   const title = getTextOrDefault(
     production_info?.title,
     t("productionPage.fallback.unknownProduction")
-  );
-  const supertitle = getTextOrDefault(
-    production_info?.supertitle,
-    t("productionPage.fallback.archive")
-  );
-  const artist = getTextOrDefault(
-    production_info?.artist,
-    t("productionPage.fallback.defaultArtist")
   );
 
   return (
@@ -133,30 +267,75 @@ function ProductionHeader({
       className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
     >
       <img
-        src={imageUrl}
+        src={image_url}
         alt={title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
       <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-        <p
-          id="supertitle"
-          className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
-        >
-          {supertitle}
-        </p>
-        <h1
-          id="title"
-          className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-        >
-          {title}
-        </h1>
-        <p
-          id="artist"
-          className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
-        >
-          {artist}
-        </p>
+        <SimpleEditableField
+          label={t("productionPage.edit.supertitle")}
+          value={draftInfo?.supertitle ?? ""}
+          isEditing={isEditing}
+          isModified={isFieldModified(originalInfo?.supertitle, draftInfo?.supertitle)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              // Overwrite supertitle
+              if (prev) return { ...prev, supertitle: newValue };
+              // !prev => prev ~= null => simple not initialised yet
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <p
+              id="supertitle"
+              className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
+            >
+              {getTextOrDefault(value, t("productionPage.fallback.archive"))}
+            </p>
+          )}
+        />
+        <SimpleEditableField
+          label={t("productionPage.edit.title")}
+          value={draftInfo?.title ?? ""}
+          isEditing={isEditing}
+          isModified={isFieldModified(originalInfo?.title, draftInfo?.title)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              // Overwrite title
+              if (prev) return { ...prev, title: newValue };
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <h1
+              id="title"
+              className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
+            >
+              {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
+            </h1>
+          )}
+        />
+        <SimpleEditableField
+          label={t("productionPage.edit.artist")}
+          value={draftInfo?.artist ?? ""}
+          isEditing={isEditing}
+          isModified={isFieldModified(originalInfo?.artist, draftInfo?.artist)}
+          onChange={(newValue) => {
+            setDraftInfo((prev) => {
+              if (prev) return { ...prev, artist: newValue };
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+            <p
+              id="artist"
+              className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
+            >
+              {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
+            </p>
+          )}
+        />
       </div>
     </section>
   );
@@ -208,7 +387,7 @@ function Events({ event_objects }: EventsProps) {
       <div id="events-listing">
         <ul className="mt-6 space-y-2.5">
           {event_objects.map((event) => (
-            <EventCard event={event} />
+            <EventCard event={event} key={event.id_url} />
           ))}
         </ul>
       </div>
@@ -224,21 +403,134 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
+const Spinner = () => (
+  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+);
+
+type EditButtonProps = {
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  originalInfo: ProductionInfo | null;
+  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  enable_save: boolean;
+  is_saving: boolean;
+  _handleSave: () => Promise<void>;
+};
+
+function EditButton({
+  isEditing,
+  setIsEditing,
+  originalInfo,
+  setDraftInfo,
+  enable_save,
+  is_saving,
+  _handleSave,
+}: EditButtonProps) {
+  const { t } = useTranslation();
+  const shared_css = `
+	shadow-lg
+	hover:bg-archive-control-hover
+	rounded-full
+	cursor-pointer
+	transition-colors
+	duration-150
+	text-archive-ink
+	inline-flex
+	px-6 py-3
+	font-semibold text-white
+  `;
+  return (
+    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+      {!isEditing ? (
+        <button
+          id="edit-production-button"
+          onClick={() => setIsEditing(true)}
+          className={`${shared_css} bg-archive-accent fixed right-6 bottom-6 z-50`}
+        >
+          {t("productionPage.edit.edit")}
+        </button>
+      ) : (
+        <div id="edit-actions" className="fixed right-6 bottom-6 z-50 flex gap-3">
+          <button
+            id="cancel-edit-production-button"
+            onClick={() => {
+              // Copy (not by reference)
+              setDraftInfo(originalInfo ? { ...originalInfo } : null);
+              setIsEditing(false);
+            }}
+            className={`${shared_css} bg-gray-300`}
+          >
+            {t("productionPage.edit.cancel")}
+          </button>
+
+          <button
+            id="save-edit-production-button"
+            onClick={_handleSave}
+            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
+            disabled={!enable_save || is_saving}
+          >
+            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
+          </button>
+        </div>
+      )}
+    </Protected>
+  );
+}
+
 export function ProductionPage({
   production,
   preferredLanguage = "nl",
 }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
-  const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
-  const [eventsWithDetails, setEventsWithDetails] = useState<
-    EventWithResolvedRelations[]
-  >([]);
-  const language = i18n.resolvedLanguage ?? preferredLanguage;
 
+  const language = i18n.resolvedLanguage ?? preferredLanguage;
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
     language
   );
+
+  const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
+  const [eventsWithDetails, setEventsWithDetails] = useState<
+    EventWithResolvedRelations[]
+  >([]);
+
+  // States for editing the production info shown
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(
+    productionInfo
+  );
+  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
+    ...productionInfo!,
+  });
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const _handleSave = () =>
+    handleSave(
+      production.id_url,
+      originalInfo,
+      draftInfo,
+      setOriginalInfo,
+      setIsEditing,
+      setIsSaving
+    );
+
+  // State when editing, keeps track if something has changed
+  // (to enable save button)
+  const isModified = useMemo(
+    () => isInfoModified(originalInfo, draftInfo),
+    [originalInfo, draftInfo]
+  );
+
+  // Prevent moving away from page when edit is modified (browser aways)
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isEditing && isModified) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isEditing, isModified]);
+  // And the same but for React links
+  useUnsavedChangesBlocker(isEditing && isModified);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -359,7 +651,14 @@ export function ProductionPage({
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        <ProductionHeader production_info={productionInfo} image_url={imageUrl} />
+        <ProductionHeader
+          production_info={productionInfo}
+          image_url={imageUrl}
+          isEditing={isEditing}
+          originalInfo={originalInfo}
+          draftInfo={draftInfo}
+          setDraftInfo={setDraftInfo}
+        />
 
         <Tags performer_type={production.performer_type} tags={tags} />
 
@@ -410,6 +709,15 @@ export function ProductionPage({
           title={title}
         />
       </main>
+      <EditButton
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        originalInfo={originalInfo}
+        setDraftInfo={setDraftInfo}
+        enable_save={isModified}
+        is_saving={isSaving}
+        _handleSave={_handleSave}
+      />
     </div>
   );
 }

@@ -47,7 +47,6 @@ function colorWithOpacity(color: string, opacity: number): string {
 
 interface ProductionCardProps {
   production: Production;
-  onOpen?: (productionId: string) => void;
   preferredLanguage?: string;
   className?: string;
 }
@@ -150,8 +149,8 @@ function getVenues(production: Production): string[] | undefined {
 
 export function ProductionCard({
   production,
+  preferredLanguage = "nl",
   className,
-  preferredLanguage,
 }: ProductionCardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();

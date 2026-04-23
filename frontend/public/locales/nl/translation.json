@@ -68,7 +68,17 @@
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
-    "visualEvidence": "Foto's"
+    "visualEvidence": "Foto's",
+
+    "edit": {
+      "edit": "Pas aan",
+      "save": "Sla op",
+      "cancel": "Annuleer",
+      "modified": "Aangepast",
+      "supertitle": "Supertitel",
+      "title": "Titel",
+      "artist": "Artiest"
+    }
   },
 
   "home": {
