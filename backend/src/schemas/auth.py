@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
+from src.schemas.base_schema import StrictModel
 
 
-class UserBase(BaseModel):
+class UserBase(StrictModel):
     username: str
 
 
@@ -12,6 +13,7 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    id_url: str
     super_user: bool
     roles: List[str]
     permissions: List[str]
@@ -29,44 +31,44 @@ class UserReplace(UserBase):
     roles: List[str] = Field(default_factory=list)
 
 
-class UserPatch(BaseModel):
+class UserPatch(StrictModel):
     username: Optional[str] = None
     password: Optional[str] = None
     roles: Optional[List[str]] = None
 
 
-class Token(BaseModel):
+class Token(StrictModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
 
 
-class AccessTokenResponse(BaseModel):
+class AccessTokenResponse(StrictModel):
     access_token: str
     token_type: str = "bearer"
 
 
-class TokenData(BaseModel):
+class TokenData(StrictModel):
     user_id: int
     roles: List[str] = Field(default_factory=list)
     permissions: List[str] = Field(default_factory=list)
     token_version: int = 0
 
 
-class LoginRequest(BaseModel):
+class LoginRequest(StrictModel):
     username: str
     password: str
 
 
-class TokenRefreshRequest(BaseModel):
+class TokenRefreshRequest(StrictModel):
     refresh_token: str
 
 
-class PermissionResponse(BaseModel):
+class PermissionResponse(StrictModel):
     name: str
 
 
-class RoleBase(BaseModel):
+class RoleBase(StrictModel):
     name: str
 
 
@@ -80,5 +82,5 @@ class RoleUpdate(RoleBase):
 
 class RoleResponse(RoleBase):
     model_config = ConfigDict(from_attributes=True)
-    id: int
+    id_url: str
     permissions: List[str] = []

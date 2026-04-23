@@ -1,0 +1,43 @@
+import { useParams, useNavigate, useLocation } from "react-router";
+
+const LANGUAGES = [
+  { code: "en", label: "EN" },
+  { code: "nl", label: "NL" },
+];
+
+interface Props {
+  className?: string;
+}
+
+export function LanguageSwitcher({ className }: Props) {
+  const { lang } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const toggleLanguage = () => {
+    const newLang = lang === "en" ? "nl" : "en";
+    const newPath = location.pathname.replace(`/${lang}`, `/${newLang}`);
+    navigate(newPath);
+  };
+
+  return (
+    <div
+      onClick={toggleLanguage}
+      className={`bg-archive-ink/5 cursor-pointer items-center rounded-full p-1 text-[8px] font-bold sm:text-[10px] ${className ?? ""}`}
+    >
+      {LANGUAGES.map(({ code, label }) => (
+        <button
+          key={code}
+          aria-label="Switch language"
+          className={`cursor-pointer px-2 py-1 sm:px-3 ${
+            code === lang
+              ? "bg-archive-ink bg-archive-ink-dark text-archive-paper text-archive-paper-dark rounded-full"
+              : "opacity-50"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}

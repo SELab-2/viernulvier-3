@@ -1,9 +1,11 @@
 from typing import List, Optional, Sequence
-from pydantic import BaseModel, ConfigDict
+
+from pydantic import ConfigDict
+from src.schemas.base_schema import StrictModel
 
 
-class TagNameBase(BaseModel):
-    language_id: int
+class TagNameBase(StrictModel):
+    language: str
     name: str
 
 
@@ -11,8 +13,8 @@ class TagNameResponse(TagNameBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TagBase(BaseModel):
-    id: str
+class TagBase(StrictModel):
+    id_url: str
 
 
 class TagResponse(TagBase):
@@ -21,9 +23,9 @@ class TagResponse(TagBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TagCreate(BaseModel):
+class TagCreate(StrictModel):
     names: List[TagNameBase]
 
 
-class TagUpdate(BaseModel):
+class TagUpdate(StrictModel):
     names: Optional[List[TagNameBase]]

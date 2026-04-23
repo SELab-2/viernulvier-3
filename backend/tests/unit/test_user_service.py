@@ -41,9 +41,11 @@ def test_create_user_hashes_password_and_assigns_roles(db_session):
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=["admin"]),
+        base_url="",
     )
 
     db_user = user_service.get_user(db_session, "alice")
+    assert created.id == db_user.id
     assert created.username == "alice"
     assert created.roles == ["admin"]
     assert created.permissions == ["users:read"]
@@ -60,6 +62,7 @@ def test_create_user_duplicate_username(db_session):
         user_service.create_user(
             db_session,
             UserCreate(username="alice", password="secret", roles=[]),
+            base_url="",
         )
 
     assert excinfo.value.status_code == 409
@@ -70,6 +73,7 @@ def test_create_user_invalid_role(db_session):
         user_service.create_user(
             db_session,
             UserCreate(username="alice", password="secret", roles=["missing"]),
+            base_url="",
         )
 
     assert excinfo.value.status_code == 400
@@ -81,12 +85,14 @@ def test_replace_user_can_change_username_password_and_roles(db_session):
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=["viewer"]),
+        base_url="",
     )
 
     updated = user_service.replace_user(
         db_session,
         created.id,
         UserReplace(username="alice-updated", password="new-secret", roles=["editor"]),
+        base_url="",
     )
 
     db_user = user_service.get_user(db_session, "alice-updated")
@@ -104,12 +110,14 @@ def test_patch_user_updates_only_provided_fields(db_session):
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=["viewer"]),
+        base_url="",
     )
 
     updated = user_service.patch_user(
         db_session,
         created.id,
         UserPatch(username="alice-renamed", roles=["editor"]),
+        base_url="",
     )
 
     db_user = user_service.get_user(db_session, "alice-renamed")
@@ -129,9 +137,7 @@ def test_patch_user_duplicate_username(db_session):
 
     with pytest.raises(HTTPException) as excinfo:
         user_service.patch_user(
-            db_session,
-            bob.id,
-            UserPatch(username="alice"),
+            db_session, bob.id, UserPatch(username="alice"), base_url=""
         )
 
     assert excinfo.value.status_code == 409
@@ -141,13 +147,12 @@ def test_patch_user_invalid_role(db_session):
     created = user_service.create_user(
         db_session,
         UserCreate(username="alice", password="secret", roles=[]),
+        base_url="",
     )
 
     with pytest.raises(HTTPException) as excinfo:
         user_service.patch_user(
-            db_session,
-            created.id,
-            UserPatch(roles=["missing"]),
+            db_session, created.id, UserPatch(roles=["missing"]), base_url=""
         )
 
     assert excinfo.value.status_code == 400
@@ -161,7 +166,7 @@ def test_get_user_profile_deduplicates_permissions(db_session):
     db_session.commit()
     db_session.refresh(user)
 
-    profile = user_service.get_user_profile(user)
+    profile = user_service.get_user_profile(user, base_url="")
 
     assert profile.roles == ["admin", "manager"]
     assert profile.permissions == ["users:read", "users:update"]
@@ -173,7 +178,7 @@ def test_get_user_profile_returns_all_permissions_for_super_user(db_session):
     db_session.commit()
     db_session.refresh(user)
 
-    profile = user_service.get_user_profile(user)
+    profile = user_service.get_user_profile(user, base_url="")
 
     assert profile.super_user is True
     assert profile.permissions == sorted(Permissions.all())

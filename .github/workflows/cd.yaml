@@ -12,10 +12,14 @@ jobs:
     environment: production
 
     steps:
+      - name: Cleanup Docker
+        run: docker system prune -af
+        
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          clean: true
+
+      - name: Clean workspace
+        run: git clean -fdx
 
       - name: Create .env file
         run: |
@@ -29,6 +33,12 @@ jobs:
           echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "REFRESH_TOKEN_EXPIRE_MINUTES=${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "VIERNULVIER_KEY=${{ secrets.VIERNULVIER_KEY }}" >> .env
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env
+          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
+          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+          echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env
+          echo "MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}" >> .env
+          echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env
 
       - name: Build and Restart Containers
         run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans

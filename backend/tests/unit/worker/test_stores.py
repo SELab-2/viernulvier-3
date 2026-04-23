@@ -3,23 +3,16 @@ from datetime import datetime
 
 from sqlalchemy import select
 from src.models.event import Event, EventPrice
-from src.models.language import Language
 from src.models.production import ProdInfo, Production
+from src.models.tag import Tag, TagName
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
+from src.worker.sync.store.genre import store_new_genres
 
 
 # Test storing a list of productions from the API into our database
 def test_store_new_productions(db_session):
-    # Set up DB with
-    lang_nl = Language(id=1, language="nl")
-    lang_en = Language(id=2, language="en")
-    db_session.add_all([lang_nl, lang_en])
-    db_session.commit()
-
-    language_map = {"nl": 1, "en": 2}
-
     # Data from actual API, removed some unused fields, that already gets
     # tested in 'test_converters.py'
     productions = [
@@ -62,16 +55,27 @@ def test_store_new_productions(db_session):
     ]
 
     # Store in database
-    newest = store_new_productions(db_session, language_map, productions)
+    newest = store_new_productions(db_session, productions)
     db_session.commit()
 
     # Check
-    stored_prods = db_session.execute(select(Production)).scalars().all()
+    stored_prods: list[Production] = (
+        db_session.execute(select(Production)).scalars().all()
+    )
     assert len(stored_prods) == 3
 
-    stored_info = db_session.execute(select(ProdInfo)).scalars().all()
+    assert stored_prods[0].viernulvier_id == 5604
+    assert stored_prods[1].viernulvier_id == 5610
+    assert stored_prods[2].viernulvier_id == 5613
+
+    stored_infos = db_session.execute(select(ProdInfo)).scalars().all()
     # 6 prod_info because 2 languages per production
-    assert len(stored_info) == 6
+    assert len(stored_infos) == 6
+
+    # Check if everything is linked properly
+    stored_prod_ids = [prod.id for prod in stored_prods]
+    for stored_info in stored_infos:
+        assert stored_info.production_id in stored_prod_ids
 
     # Assert newest timestamp returned
     assert newest == datetime.fromisoformat("2022-11-22T13:45:59+00:00")
@@ -79,7 +83,7 @@ def test_store_new_productions(db_session):
 
 # Quick sanity check that we get None when no production was received
 def test_store_new_productions_empty_list(db_session):
-    newest = store_new_productions(db_session, {}, [])
+    newest = store_new_productions(db_session, [])
     assert newest is None
 
 
@@ -90,7 +94,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
     caplog.set_level(logging.WARNING)
 
     # Add a dummy production to the DB so that an event can be stored
-    prod = Production(id=4129)
+    prod = Production(viernulvier_id=4129)
     db_session.add(prod)
     db_session.commit()
 
@@ -144,13 +148,13 @@ def test_store_new_events_with_orphans(db_session, caplog):
     ]
 
     # Try to store the events
-    newest = store_new_events(db_session, {}, events)
+    newest = store_new_events(db_session, events)
     db_session.commit()
 
     # Assert that only one event was stored
     stored_events = db_session.execute(select(Event)).scalars().all()
     assert len(stored_events) == 1
-    assert stored_events[0].id == 6169
+    assert stored_events[0].viernulvier_id == 6169
 
     # newest timestamp should be from the last created valid event
     assert newest == datetime.fromisoformat("2021-08-16T14:36:53+00:00")
@@ -179,7 +183,7 @@ def test_store_new_events_with_orphans(db_session, caplog):
 
 # Quick sanity check that we get None when no event was received
 def test_store_new_events_empty_list(db_session):
-    newest = store_new_events(db_session, {}, [])
+    newest = store_new_events(db_session, [])
     assert newest is None
 
 
@@ -190,7 +194,7 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     caplog.set_level(logging.WARNING)
 
     # Add a dummy event to the DB so that an eventprice can be stored
-    event = Event(id=8625)
+    event = Event(viernulvier_id=8625)
     db_session.add(event)
     db_session.commit()
 
@@ -233,13 +237,13 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     ]
 
     # Try to store the eventprices
-    newest = store_new_eventprices(db_session, {}, eventprices)
+    newest = store_new_eventprices(db_session, eventprices)
     db_session.commit()
 
     # Assert that only one eventprice was stored
     stored_events = db_session.execute(select(EventPrice)).scalars().all()
     assert len(stored_events) == 1
-    assert stored_events[0].id == 14085
+    assert stored_events[0].viernulvier_id == 14085
 
     # newest timestamp should be from the last created valid eventprice
     assert newest == datetime.fromisoformat("2023-01-20T10:26:50+00:00")
@@ -264,3 +268,97 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     assert "does not exist" in orphaned_warning_2
 
     assert "Skipped 3 eventprices" in total_orphans_warning
+
+
+def test_store_new_genres_as_tags(db_session):
+    # Data from actual API, removed some unused fields, that already gets
+    # tested in 'test_converters.py'
+    genres = [
+        {
+            "@id": "/api/v1/genres/1",
+            "created_at": "2008-07-11T08:49:18+00:00",
+            "updated_at": "2025-12-04T12:15:37+00:00",
+            "vendor_id": "cabaret",
+        },
+        {
+            "@id": "/api/v1/genres/3",
+            "created_at": "2008-07-11T08:50:34+00:00",
+            "updated_at": "2025-12-04T12:15:34+00:00",
+            "vendor_id": "opera",
+        },
+        {
+            "@id": "/api/v1/genres/22",
+            "@type": "Genres",
+            "created_at": "2023-03-31T08:44:07+00:00",
+            "updated_at": "2026-03-31T08:25:44+00:00",
+            "name": {"nl": "in De Vooruit", "en": "at De Vooruit"},
+        },
+    ]
+
+    # Store in database
+    newest = store_new_genres(db_session, genres)
+    db_session.commit()
+
+    # Check
+    stored_tags = db_session.execute(select(Tag)).scalars().all()
+    assert len(stored_tags) == 3
+
+    stored_names = db_session.execute(select(TagName)).scalars().all()
+    # 4 because 1 genre has 2 languages for its name
+    assert len(stored_names) == 4
+
+    assert newest == datetime.fromisoformat("2023-03-31T08:44:07+00:00")
+
+
+def test_store_production_with_tags(db_session):
+    # Simple genres to test only the appending
+    genres = [
+        {
+            "@id": "/api/v1/genres/10",
+            "created_at": "2008-07-11T08:49:18+00:00",
+            "updated_at": "2025-12-04T12:15:37+00:00",
+            "vendor_id": "cabaret",
+        },
+        {
+            "@id": "/api/v1/genres/11",
+            "created_at": "2008-07-11T08:50:34+00:00",
+            "updated_at": "2025-12-04T12:15:34+00:00",
+            "vendor_id": "opera",
+        },
+    ]
+    # Simple production to test only the tags
+    productions = [
+        {
+            "@id": "/api/v1/productions/5604",
+            "created_at": "2022-11-22T11:02:27+00:00",
+            "updated_at": "2022-11-30T08:59:20+00:00",
+            "title": {"nl": "Poplife - NYE", "en": "Poplife - NYE"},
+            "genres": ["api/v1/genres/10"],
+        },
+        {
+            "@id": "/api/v1/productions/5610",
+            "created_at": "2022-11-22T13:45:50+00:00",
+            "updated_at": "2024-07-23T06:59:29+00:00",
+            "title": {"nl": "TOESTANDEN", "en": "TOESTANDEN"},
+            "genres": ["api/v1/genres/10", "api/v1/genres/11"],
+        },
+    ]
+
+    store_new_genres(db_session, genres)
+    db_session.commit()
+    store_new_productions(db_session, productions)
+    db_session.commit()
+
+    stored_tags = db_session.execute(select(Tag)).scalars().all()
+    assert len(stored_tags) == 2
+    stored_prods: list[Production] = (
+        db_session.execute(select(Production)).scalars().all()
+    )
+    assert len(stored_prods) == 2
+
+    assert len(stored_prods[0].tags) == 1
+    assert len(stored_prods[1].tags) == 2
+
+    assert stored_prods[0].tags[0].id == stored_prods[1].tags[0].id
+    assert stored_prods[0].tags[0].id == stored_tags[0].id
+    assert stored_prods[1].tags[1].id == stored_tags[1].id

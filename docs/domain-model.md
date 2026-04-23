@@ -8,52 +8,39 @@
 ```
 Table productions {
     id int [pk] // production unique ID
+    viernulvier_id int [unique]
+
     performer_type varchar // e.g., "group", "individual"
     attendance_mode varchar // e.g., "offline", "online", "hybrid"
-    
-    media_gallery_id int [ref: - gallery.id]
-    
+
     created_at timestamp
     updated_at timestamp
+
+    earliest_at timestamp
+    latest_at timestamp
 }
 
 Table prod_info {
   production_id int [ref: > productions.id]
-  language int [ref: - language.id]
+  language varchar [pk]
 
-  title varchar 
-  supertitle varchar 
+  title varchar
+  supertitle varchar
   artist varchar
-  tagline varchar 
+  tagline varchar
   teaser varchar
-  
   description varchar
   info varchar
 }
 
-Table language {
-  id int [pk]
-  language varchar
-}
-
-Table genres {
-  id int [pk]
-}
-
-Table genre_names {
-  genre_id int [ref: > genres.id]
-  language_id int [ref: - language.id]
-  name varchar
-}
-
 Table tags {
   id int [pk]
-  name varchar
+  viernulvier_id int [unique]
 }
 
 Table tag_names {
   tag_id int [ref: > tags.id]
-  language_id int [ref: - language.id]
+  language varchar [pk]
   name varchar
 }
 
@@ -62,13 +49,10 @@ Table prod_tags {
   prod_id int [ref: - productions.id]
 }
 
-Table prod_genres {
-  genre_id int [ref: - genres.id]
-  prod_id int [ref: - productions.id]
-}
-
 Table events {
     id int [pk]                     // event ID from "@id"
+    viernulvier_id int [unique]
+
     production_id int [ref: > productions.id]
     hall_id int [ref: > halls.id]
 
@@ -76,20 +60,20 @@ Table events {
     ends_at timestamp
 
     order_url varchar
-    external_order_url varchar
 
     created_at timestamp
     updated_at timestamp
 }
 
 Table event_prices {
-    id int [pk]                     
+    id int [pk]
+    viernulvier_id int [unique]
+
     event_id int [ref: > events.id]
 
-    label varchar                    
-    amount decimal            
-    available int                     
-    expires_at timestamp       
+    amount decimal
+    available int
+    expires_at timestamp
 
     created_at timestamp
     updated_at timestamp
@@ -102,9 +86,12 @@ Table halls {
 
 }
 
-Table gallery {
+Table media {
   id int [pk]
-  media media
+  production_id int [ref: > productions.id]
+  object_key varchar
+  content_type varchar
+  uploaded_at datetime
 }
 ```
 </details>

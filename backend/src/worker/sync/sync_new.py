@@ -8,6 +8,7 @@ from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.production import store_new_productions
+from src.worker.sync.store.genre import store_new_genres
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +17,12 @@ STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
     ResourceType.PRODUCTION: store_new_productions,
     ResourceType.EVENT: store_new_events,
     ResourceType.EVENT_PRICES: store_new_eventprices,
+    ResourceType.GENRES: store_new_genres,
 }
 
 
 def store_new_items(
     db_session: Session,
-    language_map: dict[str, int],
     resource_type: ResourceType,
     items: list[dict],
 ):
@@ -37,12 +38,11 @@ def store_new_items(
     if not store_fn:
         raise ValueError(f"No store function registered for {resource_type}")
 
-    return store_fn(db_session, language_map, items)
+    return store_fn(db_session, items)
 
 
 def sync_new_items(
     db_session: Session,
-    language_map: dict[str, int],
     fetcher: PagedFetcher,
     resource_type: ResourceType,
 ):
@@ -56,7 +56,6 @@ def sync_new_items(
     ---
 
     :param db_session: open database connection
-    :param language_map: dictionary containing lang-code -> lang-id mapping
     :param fetcher: a fetcher inhereting from PagedFetcher for getting new data
     :param resource_type: type of resource to look up in database
     """
@@ -74,7 +73,7 @@ def sync_new_items(
     if not items or len(items) == 0:
         return
 
-    newest_timestamp = store_new_items(db_session, language_map, resource_type, items)
+    newest_timestamp = store_new_items(db_session, resource_type, items)
     if not newest_timestamp:
         newest_timestamp = last_timestamp
 

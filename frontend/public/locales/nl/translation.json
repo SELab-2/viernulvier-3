@@ -1,0 +1,230 @@
+{
+  "nav": {
+    "home": "Home",
+    "archive": "Archief",
+    "history": "Geschiedenis",
+    "users": "Gebruikers"
+  },
+  "footer": {
+    "website": "Onze officiële website"
+  },
+
+  "filter": {
+    "search": "Zoeken",
+    "search_in_collection": "Zoek in de collectie",
+    "period": "Periode",
+    "from": "Van",
+    "to": "Tot",
+    "tags": "Tags",
+    "search_tags": "Zoek naar andere tags",
+    "halls": "Locaties",
+    "artists": "Artiesten",
+    "search_artists": "Zoek naar artiesten",
+    "toggle_menu": "Filteren & Zoeken"
+  },
+
+  "archive": {
+    "title": "De Collectie",
+    "results": "resultaten",
+    "result": "resultaat",
+    "show_more": "Toon meer",
+    "no_results": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
+    },
+    "create_production": "Nieuwe productie",
+    "sortBy": "Sorteer op",
+    "sortOrder": {
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst"
+    },
+    "unknownDate": "Onbekende datum",
+    "card": {
+      "defaults": {
+        "title": "Onbekende productie",
+        "dateLabel": "Onbekende datum",
+        "venueLabel": "Onbekend"
+      }
+    }
+  },
+  "productionPage": {
+    "fallback": {
+      "unknownProduction": "Onbekende productie",
+      "archive": "Archief",
+      "defaultArtist": "viernulvier",
+      "noTeaser": "Geen teaser beschikbaar voor deze productie.",
+      "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
+      "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
+      "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "dateUnknown": "Datum onbekend",
+      "locationUnknown": "Locatie onbekend"
+    },
+    "headerBrandAria": "VIERNULVIER Archief",
+    "archiveLabel": "Archief",
+    "backToCollection": "Terug naar de collectie",
+    "archiveSchema": "Archiefschema",
+    "dateLabel": "Datum",
+    "timeLabel": "Tijd",
+    "placeLabel": "Plaats",
+    "priceLabel": "Prijs",
+    "noPrice": "Geen prijs beschikbaar",
+    "visualEvidence": "Foto's",
+
+    "edit": {
+      "edit": "Pas aan",
+      "save": "Sla op",
+      "cancel": "Annuleer",
+      "modified": "Aangepast",
+      "supertitle": "Supertitel",
+      "title": "Titel",
+      "artist": "Artiest"
+    }
+  },
+
+  "home": {
+    "title": "Vensters naar het Verleden",
+    "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
+    "stats": {
+      "productions": "Producties",
+      "artists": "Artiesten",
+      "events": "Evenementen",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
+  },
+
+  "history": {
+    "title": "De Echo's van het Gebouw",
+    "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "entries": [
+      {
+        "title": "1910: De bouw van 'Feestlokaal Vooruit'",
+        "description": "In 1910 kocht Vooruit een groot herenhuis en twee aangrenzende woningen in de Sint-Pietersnieuwstraat. Daar moest een nieuw feestlokaal komen. Met de nieuwe cultuurtempel wilden de socialisten bewijzen dat ze geen cultuurbarbaren waren, dat ze zich bekommerden om de geestelijke ontwikkeling van de arbeiders. De coöperatie stelde Ferdinand Dierkens aan als architect. De arbeiders kregen een reusachtig volkshuis."
+      },
+      {
+        "title": "1946: Reprise de l’activité",
+        "description": "De coöperatie Vooruit kreeg het Feestlokaal in 1946 terug in handen. De Multatulikring, Harmonie Vooruit, de Rode Valken, ... na de oorlog maakten ze van het Feestlokaal opnieuw een ware bijenkorf. Er kwamen ook enkele nieuwe verenigingen bij. De Anseele Vrienden, De Samenwerkster (een vrouwenbond), de Leesclub Boekuil, e.a."
+      },
+      {
+        "title": "1970: Het verval van feestlokaal Vooruit",
+        "description": "Omdat er steeds minder geld was om het gebouw te onderhouden, raakten meer en meer zalen in onbruik. Er sijpelde water binnen, de brandveiligheid liet te wensen over. Heel wat verenigingen verlieten het gebouw. In de jaren 1970 was het café een van de weinige plekken waar nog volk over de vloer kwam. Een levendige plek was het toen al lang niet meer."
+      },
+      {
+        "title": "1980: Opruimactie & restauratie",
+        "description": "Overal in België waren volkshuizen in hetzelfde bedje ziek. Coöperaties konden moeilijk het hoofd boven water houden. Dat leidde tot verwaarlozing en verkrotting. Sommige volkshuizen kregen een nieuwe bestemming, andere werden afgebroken. In 1982 richtten enkele jongeren de vzw Socio-cultureel Centrum Vooruit op. Die ging het hele gebouw restaureren en het als progressief artistiek ontmoetingscentrum uitbaten. De initiatiefnemers wilden wel graag af van het rode etiket en zagen de ontzuiling van het Feestlokaal als een prioriteit."
+      },
+      {
+        "title": "1988: Kunstencentrum Vooruit",
+        "description": "In 1988 werd Socio-Cultureel Centrum Vooruit omgedoopt tot Kunstencentrum Vooruit. De eigen activiteiten moesten een geprononceerder profiel krijgen, het artistieke beleid moest de grootste prioriteit worden. Daarbij stond vernieuwend werk uit verschillende kunstdisciplines centraal. Vooruit ging niet enkel producties van anderen brengen, maar ook zelf (co)produceren. Het gebouw werd een werkplaats waar kunstenaars uit binnen- en buitenland samen aan producties konden sleutelen."
+      },
+      {
+        "title": "2013: 100 jaar Vooruit",
+        "description": "Met een 100-tal personeelsleden, jaarlijks ongeveer 2000 activiteiten en 350 000 bezoekers - groeide Kunstencentrum Vooruit in de nillies uit tot een culturele instelling van formaat. Net als zijn voorganger - het Feestlokaal van Vooruit - was het Kunstencentrum een plaats van ontmoeting, cultuur en engagement. Het opschrift ‘Kunst veredelt’, dat al een eeuw boven het podium van de Theaterzaal te lezen is, mag dan wel behoorlijk hoogdravend klinken: het bleef het motto van Vooruit. In 2013 wordt het 100 jarig bestaan van het gebouw uitgebreid gevierd tijdens 'Vooruit 100'. "
+      },
+      {
+        "title": "2017: Een Vlaamse kunstinstelling",
+        "description": "Op 1 januari 2017 wordt het kunstencentrum officieel een Vlaamse kunstinstelling. Dat vertaalt zich in onder andere een hernieuwde missie, met daaraan gekoppeld zes centrale speerpunten: support, experiment, connect, engage, reflect en celebrate. Hier kan je de volledige missie vinden."
+      },
+      {
+        "title": "2022: Een nieuwe naam",
+        "description": "In 2022 verandert Kunstencentrum Vooruit haar naam naar Kunstencentrum VIERNULVIER, nadat de Vlaamse socialistische partij in 2021 voor de nieuwe naam ‘Vooruit’ koos. Het gebouw zelf blijft De Vooruit heten. Enkel de organisatie draagt dus een nieuwe naam."
+      }
+    ]
+  },
+
+  "auth": {
+    "actions": {
+      "login": "Aanmelden",
+      "logout": "Afmelden"
+    },
+    "login": {
+      "formTitle": "Welkom terug",
+      "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",
+      "usernameLabel": "Gebruikersnaam",
+      "passwordLabel": "Wachtwoord",
+      "showPassword": "Wachtwoord tonen",
+      "hidePassword": "Wachtwoord verbergen",
+      "submit": "Aanmelden",
+      "submitting": "Bezig met aanmelden",
+      "backToSite": "Terug naar het archief",
+      "loading": "Sessie wordt hersteld",
+      "errors": {
+        "invalidCredentials": "De opgegeven gebruikersnaam of het opgegeven wachtwoord is ongeldig.",
+        "generic": "Aanmelden lukt momenteel niet. Probeer het opnieuw."
+      }
+    }
+  },
+
+  "users": {
+    "eyebrow": "Beheer",
+    "title": "Gebruikersbeheer",
+    "description": "Bekijk accounts en voer eenvoudige accountwijzigingen uit zonder het overzicht te verlaten.",
+    "loading": "Gebruikers worden geladen",
+    "summary": {
+      "totalUsers": "Totaal aantal gebruikers",
+      "superUsers": "Supergebruikers"
+    },
+    "fields": {
+      "username": "Gebruikersnaam",
+      "password": "Wachtwoord",
+      "roles": "Rollen",
+      "permissions": "Permissies"
+    },
+    "form": {
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt."
+    },
+    "actions": {
+      "retry": "Opnieuw proberen",
+      "refresh": "Herladen",
+      "add": "Gebruiker toevoegen",
+      "cancel": "Annuleren",
+      "create": "Gebruiker aanmaken",
+      "creating": "Gebruiker wordt aangemaakt"
+    },
+    "badges": {
+      "superUser": "Supergebruiker"
+    },
+    "meta": {
+      "createdAt": "Aangemaakt op",
+      "lastLoginAt": "Laatst aangemeld"
+    },
+    "messages": {
+      "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
+      "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "usernameRequired": "Een gebruikersnaam is verplicht.",
+      "passwordRequired": "Een wachtwoord is verplicht."
+    },
+    "dialogs": {
+      "create": {
+        "title": "Gebruiker toevoegen",
+        "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+      }
+    },
+    "empty": {
+      "title": "Geen gebruikers gevonden",
+      "description": "Zodra accounts zijn aangemaakt, verschijnen ze hier met hun toegewezen rollen en afgeleide permissies.",
+      "roles": "Geen rollen toegewezen",
+      "permissions": "Geen permissies toegewezen",
+      "date": "Nooit"
+    },
+    "card": {
+      "userLabel": "Gebruiker #{{id}}"
+    },
+    "accessDenied": {
+      "eyebrow": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot gebruikersbeheer",
+      "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
+    }
+  },
+  "notFound": {
+    "title": "VIERNULVIER - Pagina niet gevonden",
+    "description": "De pagina die u zoekt bestaat niet. Deze kan zijn verwijderd, de naam gewijzigd of tijdelijk niet beschikbaar.",
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
+  }
+}

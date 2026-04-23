@@ -1,0 +1,191 @@
+import { screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
+import userEvent from "@testing-library/user-event";
+import * as loginServiceModule from "~/features/auth/services/loginService";
+
+const authenticatedUser = {
+  id: 4,
+  username: "editor",
+  isSuperUser: false,
+  roles: ["editor"],
+  permissions: ["archive:update"],
+  createdAt: "2026-03-30T10:00:00",
+  lastLoginAt: null,
+};
+
+describe("Navbar", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders navigation links", () => {
+    renderWithRouterAndTheme({});
+
+    expect(screen.getByText("I18N_Home")).toBeInTheDocument();
+    expect(screen.getByText("I18N_History")).toBeInTheDocument();
+    // Once for the logo, once for the link
+    expect(screen.getAllByText("I18N_Archive").length).toBe(2);
+    expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
+  });
+
+  it("toggles mobile menu when clicking hamburger button", async () => {
+    renderWithRouterAndTheme({});
+
+    // After 2h I don't see why the tests have the Navbar rendered twice,
+    // so let's just get this first one...
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+
+    expect(screen.queryByTestId("mobile-menu")).not.toBeInTheDocument();
+
+    await userEvent.click(button);
+
+    expect(screen.queryByTestId("mobile-menu")).toBeInTheDocument();
+
+    await userEvent.click(button);
+
+    expect(screen.queryByTestId("mobile-menu")).not.toBeInTheDocument();
+  });
+
+  it("renders navigation links when menu is opened", async () => {
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+
+    // menu not present initially
+    expect(screen.queryByTestId("mobile-menu")).not.toBeInTheDocument();
+
+    await userEvent.click(button);
+
+    // menu is rendered
+    const menu = screen.getByTestId("mobile-menu");
+    expect(menu).toBeInTheDocument();
+
+    // now query inside the menu
+    expect(within(menu).getByText("I18N_Home")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_Archive")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_History")).toBeInTheDocument();
+    await userEvent.click(button);
+  });
+
+  it("navigates to home page when clicking Home link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Home" });
+    await user.click(links[0]);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("navigates to archive page when clicking Archive link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Archive" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
+  });
+
+  it("navigates to history page when clicking History link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_History" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to home page when clicking Home link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const link = within(menu).getByRole("link", { name: "I18N_Home" });
+    await user.click(link);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("mobile - navigates to archive page when clicking Archive link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_Archive" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_ARCHIVE_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to history page when clicking History link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_History" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("shows no auth action when the user is anonymous", async () => {
+    renderWithRouterAndTheme({});
+
+    expect(screen.queryByRole("button", { name: "I18N_Logout" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "I18N_Login" })).toBeNull();
+  });
+
+  it("shows a logout button when the user is authenticated", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(authenticatedUser);
+
+    renderWithRouterAndTheme({});
+
+    const logoutButtons = await screen.findAllByRole("button", {
+      name: "I18N_Logout",
+    });
+
+    expect(logoutButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("logs out and returns to the anonymous navbar state", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(authenticatedUser);
+    const logoutSpy = vi.spyOn(loginServiceModule, "logout");
+
+    renderWithRouterAndTheme({});
+
+    const logoutButtons = await screen.findAllByRole("button", {
+      name: "I18N_Logout",
+    });
+
+    await userEvent.click(logoutButtons[0]);
+
+    expect(logoutSpy).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "I18N_Logout" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "I18N_Login" })).toBeNull();
+  });
+
+  it("shows the users link for authenticated users with users:read", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue({
+      ...authenticatedUser,
+      permissions: ["users:read"],
+    });
+
+    renderWithRouterAndTheme({});
+
+    const userLinks = await screen.findAllByRole("link", { name: "I18N_Users" });
+
+    expect(userLinks.length).toBeGreaterThanOrEqual(1);
+  });
+});

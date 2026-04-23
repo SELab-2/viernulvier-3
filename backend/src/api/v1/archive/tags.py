@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 
 from src.api.dependencies.language import get_accepted_language
@@ -14,6 +14,7 @@ from src.services.tag import (
     update_tag,
 )
 from src.services.auth.permissions import Permissions
+from src.services.archive import get_base_url
 from src.api.dependencies import RequirePermissions
 
 router = APIRouter()
@@ -30,7 +31,7 @@ async def get_tags(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ):
-    base_url = str(request.base_url).rstrip("/")
+    base_url = get_base_url(str(request.url))
     return get_tags_list(db, base_url, language)
 
 
@@ -46,12 +47,8 @@ def get_tag(
     db: Session = Depends(get_db),
     language: str | None = Depends(get_accepted_language),
 ):
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        tag = get_tag_by_id(db, tag_id, base_url, language)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    base_url = get_base_url(str(request.url), remove_last_segments=2)
+    tag = get_tag_by_id(db, tag_id, base_url, language)
     return tag
 
 
@@ -67,11 +64,8 @@ async def post_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
 ):
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        return create_tag(db, tag_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    base_url = get_base_url(str(request.url))
+    return create_tag(db, tag_in, base_url)
 
 
 @router.patch("/{tag_id}", response_model=TagResponse, summary="Update a tag")
@@ -82,11 +76,8 @@ async def patch_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
-    base_url = str(request.base_url).rstrip("/")
-    try:
-        return update_tag(db, tag_id, tag_in, base_url)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    base_url = get_base_url(str(request.url), remove_last_segments=2)
+    return update_tag(db, tag_id, tag_in, base_url)
 
 
 @router.delete(
@@ -97,6 +88,4 @@ async def delete_tag(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    success = delete_tag_by_id(db, tag_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Tag not found")
+    delete_tag_by_id(db, tag_id)

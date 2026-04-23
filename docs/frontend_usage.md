@@ -1,0 +1,127 @@
+# Frontend Project
+
+## Overzicht
+
+Dit project is gebouwd met React en maakt gebruik van React Router in framework mode met manual based routing.
+
+## Projectstructuur
+
+```
+frontend/app/
+├── assets/         ← Statische bestanden
+├── features/       ← Feature-based modules
+│   ├── search/         ← Alle files gerelateerd aan zoeken in het archief
+│   │   ├── components/         ← React components
+│   │   ├── hooks/              ← Custom React hooks
+│   │   ├── services/           ← Communicatie met de API
+│   │   │   ├── search.api.ts           ← Functies voor API requests
+│   │   ├── index.ts            ← Public exports van de feature
+│   │   ├── search.const.ts     ← Constanten
+│   │   └── search.types.ts     ← Types
+│   └── auth/
+│       ├── components/
+│       └── ...
+├── shared/         ← Gedeelde code die door meerdere features gebruikt wordt
+│   ├── components/     ← Hebruikbare React components
+│   │   ├── Button.tsx
+│   ├── constants/      ← Globale constanten
+│   │   ├── api.const.ts
+│   │   └── routes.const.ts
+│   ├── hooks/          ← Algemene custom React hooks
+│   ├── services/       ← Algemene services
+│   ├── types/          ← Globale types
+│   └── utils/          ← Utility functions
+├── routes/     ← React Router route components
+│   ├── _index.tsx      ← Talen rerouter route
+│   ├── home.tsx        ← Home route
+│   ├── search.tsx      ← Search pagina
+│   └── item.$id.tsx    ← Voorbeeld van een route "/item/{id}"
+├── styles/     ← Globale CSS
+├── root.tsx    ← Root component / Entrypoint van de React app
+└── routes.ts   ← React router route config
+```
+
+
+### Testen
+Testbestanden bevinden zich in een aparte directory `frontend/tests` en hebben als file extensie `*.test.ts`, dit is nodig zodat vitest deze kan herkennen als test bestanden.
+
+## Scripts
+
+Installeren van packages:
+`npm ci`
+
+Package toevoegen:
+`npm install [package naam]`
+
+Uitvoeren van ESLint:
+`npm run lint`
+
+Formatteren van alle files:
+`npm run format`
+
+Uitvoeren van testen:
+`npm run test`
+
+### Applicatie Starten
+
+Build applicatie met:  
+`npm run build`
+
+De frontend kan lokaal gestart worden met:
+`npm run start`
+
+Voor development, kan de frontend lokaal best gestart worden met:  
+`npm run dev`  
+Dit ondersteunt hot reloads.  
+
+De frontend zal dan beschikbaar komen op:
+`http://localhost:5173`
+
+
+## Routing
+
+Voor routing wordt gebruik gemaakt van manuele routeconfiguratie, hierbij worden routes gedefiniëerd met gebruik van de `route` functie in `routes.ts`. 
+Een route voor een specifieke production wordt dan bijvoorbeeld gedefiniëerd via de lijn
+```js
+route("archive/productions/:id", "routes/productionPage.tsx")
+```
+
+De loginroute is bewust niet zichtbaar in de navbar. Ze blijft wel beschikbaar voor beheerders of editors die de route kennen, en na een geslaagde login wordt de sessie opgeslagen via de auth feature. Uitloggen gebeurt volledig client-side door de tokens uit storage te wissen.
+
+### Auth UI
+
+Gebruik `Protected` voor auth-afhankelijke UI-fragmenten zoals een logoutknop, beheerdersacties of permission-gated controls. De component ondersteunt `fallback`, `roles`, `permissions` en `requireSuperUser`, zodat dezelfde primitive schaalbaar blijft voor toekomstige UI-restricties.
+
+Een generiek voorbeeld voor een hypothetische `ProductionActions`-sectie:
+
+```tsx
+import { Button, Stack } from "@mui/material";
+import { Protected, useAuthSession } from "~/features/auth";
+
+function ProductionActions() {
+	const { user } = useAuthSession();
+
+	return (
+		<Stack direction="row" spacing={2}>
+			<Protected permissions={["productions:update"]}>
+				<Button variant="outlined">Bewerken</Button>
+			</Protected>
+
+			<Protected
+				roles={["editor", "manager"]}
+				requireAllRoles={false}
+			>
+				<Button variant="contained">Publiceren</Button>
+			</Protected>
+
+			<Protected requireSuperUser>
+				<Button variant="text">Systeeminstellingen</Button>
+			</Protected>
+		</Stack>
+	);
+}
+```
+
+
+## Issues
+Zorg er zeker en vast voor dat minstens volgende Node-versie geïnstalleerd is: ```v24``` met npm versie ```11.9.0```.

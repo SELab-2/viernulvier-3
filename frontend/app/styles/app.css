@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Lora", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans:
+    "Montserrat", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --color-archive-paper: var(--archive-paper);
+  --color-archive-ink: var(--archive-ink);
+  --color-archive-accent: var(--archive-accent);
+  --color-archive-border: var(--archive-border);
+  --color-archive-border-hover: var(--archive-border-hover);
+  --color-archive-surface: var(--archive-surface);
+  --color-archive-surface-strong: var(--archive-surface-strong);
+  --color-archive-control: var(--archive-control);
+  --color-archive-control-hover: var(--archive-control-hover);
+  --text-archive-meta: var(--archive-text-meta);
+  --text-archive-body: var(--archive-text-body);
+  --text-archive-title-lg: var(--archive-text-title-lg);
+  --tracking-archive-meta: var(--archive-tracking-meta);
+  --tracking-archive-label: var(--archive-tracking-label);
+  --leading-archive-title: var(--archive-leading-title);
+  --leading-archive-body: var(--archive-leading-body);
+  --weight-archive-semibold: var(--archive-weight-semibold);
+  --weight-archive-bold: var(--archive-weight-bold);
+
+  --breakpoint-xs: 30rem;
+}
+
+@utility archive-artist-chic {
+  font-family:
+    "Snell Roundhand", "Apple Chancery", "Segoe Script", "URW Chancery L",
+    "Brush Script MT", cursive;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+}
+
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora/Lora-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora/Lora-Italic-VariableFont_wght.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --archive-paper: #f5f1e8;
+  --archive-ink: #2d2825;
+  --archive-accent: #c4a484;
+  --archive-border: rgba(45, 40, 37, 0.1);
+  --archive-border-hover: rgba(196, 164, 132, 0.7);
+  --archive-surface: rgba(245, 241, 232, 0.86);
+  --archive-surface-strong: rgba(255, 255, 255, 0.82);
+  --archive-control: rgba(45, 40, 37, 0.05);
+  --archive-control-hover: rgba(45, 40, 37, 0.08);
+  --archive-logo-filter: brightness(0) saturate(100%);
+  --archive-text-meta: 0.77rem;
+  --archive-text-body: 1.1rem;
+  --archive-text-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
+  --archive-tracking-meta: 0.1em;
+  --archive-tracking-label: 0.05em;
+  --archive-leading-title: 1.04;
+  --archive-leading-body: 1.48;
+  --archive-weight-semibold: 600;
+  --archive-weight-bold: 700;
+}
+
+.dark {
+  color-scheme: dark;
+  --archive-paper: #11100e;
+  --archive-ink: #f0e4d3;
+  --archive-border: rgba(240, 228, 211, 0.1);
+  --archive-border-hover: rgba(196, 164, 132, 0.45);
+  --archive-surface: rgba(17, 16, 14, 0.8);
+  --archive-surface-strong: rgba(17, 16, 14, 0.88);
+  --archive-control: rgba(240, 228, 211, 0.06);
+  --archive-control-hover: rgba(240, 228, 211, 0.1);
+  --archive-logo-filter: none;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--archive-paper);
+  color: var(--archive-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+}

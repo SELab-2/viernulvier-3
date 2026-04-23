@@ -1,0 +1,232 @@
+{
+  "nav": {
+    "home": "Home",
+    "archive": "Archive",
+    "history": "History",
+    "users": "Users"
+  },
+  "footer": {
+    "website": "Our official website"
+  },
+
+  "filter": {
+    "search": "Search",
+    "search_in_collection": "Search in our collection",
+    "period": "Period",
+    "from": "From",
+    "to": "To",
+    "tags": "Tags",
+    "search_tags": "Search for more tags",
+    "halls": "Venues",
+    "artists": "Artists",
+    "search_artists": "Search for artists",
+    "toggle_menu": "Filter & Search"
+  },
+
+  "archive": {
+    "title": "The Collection",
+    "results": "results",
+    "result": "result",
+    "no_results": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less filters or keywords"
+    },
+    "create_production": "Create production",
+    "show_more": "Show more",
+    "sortBy": "Sort by",
+    "sortOrder": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "unknownDate": "Unknown date",
+    "card": {
+      "defaults": {
+        "title": "Unknown production",
+        "dateLabel": "Unknown date",
+        "venueLabel": "Unknown"
+      }
+    }
+  },
+
+  "productionPage": {
+    "fallback": {
+      "unknownProduction": "Unknown production",
+      "archive": "Archive",
+      "defaultArtist": "viernulvier",
+      "noTeaser": "No teaser available for this production.",
+      "noDescription": "No additional description is available for this production.",
+      "noInfo": "No extra information is available for this production.",
+      "noEvents": "No events recorded for this production.",
+      "dateUnknown": "Date unknown",
+      "locationUnknown": "Location unknown"
+    },
+    "headerBrandAria": "VIERNULVIER Archive",
+    "archiveLabel": "Archive",
+    "backToCollection": "Back to the collection",
+    "archiveSchema": "Archive schema",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "placeLabel": "Venue",
+    "priceLabel": "Price",
+    "noPrice": "No price available",
+
+    "visualEvidence": "Photos",
+
+    "edit": {
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "modified": "Modified",
+      "supertitle": "Supertitle",
+      "title": "Title",
+      "artist": "Artist"
+    }
+  },
+
+  "home": {
+    "title": "Windows to the Past",
+    "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
+    "stats": {
+      "productions": "Productions",
+      "artists": "Artists",
+      "events": "Events",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
+    }
+  },
+
+  "history": {
+    "title": "The Echoes of the Building",
+    "heroAlt": "A black-and-white photo of the inauguration of the Vooruit Festivities Hall in 1914, with a large crowd in front of the entrance.",
+    "entries": [
+      {
+        "title": "1910: The construction of Vooruit 'Festivities Hall'",
+        "description": "In 1910 Vooruit bought a big residence and two adjacent houses in the Sint-Pietersnieuwstraat. This was to become the location for a new festivities hall. With this new cultural temple the socialists wanted to prove that they were no philistines, and that they cared about the intellectual development of the workers.The cooperative commissioned Ferdinand Dierkens to be the architect and he gave the workers a colossal “House of the People”."
+      },
+      {
+        "title": "1946: The return of the bustle",
+        "description": "The Vooruit cooperative regained the Festivities Hall in 1946. After the war, the Multatulikring, Harmonie Vooruit, and the Rode Valken, once more transformed the Festivities Hall into a true beehive. A few new associations were also added to the mix: The Anseele Vrienden, the Studiekring Edward Anseele, a women's league 'De Samenwerkster', a women’s league, the Leesclub Boekuil, ..."
+      },
+      {
+        "title": "1970: The decline of the building & the exodus of the associations",
+        "description": "Because there was less and less money to upkeep the building, more and more spaces were abandoned. There were water leaks, the fire security was lacking and many associations started leaving the building. In the 1970s, the café was one of the few spaces in the building that still had visitors, but its lively days were long gone. The seniors’ weekly dance on Sundays was as exciting as it got."
+      },
+      {
+        "title": "1980: Clean-up of the building",
+        "description": "Everywhere in Belgium ‘Houses of the People’ were suffering the same faith and as cooperatives had a hard time staying afloat, neglect and dilapidation followed. Some ‘Houses of the People’ were repurposed, others were torn down. In 1982 a group of enthusiastic young people created the non-profit Socio-cultureel Centrum Vooruit (Vooruit Socio-Cultural Center) who planned to rehabilitate the entire building and use it as a progressive artistic meeting center. En 1982, quelques jeunes très motivés fondèrent le Centre socio-culturel Vooruit, chargé de rénover le bâtiment dans son ensemble et de l’exploiter comme centre artistique progressif ouvert au public. The promoters of the initiative wanted to get rid of the building’s “Red” label and considered the de-pillarization of the Festivities Hall to be a priority."
+      },
+      {
+        "title": "1988: Kunstencentrum Vooruit",
+        "description": "In 1988 Socio-Cultureel Centrum Vooruit (Vooruit Socio-Cultural Center) was renamed Kunstencentrum Vooruit (Vooruit Arts Center). From now on its own activities were to fit a specific profile and its artistic policy had to become the number one priority, with a focus on innovative work from various artistic disciplines. The building became a place where local and foreign artists could come together to work on productions."
+      },
+      {
+        "title": "2013: 100 years of Vooruit",
+        "description": "Today, with a staff of about 100 people and roughly 2,000 activities and 350,000 visitors each year, Vooruit Arts Center has become a major cultural institution. While it started out at the periphery of the Flemish performance landscape it has now become part of its core. Just like its predecessor, the Vooruit Festivities Hall, Vooruit Arts Center is a place of encounters, culture and social involvement. After more than one century above the Theaterzaal stage, the phrase ‘Kunst veredelt’ (Art ennobles), despite its pompousness, can today still be the motto of this cultural temple."
+      },
+      {
+        "title": "2017: A Flemish arts institution",
+        "description": "On January 1, 2017, the arts center became officially a Flemish arts institution. This translates into a renewed mission, with six central pillars: support, experiment, connect, engage, reflect and celebrate. You can find the complete mission here."
+      },
+      {
+        "title": "2022: A new name",
+        "description": "In 2022 Kunstencentrum Vooruit changes its name to Kunstencentrum VIERNULVIER, after the Flemish socialist party chose the new name 'Vooruit' in 2021. The building itself will continue to be known as De Vooruit. Only the organization will carry the new name."
+      }
+    ]
+  },
+
+  "auth": {
+    "actions": {
+      "login": "Login",
+      "logout": "Logout"
+    },
+    "login": {
+      "formTitle": "Welcome back",
+      "formDescription": "Enter your username and password to start an authenticated session.",
+      "usernameLabel": "Username",
+      "passwordLabel": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Sign in",
+      "submitting": "Signing in",
+      "backToSite": "Back to archive",
+      "loading": "Restoring session",
+      "errors": {
+        "invalidCredentials": "The provided username or password is incorrect.",
+        "generic": "We could not sign you in right now. Please try again."
+      }
+    }
+  },
+
+  "users": {
+    "eyebrow": "Administration",
+    "title": "User management",
+    "description": "Review active accounts and make lightweight account changes without leaving the overview.",
+    "loading": "Loading users",
+    "summary": {
+      "totalUsers": "Total users",
+      "superUsers": "Super users"
+    },
+    "fields": {
+      "username": "Username",
+      "password": "Password",
+      "roles": "Roles",
+      "permissions": "Permissions"
+    },
+    "form": {
+      "passwordCreateHint": "New users need a password before the account can be created."
+    },
+    "actions": {
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "add": "Add user",
+      "cancel": "Cancel",
+      "create": "Create user",
+      "creating": "Creating user"
+    },
+    "badges": {
+      "superUser": "Super user"
+    },
+    "meta": {
+      "createdAt": "Created",
+      "lastLoginAt": "Last login"
+    },
+    "messages": {
+      "loadFailed": "We could not load the user administration data right now.",
+      "createFailed": "We could not create the user right now.",
+      "usernameRequired": "A username is required.",
+      "passwordRequired": "A password is required."
+    },
+    "dialogs": {
+      "create": {
+        "title": "Add user",
+        "description": "Create a basic account with a username and password. Roles can be assigned later."
+      }
+    },
+    "empty": {
+      "title": "No users found",
+      "description": "Once accounts are created, they will appear here with their assigned roles and derived permissions.",
+      "roles": "No roles assigned",
+      "permissions": "No permissions assigned",
+      "date": "Never"
+    },
+    "card": {
+      "userLabel": "User #{{id}}"
+    },
+    "accessDenied": {
+      "eyebrow": "Restricted area",
+      "title": "You do not have access to user management",
+      "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
+    }
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "description": "The page you are looking for does not exist. It might have been removed, had its name changed, or is temporarily unavailable.",
+    "buttons": {
+      "explore": "Explore the Collection",
+      "history": "Our History"
+    }
+  }
+}

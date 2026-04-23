@@ -54,6 +54,7 @@ def test_get_me_integration(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "me_int_user"
+    assert data["id"] == user.id
 
 
 def test_refresh_token_integration(client: TestClient, db_session: Session):
@@ -96,9 +97,7 @@ def test_tokens_invalidated_after_password_change_integration(
     refresh_token = login_response.json()["refresh_token"]
 
     user_service.patch_user(
-        db_session,
-        user.id,
-        UserPatch(password="new-password"),
+        db_session, user.id, UserPatch(password="new-password"), base_url=""
     )
 
     me_response = client.get(

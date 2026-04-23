@@ -10,9 +10,9 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
+import src.worker.sync.sync_new as sync_new
 from src.models.sync_state import ResourceType
 from src.worker.sync.sync_new import sync_new_items
-import src.worker.sync.sync_new as sync_new
 
 OLD_TS = datetime(2024, 1, 1)
 NEW_TS = datetime(2024, 1, 5)
@@ -36,6 +36,8 @@ def overwrite_functions(monkeypatch):
     store_new_productions = MagicMock(return_value=NEW_TS)
     store_new_events = MagicMock(return_value=NEW_TS)
     store_new_eventprices = MagicMock(return_value=NEW_TS)
+    store_new_tags = MagicMock(return_value=NEW_TS)
+    store_new_genres = MagicMock(return_value=NEW_TS)
 
     monkeypatch.setattr("src.worker.sync.sync_new.get_last_sync", get_last_sync)
     monkeypatch.setattr("src.worker.sync.sync_new.update_sync_state", update_sync_state)
@@ -47,6 +49,8 @@ def overwrite_functions(monkeypatch):
     monkeypatch.setitem(
         sync_new.STORE_FUNCTIONS, ResourceType.EVENT_PRICES, store_new_eventprices
     )
+    monkeypatch.setitem(sync_new.STORE_FUNCTIONS, ResourceType.TAGS, store_new_tags)
+    monkeypatch.setitem(sync_new.STORE_FUNCTIONS, ResourceType.GENRES, store_new_genres)
 
     return {
         "get_last_sync": get_last_sync,
@@ -54,6 +58,8 @@ def overwrite_functions(monkeypatch):
         "store_new_productions": store_new_productions,
         "store_new_events": store_new_events,
         "store_new_eventprices": store_new_eventprices,
+        "store_new_tags": store_new_tags,
+        "store_new_genres": store_new_genres,
     }
 
 
@@ -64,6 +70,8 @@ def overwrite_functions(monkeypatch):
         (ResourceType.PRODUCTION, "store_new_productions"),
         (ResourceType.EVENT, "store_new_events"),
         (ResourceType.EVENT_PRICES, "store_new_eventprices"),
+        (ResourceType.TAGS, "store_new_tags"),
+        (ResourceType.GENRES, "store_new_genres"),
     ],
 )
 def test_sync_new_items_dispatch_good_path(
@@ -75,7 +83,7 @@ def test_sync_new_items_dispatch_good_path(
     fetcher = MagicMock()
     fetcher.get_new_items_after.return_value = [{"id": 4}]
 
-    sync_new_items(db_session, {}, fetcher, resource_type)
+    sync_new_items(db_session, fetcher, resource_type)
 
     fetcher.get_new_items_after.assert_called_once()
     mocks["get_last_sync"].assert_called_once()
@@ -103,7 +111,7 @@ def test_sync_new_items_connection_error(monkeypatch):
     fetcher.get_and_clear_partial_data.return_value = [{"id": 4}]
 
     # Type of resource type does not matter here
-    sync_new_items(db_session, {}, fetcher, ResourceType.PRODUCTION)
+    sync_new_items(db_session, fetcher, ResourceType.PRODUCTION)
 
     fetcher.get_new_items_after.assert_called_once()
     fetcher.get_and_clear_partial_data.assert_called_once()
@@ -118,7 +126,7 @@ def test_sync_new_items_no_data(monkeypatch):
     fetcher.get_new_items_after.return_value = []
 
     # Type of resource type does not matter here
-    sync_new_items(db_session, {}, fetcher, ResourceType.PRODUCTION)
+    sync_new_items(db_session, fetcher, ResourceType.PRODUCTION)
 
     fetcher.get_new_items_after.assert_called_once()
     mocks["store_new_productions"].assert_not_called()
