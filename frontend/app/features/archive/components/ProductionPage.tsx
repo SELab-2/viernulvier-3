@@ -1,4 +1,4 @@
-import { Link, useBlocker } from "react-router";
+import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
@@ -122,7 +122,8 @@ async function handleSave(
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
+  language: string
 ) {
   if (!draftInfo || !originalInfo) return;
 
@@ -131,7 +132,7 @@ async function handleSave(
     await updateProductionByUrl(production_id_url, {
       production_infos: [
         {
-          language: draftInfo.language,
+          language: language,
           title: draftInfo.title,
           supertitle: draftInfo.supertitle,
           artist: draftInfo.artist,
@@ -477,13 +478,11 @@ function EditButton({
   );
 }
 
-export function ProductionPage({
-  production,
-  preferredLanguage = "nl",
-}: ProductionPageProps) {
+export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
+  const { lang } = useParams();
 
-  const language = i18n.resolvedLanguage ?? preferredLanguage;
+  const language = preferredLanguage ?? lang!;
   const productionInfo = getProductionInfoByLanguage(
     production.production_infos,
     language
@@ -511,7 +510,8 @@ export function ProductionPage({
       draftInfo,
       setOriginalInfo,
       setIsEditing,
-      setIsSaving
+      setIsSaving,
+      language
     );
 
   // State when editing, keeps track if something has changed
