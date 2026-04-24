@@ -183,3 +183,26 @@ describe("FilterSidebar – data fetching edge cases", () => {
     expect(screen.getByText("Theater")).toBeInTheDocument();
   });
 });
+
+describe("FilterSidebar – reset filters button", () => {
+  it("resets all filters when reset button is clicked", async () => {
+    const props = {
+      ...defaultProps(),
+      searchQuery: "zoekterm",
+      dateFrom: "2024-01-01",
+      dateTo: "2024-12-31",
+      selectedTags: [TAGS[0]],
+      selectedArtists: ["Alice"],
+    };
+
+    render(<FilterSidebar {...props} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "filter.reset" }));
+
+    expect(props.setSearchQuery).toHaveBeenCalledWith("");
+    expect(props.setDateFrom).toHaveBeenCalledWith("");
+    expect(props.setDateTo).toHaveBeenCalledWith("");
+    expect(props.setSelectedTags).toHaveBeenCalledWith([]);
+    expect(props.setSelectedArtists).toHaveBeenCalledWith([]);
+  });
+});

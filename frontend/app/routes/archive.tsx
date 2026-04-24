@@ -152,11 +152,14 @@ export default function Archive() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("1970-01-01");
+  const [dateFrom, setDateFrom] = useState(
+    // "1970-01-01"
+    ""
+  );
   const date = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
-  const [dateTo, setDateTo] = useState(
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  const [dateTo, setDateTo] = useState(""
+    // `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);

@@ -104,8 +104,8 @@ describe("Archive", () => {
 
       expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1, {
         artists: undefined,
-        earliest_at: "1970-01-01",
-        latest_at: expect.anything(),
+        earliest_at: undefined,
+        latest_at: undefined,
         production_name: undefined,
         sort_order: "Descending",
         tag_ids: undefined,
@@ -119,8 +119,8 @@ describe("Archive", () => {
       expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
         cursor: 123,
         artists: undefined,
-        earliest_at: "1970-01-01",
-        latest_at: expect.anything(),
+        earliest_at: undefined,
+        latest_at: undefined,
         sort_order: "Descending",
         production_name: undefined,
         tag_ids: undefined,
