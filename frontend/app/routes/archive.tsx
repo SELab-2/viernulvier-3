@@ -156,9 +156,8 @@ export default function Archive() {
     // "1970-01-01"
     ""
   );
-  const date = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const [dateTo, setDateTo] = useState(""
+  const [dateTo, setDateTo] = useState(
+    ""
     // `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
