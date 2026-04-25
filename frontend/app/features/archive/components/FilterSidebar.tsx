@@ -374,7 +374,23 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   selectedArtists,
   setSelectedArtists,
 }) => {
+  const { t } = useTranslation();
   const sidebarRef = useRef<HTMLElement>(null);
+
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    dateFrom.length > 0 ||
+    dateTo.length > 0 ||
+    selectedTags.length > 0 ||
+    selectedArtists.length > 0;
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setDateFrom("");
+    setDateTo("");
+    setSelectedTags([]);
+    setSelectedArtists([]);
+  };
 
   return (
     <aside
@@ -382,6 +398,14 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       id="archive-sidebar"
       className={`${show ? "block" : "hidden"} sticky-scroll mb-10 max-h-[calc(100vh-120px)] w-full min-w-1/4 space-y-6 overflow-y-auto pr-0 lg:sticky lg:top-24 lg:mb-0 lg:block lg:w-80 lg:overflow-y-auto lg:pr-4`}
     >
+      <button
+        type="button"
+        onClick={resetFilters}
+        disabled={!hasActiveFilters}
+        className="border-archive-ink/15 hover:border-archive-accent hover:text-archive-accent disabled:hover:border-archive-ink/15 w-full cursor-pointer rounded-lg border px-4 py-2 text-[10px] font-semibold tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-inherit"
+      >
+        {t("filter.reset")}
+      </button>
       <FilterSearchCard searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <FilterDateCard
         dateFrom={dateFrom}
