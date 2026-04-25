@@ -67,7 +67,7 @@ function NavLinks({ onNavigate }: NavLinksProps) {
           <li key={i18n_key}>
             <NavLink
               to={lp(path)}
-			  className={() => {
+              className={() => {
                 const current = pathname.replace(/\/+$/, "");
                 const target = lp(path).replace(/\/+$/, "");
                 return navLinkClass({ isActive: current === target });

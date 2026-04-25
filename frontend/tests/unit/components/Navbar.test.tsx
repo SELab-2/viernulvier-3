@@ -30,9 +30,13 @@ describe("Navbar", () => {
   });
 
   it("Home is selected by default", () => {
-  	renderWithRouterAndTheme({});
-  	expect(screen.getByText("I18N_Home").closest("a")).toHaveClass("border-archive-accent");
-  	expect(screen.getByText("I18N_History").closest("a")).toHaveClass("border-transparent");
+    renderWithRouterAndTheme({});
+    expect(screen.getByText("I18N_Home").closest("a")).toHaveClass(
+      "border-archive-accent"
+    );
+    expect(screen.getByText("I18N_History").closest("a")).toHaveClass(
+      "border-transparent"
+    );
   });
 
   it("toggles mobile menu when clicking hamburger button", async () => {
