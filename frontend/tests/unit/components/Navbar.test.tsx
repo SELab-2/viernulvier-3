@@ -78,6 +78,16 @@ describe("Navbar", () => {
     expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
   });
 
+  it("navigates to home page when clicking VierNulVier logo", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("img");
+    await user.click(links[0]);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
   it("navigates to archive page when clicking Archive link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
