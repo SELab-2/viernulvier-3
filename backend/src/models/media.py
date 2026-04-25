@@ -26,6 +26,6 @@ class Media(Base):
     __table_args__ = (
         CheckConstraint(
             "(production_id IS NOT NULL) OR (blog_id IS NOT NULL)",
-            name="ck_media_production_or_blog"
+            name="ck_media_production_or_blog",
         ),
     )
