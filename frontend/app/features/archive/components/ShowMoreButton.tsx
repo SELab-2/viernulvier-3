@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ProductionList } from "../types/productionTypes";
 import type { ArchiveSortOrder } from "./ProductionTimeline";
 import { getProductionsPaginated } from "../services/productionService";
-import { archiveSortOrderToBackendSortOrder } from "../pages/ArchivePage";
+import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 
 export function ShowMoreButton({
   productionList,

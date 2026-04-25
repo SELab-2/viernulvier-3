@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import { Outlet } from "react-router";
@@ -15,11 +15,32 @@ import { SortOrderSelection } from "../components/SortOrderSelection";
 import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
+import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 
-export const archiveSortOrderToBackendSortOrder: Record<ArchiveSortOrder, string> = {
-  [ArchiveSortOrder.NewestFirst]: "Descending",
-  [ArchiveSortOrder.OldestFirst]: "Ascending",
-};
+function buildProductionFilters({
+  debouncedSearch,
+  dateFrom,
+  dateTo,
+  selectedTags,
+  selectedArtists,
+}: {
+  debouncedSearch: string;
+  dateFrom: string;
+  dateTo: string;
+  selectedTags: Tag[];
+  selectedArtists: string[];
+}) {
+  return {
+    production_name: debouncedSearch || undefined,
+    earliest_at: dateFrom || undefined,
+    latest_at: dateTo || undefined,
+    tag_ids:
+      selectedTags.length > 0
+        ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
+        : undefined,
+    artists: selectedArtists.length > 0 ? selectedArtists : undefined,
+  };
+}
 
 export default function ArchivePage() {
   const { t, i18n } = useTranslation();
@@ -42,32 +63,30 @@ export default function ArchivePage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  const filters = useMemo(
+    () =>
+      buildProductionFilters({
+        debouncedSearch,
+        dateFrom,
+        dateTo,
+        selectedTags,
+        selectedArtists,
+      }),
+    [debouncedSearch, dateFrom, dateTo, selectedTags, selectedArtists]
+  );
+
   // Re-fetch whenever any filter changes
   useEffect(() => {
     async function fetchProductions() {
       const result = await getProductionsPaginated({
-        production_name: debouncedSearch || undefined,
-        earliest_at: dateFrom || undefined,
-        latest_at: dateTo || undefined,
+        ...filters,
         sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
-        tag_ids:
-          selectedTags.length > 0
-            ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
-            : undefined,
-        artists: selectedArtists.length > 0 ? selectedArtists : undefined,
       });
       setProductionList(result);
     }
     fetchProductions();
-  }, [
-    debouncedSearch,
-    dateFrom,
-    dateTo,
-    selectedTags,
-    selectedArtists,
-    sortOrder,
-    i18n.resolvedLanguage,
-  ]);
+  }, [filters, sortOrder, i18n.resolvedLanguage]);
+
   const productions = productionList?.productions ?? [];
 
   const toggleMobileFilters = () => {
@@ -131,16 +150,7 @@ export default function ArchivePage() {
               productionList={productionList}
               setProductionList={setProductionList}
               sortOrder={sortOrder}
-              filters={{
-                production_name: debouncedSearch || undefined,
-                earliest_at: dateFrom || undefined,
-                latest_at: dateTo || undefined,
-                tag_ids:
-                  selectedTags.length > 0
-                    ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
-                    : undefined,
-                artists: selectedArtists.length > 0 ? selectedArtists : undefined,
-              }}
+              filters={filters}
             />
           )}
         </div>
