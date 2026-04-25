@@ -152,14 +152,8 @@ export default function Archive() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState(
-    // "1970-01-01"
-    ""
-  );
-  const [dateTo, setDateTo] = useState(
-    ""
-    // `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-  );
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
