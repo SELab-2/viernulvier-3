@@ -402,7 +402,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         type="button"
         onClick={resetFilters}
         disabled={!hasActiveFilters}
-        className="border-archive-ink/15 border-archive-ink-dark/15 hover:border-archive-accent hover:text-archive-accent disabled:hover:border-archive-ink/15 disabled:hover:border-archive-ink-dark/15 w-full cursor-pointer rounded-lg border px-4 py-2 text-[10px] font-semibold tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-inherit"
+        className="border-archive-ink/15 hover:border-archive-accent hover:text-archive-accent disabled:hover:border-archive-ink/15 w-full cursor-pointer rounded-lg border px-4 py-2 text-[10px] font-semibold tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-inherit"
       >
         {t("filter.reset")}
       </button>
