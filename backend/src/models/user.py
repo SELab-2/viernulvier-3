@@ -24,3 +24,5 @@ class User(Base):
     roles = relationship(
         "Role", secondary=user_roles, back_populates="users", lazy="joined"
     )
+
+    blogs = relationship("Blog", back_populates="author")
