@@ -89,9 +89,52 @@ Table halls {
 Table media {
   id int [pk]
   production_id int [ref: > productions.id]
+  blog_id int [ref: > blogs.id]
   object_key varchar
   content_type varchar
   uploaded_at datetime
+}
+
+Table prod_blogs {
+  prod_id int [ref: - productions.id]
+  blog_id int [ref: - blogs.id]
+}
+
+Table blogs {
+  id int [pk]
+  title varchar
+  content varchar
+  author int [ref: > users.id]
+}
+
+Table users {
+  id int [pk]
+  username varchar
+  hashed_password varchar
+  token_version integer
+  super_user bool
+  created_at datetime
+  last_login_at datetime
+}
+
+Table user_roles {
+  user_id int [ref: - users.id]
+  role_id int [ref: - roles.id]
+}
+
+Table roles {
+  id int [pk]
+  name varchar
+}
+
+Table role_permissions {
+  role_id int [ref: - roles.id]
+  permission_id int [ref: - permissions.id]
+}
+
+Table permissions {
+  id int [pk]
+  name varchar
 }
 ```
 </details>
