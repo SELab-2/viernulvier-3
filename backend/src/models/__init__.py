@@ -9,7 +9,7 @@ from src.models.associations import (
     role_permissions,
     user_roles,
 )
-from src.models.blogs import Blog
+from src.models.blogs import Blog, BlogContent
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.permission import Permission
@@ -38,5 +38,6 @@ __all__ = [
     "Permission",
     "Media",
     "Blog",
+    "BlogContent",
     "production_dates",
 ]
