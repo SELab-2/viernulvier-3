@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import FilterSidebar from "../features/archive/components/FilterSidebar";
-import { Add } from "@mui/icons-material";
+import Add from "@mui/icons-material/Add";
 import { Outlet } from "react-router";
 
 import {
