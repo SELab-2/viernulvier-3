@@ -12,8 +12,8 @@ class History(Base):
     # 'nl', 'en'
     language = Column(String(5), nullable=False)
 
-    title = Column(String(255))
-    content = Column(Text, nullable=False)
+    title = Column(String)
+    content = Column(String, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("year", "language", name="uix_year_language"),
