@@ -157,20 +157,30 @@ export default function Archive() {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
-  // Debounce searchQuery so we don't fire on every keystroke
+  // Debounce searchQuery and dates so we don't fire on every keystroke/hover
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  const [debouncedFromDates, setDebouncedFromDates] = useState(dateFrom);
+  const [debouncedToDates, setDebouncedToDates] = useState(dateTo);
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedFromDates(dateFrom), 400);
+    return () => clearTimeout(timer);
+  }, [dateFrom]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedToDates(dateTo), 400);
+    return () => clearTimeout(timer);
+  }, [dateTo]);
 
   // Re-fetch whenever any filter changes
   useEffect(() => {
     async function fetchProductions() {
       const result = await getProductionsPaginated({
         production_name: debouncedSearch || undefined,
-        earliest_at: dateFrom || undefined,
-        latest_at: dateTo || undefined,
+        earliest_at: debouncedFromDates || undefined,
+        latest_at: debouncedToDates || undefined,
         sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
         tag_ids:
           selectedTags.length > 0
@@ -183,8 +193,8 @@ export default function Archive() {
     fetchProductions();
   }, [
     debouncedSearch,
-    dateFrom,
-    dateTo,
+    debouncedFromDates,
+    debouncedToDates,
     selectedTags,
     selectedArtists,
     sortOrder,
@@ -255,8 +265,8 @@ export default function Archive() {
               sortOrder={sortOrder}
               filters={{
                 production_name: debouncedSearch || undefined,
-                earliest_at: dateFrom || undefined,
-                latest_at: dateTo || undefined,
+                earliest_at: debouncedFromDates || undefined,
+                latest_at: debouncedToDates || undefined,
                 tag_ids:
                   selectedTags.length > 0
                     ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
