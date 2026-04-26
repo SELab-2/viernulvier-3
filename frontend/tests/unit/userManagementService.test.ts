@@ -4,7 +4,11 @@ import AxiosMockAdapter from "axios-mock-adapter";
 
 import * as envModule from "~/shared/utils/env";
 import { createApiClient } from "~/shared/services/apiClient";
-import { createUser, deleteUser, listUsers } from "~/features/users/services/userManagementService";
+import {
+  createUser,
+  deleteUser,
+  listUsers,
+} from "~/features/users/services/userManagementService";
 
 describe("userManagementService", () => {
   let mockAdapter: AxiosMockAdapter;

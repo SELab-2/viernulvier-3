@@ -251,11 +251,17 @@ describe("UserManagementPage", () => {
     expect(await screen.findByText("Username already exists")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-    await waitForElementToBeRemoved(() => screen.queryByText("users.dialogs.create.title"));
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("users.dialogs.create.title")
+    );
 
     await user.click(await screen.findByRole("button", { name: "users.actions.add" }));
-    const usernameInput = screen.getByLabelText("users.fields.username") as HTMLInputElement;
-    const passwordInput = screen.getByLabelText("users.fields.password") as HTMLInputElement;
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
     expect(usernameInput.value).toBe("");
     expect(passwordInput.value).toBe("");
   });
@@ -300,9 +306,7 @@ describe("UserManagementPage", () => {
     render(<UserManagementPage />);
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "users.actions.delete" })
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "users.actions.delete" })).toBeNull();
   });
 
   it("hides the delete button on the current user's own card", async () => {
@@ -338,7 +342,9 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
-    const curatorCard = screen.getByRole("heading", { name: "curator" }).closest("article");
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
     expect(curatorCard).not.toBeNull();
 
     await user.click(
@@ -347,13 +353,9 @@ describe("UserManagementPage", () => {
       })
     );
 
-    expect(
-      await screen.findByText("users.dialogs.delete.title")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "users.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
     expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(users[0].id);
     expect(await screen.findByText("admin")).toBeInTheDocument();
@@ -377,7 +379,9 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
-    const curatorCard = screen.getByRole("heading", { name: "curator" }).closest("article");
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
 
     await user.click(
       within(curatorCard as HTMLElement).getByRole("button", {
@@ -385,13 +389,9 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "users.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
-    expect(
-      await screen.findByText("Cannot delete last admin")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Cannot delete last admin")).toBeInTheDocument();
     // The user should still be in the list
     expect(screen.getByText("curator")).toBeInTheDocument();
   });
@@ -412,7 +412,9 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
-    const curatorCard = screen.getByRole("heading", { name: "curator" }).closest("article");
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
 
     await user.click(
       within(curatorCard as HTMLElement).getByRole("button", {
@@ -420,13 +422,9 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "users.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
-    expect(
-      await screen.findByText("users.messages.deleteFailed")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("users.messages.deleteFailed")).toBeInTheDocument();
   });
 
   it("closes the delete dialog when cancel is clicked", async () => {
@@ -440,7 +438,9 @@ describe("UserManagementPage", () => {
     render(<UserManagementPage />);
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
-    const curatorCard = screen.getByRole("heading", { name: "curator" }).closest("article");
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
 
     await user.click(
       within(curatorCard as HTMLElement).getByRole("button", {

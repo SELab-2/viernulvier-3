@@ -297,7 +297,7 @@ export default function UserManagementPage() {
   const userToDelete =
     userIdToDelete === null
       ? null
-      : users.find((managedUser) => managedUser.id === userIdToDelete) ?? null;
+      : (users.find((managedUser) => managedUser.id === userIdToDelete) ?? null);
 
   useEffect(() => {
     // Ignore any in-flight response once this effect is cleaned up or rerun.
@@ -383,7 +383,9 @@ export default function UserManagementPage() {
       setUsers((currentUsers) => [...currentUsers, createdUser]);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      setCreateMutationError(getApiErrorMessage(error, t("users.messages.createFailed")));
+      setCreateMutationError(
+        getApiErrorMessage(error, t("users.messages.createFailed"))
+      );
     } finally {
       setIsCreatingUser(false);
     }
@@ -404,7 +406,9 @@ export default function UserManagementPage() {
       );
       setUserIdToDelete(null);
     } catch (error) {
-      setDeleteMutationError(getApiErrorMessage(error, t("users.messages.deleteFailed")));
+      setDeleteMutationError(
+        getApiErrorMessage(error, t("users.messages.deleteFailed"))
+      );
     } finally {
       setIsDeletingUser(false);
     }
