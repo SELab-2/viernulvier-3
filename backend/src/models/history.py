@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Column, Integer, String, UniqueConstraint
 from src.database import Base
 
 
@@ -15,6 +15,4 @@ class History(Base):
     title = Column(String)
     content = Column(String, nullable=False)
 
-    __table_args__ = (
-        UniqueConstraint("year", "language", name="uix_year_language"),
-    )
+    __table_args__ = (UniqueConstraint("year", "language", name="uix_year_language"),)
