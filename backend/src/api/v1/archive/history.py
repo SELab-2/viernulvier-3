@@ -10,7 +10,7 @@ from src.models.user import User
 from src.schemas.history import HistoryCreate, HistoryResponse, HistoryUpdate
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
-from backend.src.services.history import (
+from src.services.history import (
     create_history,
     delete_history_by_id,
     get_all_history_entries,
