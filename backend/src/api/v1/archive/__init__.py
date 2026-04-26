@@ -7,6 +7,7 @@ from src.api.v1.archive import (
     media,
     statistics,
     artists,
+    history,
 )
 
 
@@ -25,3 +26,5 @@ router.include_router(media.router, prefix="/productions", tags=["Media"])
 router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
 
 router.include_router(artists.router, prefix="/artists", tags=["Artists"])
+
+router.include_router(history.router, prefix="/history", tags=["History"])
