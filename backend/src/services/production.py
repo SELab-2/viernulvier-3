@@ -129,9 +129,9 @@ def get_productions_paginated(
     is_asc = sort_order == "Ascending"
     order_func = asc if is_asc else desc
 
-    query = db.query(Production).order_by(
-        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
-    )
+    # First construct a base query. Then apply all filters one by one.
+    # Then get the total count for the Pagination response, then the actual data.
+    base_query = db.query(Production)
 
     # Name filter
     if production_name:
@@ -141,14 +141,14 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(subq))
 
     # Date filter
     if earliest_at:
-        query = query.filter(Production.latest_at >= earliest_at)
+        base_query = base_query.filter(Production.latest_at >= earliest_at)
 
     if latest_at:
-        query = query.filter(Production.earliest_at <= latest_at)
+        base_query = base_query.filter(Production.earliest_at <= latest_at)
 
     # Tags filter
     if tags:
@@ -159,7 +159,7 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(subq))
 
     # Artists filter
     if artists:
@@ -169,7 +169,15 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(subq))
+
+    # Get the total count
+    total_count = base_query.count()
+
+    # Create the final query that will return the actual data
+    query = base_query.order_by(
+        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
+    )
 
     if cursor is not None:
         cursor_date, cursor_id = decode_cursor(cursor)
@@ -218,7 +226,11 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=Pagination(next_cursor=next_cursor, has_more=has_more),
+        pagination=Pagination(
+            next_cursor=next_cursor,
+            has_more=has_more,
+            total_count=total_count,
+        ),
     )
 
 
