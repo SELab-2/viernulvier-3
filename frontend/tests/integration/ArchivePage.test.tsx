@@ -19,7 +19,7 @@ async function renderArchiveAndNavigate() {
 function mockFetchedProductions(productions: Production[]) {
   vi.mocked(productionService.getProductionsPaginated).mockResolvedValue({
     productions: productions,
-    pagination: { has_more: false },
+    pagination: { has_more: false, total_count: productions.length },
   });
 }
 
@@ -71,7 +71,7 @@ describe("Archive", () => {
     it("Shows a button when there is more data", async () => {
       vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
         productions: [mockProductions[0]],
-        pagination: { has_more: true, next_cursor: 100 },
+        pagination: { has_more: true, next_cursor: 100, total_count: 2 },
       });
       await renderArchiveAndNavigate();
 
@@ -80,7 +80,7 @@ describe("Archive", () => {
     it("Does not shows a button when there is no more data", async () => {
       vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
         productions: mockProductions,
-        pagination: { has_more: false },
+        pagination: { has_more: false, total_count: mockProductions.length },
       });
       await renderArchiveAndNavigate();
 
@@ -91,11 +91,11 @@ describe("Archive", () => {
       vi.mocked(productionService.getProductionsPaginated)
         .mockResolvedValueOnce({
           productions: [mockProductions[0]],
-          pagination: { has_more: true, next_cursor: 123 },
+          pagination: { has_more: true, next_cursor: 123, total_count: 2 },
         })
         .mockResolvedValueOnce({
           productions: mockProductions.slice(1),
-          pagination: { has_more: false },
+          pagination: { has_more: false, total_count: 2 },
         });
       await renderArchiveAndNavigate();
 
