@@ -1,23 +1,25 @@
 import base64
 import json
-from typing import Literal
 from datetime import datetime
-from sqlalchemy import asc, desc, or_, and_
-from src.schemas.pagination import Pagination
+from typing import Literal
+
+from sqlalchemy import and_, asc, desc, or_
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo, Tag
-from src.services.tag import build_tag_response, get_names_for_language
-from src.schemas.tag import TagResponse
+from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models import Event, ProdInfo, Production, Tag
+from src.schemas.pagination import Pagination
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
-    ProductionUpdate,
-    ProductionResponse,
     ProductionInfoResponse,
     ProductionListResponse,
+    ProductionResponse,
+    ProductionUpdate,
 )
-from src.api.exceptions import NotFoundError, ValidationError
+from src.schemas.tag import TagResponse
+from src.services.tag import build_tag_response, get_names_for_language
 
 
 # The response functions: both return copies.
@@ -141,7 +143,7 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        base_query = base_query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Date filter
     if earliest_at:
@@ -159,7 +161,7 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        base_query = base_query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Artists filter
     if artists:
@@ -169,7 +171,7 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        base_query = base_query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Get the total count
     total_count = base_query.count()
@@ -246,7 +248,7 @@ def get_event_urls_for_production(
 def get_tags_for_production(
     db: Session, production_id: int, base_url: str
 ) -> list[TagResponse]:
-    production = db.query(Production).get(production_id)
+    production = db.query(Production).filter(Production.id == production_id).first()
     tags = production.tags
     responses = []
     for tag in tags:
