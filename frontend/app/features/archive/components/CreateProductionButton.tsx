@@ -1,4 +1,4 @@
-import { Add } from "@mui/icons-material";
+import Add from "@mui/icons-material/Add";
 import { useTranslation } from "react-i18next";
 import { Protected } from "~/features/auth";
 
