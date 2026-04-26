@@ -21,7 +21,7 @@ Table productions {
 }
 
 Table prod_info {
-  production_id int [ref: > productions.id]
+  production_id int [pk, ref: > productions.id]
   language varchar [pk]
 
   title varchar
@@ -39,14 +39,14 @@ Table tags {
 }
 
 Table tag_names {
-  tag_id int [ref: > tags.id]
+  tag_id int [pk, ref: > tags.id]
   language varchar [pk]
   name varchar
 }
 
 Table prod_tags {
-  tag_id int [ref: - tags.id]
-  prod_id int [ref: - productions.id]
+  tag_id int [pk, ref: - tags.id]
+  prod_id int [pk, ref: - productions.id]
 }
 
 Table events {
@@ -96,8 +96,8 @@ Table media {
 }
 
 Table prod_blogs {
-  prod_id int [ref: - productions.id]
-  blog_id int [ref: - blogs.id]
+  prod_id int [pk, ref: - productions.id]
+  blog_id int [pk, ref: - blogs.id]
 }
 
 Table blogs {
@@ -105,6 +105,12 @@ Table blogs {
   title varchar
   content varchar
   author int [ref: > users.id]
+}
+
+Table blog_content {
+  blog_id int [pk, ref: > blogs.id]
+  language varchar [pk]
+  content varchar
 }
 
 Table users {
@@ -118,8 +124,8 @@ Table users {
 }
 
 Table user_roles {
-  user_id int [ref: - users.id]
-  role_id int [ref: - roles.id]
+  user_id int [pk, ref: - users.id]
+  role_id int [pk, ref: - roles.id]
 }
 
 Table roles {
@@ -128,8 +134,8 @@ Table roles {
 }
 
 Table role_permissions {
-  role_id int [ref: - roles.id]
-  permission_id int [ref: - permissions.id]
+  role_id int [pk, ref: - roles.id]
+  permission_id int [pk, ref: - permissions.id]
 }
 
 Table permissions {
