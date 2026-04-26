@@ -184,7 +184,9 @@
       "add": "Add user",
       "cancel": "Cancel",
       "create": "Create user",
-      "creating": "Creating user"
+      "creating": "Creating user",
+      "delete": "Delete user",
+      "deleting": "Deleting user"
     },
     "badges": {
       "superUser": "Super user"
@@ -196,6 +198,7 @@
     "messages": {
       "loadFailed": "We could not load the user administration data right now.",
       "createFailed": "We could not create the user right now.",
+      "deleteFailed": "We could not delete the user right now.",
       "usernameRequired": "A username is required.",
       "passwordRequired": "A password is required."
     },
@@ -203,6 +206,10 @@
       "create": {
         "title": "Add user",
         "description": "Create a basic account with a username and password. Roles can be assigned later."
+      },
+      "delete": {
+        "title": "Delete user",
+        "description": "Are you sure you want to permanently delete the account \"{{username}}\"? This action cannot be undone."
       }
     },
     "empty": {

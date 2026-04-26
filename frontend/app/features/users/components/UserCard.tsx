@@ -1,3 +1,4 @@
+import { Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import type { IUser } from "../users.types";
@@ -5,6 +6,7 @@ import type { IUser } from "../users.types";
 type UserCardProps = {
   user: IUser;
   formatDateTime: (value: string | null) => string;
+  onDelete?: () => void;
 };
 
 function MetaRow({ label, value }: { label: string; value: string }) {
@@ -43,7 +45,7 @@ function UserBadge({ children }: { children: string }) {
   );
 }
 
-export function UserCard({ user, formatDateTime }: UserCardProps) {
+export function UserCard({ user, formatDateTime, onDelete }: UserCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -94,6 +96,27 @@ export function UserCard({ user, formatDateTime }: UserCardProps) {
           />
         </section>
       </div>
+
+      {onDelete ? (
+        <div className="border-archive-border mt-5 border-t pt-4">
+          <Button onClick={onDelete} sx={deleteButtonSx}>
+            {t("users.actions.delete")}
+          </Button>
+        </div>
+      ) : null}
     </article>
   );
 }
+
+const deleteButtonSx = {
+  py: 1,
+  px: 2,
+  borderRadius: "999px",
+  textTransform: "none" as const,
+  fontFamily: "var(--font-sans)",
+  fontSize: "0.72rem",
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  color: "#c0392b",
+  border: "1px solid rgba(192, 57, 43, 0.35)",
+};

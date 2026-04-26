@@ -182,7 +182,9 @@
       "add": "Gebruiker toevoegen",
       "cancel": "Annuleren",
       "create": "Gebruiker aanmaken",
-      "creating": "Gebruiker wordt aangemaakt"
+      "creating": "Gebruiker wordt aangemaakt",
+      "delete": "Gebruiker verwijderen",
+      "deleting": "Gebruiker wordt verwijderd"
     },
     "badges": {
       "superUser": "Supergebruiker"
@@ -194,6 +196,7 @@
     "messages": {
       "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
       "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "deleteFailed": "De gebruiker kon nu niet worden verwijderd.",
       "usernameRequired": "Een gebruikersnaam is verplicht.",
       "passwordRequired": "Een wachtwoord is verplicht."
     },
@@ -201,6 +204,10 @@
       "create": {
         "title": "Gebruiker toevoegen",
         "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+      },
+      "delete": {
+        "title": "Gebruiker verwijderen",
+        "description": "Weet je zeker dat je het account \"{{username}}\" permanent wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       }
     },
     "empty": {
