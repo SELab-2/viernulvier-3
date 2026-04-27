@@ -10,7 +10,6 @@ from src.models.associations import prod_blogs
 class Blog(Base):
     __tablename__ = "blogs"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String)
 
     author_id = Column(Integer, ForeignKey("users.id"))
     author = relationship("User", back_populates="blogs")
@@ -29,4 +28,5 @@ class BlogContent(Base):
 
     blog_id = Column(Integer, ForeignKey("blogs.id"), primary_key=True)
     language = Column(String, primary_key=True)
+    title = Column(String)
     content = Column(String)
