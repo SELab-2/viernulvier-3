@@ -3,7 +3,7 @@ import json
 from typing import Literal
 from datetime import datetime
 from sqlalchemy import asc, desc, or_, and_
-from src.schemas.pagination import Pagination
+from src.schemas.pagination import JsonPagination
 from sqlalchemy.orm import Session
 from src.models import Event, Production, ProdInfo, Tag
 from src.services.tag import build_tag_response, get_names_for_language
@@ -218,7 +218,7 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=Pagination(next_cursor=next_cursor, has_more=has_more),
+        pagination=JsonPagination(next_cursor=next_cursor, has_more=has_more),
     )
 
 
