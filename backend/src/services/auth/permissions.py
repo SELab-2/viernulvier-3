@@ -18,6 +18,11 @@ class Permissions:
     USERS_UPDATE = "users:update"
     USERS_DELETE = "users:delete"
 
+    # Blog
+    BLOG_CREATE = "blog:create"
+    BLOG_UPDATE = "blog:update"
+    BLOG_DELETE = "blog.delete"
+
     @classmethod
     def all(cls) -> list[str]:
         """Return een lijst van alle permissies gedefinieerd in deze klasse."""
