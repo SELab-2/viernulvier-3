@@ -16,9 +16,9 @@ backend
 │       └── foo.py
 └── tests/
     ├── conftest.py
-    ├── unit_tests/
+    ├── unit/
     │   └── test_foo_service.py
-    └── integration_tests/
+    └── integration/
         └── test_foo.py
 
 ```
@@ -55,7 +55,7 @@ uitvoeren en `get("/foo")` als integration test.
 ## Unit test
 Voor unit test kunnen we kleine mock results maken die mogelijke edge cases
 voor de `get_foo_data` zijn. Dit kan op deze manier in
-`test/unit_tests/test_foo_service.py`:
+`tests/unit/test_foo_service.py`:
 ```py
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -86,8 +86,8 @@ async def test_get_foo_data():
 
 ## Integration test
 Voor de integration test zullen we gebruik maken van de fake databank in
-`test/conftest.py`. Dit kan op deze manier in
-`test/integration_tests/test_foo.py`
+`tests/conftest.py`. Dit kan op deze manier in
+`tests/integration_tests/test_foo.py`
 ```
 def test_foo(client):
     response = client.get("/foo")
@@ -107,8 +107,8 @@ De testen voor de backend kan je uitvoeren door volgende stappen te volgen:
 1. Zorg dat je een geldige `.env` in root hebt staan
 2. Zorg dat je CWD `backend/` is (`cd backend/`)
 3. Zorg dat je alle packages geïnstalleerd hebt: `pip install -r requirements.txt`, `pip install -r requirements-dev.txt`
-4. Voer pytest uit `pytest test/`
+4. Voer pytest uit `pytest tests/`
 
 Coverage kan op een gelijkaardige manier berekent worden, stappen 1-3 zijn hetzelfde, hierna doe je:
-1. Voer coverage op pytest uit: `coverage run -m pytest test/`
+1. Voer coverage op pytest uit: `coverage run -m pytest tests/`
 2. Laad het coverage bestand: `coverage report -m`
