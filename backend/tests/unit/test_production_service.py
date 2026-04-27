@@ -55,6 +55,7 @@ def test_get_productions_paginated(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
+    assert result.pagination.total_count == 10
 
     # Check if each returned production is valid without relying on order
     for prod in result.productions:
@@ -84,6 +85,7 @@ def test_get_productions_paginated(db_session, many_productions):
 
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
 
 
 # Only get productions with a certain tag (in total 10 productions).
@@ -93,18 +95,21 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     # 5 productions should have the same tag (id=2).
     result = get_productions_paginated(db_session, BASE_URL, limit=5, tags=[2])
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     # Get productions, given multiple tags.
     result = get_productions_paginated(db_session, BASE_URL, limit=10, tags=[1, 2])
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
 
 
 # Only get productions with a certain artist (in total 10 productions).
@@ -116,11 +121,13 @@ def test_get_productions_with_artist(db_session, many_productions):
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     result = get_productions_paginated(db_session, BASE_URL, limit=10, artists=["Bob"])
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     result = get_productions_paginated(
         db_session, BASE_URL, limit=5, artists=["Steve", "Bob"]
@@ -128,11 +135,13 @@ def test_get_productions_with_artist(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
+    assert result.pagination.total_count == 10
 
     result = get_productions_paginated(db_session, BASE_URL, limit=5, artists=["Alice"])
     assert len(result.productions) == 0
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 # Only get productions with a specific name (case-insensitive, in total 10 productions).
@@ -143,6 +152,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 1
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 1
     assert (
         result.productions[0].id_url
         == f"{BASE_URL}/productions/{many_productions[0].id}"
@@ -155,6 +165,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 1
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 1
     assert (
         result.productions[0].id_url
         == f"{BASE_URL}/productions/{many_productions[1].id}"
@@ -167,6 +178,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
 
     # No match results in empty list.
     result = get_productions_paginated(
@@ -175,6 +187,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 0
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 # Only get productions by specific start/end dates (in total 10 productions).
