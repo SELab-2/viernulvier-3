@@ -1,4 +1,5 @@
 from pydantic import Field
+from typing import Optional
 from src.schemas.base_schema import StrictModel
 from src.schemas.pagination import Pagination
 
@@ -25,13 +26,13 @@ class BlogListResponse(StrictModel):
     pagination: Pagination = Field(default_factory=Pagination)
 
 
-# The response for creating content of a blog in a specific language
+# The model for creating content of a blog in a specific language
 class BlogContentCreate(StrictModel):
     language: str
     content: str
 
 
-# The response for creating a blog
+# The model for creating a blog
 class BlogCreate(StrictModel):
     title: str
     author_id_url: str
@@ -39,7 +40,14 @@ class BlogCreate(StrictModel):
     production_id_urls: list[str] = []
 
 
-# The response for updating content of a blog in a specific language
+# The model for updating content of a blog in a specific language
 class BlogContentUpdate(StrictModel):
-    language: str
-    content: str
+    content: Optional[str] = None
+
+
+# The model for updating a blog
+class BlogUpdate(StrictModel):
+    title: Optional[str] = None
+    blog_content: Optional[BlogContentUpdate] = None
+    production_id_urls: list[str] = []
+    remove_languages: list[str] | None = None
