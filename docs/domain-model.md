@@ -102,45 +102,13 @@ Table prod_blogs {
 
 Table blogs {
   id int [pk]
-  title varchar
-  content varchar
-  author int [ref: > users.id]
 }
 
 Table blog_content {
   blog_id int [pk, ref: > blogs.id]
   language varchar [pk]
+  title varchar
   content varchar
-}
-
-Table users {
-  id int [pk]
-  username varchar
-  hashed_password varchar
-  token_version integer
-  super_user bool
-  created_at datetime
-  last_login_at datetime
-}
-
-Table user_roles {
-  user_id int [pk, ref: - users.id]
-  role_id int [pk, ref: - roles.id]
-}
-
-Table roles {
-  id int [pk]
-  name varchar
-}
-
-Table role_permissions {
-  role_id int [pk, ref: - roles.id]
-  permission_id int [pk, ref: - permissions.id]
-}
-
-Table permissions {
-  id int [pk]
-  name varchar
 }
 ```
 </details>
