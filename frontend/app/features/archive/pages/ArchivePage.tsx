@@ -16,24 +16,25 @@ import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
 import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
+import { useDebouncedState } from "../utils/debouncedState";
 
 function buildProductionFilters({
   debouncedSearch,
-  debouncedFromDates,
-  debouncedToDates,
+  debouncedDateFrom,
+  debouncedDateTo,
   selectedTags,
   selectedArtists,
 }: {
   debouncedSearch: string;
-  debouncedFromDates: string;
-  debouncedToDates: string;
+  debouncedDateFrom: string;
+  debouncedDateTo: string;
   selectedTags: Tag[];
   selectedArtists: string[];
 }) {
   return {
     production_name: debouncedSearch || undefined,
-    earliest_at: debouncedFromDates || undefined,
-    latest_at: debouncedToDates || undefined,
+    earliest_at: debouncedDateFrom || undefined,
+    latest_at: debouncedDateTo || undefined,
     tag_ids:
       selectedTags.length > 0
         ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
@@ -50,39 +51,23 @@ export default function ArchivePage() {
   );
 
   const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
+  const [dateFrom, debouncedDateFrom, setDateFrom] = useDebouncedState("");
+  const [dateTo, debouncedDateTo, setDateTo] = useDebouncedState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
-  // Debounce searchQuery so we don't fire on every keystroke
-  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
-  const [debouncedFromDates, setDebouncedFromDates] = useState(dateFrom);
-  const [debouncedToDates, setDebouncedToDates] = useState(dateTo);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedFromDates(dateFrom), 400);
-    return () => clearTimeout(timer);
-  }, [dateFrom]);
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedToDates(dateTo), 400);
-    return () => clearTimeout(timer);
-  }, [dateTo]);
 
   const filters = useMemo(
     () =>
       buildProductionFilters({
         debouncedSearch,
-        debouncedFromDates,
-        debouncedToDates,
+        debouncedDateFrom,
+        debouncedDateTo,
         selectedTags,
         selectedArtists,
       }),
-    [debouncedSearch, debouncedFromDates, debouncedToDates, selectedTags, selectedArtists]
+    [debouncedSearch, debouncedDateFrom, debouncedDateTo, selectedTags, selectedArtists]
   );
 
   // Re-fetch whenever any filter changes
