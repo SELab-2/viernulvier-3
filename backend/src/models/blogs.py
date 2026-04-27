@@ -18,6 +18,7 @@ class Blog(Base):
     )
 
     media = relationship("Media", back_populates="blog")
+    contents = relationship("BlogContent", back_populates="blog")
 
 
 class BlogContent(Base):
@@ -27,3 +28,4 @@ class BlogContent(Base):
     language = Column(String, primary_key=True)
     title = Column(String)
     content = Column(String)
+    blog = relationship("Blog", back_populates="contents")
