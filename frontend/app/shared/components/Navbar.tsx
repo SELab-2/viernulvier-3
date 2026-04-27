@@ -1,5 +1,5 @@
 import { useState, type JSX } from "react";
-import { Link, NavLink, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Protected, useAuthSession } from "~/features/auth";
@@ -61,6 +61,7 @@ type NavLinksProps = { onNavigate?: () => void };
 function NavLinks({ onNavigate }: NavLinksProps) {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
+  const { pathname } = useLocation();
 
   return (
     <>
@@ -69,7 +70,11 @@ function NavLinks({ onNavigate }: NavLinksProps) {
           <li key={i18n_key}>
             <NavLink
               to={lp(path)}
-              className={navLinkClass}
+              className={() => {
+                const current = pathname.replace(/\/+$/, "");
+                const target = lp(path).replace(/\/+$/, "");
+                return navLinkClass({ isActive: current === target });
+              }}
               end={path === "/"}
               onClick={onNavigate}
             >
