@@ -6,6 +6,7 @@ export interface PaginationRequest<CursorT> {
 export interface PaginationResponse<CursorT> {
   next_cursor?: CursorT;
   has_more: boolean;
+  total_count: number;
 }
 
 export type IdPaginationRequest = PaginationRequest<number>;

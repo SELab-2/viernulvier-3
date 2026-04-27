@@ -104,6 +104,7 @@ describe("productionService", () => {
     it("returns productions list", async () => {
       const pagination: JsonPaginationResponse = {
         has_more: false,
+        total_count: 2,
       };
 
       const mockProductionList: ProductionList = {

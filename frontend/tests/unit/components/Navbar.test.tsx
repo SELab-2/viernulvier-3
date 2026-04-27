@@ -29,6 +29,16 @@ describe("Navbar", () => {
     expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
   });
 
+  it("Home is selected by default", () => {
+    renderWithRouterAndTheme({});
+    expect(screen.getByText("I18N_Home").closest("a")).toHaveClass(
+      "border-archive-accent"
+    );
+    expect(screen.getByText("I18N_History").closest("a")).toHaveClass(
+      "border-transparent"
+    );
+  });
+
   it("toggles mobile menu when clicking hamburger button", async () => {
     renderWithRouterAndTheme({});
 
@@ -74,6 +84,16 @@ describe("Navbar", () => {
 
     const user = userEvent.setup();
     const links = screen.getAllByRole("link", { name: "I18N_Home" });
+    await user.click(links[0]);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("navigates to home page when clicking VierNulVier logo", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("img");
     await user.click(links[0]);
     expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
   });

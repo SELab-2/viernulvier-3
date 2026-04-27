@@ -48,7 +48,7 @@ describe("mediaService", () => {
 
   describe("getMediaForProduction", () => {
     it("returns media list for a production", async () => {
-      const pagination: IdPaginationResponse = { has_more: false };
+      const pagination: IdPaginationResponse = { has_more: false, total_count: 2 };
       const mockMediaList: MediaList = {
         media: [mockMediaItem1, mockMediaItem2],
         pagination,
@@ -67,7 +67,7 @@ describe("mediaService", () => {
     it("returns empty media list when production has no media", async () => {
       const mockMediaList: MediaList = {
         media: [],
-        pagination: { has_more: false },
+        pagination: { has_more: false, total_count: 0 },
       };
 
       mockAdapter

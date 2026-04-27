@@ -6,7 +6,8 @@ CursorT = TypeVar("CursorT")
 
 class Pagination(StrictModel, Generic[CursorT]):
     next_cursor: CursorT | None
-    has_more: bool
+    has_more: bool = False
+    total_count: int
 
 
 IdPagination = Pagination[int]

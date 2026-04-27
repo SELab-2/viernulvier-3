@@ -1,23 +1,25 @@
 import base64
 import json
-from typing import Literal
 from datetime import datetime
-from sqlalchemy import asc, desc, or_, and_
-from src.schemas.pagination import JsonPagination
+from typing import Literal
+
+from sqlalchemy import and_, asc, desc, or_
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo, Tag
-from src.services.tag import build_tag_response, get_names_for_language
-from src.schemas.tag import TagResponse
+from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models import Event, ProdInfo, Production, Tag
+from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
-    ProductionUpdate,
-    ProductionResponse,
     ProductionInfoResponse,
     ProductionListResponse,
+    ProductionResponse,
+    ProductionUpdate,
 )
-from src.api.exceptions import NotFoundError, ValidationError
+from src.schemas.tag import TagResponse
+from src.services.tag import build_tag_response, get_names_for_language
 
 
 # The response functions: both return copies.
@@ -129,9 +131,9 @@ def get_productions_paginated(
     is_asc = sort_order == "Ascending"
     order_func = asc if is_asc else desc
 
-    query = db.query(Production).order_by(
-        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
-    )
+    # First construct a base query. Then apply all filters one by one.
+    # Then get the total count for the Pagination response, then the actual data.
+    base_query = db.query(Production)
 
     # Name filter
     if production_name:
@@ -141,14 +143,14 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Date filter
     if earliest_at:
-        query = query.filter(Production.latest_at >= earliest_at)
+        base_query = base_query.filter(Production.latest_at >= earliest_at)
 
     if latest_at:
-        query = query.filter(Production.earliest_at <= latest_at)
+        base_query = base_query.filter(Production.earliest_at <= latest_at)
 
     # Tags filter
     if tags:
@@ -159,7 +161,7 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Artists filter
     if artists:
@@ -169,7 +171,15 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
+
+    # Get the total count
+    total_count = base_query.count()
+
+    # Create the final query that will return the actual data
+    query = base_query.order_by(
+        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
+    )
 
     if cursor is not None:
         cursor_date, cursor_id = decode_cursor(cursor)
@@ -218,7 +228,11 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=JsonPagination(next_cursor=next_cursor, has_more=has_more),
+        pagination=JsonPagination(
+            next_cursor=next_cursor,
+            has_more=has_more,
+            total_count=total_count,
+        ),
     )
 
 
@@ -234,7 +248,7 @@ def get_event_urls_for_production(
 def get_tags_for_production(
     db: Session, production_id: int, base_url: str
 ) -> list[TagResponse]:
-    production = db.query(Production).get(production_id)
+    production = db.query(Production).filter(Production.id == production_id).first()
     tags = production.tags
     responses = []
     for tag in tags:
