@@ -1,11 +1,13 @@
+from typing import Generic, TypeVar
 from src.schemas.base_schema import StrictModel
 
+CursorT = TypeVar("CursorT")
 
-class IdPagination(StrictModel):
-    next_cursor: int | None
+
+class Pagination(StrictModel, Generic[CursorT]):
+    next_cursor: CursorT | None
     has_more: bool
 
 
-class JsonPagination(StrictModel):
-    next_cursor: str | None
-    has_more: bool
+IdPagination = Pagination[int]
+JsonPagination = Pagination[str]
