@@ -1,5 +1,5 @@
 import { useState, type JSX } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Protected, useAuthSession } from "~/features/auth";
@@ -23,21 +23,24 @@ const NAV_ITEMS = [
 type LogoProps = { nav_name: string };
 
 function Logo({ nav_name }: LogoProps) {
+  const lp = useLocalizedPath();
   return (
-    <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
-      <img
-        src="/logo.svg"
-        alt={`${nav_name} logo`}
-        className="xs:h-8 h-6 w-auto md:h-10"
-        style={{ filter: "var(--archive-logo-filter)" }}
-      />
-      <span
-        aria-hidden="true"
-        className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
-      >
-        {nav_name}
-      </span>
-    </div>
+    <Link to={lp("/")}>
+      <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
+        <img
+          src="/logo.svg"
+          alt={`${nav_name} logo`}
+          className="xs:h-8 h-6 w-auto md:h-10"
+          style={{ filter: "var(--archive-logo-filter)" }}
+        />
+        <span
+          aria-hidden="true"
+          className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
+        >
+          {nav_name}
+        </span>
+      </div>
+    </Link>
   );
 }
 
