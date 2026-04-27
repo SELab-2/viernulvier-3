@@ -15,7 +15,6 @@ class BlogContentResponse(StrictModel):
 # The response for a blog
 class BlogResponse(StrictModel):
     id_url: str
-    author_id_url: str
     blog_contents: list[BlogContentResponse] = Field(default_factory=list)
     production_id_urls: list[str] = Field(default_factory=list)
 
@@ -35,7 +34,6 @@ class BlogContentCreate(StrictModel):
 
 # The model for creating a blog
 class BlogCreate(StrictModel):
-    author_id_url: str
     blog_content: BlogContentCreate
     production_id_urls: list[str] = []
 

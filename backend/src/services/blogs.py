@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from src.models import Blog, BlogContent
 from src.models.production import Production
-from src.models.user import User
 from src.schemas.pagination import Pagination
 from src.api.dependencies.language import get_accepted_language
 from src.schemas.blogs import (
@@ -27,7 +26,7 @@ def build_blog_content_response(
 
 
 def build_blog_response(
-    db: Session, blog: Blog, base_url: str, language: str | None
+    db: Session, blog: Blog, base_url: str, language: str | None = None
 ) -> BlogResponse:
     blog_contents = None
     if language is not None:
@@ -46,7 +45,6 @@ def build_blog_response(
     ]
     return BlogResponse(
         id_url=f"{base_url}/blogs/{blog.id}",
-        author_id_url=f"{base_url}/users/{blog.author_id}",
         blog_contents=blog_contents,
         productions=get_productions_for_blog(db, blog.id, base_url),
     )
@@ -65,8 +63,8 @@ def get_productions_for_blog(db: Session, blog_id: int, base_url: str) -> list[s
 def get_blogs_paginated(
     db: Session,
     base_url: str,
-    language: str | None,
-    cursor: str | None,
+    language: str | None = None,
+    cursor: str | None = None,
     limit: int = 20,
 ) -> BlogListResponse:
     query = db.query(Blog)
@@ -87,7 +85,7 @@ def get_blogs_paginated(
 
 
 def get_blog_by_id(
-    db: Session, blog_id: int, base_url: str, language: str | None
+    db: Session, blog_id: int, base_url: str, language: str | None = None
 ) -> BlogResponse:
     blog = db.query(Blog).filter(Blog.id == blog_id).first()
     if not blog:
@@ -125,15 +123,7 @@ def create_blog(
     if missing_prod_ids:
         raise ValidationError(f"Productions do not exist: {missing_prod_ids}")
 
-    author_id_url = blog_in.author_id_url or ""
-    author_id = int(author_id_url.rstrip("/").split("/")[-1])
-
-    author = db.query(User).filter(User.id == author_id).first()
-    if not author:
-        raise NotFoundError("User", author_id)
-
     db_blog = Blog(
-        author=author,
         productions=existing_productions,
     )
 
@@ -196,8 +186,6 @@ def update_blog_by_id(
         db.commit()
         db.refresh(blog)
         return build_blog_response(db, blog, base_url)
-
-
 
 
 def delete_blog_by_id(db: Session, blog_id: int) -> bool:
