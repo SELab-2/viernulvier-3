@@ -71,7 +71,7 @@ describe("Archive", () => {
     it("Shows a button when there is more data", async () => {
       vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
         productions: [mockProductions[0]],
-        pagination: { has_more: true, next_cursor: 100 },
+        pagination: { has_more: true, next_cursor: "test_cursor" },
       });
       await renderArchiveAndNavigate();
 
@@ -91,7 +91,7 @@ describe("Archive", () => {
       vi.mocked(productionService.getProductionsPaginated)
         .mockResolvedValueOnce({
           productions: [mockProductions[0]],
-          pagination: { has_more: true, next_cursor: 123 },
+          pagination: { has_more: true, next_cursor: "test_cursor" },
         })
         .mockResolvedValueOnce({
           productions: mockProductions.slice(1),
@@ -117,7 +117,7 @@ describe("Archive", () => {
       expectEveryProductionVisible(mockProductions.slice(1));
 
       expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
-        cursor: 123,
+        cursor: "test_cursor",
         artists: undefined,
         earliest_at: undefined,
         latest_at: undefined,

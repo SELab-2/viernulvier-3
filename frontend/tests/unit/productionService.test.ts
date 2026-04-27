@@ -13,7 +13,7 @@ import {
 } from "~/features/archive/services/productionService";
 
 import type { Tag } from "~/features/archive/types/tagTypes";
-import type { PaginationResponse } from "~/features/archive/types/paginationTypes";
+import type { JsonPaginationResponse } from "~/features/archive/types/paginationTypes";
 
 import type {
   Production,
@@ -102,7 +102,7 @@ describe("productionService", () => {
 
   describe("getProductions", () => {
     it("returns productions list", async () => {
-      const pagination: PaginationResponse = {
+      const pagination: JsonPaginationResponse = {
         has_more: false,
       };
 

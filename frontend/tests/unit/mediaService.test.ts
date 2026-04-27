@@ -11,7 +11,7 @@ import {
 } from "~/features/archive/services/mediaService";
 
 import type { MediaItem, MediaList } from "~/features/archive/types/mediaTypes";
-import type { PaginationResponse } from "~/features/archive/types/paginationTypes";
+import type { IdPaginationResponse } from "~/features/archive/types/paginationTypes";
 
 describe("mediaService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -48,7 +48,7 @@ describe("mediaService", () => {
 
   describe("getMediaForProduction", () => {
     it("returns media list for a production", async () => {
-      const pagination: PaginationResponse = { has_more: false };
+      const pagination: IdPaginationResponse = { has_more: false };
       const mockMediaList: MediaList = {
         media: [mockMediaItem1, mockMediaItem2],
         pagination,
