@@ -21,6 +21,7 @@ def build_blog_content_response(
     return BlogContentResponse(
         blog_id_url=f"{base_url}/blogs/{blog_content.blog_id}",
         language=blog_content.language,
+        title=blog_content.title,
         content=blog_content.content,
     )
 
@@ -45,7 +46,6 @@ def build_blog_response(
     ]
     return BlogResponse(
         id_url=f"{base_url}/blogs/{blog.id}",
-        title=blog.title,
         author_id_url=f"{base_url}/users/{blog.author_id}",
         blog_contents=blog_contents,
         productions=get_productions_for_blog(db, blog.id, base_url),
@@ -133,7 +133,6 @@ def create_blog(
         raise NotFoundError("User", author_id)
 
     db_blog = Blog(
-        title=blog_in.title,
         author=author,
         productions=existing_productions,
     )

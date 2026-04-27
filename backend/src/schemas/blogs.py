@@ -8,13 +8,13 @@ from src.schemas.pagination import Pagination
 class BlogContentResponse(StrictModel):
     blog_id_url: str
     language: str
+    title: str
     content: str
 
 
 # The response for a blog
 class BlogResponse(StrictModel):
     id_url: str
-    title: str
     author_id_url: str
     blog_contents: list[BlogContentResponse] = Field(default_factory=list)
     production_id_urls: list[str] = Field(default_factory=list)
@@ -29,12 +29,12 @@ class BlogListResponse(StrictModel):
 # The model for creating content of a blog in a specific language
 class BlogContentCreate(StrictModel):
     language: str
+    title: str
     content: str
 
 
 # The model for creating a blog
 class BlogCreate(StrictModel):
-    title: str
     author_id_url: str
     blog_content: BlogContentCreate
     production_id_urls: list[str] = []
@@ -42,12 +42,12 @@ class BlogCreate(StrictModel):
 
 # The model for updating content of a blog in a specific language
 class BlogContentUpdate(StrictModel):
+    title: Optional[str] = None
     content: Optional[str] = None
 
 
 # The model for updating a blog
 class BlogUpdate(StrictModel):
-    title: Optional[str] = None
     blog_content: Optional[BlogContentUpdate] = None
     production_id_urls: list[str] = []
     remove_languages: list[str] | None = None
