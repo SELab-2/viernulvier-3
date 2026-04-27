@@ -1,4 +1,4 @@
-import { ArrowRightAlt } from "@mui/icons-material";
+import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
 import {
   Box,
   Card,
