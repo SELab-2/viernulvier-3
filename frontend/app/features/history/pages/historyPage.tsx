@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { HistoryEntry } from "../components/historyEntry";
-import { getHistoryEntries } from "~/features/history/services/historyService";
+import {
+  getHistoryEntries,
+  createHistoryEntry,
+  updateHistoryEntry,
+  deleteHistoryEntry,
+  type HistoryEntryCreateRequest,
+} from "~/features/history/services/historyService";
 import type { HistoryEntryRecord } from "~/features/history/types/historyTypes";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
 const HERO_IMAGES = ["/images/1914_Inhuldiging.jpg"];
 
@@ -46,7 +54,53 @@ export default function HistoryPage() {
     return () => {
       isActive = false;
     };
-  }, [i18n.resolvedLanguage, t]);
+  }, [i18n.resolvedLanguage]);
+
+  async function handleUpdate(payload: {
+    id_url: string;
+    year: number;
+    title: string;
+    content: string;
+  }) {
+    try {
+      const updated = await updateHistoryEntry(payload.id_url, {
+        year: payload.year,
+        title: payload.title,
+        content: payload.content,
+      });
+      setEntries((prev) => prev.map((e) => (e.id_url === updated.id_url ? updated : e)));
+    } catch (err) {
+      window.alert(`Opslaan mislukt: ${err}`);
+    }
+  }
+
+  async function handleDelete(id_url: string) {
+    try {
+      await deleteHistoryEntry(id_url);
+      setEntries((prev) => prev.filter((e) => e.id_url !== id_url));
+    } catch (err) {
+      window.alert(`Verwijderen mislukt: ${err}`);
+    }
+  }
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [newEntry, setNewEntry] = useState<HistoryEntryCreateRequest>({
+    year: new Date().getFullYear(),
+    language: i18n.resolvedLanguage ?? "nl",
+    title: "",
+    content: "",
+  });
+
+  async function handleCreate() {
+    try {
+      const created = await createHistoryEntry(newEntry);
+      setEntries((prev) => [created, ...prev]);
+      setIsCreating(false);
+      setNewEntry({ year: new Date().getFullYear(), language: i18n.resolvedLanguage ?? "nl", title: "", content: "" });
+    } catch (err) {
+      window.alert(`Aanmaken mislukt: ${err}`);
+    }
+  }
 
   return (
     <main>
@@ -80,12 +134,63 @@ export default function HistoryPage() {
               </div>
             ) : entries.length > 0 ? (
               <div className="space-y-16">
+                <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                  <div className="mb-6 flex items-start gap-3">
+                    {!isCreating ? (
+                      <button
+                        className="rounded bg-archive-accent px-3 py-1 text-sm text-white"
+                        onClick={() => setIsCreating(true)}
+                      >
+                        Nieuwe entry
+                      </button>
+                    ) : (
+                      <div className="w-full rounded border bg-archive-paper p-4">
+                        <div className="mb-2 flex gap-2">
+                          <input
+                            aria-label={t("history.form.labels.year")}
+                            placeholder={t("history.form.placeholders.year")}
+                            value={String(newEntry.year)}
+                            onChange={(e) => setNewEntry((prev) => ({ ...prev, year: Number(e.target.value) }))}
+                            className="w-24 rounded border px-2 py-1"
+                          />
+                          <input
+                            aria-label={t("history.form.labels.title")}
+                            placeholder={t("history.form.placeholders.title")}
+                            value={newEntry.title ?? undefined}
+                            onChange={(e) => setNewEntry((prev) => ({ ...prev, title: e.target.value }))}
+                            className="flex-1 rounded border px-2 py-1"
+                          />
+                        </div>
+                        <textarea
+                          aria-label={t("history.form.labels.content")}
+                          placeholder={t("history.form.placeholders.content")}
+                          value={newEntry.content}
+                          onChange={(e) => setNewEntry((prev) => ({ ...prev, content: e.target.value }))}
+                          rows={4}
+                          className="mb-2 w-full rounded border px-2 py-1"
+                        />
+                        <div className="flex gap-2">
+                          <button className="rounded bg-archive-accent px-3 py-1 text-sm text-white" onClick={handleCreate}>
+                            Maak aan
+                          </button>
+                          <button className="rounded bg-archive-control px-3 py-1 text-sm" onClick={() => setIsCreating(false)}>
+                            Annuleren
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Protected>
+
                 {entries.map((entry) => (
                   <HistoryEntry
                     key={entry.id_url}
+                    id_url={entry.id_url}
                     year={entry.year}
                     title={entry.title ?? String(entry.year)}
                     description={entry.content}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
                   />
                 ))}
               </div>

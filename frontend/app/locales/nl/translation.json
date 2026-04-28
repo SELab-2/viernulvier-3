@@ -107,6 +107,18 @@
       "title": "Geen geschiedenisitems gevonden",
       "description": "Zodra de backend geschiedenisitems teruggeeft, verschijnen ze hier in chronologische volgorde."
     },
+    "form": {
+      "labels": {
+        "year": "Jaar",
+        "title": "Titel",
+        "content": "Inhoud"
+      },
+      "placeholders": {
+        "year": "bijv. 2024",
+        "title": "Geef een korte titel voor dit moment",
+        "content": "Vertel het verhaal van dit moment in de geschiedenis"
+      }
+    },
     "entries": [
       {
         "title": "1910: De bouw van 'Feestlokaal Vooruit'",

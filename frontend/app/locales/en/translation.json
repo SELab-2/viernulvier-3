@@ -109,6 +109,18 @@
       "title": "No history entries found",
       "description": "Once the backend returns history entries, they will appear here in chronological order."
     },
+    "form": {
+      "labels": {
+        "year": "Year",
+        "title": "Title",
+        "content": "Content"
+      },
+      "placeholders": {
+        "year": "e.g. 2024",
+        "title": "Give a short title for this moment",
+        "content": "Tell the story of this moment in history"
+      }
+    },
     "entries": [
       {
         "title": "1910: The construction of Vooruit 'Festivities Hall'",
