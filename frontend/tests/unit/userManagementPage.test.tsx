@@ -55,6 +55,7 @@ vi.mock("~/features/auth", () => ({
 
 import UserManagementPage from "~/features/users/pages/UserManagementPage";
 import * as userManagementServiceModule from "~/features/users/services/userManagementService";
+import * as roleManagementServiceModule from "~/features/users/services/roleManagementService";
 import type { IUser } from "~/features/users/users.types";
 
 const dateTimeFormatOptions = {
@@ -98,6 +99,9 @@ describe("UserManagementPage", () => {
       createdAt: "2026-04-09T10:00:00",
       lastLoginAt: null,
     };
+    // Default: roles load successfully with an empty list so existing
+    // user-focused tests are not affected by the roles section.
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
   });
 
   it("renders the empty state when no users are returned", async () => {
