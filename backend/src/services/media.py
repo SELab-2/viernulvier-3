@@ -1,5 +1,6 @@
 # backend/src/services/media.py
 
+from sqlalchemy import func
 import uuid
 import os
 import io
@@ -66,11 +67,18 @@ def list_media_for_production(
     has_more = len(items) > limit
     items = items[:limit]
 
+    total_count = (
+        db.query(func.count(Media.id))
+        .filter(Media.production_id == production_id)
+        .scalar()
+    )
+
     return MediaListResponse(
         media=[build_media_response(m, base_url) for m in items],
         pagination=Pagination(
             next_cursor=items[-1].id if has_more else None,
             has_more=has_more,
+            total_count=total_count,
         ),
     )
 

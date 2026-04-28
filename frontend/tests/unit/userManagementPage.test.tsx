@@ -1,4 +1,10 @@
-import { render, screen, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -194,7 +200,70 @@ describe("UserManagementPage", () => {
     );
 
     expect(createdUserCard).not.toBeNull();
-    expect(createdUserCard).not.toBeNull();
+  });
+
+  it("validates create form fields and clears validation on input change", async () => {
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+
+    const user = userEvent.setup();
+    render(<UserManagementPage />);
+
+    await screen.findByText("users.empty.title");
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
+
+    const createForm = document.querySelector("#user-form-dialog");
+    expect(createForm).not.toBeNull();
+
+    fireEvent.submit(createForm as HTMLFormElement);
+    expect(
+      await screen.findByText("users.messages.usernameRequired")
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("users.fields.username"), "operator");
+    expect(screen.queryByText("users.messages.usernameRequired")).toBeNull();
+
+    fireEvent.submit(createForm as HTMLFormElement);
+    expect(
+      await screen.findByText("users.messages.passwordRequired")
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("users.fields.password"), "secret");
+    expect(screen.queryByText("users.messages.passwordRequired")).toBeNull();
+  });
+
+  it("shows create API errors and resets create dialog state on close", async () => {
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    vi.spyOn(userManagementServiceModule, "createUser").mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { detail: "Username already exists" } },
+    });
+
+    const user = userEvent.setup();
+    render(<UserManagementPage />);
+
+    await screen.findByText("users.empty.title");
+
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
+    await user.type(screen.getByLabelText("users.fields.username"), "operator");
+    await user.type(screen.getByLabelText("users.fields.password"), "secret");
+    await user.click(screen.getByRole("button", { name: "users.actions.create" }));
+
+    expect(await screen.findByText("Username already exists")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("users.dialogs.create.title")
+    );
+
+    await user.click(await screen.findByRole("button", { name: "users.actions.add" }));
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
+    expect(usernameInput.value).toBe("");
+    expect(passwordInput.value).toBe("");
   });
 
   it("hides create actions without the matching permissions", async () => {
@@ -208,5 +277,182 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "users.actions.add" })).toBeNull();
+  });
+
+  it("shows delete buttons when the current user has users:delete permission", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    const deleteButtons = screen.getAllByRole("button", {
+      name: "users.actions.delete",
+    });
+
+    expect(deleteButtons).toHaveLength(users.length);
+  });
+
+  it("hides delete buttons without the users:delete permission", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:create"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "users.actions.delete" })).toBeNull();
+  });
+
+  it("hides the delete button on the current user's own card", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      id: users[0].id,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    // Only one delete button — not on the current user's own card
+    const deleteButtons = screen.getAllByRole("button", {
+      name: "users.actions.delete",
+    });
+
+    expect(deleteButtons).toHaveLength(users.length - 1);
+  });
+
+  it("removes the user from the list after confirming deletion", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockResolvedValue(undefined);
+
+    const user = userEvent.setup();
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+    expect(curatorCard).not.toBeNull();
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(users[0].id);
+    expect(await screen.findByText("admin")).toBeInTheDocument();
+    expect(screen.queryByText("curator")).toBeNull();
+  });
+
+  it("shows an error message when deletion fails", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { detail: "Cannot delete last admin" } },
+    });
+
+    const user = userEvent.setup();
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(await screen.findByText("Cannot delete last admin")).toBeInTheDocument();
+    // The user should still be in the list
+    expect(screen.getByText("curator")).toBeInTheDocument();
+  });
+
+  it("falls back to the generic delete failure message for non-axios errors", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockRejectedValue(
+      new Error("network failure")
+    );
+
+    const user = userEvent.setup();
+
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(await screen.findByText("users.messages.deleteFailed")).toBeInTheDocument();
+  });
+
+  it("closes the delete dialog when cancel is clicked", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    const user = userEvent.setup();
+    render(<UserManagementPage />);
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("users.dialogs.delete.title")
+    );
   });
 });
