@@ -4,7 +4,11 @@ import AxiosMockAdapter from "axios-mock-adapter";
 
 import * as envModule from "~/shared/utils/env";
 import { createApiClient } from "~/shared/services/apiClient";
-import { createUser, listUsers } from "~/features/users/services/userManagementService";
+import {
+  createUser,
+  deleteUser,
+  listUsers,
+} from "~/features/users/services/userManagementService";
 
 describe("userManagementService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -68,6 +72,22 @@ describe("userManagementService", () => {
       permissions: [],
       createdAt: "2026-04-15T09:30:00",
       lastLoginAt: null,
+    });
+  });
+
+  it("deletes a user by id and resolves without a value", async () => {
+    mockAdapter.onDelete("/api/v1/auth/users/12").reply(204);
+
+    await expect(deleteUser(12)).resolves.toBeUndefined();
+    expect(mockAdapter.history.delete).toHaveLength(1);
+    expect(mockAdapter.history.delete[0].url).toBe("/api/v1/auth/users/12");
+  });
+
+  it("rejects when the server returns an error on delete", async () => {
+    mockAdapter.onDelete("/api/v1/auth/users/99").reply(404, { detail: "Not found" });
+
+    await expect(deleteUser(99)).rejects.toMatchObject({
+      response: { status: 404 },
     });
   });
 });
