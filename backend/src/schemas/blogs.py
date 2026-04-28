@@ -40,12 +40,13 @@ class BlogCreate(StrictModel):
 
 # The model for updating content of a blog in a specific language
 class BlogContentUpdate(StrictModel):
+    language: str
     title: Optional[str] = None
     content: Optional[str] = None
 
 
 # The model for updating a blog
 class BlogUpdate(StrictModel):
-    blog_content: Optional[BlogContentUpdate] = None
+    blog_contents: list[BlogContentUpdate] = []
     production_id_urls: list[str] = []
     remove_languages: list[str] | None = None

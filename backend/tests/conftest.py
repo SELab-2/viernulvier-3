@@ -13,6 +13,7 @@ from src.main import app
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
 from src.models.tag import Tag, TagName
+from src.models.blogs import Blog, BlogContent
 from src.services.language import Languages
 from src.models import Media
 
@@ -298,3 +299,85 @@ def media_items_for_production(db_session, production_with_no_media):
     for m in items:
         db_session.refresh(m)
     return items
+
+
+@pytest.fixture
+def blogs_limited(db_session):
+    prod1 = Production(
+        performer_type="theater",
+        attendance_mode="offline",
+        earliest_at=datetime.fromtimestamp(123123),
+        latest_at=datetime.fromtimestamp(223123),
+    )
+    prod2 = Production(
+        performer_type="concert",
+        attendance_mode="online",
+        earliest_at=datetime.fromtimestamp(423123),
+        latest_at=datetime.fromtimestamp(823123),
+    )
+    db_session.add_all([prod1, prod2])
+    db_session.flush()
+
+    blog1 = Blog(
+        productions=[prod1],
+    )
+    blog2 = Blog(
+        productions=[prod1, prod2],
+    )
+    db_session.add_all([blog1, blog2])
+    db_session.flush()
+
+    content1_en = BlogContent(
+        blog_id=blog1.id, language=Languages.ENGLISH, title="title1", content="content1"
+    )
+    content2_en = BlogContent(
+        blog_id=blog2.id, language=Languages.ENGLISH, title="title2", content="content2"
+    )
+    content2_nl = BlogContent(
+        blog_id=blog2.id, language=Languages.NEDERLANDS, title="titel2", content="inhoud2"
+    )
+    db_session.add_all([content1_en, content2_en, content2_nl])
+    db_session.commit()
+
+    db_session.refresh(blog1)
+    db_session.refresh(blog2)
+    return [blog1, blog2]
+
+
+@pytest.fixture
+def many_blogs(db_session):
+    blogs = []
+    prod1 = Production(
+        performer_type="theater",
+        attendance_mode="offline",
+        earliest_at=datetime.fromtimestamp(123123),
+        latest_at=datetime.fromtimestamp(223123),
+    )
+    prod2 = Production(
+        performer_type="concert",
+        attendance_mode="online",
+        earliest_at=datetime.fromtimestamp(423123),
+        latest_at=datetime.fromtimestamp(823123),
+    )
+    db_session.add_all([prod1, prod2])
+    db_session.flush()
+
+    for i in range(10):
+        blog = Blog(
+            productions=[prod1, prod2],
+        )
+        db_session.add(blog)
+        db_session.flush()
+
+        content_en = BlogContent(
+            blog_id=blog.id, language=Languages.ENGLISH, title="title", content="content"
+        )
+        content_nl = BlogContent(
+            blog_id=blog.id, language=Languages.NEDERLANDS, title="titel", content="inhoud"
+        )
+        db_session.add_all([content_en, content_nl])
+        db_session.flush()
+        blogs.append(blog)
+
+    db_session.commit()
+    return blogs

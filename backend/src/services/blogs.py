@@ -46,7 +46,7 @@ def build_blog_response(
     return BlogResponse(
         id_url=f"{base_url}/blogs/{blog.id}",
         blog_contents=blog_contents,
-        productions=get_productions_for_blog(db, blog.id, base_url),
+        production_id_urls=get_productions_for_blog(db, blog.id, base_url),
     )
 
 
@@ -99,6 +99,7 @@ def create_blog_content(
     db_blog_content = BlogContent(
         blog_id=blog_id,
         language=blog_content_in.language,
+        title=blog_content_in.title,
         content=blog_content_in.content
     )
     return db_blog_content
@@ -146,7 +147,7 @@ def update_blog_by_id(
         raise NotFoundError("Blog", blog_id)
 
     update_data = blog_in.model_dump(
-        exclude_unset=True, exclude={"remove_languages"}
+        exclude_unset=True, exclude={"remove_languages", "blog_contents"}
     )
     for field, value in update_data.items():
         setattr(blog, field, value)
@@ -162,8 +163,8 @@ def update_blog_by_id(
             raise ValidationError(f"Productions do not exist: {missing_prod_ids}")
         blog.productions = existing_productions
 
-    if blog_in.blog_content:
-        for blog_content_in in blog_in.blog_content:
+    if blog_in.blog_contents:
+        for blog_content_in in blog_in.blog_contents:
             lang = get_accepted_language(blog_content_in.language)
             if lang is None:
                 raise ValidationError(f"Language '{blog_content_in.language}' not supported.")
@@ -179,13 +180,13 @@ def update_blog_by_id(
             for field, value in update_content.items():
                 setattr(blog_content, field, value)
 
-    if blog_content_in.remove_languages:
-        for lang in blog_content_in.remove_languages:
+    if blog_in.remove_languages:
+        for lang in blog_in.remove_languages:
             db.query(BlogContent).filter(BlogContent.blog_id == blog_id, BlogContent.language == lang).delete()
 
-        db.commit()
-        db.refresh(blog)
-        return build_blog_response(db, blog, base_url)
+    db.commit()
+    db.refresh(blog)
+    return build_blog_response(db, blog, base_url)
 
 
 def delete_blog_by_id(db: Session, blog_id: int) -> bool:
@@ -194,6 +195,6 @@ def delete_blog_by_id(db: Session, blog_id: int) -> bool:
         raise NotFoundError("Blog", blog_id)
 
     db.query(BlogContent).filter(BlogContent.blog_id == blog_id).delete()
-    db.delete(Blog)
+    db.delete(blog)
     db.commit()
     return True
