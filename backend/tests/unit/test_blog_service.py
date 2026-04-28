@@ -16,7 +16,7 @@ from src.schemas.blogs import (
 )
 from src.services.language import Languages
 
-from src.api.exceptions import NotFoundError, ValidationError
+from src.api.exceptions import ValidationError
 
 import pytest
 

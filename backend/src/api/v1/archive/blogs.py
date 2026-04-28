@@ -14,7 +14,7 @@ from src.services.blogs import (
     update_blog_by_id,
     delete_blog_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, status, HTTPException
+from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
