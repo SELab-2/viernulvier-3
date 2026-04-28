@@ -8,7 +8,8 @@ from src.schemas.pagination import Pagination
 class MediaResponse(StrictModel):
     id_url: str
     url: str
-    production_id_url: str
+    production_id_url: str | None
+    blog_id_url: str | None
     content_type: str
     uploaded_at: datetime
 

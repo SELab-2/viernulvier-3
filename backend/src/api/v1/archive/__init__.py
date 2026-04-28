@@ -4,7 +4,8 @@ from src.api.v1.archive import (
     productions,
     halls,
     tags,
-    media,
+    prod_media,
+    blog_media,
     statistics,
     artists,
     blogs,
@@ -21,7 +22,8 @@ router.include_router(halls.router, prefix="/halls", tags=["Halls"])
 
 router.include_router(tags.router, prefix="/tags", tags=["Tags"])
 
-router.include_router(media.router, prefix="/productions", tags=["Media"])
+router.include_router(prod_media.router, prefix="/productions", tags=["Media"])
+router.include_router(blog_media.router, prefix="/blogs", tags=["Media"])
 
 router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
 
