@@ -20,6 +20,10 @@ def store_new_productions(db_session: Session, productions: list[dict]):
             # The production contains a list of info's with its relation.
             # sqlalchemy should automatically create all the required objects.
             prod, vnv_tag_ids = api_prod_to_model_prod(json_prod)
+
+            # Attach 'prod' to sql-alchemy session
+            prod = db_session.merge(prod)
+
             tags = []
             for tag in vnv_tag_ids:
                 internal_tag_id = tag_map.get(tag)
@@ -32,8 +36,6 @@ def store_new_productions(db_session: Session, productions: list[dict]):
                     tags.append(internal_tag_id)
 
             prod.tags.extend(tags)
-
-            db_session.merge(prod)
 
             created_at = datetime.fromisoformat(json_prod["created_at"])
             if newest_timestamp is None or created_at > newest_timestamp:

@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from src.database import Base
-from src.models.associations import prod_tags
+from src.models.associations import prod_tags, prod_blogs
 
 
 class Production(Base):
@@ -25,6 +25,7 @@ class Production(Base):
 
     info = relationship("ProdInfo", back_populates="production")
     tags = relationship("Tag", secondary=prod_tags, back_populates="productions")
+    blogs = relationship("Blog", secondary=prod_blogs, back_populates="productions")
     events = relationship("Event", back_populates="production")
     media = relationship("Media", back_populates="production")
 

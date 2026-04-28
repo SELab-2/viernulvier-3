@@ -83,6 +83,7 @@ export default function ArchivePage() {
   }, [filters, sortOrder, i18n.resolvedLanguage]);
 
   const productions = productionList?.productions ?? [];
+  const total_count = productionList?.pagination.total_count ?? 0;
 
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
@@ -118,8 +119,8 @@ export default function ArchivePage() {
             <div className="center-items flex justify-between space-x-4">
               <p className="italic opacity-60 md:text-lg">
                 {/* Result count */}
-                {productions.length}{" "}
-                {productions.length === 1 ? t("archive.result") : t("archive.results")}
+                {total_count}{" "}
+                {total_count === 1 ? t("archive.result") : t("archive.results")}
               </p>
               <CreateProductionButton />
             </div>
