@@ -24,9 +24,7 @@ BASE_URL = "http://test"
 
 
 # Limited amount of blogs: only one page.
-def test_get_blogs_paginated_limited(
-    db_session, blogs_limited: List[Blog]
-):
+def test_get_blogs_paginated_limited(db_session, blogs_limited: List[Blog]):
     result = get_blogs_paginated(db_session, BASE_URL)
     assert len(result.blogs) == 2
 
@@ -44,9 +42,7 @@ def test_get_blogs_paginated(db_session, many_blogs):
     # Keep a set of seen ids to keep track of duplicates
     seen_ids = set()
 
-    result = get_blogs_paginated(
-        db_session, BASE_URL, limit=5
-    )
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5)
     assert len(result.blogs) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
@@ -65,9 +61,7 @@ def test_get_blogs_paginated(db_session, many_blogs):
         assert len(blog.blog_contents) == 2
 
     next_cursor = result.pagination.next_cursor
-    result = get_blogs_paginated(
-        db_session, BASE_URL, cursor=next_cursor, limit=5
-    )
+    result = get_blogs_paginated(db_session, BASE_URL, cursor=next_cursor, limit=5)
 
     assert len(result.blogs) == 5
     for blog in result.blogs:
@@ -84,13 +78,8 @@ def test_get_blogs_paginated(db_session, many_blogs):
 # Get blog by id (no/invalid language specified): check if correct blog is returned with all correct content and events.
 # Invalid language results in all content, could be changed if desired.
 def test_get_blog_by_id_no_language(db_session, blogs_limited):
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[1].id, BASE_URL
-    )
-    assert (
-        blog_response.id_url
-        == f"{BASE_URL}/blogs/{blogs_limited[1].id}"
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[1].id, BASE_URL)
+    assert blog_response.id_url == f"{BASE_URL}/blogs/{blogs_limited[1].id}"
     assert len(blog_response.blog_contents) == 2
 
 
@@ -99,10 +88,7 @@ def test_get_blog_by_id_valid_language(db_session, blogs_limited):
     blog_response = get_blog_by_id(
         db_session, blogs_limited[1].id, BASE_URL, language=Languages.ENGLISH
     )
-    assert (
-        blog_response.id_url
-        == f"{BASE_URL}/blogs/{blogs_limited[1].id}"
-    )
+    assert blog_response.id_url == f"{BASE_URL}/blogs/{blogs_limited[1].id}"
     assert len(blog_response.blog_contents) == 1
     assert blog_response.blog_contents[0].language == Languages.ENGLISH
 
@@ -113,9 +99,11 @@ def test_create_blog_valid_content(db_session, blogs_limited):
     assert len(result.blogs) == 2
     new_blog = BlogCreate(
         blog_content=BlogContentCreate(
-            language=Languages.NEDERLANDS, title="nieuwe blog", content="Dit is mijn nieuwe blog"
+            language=Languages.NEDERLANDS,
+            title="nieuwe blog",
+            content="Dit is mijn nieuwe blog",
         ),
-        production_id_urls=[]
+        production_id_urls=[],
     )
 
     _ = create_blog(db_session, new_blog, BASE_URL)
@@ -137,9 +125,13 @@ def test_create_blog_with_tags_valid(db_session, blogs_limited):
     result = get_blogs_paginated(db_session, BASE_URL)
     assert len(result.blogs) == 2
 
-    valid_productions = get_productions_paginated(db_session, BASE_URL, limit=5).productions
+    valid_productions = get_productions_paginated(
+        db_session, BASE_URL, limit=5
+    ).productions
     new_blog = BlogCreate(
-        blog_content=BlogContentCreate(language=Languages.NEDERLANDS, title="nieuwe blog", content=""),
+        blog_content=BlogContentCreate(
+            language=Languages.NEDERLANDS, title="nieuwe blog", content=""
+        ),
         production_id_urls=[prod.id_url for prod in valid_productions],
     )
 
@@ -149,42 +141,38 @@ def test_create_blog_with_tags_valid(db_session, blogs_limited):
 
     new_id = int(response.id_url.rstrip("/").split("/")[-1])
     new_blog_from_db = get_blog_by_id(db_session, new_id, BASE_URL)
-    assert set(new_blog_from_db.production_id_urls) == {prod.id_url for prod in valid_productions}
+    assert set(new_blog_from_db.production_id_urls) == {
+        prod.id_url for prod in valid_productions
+    }
 
 
 # Update an existing blog - basic field.
 def test_update_blog_basic(db_session, blogs_limited):
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[0].id, BASE_URL
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
     assert blog_response.blog_contents[0].title == "title1"
     assert blog_response.blog_contents[0].content == "content1"
-    blog_update = BlogUpdate(blog_contents=[BlogContentUpdate(
-        language=Languages.ENGLISH,
-        title="title 1",
-        content="content"
-    )])
-    result = update_blog_by_id(
-        db_session, blog_update, blogs_limited[0].id, BASE_URL
+    blog_update = BlogUpdate(
+        blog_contents=[
+            BlogContentUpdate(
+                language=Languages.ENGLISH, title="title 1", content="content"
+            )
+        ]
     )
+    result = update_blog_by_id(db_session, blog_update, blogs_limited[0].id, BASE_URL)
     assert result.blog_contents[0].title == "title 1"
     assert result.blog_contents[0].content == "content"
 
 
 # Update productions of a blog
 def test_update_blog_prods(db_session, blogs_limited):
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[0].id, BASE_URL
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
     assert blog_response.production_id_urls == [f"{BASE_URL}/productions/1"]
     new_urls = [f"{BASE_URL}/productions/1", f"{BASE_URL}/productions/2"]
 
     blog_update1 = BlogUpdate(production_id_urls=new_urls)
 
     # Correct responses are returned.
-    result = update_blog_by_id(
-        db_session, blog_update1, blogs_limited[0].id, BASE_URL
-    )
+    result = update_blog_by_id(db_session, blog_update1, blogs_limited[0].id, BASE_URL)
 
     assert result.production_id_urls == [
         f"{BASE_URL}/productions/1",
@@ -192,9 +180,7 @@ def test_update_blog_prods(db_session, blogs_limited):
     ]
 
     # Updated in database.
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[0].id, BASE_URL
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
     assert blog_response.production_id_urls == [
         f"{BASE_URL}/productions/1",
         f"{BASE_URL}/productions/2",
@@ -203,9 +189,7 @@ def test_update_blog_prods(db_session, blogs_limited):
 
 # Update an existing blog - delete existing blog content.
 def test_update_blog_content_delete(db_session, blogs_limited):
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[1].id, BASE_URL
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[1].id, BASE_URL)
     assert len(blog_response.blog_contents) == 2
 
     # New content should be deleted.
@@ -218,9 +202,7 @@ def test_update_blog_content_delete(db_session, blogs_limited):
     assert len(update_response.blog_contents) == 1
 
     # Check updated in database
-    blog_response = get_blog_by_id(
-        db_session, blogs_limited[1].id, BASE_URL
-    )
+    blog_response = get_blog_by_id(db_session, blogs_limited[1].id, BASE_URL)
     assert len(blog_response.blog_contents) == 1
 
 

@@ -334,7 +334,10 @@ def blogs_limited(db_session):
         blog_id=blog2.id, language=Languages.ENGLISH, title="title2", content="content2"
     )
     content2_nl = BlogContent(
-        blog_id=blog2.id, language=Languages.NEDERLANDS, title="titel2", content="inhoud2"
+        blog_id=blog2.id,
+        language=Languages.NEDERLANDS,
+        title="titel2",
+        content="inhoud2",
     )
     db_session.add_all([content1_en, content2_en, content2_nl])
     db_session.commit()
@@ -370,10 +373,16 @@ def many_blogs(db_session):
         db_session.flush()
 
         content_en = BlogContent(
-            blog_id=blog.id, language=Languages.ENGLISH, title="title", content="content"
+            blog_id=blog.id,
+            language=Languages.ENGLISH,
+            title="title",
+            content="content",
         )
         content_nl = BlogContent(
-            blog_id=blog.id, language=Languages.NEDERLANDS, title="titel", content="inhoud"
+            blog_id=blog.id,
+            language=Languages.NEDERLANDS,
+            title="titel",
+            content="inhoud",
         )
         db_session.add_all([content_en, content_nl])
         db_session.flush()

@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from src.models import Blog, BlogContent
 from src.models.production import Production
@@ -9,7 +10,7 @@ from src.schemas.blogs import (
     BlogListResponse,
     BlogContentCreate,
     BlogCreate,
-    BlogUpdate
+    BlogUpdate,
 )
 from src.api.exceptions import NotFoundError, ValidationError
 
@@ -76,10 +77,14 @@ def get_blogs_paginated(
     has_more = len(items) > limit
     items = items[:limit]
 
+    total_count = db.query(func.count(Blog.id)).scalar()
+
     return BlogListResponse(
         blogs=[build_blog_response(db, blog, base_url, language) for blog in items],
         pagination=Pagination(
-            next_cursor=items[-1].id if has_more else None, has_more=has_more
+            next_cursor=items[-1].id if has_more else None,
+            has_more=has_more,
+            total_count=total_count,
         ),
     )
 
@@ -100,25 +105,25 @@ def create_blog_content(
         blog_id=blog_id,
         language=blog_content_in.language,
         title=blog_content_in.title,
-        content=blog_content_in.content
+        content=blog_content_in.content,
     )
     return db_blog_content
 
 
-def create_blog(
-    db: Session, blog_in: BlogCreate, base_url: str
-) -> BlogResponse:
+def create_blog(db: Session, blog_in: BlogCreate, base_url: str) -> BlogResponse:
     blog_content_in = blog_in.blog_content
     lang = get_accepted_language(blog_content_in.language)
     if lang is None:
-        raise ValidationError(
-            f"Language '{blog_content_in.language}' not supported."
-        )
+        raise ValidationError(f"Language '{blog_content_in.language}' not supported.")
 
     production_id_urls = blog_in.production_id_urls or []
-    production_ids = [int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls]
+    production_ids = [
+        int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls
+    ]
 
-    existing_productions = db.query(Production).filter(Production.id.in_(production_ids)).all()
+    existing_productions = (
+        db.query(Production).filter(Production.id.in_(production_ids)).all()
+    )
     existing_prod_ids = {p.id for p in existing_productions}
     missing_prod_ids = set(production_ids) - existing_prod_ids
     if missing_prod_ids:
@@ -154,9 +159,13 @@ def update_blog_by_id(
 
     if blog_in.production_id_urls is not None:
         production_id_urls = blog_in.production_id_urls or []
-        production_ids = [int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls]
+        production_ids = [
+            int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls
+        ]
 
-        existing_productions = db.query(Production).filter(Production.id.in_(production_ids)).all()
+        existing_productions = (
+            db.query(Production).filter(Production.id.in_(production_ids)).all()
+        )
         existing_prod_ids = {p.id for p in existing_productions}
         missing_prod_ids = set(production_ids) - existing_prod_ids
         if missing_prod_ids:
@@ -167,9 +176,15 @@ def update_blog_by_id(
         for blog_content_in in blog_in.blog_contents:
             lang = get_accepted_language(blog_content_in.language)
             if lang is None:
-                raise ValidationError(f"Language '{blog_content_in.language}' not supported.")
+                raise ValidationError(
+                    f"Language '{blog_content_in.language}' not supported."
+                )
 
-            blog_content = db.query(BlogContent).filter(BlogContent.blog_id == blog_id, BlogContent.language == lang).first()
+            blog_content = (
+                db.query(BlogContent)
+                .filter(BlogContent.blog_id == blog_id, BlogContent.language == lang)
+                .first()
+            )
             if not blog_content:
                 blog_content = BlogContent(blog_id=blog_id, language=lang)
                 db.add(blog_content)
@@ -182,7 +197,9 @@ def update_blog_by_id(
 
     if blog_in.remove_languages:
         for lang in blog_in.remove_languages:
-            db.query(BlogContent).filter(BlogContent.blog_id == blog_id, BlogContent.language == lang).delete()
+            db.query(BlogContent).filter(
+                BlogContent.blog_id == blog_id, BlogContent.language == lang
+            ).delete()
 
     db.commit()
     db.refresh(blog)
