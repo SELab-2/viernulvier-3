@@ -100,6 +100,13 @@
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "loading": "Geschiedenis wordt geladen",
+    "errorTitle": "Geschiedenis kon niet worden geladen",
+    "error": "De geschiedenis-tijdlijn kon niet worden opgehaald van de server.",
+    "empty": {
+      "title": "Geen geschiedenisitems gevonden",
+      "description": "Zodra de backend geschiedenisitems teruggeeft, verschijnen ze hier in chronologische volgorde."
+    },
     "entries": [
       {
         "title": "1910: De bouw van 'Feestlokaal Vooruit'",

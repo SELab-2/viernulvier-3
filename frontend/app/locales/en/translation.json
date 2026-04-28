@@ -102,6 +102,13 @@
   "history": {
     "title": "The Echoes of the Building",
     "heroAlt": "A black-and-white photo of the inauguration of the Vooruit Festivities Hall in 1914, with a large crowd in front of the entrance.",
+    "loading": "Loading history",
+    "errorTitle": "Could not load history",
+    "error": "The history timeline could not be fetched from the server.",
+    "empty": {
+      "title": "No history entries found",
+      "description": "Once the backend returns history entries, they will appear here in chronological order."
+    },
     "entries": [
       {
         "title": "1910: The construction of Vooruit 'Festivities Hall'",
