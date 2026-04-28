@@ -16,7 +16,7 @@ import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
 import { UserCard } from "../components/UserCard";
 import { USER_PERMISSIONS } from "../users.constants";
-import { createUser, listUsers } from "../services/userManagementService";
+import { createUser, deleteUser, listUsers } from "../services/userManagementService";
 import type { IUser, IUserCreateRequest } from "../users.types";
 
 function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
@@ -203,6 +203,63 @@ function CreateUserDialog({
   );
 }
 
+function DeleteUserDialog({
+  user,
+  isSubmitting,
+  errorMessage,
+  onClose,
+  onConfirm,
+}: {
+  user: IUser | null;
+  isSubmitting: boolean;
+  errorMessage: string | null;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+}) {
+  const { t } = useTranslation();
+
+  async function handleConfirm() {
+    await onConfirm();
+  }
+
+  return (
+    <Dialog
+      open={Boolean(user)}
+      onClose={isSubmitting ? undefined : onClose}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        paper: { sx: dialogPaperSx },
+        backdrop: { sx: dialogBackdropSx },
+      }}
+    >
+      <DialogTitle sx={dialogTitleSx}>{t("users.dialogs.delete.title")}</DialogTitle>
+      <DialogContent sx={dialogContentSx}>
+        <p className="mb-2 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
+          {t("users.dialogs.delete.description", { username: user?.username })}
+        </p>
+
+        <UserMutationAlert message={errorMessage} />
+      </DialogContent>
+      <DialogActions sx={dialogActionsSx}>
+        <Button onClick={onClose} disabled={isSubmitting} sx={secondaryButtonSx}>
+          {t("users.actions.cancel")}
+        </Button>
+        <Button onClick={handleConfirm} disabled={isSubmitting} sx={dangerButtonSx}>
+          {isSubmitting ? (
+            <>
+              <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
+              {t("users.actions.deleting")}
+            </>
+          ) : (
+            t("users.actions.delete")
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function UserManagementAccessDenied() {
   const { t } = useTranslation();
 
@@ -231,8 +288,16 @@ export default function UserManagementPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [pageError, setPageError] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [mutationError, setMutationError] = useState<string | null>(null);
-  const [isMutating, setIsMutating] = useState(false);
+  const [createMutationError, setCreateMutationError] = useState<string | null>(null);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [deleteMutationError, setDeleteMutationError] = useState<string | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<number | null>(null);
+
+  const userToDelete =
+    userIdToDelete === null
+      ? null
+      : (users.find((managedUser) => managedUser.id === userIdToDelete) ?? null);
 
   useEffect(() => {
     // Ignore any in-flight response once this effect is cleaned up or rerun.
@@ -278,31 +343,74 @@ export default function UserManagementPage() {
   }
 
   function openCreateDialog() {
-    setMutationError(null);
+    setCreateMutationError(null);
     setIsCreateDialogOpen(true);
   }
 
-  function closeUserDialog() {
-    if (isMutating) {
+  function closeCreateDialog() {
+    if (isCreatingUser) {
       return;
     }
 
-    setMutationError(null);
+    setCreateMutationError(null);
     setIsCreateDialogOpen(false);
   }
 
+  function canDeleteManagedUser(managedUser: IUser) {
+    return canDeleteUsers && managedUser.id !== currentUser?.id;
+  }
+
+  function openDeleteDialog(userId: number) {
+    setDeleteMutationError(null);
+    setUserIdToDelete(userId);
+  }
+
+  function closeDeleteDialog() {
+    if (isDeletingUser) {
+      return;
+    }
+
+    setDeleteMutationError(null);
+    setUserIdToDelete(null);
+  }
+
   async function handleCreateUser(payload: IUserCreateRequest) {
-    setIsMutating(true);
-    setMutationError(null);
+    setIsCreatingUser(true);
+    setCreateMutationError(null);
 
     try {
       const createdUser = await createUser(payload);
       setUsers((currentUsers) => [...currentUsers, createdUser]);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      setMutationError(getApiErrorMessage(error, t("users.messages.createFailed")));
+      setCreateMutationError(
+        getApiErrorMessage(error, t("users.messages.createFailed"))
+      );
     } finally {
-      setIsMutating(false);
+      setIsCreatingUser(false);
+    }
+  }
+
+  async function handleDeleteUser() {
+    if (userIdToDelete === null) {
+      return;
+    }
+
+    setIsDeletingUser(true);
+    setDeleteMutationError(null);
+
+    try {
+      await deleteUser(userIdToDelete);
+      setUsers((currentUsers) =>
+        currentUsers.filter((managedUser) => managedUser.id !== userIdToDelete)
+      );
+      setUserIdToDelete(null);
+    } catch (error) {
+      setDeleteMutationError(
+        getApiErrorMessage(error, t("users.messages.deleteFailed"))
+      );
+    } finally {
+      setIsDeletingUser(false);
     }
   }
 
@@ -330,6 +438,12 @@ export default function UserManagementPage() {
     currentUser?.permissions,
     currentUser?.isSuperUser,
     USER_PERMISSIONS.create
+  );
+
+  const canDeleteUsers = hasPermission(
+    currentUser?.permissions,
+    currentUser?.isSuperUser,
+    USER_PERMISSIONS.delete
   );
 
   return (
@@ -401,6 +515,11 @@ export default function UserManagementPage() {
                 key={managedUser.id}
                 user={managedUser}
                 formatDateTime={formatDateTime}
+                onDelete={
+                  canDeleteManagedUser(managedUser)
+                    ? () => openDeleteDialog(managedUser.id)
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -409,10 +528,18 @@ export default function UserManagementPage() {
 
       <CreateUserDialog
         open={isCreateDialogOpen}
-        isSubmitting={isMutating}
-        errorMessage={isCreateDialogOpen ? mutationError : null}
-        onClose={closeUserDialog}
+        isSubmitting={isCreatingUser}
+        errorMessage={isCreateDialogOpen ? createMutationError : null}
+        onClose={closeCreateDialog}
         onSubmit={handleCreateUser}
+      />
+
+      <DeleteUserDialog
+        user={userToDelete}
+        isSubmitting={isDeletingUser}
+        errorMessage={userToDelete ? deleteMutationError : null}
+        onClose={closeDeleteDialog}
+        onConfirm={handleDeleteUser}
       />
     </>
   );
@@ -447,6 +574,15 @@ const primaryButtonSx = {
   "backgroundColor": "var(--archive-accent)",
   "&:hover": {
     backgroundColor: "#92653e",
+  },
+};
+
+const dangerButtonSx = {
+  ...secondaryButtonSx,
+  "color": "#c0392b",
+  "borderColor": "rgba(192, 57, 43, 0.4)",
+  "&:hover": {
+    backgroundColor: "rgba(192, 57, 43, 0.08)",
   },
 };
 

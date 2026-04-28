@@ -58,6 +58,7 @@ def test_get_productions_success(
     # Check first page.
     data = response.json()
     assert len(data["productions"]) == 5
+    assert data["pagination"]["total_count"] == 10
     next_cursor = data["pagination"]["next_cursor"]
     assert next_cursor is not None
     assert data["pagination"]["has_more"]
@@ -70,6 +71,7 @@ def test_get_productions_success(
     # Check second (last) page.
     data = response.json()
     assert len(data["productions"]) == 5
+    assert data["pagination"]["total_count"] == 10
     assert data["pagination"]["next_cursor"] is None
     assert not data["pagination"]["has_more"]
 

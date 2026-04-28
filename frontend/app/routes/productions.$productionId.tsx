@@ -1,13 +1,13 @@
 import { useParams } from "react-router";
 import { useEffect, useMemo, useState } from "react";
 
-import { ProductionPage } from "~/features/archive/components/ProductionPage";
 import {
   getProduction,
   getProductionByUrl,
 } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { useTranslation } from "react-i18next";
+import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 
 function getProductionNumericIdFromInput(
   productionIdInput: string
