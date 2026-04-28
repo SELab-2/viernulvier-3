@@ -9,7 +9,7 @@ on:
 jobs:
   lint-backend:
     name: Lint Backend Code Base with Ruff
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
 
   lint-frontend:
     name: Lint Frontend Code Base with Prettier and Eslint
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -73,20 +73,13 @@ jobs:
     needs:
       - lint-backend
       - lint-frontend
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        include:
-          - target: frontend
-            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} run --rm frontend npm run test
-          - target: backend
-            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} exec -T backend pytest tests/
+        target: [frontend, backend]
 
     steps:
-      - name: Cleanup Docker
-        run: docker system prune -a -f --volumes
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -112,17 +105,24 @@ jobs:
           MINIO_ENDPOINT=minio:9000
           MINIO_BUCKET=media
           EOF
+      - name: Set project name
+        run: echo "PROJECT_NAME=viernulvier-ci-${{ matrix.target }}" >> $GITHUB_ENV
 
       - name: Build Docker Environment
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} up -d --build --wait
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME up -d --build --wait
 
-      - name: Run Tests
-        run: ${{ matrix.command }}
+      - name: Run Frontend Tests
+        if: matrix.target == 'frontend'
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME run --rm frontend npm run test
+
+      - name: Run Backend Tests
+        if: matrix.target == 'backend'
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME exec -T backend pytest tests/
 
       - name: Dump Docker Logs
         if: failure()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} logs
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME logs
 
       - name: Shut Down Docker Environment
         if: always()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} down -v
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME down -v
