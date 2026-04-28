@@ -286,14 +286,13 @@ function CreateRoleDialog({
 
   const trimmedName = name.trim();
 
-  useEffect(() => {
-    if (!open) {
-      setName("");
-      setValidationError(null);
-    }
-  }, [open]);
+  function resetForm() {
+    setName("");
+    setValidationError(null);
+  }
 
   function handleClose() {
+    resetForm();
     onClose();
   }
 
@@ -775,13 +774,15 @@ export default function UserManagementPage() {
         onConfirm={handleDeleteUser}
       />
 
-      <CreateRoleDialog
-        open={isCreateRoleDialogOpen}
-        isSubmitting={isCreatingRole}
-        errorMessage={isCreateRoleDialogOpen ? createRoleError : null}
-        onClose={closeCreateRoleDialog}
-        onSubmit={handleCreateRole}
-      />
+      {isCreateRoleDialogOpen ? (
+        <CreateRoleDialog
+          open={true}
+          isSubmitting={isCreatingRole}
+          errorMessage={createRoleError}
+          onClose={closeCreateRoleDialog}
+          onSubmit={handleCreateRole}
+        />
+      ) : null}
     </>
   );
 }
