@@ -89,7 +89,7 @@ def seed_db():
                     db.add(sync_state)
                     db.commit()
                     db.refresh(sync_state)
-            
+
         seed_history_if_empty(db)
 
     finally:
