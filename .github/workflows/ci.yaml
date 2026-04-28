@@ -79,9 +79,9 @@ jobs:
       matrix:
         include:
           - target: frontend
-            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci run --rm frontend npm run test
+            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} run --rm frontend npm run test
           - target: backend
-            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci exec -T backend pytest tests/
+            command: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} exec -T backend pytest tests/
 
     steps:
       - name: Cleanup Docker
@@ -114,15 +114,15 @@ jobs:
           EOF
 
       - name: Build Docker Environment
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} up -d --build --wait
 
       - name: Run Tests
         run: ${{ matrix.command }}
 
       - name: Dump Docker Logs
         if: failure()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci logs
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} logs
 
       - name: Shut Down Docker Environment
         if: always()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci down -v
+        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci-${{ matrix.target }} down -v
