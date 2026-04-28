@@ -286,13 +286,14 @@ function CreateRoleDialog({
 
   const trimmedName = name.trim();
 
-  function resetForm() {
-    setName("");
-    setValidationError(null);
-  }
+  useEffect(() => {
+    if (!open) {
+      setName("");
+      setValidationError(null);
+    }
+  }, [open]);
 
   function handleClose() {
-    resetForm();
     onClose();
   }
 
