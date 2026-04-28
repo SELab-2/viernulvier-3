@@ -225,6 +225,38 @@
       "eyebrow": "Beperkt gebied",
       "title": "Je hebt geen toegang tot gebruikersbeheer",
       "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
+    },
+    "roles": {
+      "eyebrow": "Toegangsbeheer",
+      "title": "Rollen",
+      "loading": "Rollen worden geladen",
+      "fields": {
+        "name": "Rolnaam"
+      },
+      "actions": {
+        "add": "Rol toevoegen",
+        "create": "Rol aanmaken",
+        "creating": "Rol wordt aangemaakt"
+      },
+      "messages": {
+        "loadFailed": "De rollen konden nu niet geladen worden.",
+        "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "nameRequired": "Een rolnaam is verplicht."
+      },
+      "dialogs": {
+        "create": {
+          "title": "Rol toevoegen",
+          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+        }
+      },
+      "empty": {
+        "title": "Geen rollen gevonden",
+        "description": "Zodra rollen zijn aangemaakt, verschijnen ze hier met hun toegewezen permissies.",
+        "permissions": "Geen permissies toegewezen"
+      },
+      "card": {
+        "label": "Rol"
+      }
     }
   },
   "notFound": {
