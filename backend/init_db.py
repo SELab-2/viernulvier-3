@@ -8,7 +8,7 @@ Dit script wordt automatisch uitgevoerd vóór de start van de API-server
 import os
 from datetime import datetime
 
-from backend.src.seed_history import seed_history_if_empty
+from src.seed_history import seed_history_if_empty
 from src.database import SESSION_LOCAL, init_db
 from src.models.permission import Permission
 from src.models.role import Role
