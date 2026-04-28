@@ -1,13 +1,16 @@
 import { screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
 import userEvent from "@testing-library/user-event";
 import * as productionService from "~/features/archive/services/productionService";
+import * as artistService from "~/features/archive/services/artistService";
+import * as tagService from "~/features/archive/services/tagService";
 import { mockProductions } from "tests/mocks/productions.mock";
 import type { Production } from "~/features/archive/types/productionTypes";
-import { afterEach } from "node:test";
 
 vi.mock("~/features/archive/services/productionService");
+vi.mock("~/features/archive/services/artistService");
+vi.mock("~/features/archive/services/tagService");
 
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
@@ -34,6 +37,11 @@ function expectEveryProductionVisible(productions: Production[]) {
 }
 
 describe("Archive", () => {
+  beforeEach(() => {
+    vi.mocked(artistService.getArtists).mockResolvedValue([]);
+    vi.mocked(tagService.getAllTags).mockResolvedValue([]);
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
