@@ -76,6 +76,7 @@ async def post_media(
     return upload_media(
         db=db,
         production_id=production_id,
+        blog_id=None,
         filename=file.filename or "upload",
         content_type=file.content_type,
         data=data,

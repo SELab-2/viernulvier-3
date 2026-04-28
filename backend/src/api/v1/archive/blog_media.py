@@ -75,6 +75,7 @@ async def post_media(
     base_url = get_base_url(str(request.url), 3)
     return upload_media(
         db=db,
+        production_id=None,
         blog_id=blog_id,
         filename=file.filename or "upload",
         content_type=file.content_type,

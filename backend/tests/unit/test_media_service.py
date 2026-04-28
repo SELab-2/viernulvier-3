@@ -122,6 +122,7 @@ def test_upload_media_creates_db_row_and_puts_object(
     resp = upload_media(
         db_session,
         production_id=prod.id,
+        blog_id=None,
         filename=filename,
         content_type=content_type,
         data=data,
@@ -166,6 +167,7 @@ def test_upload_media_preserves_original_extension_case_insensitive(
     resp = upload_media(
         db_session,
         production_id=prod.id,
+        blog_id=None,
         filename=filename,
         content_type=content_type,
         data=data,
