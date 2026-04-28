@@ -96,7 +96,7 @@ async def delete_media_endpoint(
     media_id: int,
     db: Session = Depends(get_db),
     minio: Minio = Depends(get_minio_client),
-    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
+    _: User = Depends(RequirePermissions([Permissions.BLOG_DELETE])),
 ) -> None:
     deleted = delete_media(db, media_id, minio)
     if not deleted:

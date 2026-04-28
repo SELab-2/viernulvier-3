@@ -39,6 +39,7 @@ def test_build_media_response_basic(db_session, media_item):
     media_item: fixture that returns a Media ORM instance with:
       - id
       - production_id
+      - blog_id
       - object_key
       - content_type
       - uploaded_at
@@ -56,6 +57,29 @@ def test_build_media_response_basic(db_session, media_item):
     assert resp.url == f"http://test/media/{media_item.object_key}"
     assert resp.content_type == media_item.content_type
     assert resp.uploaded_at == media_item.uploaded_at
+
+
+def test_build_media_response_basic_blog(db_session, media_item_blog):
+    """
+    media_item: fixture that returns a Media ORM instance with:
+      - id
+      - production_id
+      - blog_id
+      - object_key
+      - content_type
+      - uploaded_at
+    """
+    resp = build_media_response(media_item_blog, BASE_URL)
+
+    assert (
+        resp.id_url
+        == f"{BASE_URL}/blogs/{media_item_blog.blog_id}/media/{media_item_blog.id}"
+    )
+    assert resp.blog_id_url == f"{BASE_URL}/blogs/{media_item_blog.blog_id}"
+    # Note: host-only URL for actual media file
+    assert resp.url == f"http://test/media/{media_item_blog.object_key}"
+    assert resp.content_type == media_item_blog.content_type
+    assert resp.uploaded_at == media_item_blog.uploaded_at
 
 
 def test_get_media_by_id_found(db_session, media_items_for_production):

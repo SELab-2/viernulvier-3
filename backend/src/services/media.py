@@ -23,11 +23,15 @@ def build_media_response(media: Media, base_url: str) -> MediaResponse:
     parsed = urlparse(base_url)
     host_url = f"{parsed.scheme}://{parsed.netloc}"
     return MediaResponse(
-        id_url=f"{base_url}/productions/{media.production_id}/media/{media.id}",
+        id_url=f"{base_url}/productions/{media.production_id}/media/{media.id}"
+        if media.production_id is not None
+        else f"{base_url}/blogs/{media.blog_id}/media/{media.id}",
         production_id_url=f"{base_url}/productions/{media.production_id}"
-        if media.production_id
+        if media.production_id is not None
         else None,
-        blog_id_url=f"{base_url}/blogs/{media.blog_id}" if media.blog_id else None,
+        blog_id_url=f"{base_url}/blogs/{media.blog_id}"
+        if media.blog_id is not None
+        else None,
         url=f"{host_url}/media/{media.object_key}",
         content_type=media.content_type,
         uploaded_at=media.uploaded_at,

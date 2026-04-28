@@ -284,12 +284,55 @@ def media_item(db_session, production_with_no_media):
 
 
 @pytest.fixture
+def blog_with_no_media(db_session: Session) -> Blog:
+    blog = Blog(
+        contents=[BlogContent(language=Languages.ENGLISH, title="foo", content="bar")]
+    )
+    db_session.add(blog)
+    db_session.commit()
+    db_session.refresh(blog)
+    return blog
+
+
+@pytest.fixture
+def media_item_blog(db_session, blog_with_no_media):
+    media = Media(
+        blog_id=blog_with_no_media.id,
+        object_key=f"gallery-{blog_with_no_media.id}/example.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(media)
+    db_session.commit()
+    db_session.refresh(media)
+    return media
+
+
+@pytest.fixture
 def media_items_for_production(db_session, production_with_no_media):
     items = []
     for idx in range(3):
         m = Media(
             production_id=production_with_no_media.id,
             object_key=f"gallery-{production_with_no_media.id}/file-{idx}.jpg",
+            content_type="image/jpeg",
+            uploaded_at=datetime.now(timezone.utc),
+        )
+        db_session.add(m)
+        items.append(m)
+    db_session.commit()
+    for m in items:
+        db_session.refresh(m)
+    return items
+
+
+@pytest.fixture
+def media_items_for_blog(db_session, blog_with_no_media):
+    items = []
+    for idx in range(3):
+        m = Media(
+            blog_id=blog_with_no_media.id,
+            object_key=f"gallery-{blog_with_no_media.id}/file-{idx}.jpg",
             content_type="image/jpeg",
             uploaded_at=datetime.now(timezone.utc),
         )
