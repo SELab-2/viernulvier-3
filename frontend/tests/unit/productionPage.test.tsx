@@ -19,7 +19,7 @@ vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
 
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import { ProductionPage } from "~/features/archive/components/ProductionPage";
+import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
 

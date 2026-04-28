@@ -84,6 +84,7 @@ def test_list_media_for_production_empty(db_session, production_with_no_media):
     assert result.media == []
     assert result.pagination.has_more is False
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 def test_list_media_for_production_multiple(db_session, media_items_for_production):
@@ -93,6 +94,7 @@ def test_list_media_for_production_multiple(db_session, media_items_for_producti
     assert len(result.media) == len(media_items_for_production)
     assert result.pagination.has_more is False
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == len(media_items_for_production)
     ids = {m.id for m in media_items_for_production}
     resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result.media}
     assert resp_ids == ids
@@ -249,6 +251,7 @@ def test_list_media_cursor_pagination(db_session, media_items_for_production):
     assert len(page1.media) == 2
     assert page1.pagination.has_more is True
     assert page1.pagination.next_cursor is not None
+    assert page1.pagination.total_count == 3
 
     page2 = list_media_for_production(
         db_session,
@@ -260,6 +263,7 @@ def test_list_media_cursor_pagination(db_session, media_items_for_production):
     assert len(page2.media) == 1
     assert page2.pagination.has_more is False
     assert page2.pagination.next_cursor is None
+    assert page2.pagination.total_count == 3
 
     # No overlap between pages
     page1_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in page1.media}

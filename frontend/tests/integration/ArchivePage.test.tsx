@@ -1,13 +1,16 @@
 import { screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
 import userEvent from "@testing-library/user-event";
 import * as productionService from "~/features/archive/services/productionService";
+import * as artistService from "~/features/archive/services/artistService";
+import * as tagService from "~/features/archive/services/tagService";
 import { mockProductions } from "tests/mocks/productions.mock";
 import type { Production } from "~/features/archive/types/productionTypes";
-import { afterEach } from "node:test";
 
 vi.mock("~/features/archive/services/productionService");
+vi.mock("~/features/archive/services/artistService");
+vi.mock("~/features/archive/services/tagService");
 
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
@@ -19,7 +22,7 @@ async function renderArchiveAndNavigate() {
 function mockFetchedProductions(productions: Production[]) {
   vi.mocked(productionService.getProductionsPaginated).mockResolvedValue({
     productions: productions,
-    pagination: { has_more: false },
+    pagination: { has_more: false, total_count: productions.length },
   });
 }
 
@@ -34,6 +37,11 @@ function expectEveryProductionVisible(productions: Production[]) {
 }
 
 describe("Archive", () => {
+  beforeEach(() => {
+    vi.mocked(artistService.getArtists).mockResolvedValue([]);
+    vi.mocked(tagService.getAllTags).mockResolvedValue([]);
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -71,7 +79,7 @@ describe("Archive", () => {
     it("Shows a button when there is more data", async () => {
       vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
         productions: [mockProductions[0]],
-        pagination: { has_more: true, next_cursor: 100 },
+        pagination: { has_more: true, next_cursor: 100, total_count: 2 },
       });
       await renderArchiveAndNavigate();
 
@@ -80,7 +88,7 @@ describe("Archive", () => {
     it("Does not shows a button when there is no more data", async () => {
       vi.mocked(productionService.getProductionsPaginated).mockResolvedValueOnce({
         productions: mockProductions,
-        pagination: { has_more: false },
+        pagination: { has_more: false, total_count: mockProductions.length },
       });
       await renderArchiveAndNavigate();
 
@@ -91,11 +99,11 @@ describe("Archive", () => {
       vi.mocked(productionService.getProductionsPaginated)
         .mockResolvedValueOnce({
           productions: [mockProductions[0]],
-          pagination: { has_more: true, next_cursor: 123 },
+          pagination: { has_more: true, next_cursor: 123, total_count: 2 },
         })
         .mockResolvedValueOnce({
           productions: mockProductions.slice(1),
-          pagination: { has_more: false },
+          pagination: { has_more: false, total_count: 2 },
         });
       await renderArchiveAndNavigate();
 

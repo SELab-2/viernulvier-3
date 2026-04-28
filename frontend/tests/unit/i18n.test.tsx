@@ -11,10 +11,9 @@ describe("i18n configuration", () => {
     expect(i18n.options.fallbackLng).toStrictEqual(["en"]);
   });
 
-  it("uses the correct backend load path", () => {
-    expect(i18n.options.backend).toEqual({
-      loadPath: "/locales/{{lng}}/{{ns}}.json",
-    });
+  it("bundles translations as resources", () => {
+    expect(i18n.options.resources).toHaveProperty("en.translation");
+    expect(i18n.options.resources).toHaveProperty("nl.translation");
   });
 
   it("disables interpolation escaping for React", () => {
