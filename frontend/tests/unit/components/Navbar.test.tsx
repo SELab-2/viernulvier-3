@@ -26,7 +26,7 @@ describe("Navbar", () => {
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
     // Once for the logo, once for the link
     expect(screen.getAllByText("I18N_Archive").length).toBe(2);
-	expect(screen.getByText("I18N_Blogs")).toBeInTheDocument();
+    expect(screen.getByText("I18N_Blogs")).toBeInTheDocument();
     expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
   });
 

@@ -36,7 +36,7 @@ vi.mock("react-i18next", async () => {
           "nav.home": "I18N_Home",
           "nav.archive": "I18N_Archive",
           "nav.history": "I18N_History",
-		  "nav.blogs": "I18N_Blogs",
+          "nav.blogs": "I18N_Blogs",
           "nav.users": "I18N_Users",
           "auth.actions.logout": "I18N_Logout",
           "home.title": "I18N_Title",

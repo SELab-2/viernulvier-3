@@ -1,5 +1,5 @@
-import BlogPage from "~/features/blogs/pages/BlogPage"
+import BlogPage from "~/features/blogs/pages/BlogPage";
 
 export default function BlogRoute() {
-	return <BlogPage />;
+  return <BlogPage />;
 }
