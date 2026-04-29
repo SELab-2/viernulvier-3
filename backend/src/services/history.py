@@ -41,7 +41,9 @@ def get_all_history_entries(
     if language:
         query = query.filter(History.language == language)
 
-    entries = query.order_by(order_func(History.year), order_func(History.language)).all()
+    entries = query.order_by(
+        order_func(History.year), order_func(History.language)
+    ).all()
     return [build_history_response(entry, base_url) for entry in entries]
 
 
@@ -57,6 +59,7 @@ def get_history_entry(
         raise NotFoundError("History", f"{year}/{language}")
 
     return build_history_response(entry, base_url)
+
 
 def create_history(
     db: Session, history_in: HistoryCreate, base_url: str

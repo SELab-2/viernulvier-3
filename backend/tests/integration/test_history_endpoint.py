@@ -242,7 +242,9 @@ def test_delete_history(client: TestClient, db_session: Session):
     db_session.add(entry)
     db_session.commit()
 
-    response = client.delete(f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers)
+    response = client.delete(
+        f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers
+    )
 
     assert response.status_code == 204
 
@@ -254,7 +256,9 @@ def test_delete_history_without_permission(client: TestClient, db_session: Sessi
     db_session.add(entry)
     db_session.commit()
 
-    response = client.delete(f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers)
+    response = client.delete(
+        f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers
+    )
 
     assert response.status_code == 403
 

@@ -121,7 +121,9 @@ def test_update_history_success(db_session):
 
     history_in = HistoryUpdate(title="Nieuw", content="Nieuwe content")
 
-    result = update_history(db_session, entry.year, entry.language, history_in, BASE_URL)
+    result = update_history(
+        db_session, entry.year, entry.language, history_in, BASE_URL
+    )
 
     assert result.id_url == f"{BASE_URL}/history/{entry.year}/{entry.language}"
     assert result.title == "Nieuw"
