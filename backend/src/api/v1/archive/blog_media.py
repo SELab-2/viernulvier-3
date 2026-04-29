@@ -37,7 +37,7 @@ router = APIRouter()
     summary="Get media for blog",
     description="Returns paginated media linked to a blog.",
 )
-async def get_media_for_production(
+async def get_media_for_blog(
     blog_id: int,
     request: Request,
     cursor: int | None = Query(None),

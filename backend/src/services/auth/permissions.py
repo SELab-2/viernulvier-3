@@ -21,7 +21,7 @@ class Permissions:
     # Blog
     BLOG_CREATE = "blog:create"
     BLOG_UPDATE = "blog:update"
-    BLOG_DELETE = "blog.delete"
+    BLOG_DELETE = "blog:delete"
 
     @classmethod
     def all(cls) -> list[str]:

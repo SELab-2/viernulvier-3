@@ -136,7 +136,7 @@ def upload_media(
     if production_id is None and blog_id is None:
         raise ValidationError("Media need either a production_id or a blog_id")
     ext = os.path.splitext(filename)[1].lower()
-    object_key = f"gallery-{production_id}/{uuid.uuid4()}{ext}"
+    object_key = f"gallery-{production_id if production_id is not None else blog_id}/{uuid.uuid4()}{ext}"
 
     minio_client.put_object(
         settings.MINIO_BUCKET,
