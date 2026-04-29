@@ -2,7 +2,7 @@ import {
   fireEvent,
   render,
   screen,
-  waitForElementToBeRemoved,
+  waitFor,
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -260,9 +260,9 @@ describe("UserManagementPage", () => {
     expect(await screen.findByText("Username already exists")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("users.dialogs.create.title")
-    );
+    await waitFor(() => {
+      expect(screen.queryByText("users.dialogs.create.title")).toBeNull();
+    });
 
     await user.click(await screen.findByRole("button", { name: "users.actions.add" }));
     const usernameInput = screen.getByLabelText(
@@ -460,9 +460,9 @@ describe("UserManagementPage", () => {
     expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("users.dialogs.delete.title")
-    );
+    await waitFor(() => {
+      expect(screen.queryByText("users.dialogs.delete.title")).toBeNull();
+    });
   });
 
   describe("roles section", () => {
@@ -607,9 +607,9 @@ describe("UserManagementPage", () => {
       expect(await screen.findByText("Role name already exists")).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-      await waitForElementToBeRemoved(() =>
-        screen.queryByText("users.roles.dialogs.create.title")
-      );
+      await waitFor(() => {
+        expect(screen.queryByText("users.roles.dialogs.create.title")).toBeNull();
+      });
 
       await user.click(
         await screen.findByRole("button", { name: "users.roles.actions.add" })
