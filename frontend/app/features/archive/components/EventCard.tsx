@@ -130,7 +130,7 @@ function EventCardSummary({
       </div>
 
       <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
-	    {t("productionPage.eventMore")}
+        {t("productionPage.eventMore")}
       </span>
     </summary>
   );
