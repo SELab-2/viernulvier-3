@@ -178,5 +178,8 @@ describe("ProductionPage", () => {
     const renderedDates = await screen.findAllByText(/\d+\/\d+\/2026/);
     expect(renderedDates[0]).toHaveTextContent("9/5/2026");
     expect(renderedDates[1]).toHaveTextContent("10/5/2026");
+
+	// Quick check for more button
+	expect(screen.getAllByText("I18N_Production_EventMore").length).toBe(2);
   });
 });
