@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { i18n_key: "nav.home", path: "/" },
   { i18n_key: "nav.archive", path: "/archive" },
   { i18n_key: "nav.history", path: "/history" },
+  { i18n_key: "nav.blogs", path: "/blogs" },
   {
     i18n_key: "nav.users",
     path: "/users",
