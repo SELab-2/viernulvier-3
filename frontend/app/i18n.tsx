@@ -25,6 +25,7 @@ i18n
     react: {
       useSuspense: false,
     },
+	showSupportNotice: false,
   });
 
 export default i18n;
