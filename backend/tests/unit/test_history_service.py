@@ -37,6 +37,7 @@ def test_create_history_duplicate_year_language_raises(db_session):
     existing = History(year=2024, language="nl", title="Bestaat", content="Tekst")
     db_session.add(existing)
     db_session.commit()
+    db_session.expunge_all()
 
     history_in = HistoryCreate(
         year=2024,
@@ -137,11 +138,14 @@ def test_update_history_duplicate_year_language_raises(db_session):
     entry_b = History(year=2022, language="nl", title="B", content="B")
     db_session.add_all([entry_a, entry_b])
     db_session.commit()
+    entry_b_year = entry_b.year
+    entry_b_language = entry_b.language
+    db_session.expunge_all()
 
     history_in = HistoryUpdate(year=2021, language="nl")
 
     with pytest.raises(ValidationError):
-        update_history(db_session, entry_b.year, entry_b.language, history_in, BASE_URL)
+        update_history(db_session, entry_b_year, entry_b_language, history_in, BASE_URL)
 
 
 def test_update_history_not_found(db_session):
