@@ -3,7 +3,7 @@ from src.models.history import History
 
 
 def seed_history_if_empty(session: Session):
-    exists = session.query(History.id).first()
+    exists = session.query(History.year, History.language).first()
     if exists:
         print("History already seeded")
         return
