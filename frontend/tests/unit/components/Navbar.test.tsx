@@ -26,6 +26,7 @@ describe("Navbar", () => {
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
     // Once for the logo, once for the link
     expect(screen.getAllByText("I18N_Archive").length).toBe(2);
+	expect(screen.getByText("I18N_Blogs")).toBeInTheDocument();
     expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
   });
 
@@ -75,6 +76,7 @@ describe("Navbar", () => {
     expect(within(menu).getByText("I18N_Home")).toBeInTheDocument();
     expect(within(menu).getByText("I18N_Archive")).toBeInTheDocument();
     expect(within(menu).getByText("I18N_History")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_Blogs")).toBeInTheDocument();
     await userEvent.click(button);
   });
 
@@ -118,6 +120,16 @@ describe("Navbar", () => {
     expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
   });
 
+  it("navigates to blogs page when clicking Blogs link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Blogs" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_BLOGS_PAGE")).toBeInTheDocument();
+  });
+
   it("mobile - navigates to home page when clicking Home link", async () => {
     // For this we override the routes defined
     renderWithRouterAndTheme({});
@@ -158,6 +170,20 @@ describe("Navbar", () => {
     const links = within(menu).getAllByRole("link", { name: "I18N_History" });
     await user.click(links[0]);
     expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to blogs page when clicking Blogs link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_Blogs" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_BLOGS_PAGE")).toBeInTheDocument();
   });
 
   it("shows no auth action when the user is anonymous", async () => {
