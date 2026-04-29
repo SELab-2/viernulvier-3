@@ -121,7 +121,7 @@ def test_create_history(client: TestClient, db_session: Session):
         client,
         db_session,
         "create_history_user",
-        [Permissions.ARCHIVE_CREATE],
+        [Permissions.HISTORY_CREATE],
     )
 
     response = client.post(
@@ -158,7 +158,7 @@ def test_create_history_duplicate_returns_400(client: TestClient, db_session: Se
         client,
         db_session,
         "history_duplicate_create",
-        [Permissions.ARCHIVE_CREATE],
+        [Permissions.HISTORY_CREATE],
     )
 
     db_session.add(History(year=2030, language="en", title="A", content="A"))
@@ -178,7 +178,7 @@ def test_update_history(client: TestClient, db_session: Session):
         client,
         db_session,
         "update_history_user",
-        [Permissions.ARCHIVE_UPDATE],
+        [Permissions.HISTORY_UPDATE],
     )
 
     entry = History(year=2011, language="nl", title="Oud", content="Oud")
@@ -218,7 +218,7 @@ def test_update_history_not_found(client: TestClient, db_session: Session):
         client,
         db_session,
         "history_update_not_found",
-        [Permissions.ARCHIVE_UPDATE],
+        [Permissions.HISTORY_UPDATE],
     )
 
     response = client.patch(
@@ -235,7 +235,7 @@ def test_delete_history(client: TestClient, db_session: Session):
         client,
         db_session,
         "delete_history_user",
-        [Permissions.ARCHIVE_DELETE],
+        [Permissions.HISTORY_DELETE],
     )
 
     entry = History(year=2013, language="nl", title="Delete", content="Delete")
@@ -264,7 +264,7 @@ def test_delete_history_not_found(client: TestClient, db_session: Session):
         client,
         db_session,
         "history_delete_not_found",
-        [Permissions.ARCHIVE_DELETE],
+        [Permissions.HISTORY_DELETE],
     )
 
     response = client.delete(f"{BASE_URL}/9999/nl", headers=headers)

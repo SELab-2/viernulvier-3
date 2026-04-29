@@ -52,7 +52,7 @@ def post_history(
     history_in: HistoryCreate,
     request: Request,
     db: Session = Depends(get_db),
-    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
+    _: User = Depends(RequirePermissions([Permissions.HISTORY_CREATE])),
 ):
     base_url = get_base_url(str(request.url))
     return create_history(db, history_in, base_url)
@@ -65,7 +65,7 @@ def patch_history(
     history_in: HistoryUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
+    _: User = Depends(RequirePermissions([Permissions.HISTORY_UPDATE])),
 ):
     base_url = get_base_url(str(request.url), remove_last_segments=3)
     return update_history(db, year, language, history_in, base_url)
@@ -76,6 +76,6 @@ def delete_history(
     year: int,
     language: str,
     db: Session = Depends(get_db),
-    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
+    _: User = Depends(RequirePermissions([Permissions.HISTORY_DELETE])),
 ):
     delete_history_entry(db, year, language)
