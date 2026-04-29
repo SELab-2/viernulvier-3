@@ -9,6 +9,7 @@ export default [
     route("archive", "routes/archive.tsx"),
     route("archive/productions/:productionId", "routes/productions.$productionId.tsx"),
     route("history", "routes/history.tsx"),
+	route("blogs", "routes/blogs.tsx"),
     route("login", "routes/login.tsx"),
     route("users", "routes/users.tsx"),
     route("*", "routes/not-found.tsx"),
