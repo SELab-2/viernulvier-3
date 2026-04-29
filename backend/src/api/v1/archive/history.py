@@ -12,9 +12,9 @@ from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.history import (
     create_history,
-    delete_history_by_id,
+    delete_history_entry,
     get_all_history_entries,
-    get_history_by_id,
+    get_history_entry as get_history_entry_by_key,
     update_history,
 )
 
@@ -32,14 +32,15 @@ def get_history(
     return get_all_history_entries(db, base_url, year=year, language=language)
 
 
-@router.get("/{history_id}", response_model=HistoryResponse)
+@router.get("/{year}/{language}", response_model=HistoryResponse)
 def get_history_entry(
-    history_id: int,
+    year: int,
+    language: str,
     request: Request,
     db: Session = Depends(get_db),
 ):
-    base_url = get_base_url(str(request.url), remove_last_segments=2)
-    return get_history_by_id(db, history_id, base_url)
+    base_url = get_base_url(str(request.url), remove_last_segments=3)
+    return get_history_entry_by_key(db, year, language, base_url)
 
 
 @router.post("/", response_model=HistoryResponse, status_code=status.HTTP_201_CREATED)
@@ -53,22 +54,24 @@ def post_history(
     return create_history(db, history_in, base_url)
 
 
-@router.patch("/{history_id}", response_model=HistoryResponse)
+@router.patch("/{year}/{language}", response_model=HistoryResponse)
 def patch_history(
-    history_id: int,
+    year: int,
+    language: str,
     history_in: HistoryUpdate,
     request: Request,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
-    base_url = get_base_url(str(request.url), remove_last_segments=2)
-    return update_history(db, history_id, history_in, base_url)
+    base_url = get_base_url(str(request.url), remove_last_segments=3)
+    return update_history(db, year, language, history_in, base_url)
 
 
-@router.delete("/{history_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{year}/{language}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_history(
-    history_id: int,
+    year: int,
+    language: str,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    delete_history_by_id(db, history_id)
+    delete_history_entry(db, year, language)

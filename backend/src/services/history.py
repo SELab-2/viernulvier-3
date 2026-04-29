@@ -10,7 +10,7 @@ from src.schemas.history import HistoryCreate, HistoryResponse, HistoryUpdate
 
 def build_history_response(history: History, base_url: str) -> HistoryResponse:
     return HistoryResponse(
-        id_url=f"{base_url}/history/{history.id}",
+        id_url=f"{base_url}/history/{history.year}/{history.language}",
         year=history.year,
         language=history.language,
         title=history.title,
@@ -35,21 +35,22 @@ def get_all_history_entries(
     return [build_history_response(entry, base_url) for entry in entries]
 
 
-def get_history_by_id(db: Session, history_id: int, base_url: str) -> HistoryResponse:
-    entry = db.query(History).filter(History.id == history_id).first()
+def get_history_entry(
+    db: Session, year: int, language: str, base_url: str
+) -> HistoryResponse:
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     return build_history_response(entry, base_url)
-
-
-
 
 def create_history(
     db: Session, history_in: HistoryCreate, base_url: str
 ) -> HistoryResponse:
-    
-
     entry = History(**history_in.model_dump())
     db.add(entry)
     try:
@@ -66,16 +67,21 @@ def create_history(
 
 def update_history(
     db: Session,
-    history_id: int,
+    year: int,
+    language: str,
     history_in: HistoryUpdate,
     base_url: str,
 ) -> HistoryResponse:
-    entry = db.query(History).filter(History.id == history_id).first()
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     update_data = history_in.model_dump(exclude_unset=True)
-    
+
     for field, value in update_data.items():
         setattr(entry, field, value)
 
@@ -86,16 +92,20 @@ def update_history(
         raise ValidationError(
             f"History entry for year {history_in.year} and language '{history_in.language}' already exists"
         )
-        
+
     db.refresh(entry)
 
     return build_history_response(entry, base_url)
 
 
-def delete_history_by_id(db: Session, history_id: int) -> None:
-    entry = db.query(History).filter(History.id == history_id).first()
+def delete_history_entry(db: Session, year: int, language: str) -> None:
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     db.delete(entry)
     db.commit()

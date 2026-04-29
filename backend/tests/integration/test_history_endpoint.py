@@ -78,21 +78,21 @@ def test_get_all_history_with_language_filter(client: TestClient, db_session: Se
     assert data[0]["language"] == "nl"
 
 
-def test_get_history_by_id(client: TestClient, db_session: Session):
+def test_get_history_by_key(client: TestClient, db_session: Session):
     entry = History(year=2000, language="en", title="Millennium", content="History")
     db_session.add(entry)
     db_session.commit()
 
-    response = client.get(f"{BASE_URL}/{entry.id}")
+    response = client.get(f"{BASE_URL}/{entry.year}/{entry.language}")
 
     assert response.status_code == 200
     data = response.json()
-    assert data["id_url"].endswith(str(entry.id))
+    assert data["id_url"].endswith(f"{entry.year}/{entry.language}")
     assert data["year"] == 2000
 
 
 def test_get_history_not_found(client: TestClient):
-    response = client.get(f"{BASE_URL}/9999")
+    response = client.get(f"{BASE_URL}/9999/nl")
 
     assert response.status_code == 404
 
@@ -167,7 +167,7 @@ def test_update_history(client: TestClient, db_session: Session):
     db_session.commit()
 
     response = client.patch(
-        f"{BASE_URL}/{entry.id}",
+        f"{BASE_URL}/{entry.year}/{entry.language}",
         json={"title": "Nieuw", "content": "Nieuw"},
         headers=headers,
     )
@@ -186,7 +186,7 @@ def test_update_history_without_permission(client: TestClient, db_session: Sessi
     db_session.commit()
 
     response = client.patch(
-        f"{BASE_URL}/{entry.id}",
+        f"{BASE_URL}/{entry.year}/{entry.language}",
         json={"title": "New"},
         headers=headers,
     )
@@ -203,7 +203,7 @@ def test_update_history_not_found(client: TestClient, db_session: Session):
     )
 
     response = client.patch(
-        f"{BASE_URL}/9999",
+        f"{BASE_URL}/9999/nl",
         json={"title": "New"},
         headers=headers,
     )
@@ -223,7 +223,7 @@ def test_delete_history(client: TestClient, db_session: Session):
     db_session.add(entry)
     db_session.commit()
 
-    response = client.delete(f"{BASE_URL}/{entry.id}", headers=headers)
+    response = client.delete(f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers)
 
     assert response.status_code == 204
 
@@ -235,7 +235,7 @@ def test_delete_history_without_permission(client: TestClient, db_session: Sessi
     db_session.add(entry)
     db_session.commit()
 
-    response = client.delete(f"{BASE_URL}/{entry.id}", headers=headers)
+    response = client.delete(f"{BASE_URL}/{entry.year}/{entry.language}", headers=headers)
 
     assert response.status_code == 403
 
@@ -248,6 +248,6 @@ def test_delete_history_not_found(client: TestClient, db_session: Session):
         [Permissions.ARCHIVE_DELETE],
     )
 
-    response = client.delete(f"{BASE_URL}/9999", headers=headers)
+    response = client.delete(f"{BASE_URL}/9999/nl", headers=headers)
 
     assert response.status_code == 404

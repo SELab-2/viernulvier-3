@@ -5,9 +5,9 @@ from src.models.history import History
 from src.schemas.history import HistoryCreate, HistoryUpdate
 from src.services.history import (
     create_history,
-    delete_history_by_id,
+    delete_history_entry,
     get_all_history_entries,
-    get_history_by_id,
+    get_history_entry,
     update_history,
 )
 
@@ -48,21 +48,21 @@ def test_create_history_duplicate_year_language_raises(db_session):
         create_history(db_session, history_in, BASE_URL)
 
 
-def test_get_history_by_id_success(db_session):
+def test_get_history_entry_success(db_session):
     entry = History(year=1999, language="en", title="Y2K", content="Some text")
     db_session.add(entry)
     db_session.commit()
 
-    result = get_history_by_id(db_session, entry.id, BASE_URL)
+    result = get_history_entry(db_session, entry.year, entry.language, BASE_URL)
 
-    assert result.id_url == f"{BASE_URL}/history/{entry.id}"
+    assert result.id_url == f"{BASE_URL}/history/{entry.year}/{entry.language}"
     assert result.year == 1999
     assert result.language == "en"
 
 
-def test_get_history_by_id_not_found(db_session):
+def test_get_history_entry_not_found(db_session):
     with pytest.raises(NotFoundError):
-        get_history_by_id(db_session, 9999, BASE_URL)
+        get_history_entry(db_session, 9999, "nl", BASE_URL)
 
 
 def test_get_all_history_entries_with_filters(db_session):
@@ -90,9 +90,9 @@ def test_update_history_success(db_session):
 
     history_in = HistoryUpdate(title="Nieuw", content="Nieuwe content")
 
-    result = update_history(db_session, entry.id, history_in, BASE_URL)
+    result = update_history(db_session, entry.year, entry.language, history_in, BASE_URL)
 
-    assert result.id_url == f"{BASE_URL}/history/{entry.id}"
+    assert result.id_url == f"{BASE_URL}/history/{entry.year}/{entry.language}"
     assert result.title == "Nieuw"
     assert result.content == "Nieuwe content"
     assert result.year == 2020
@@ -108,7 +108,7 @@ def test_update_history_duplicate_year_language_raises(db_session):
     history_in = HistoryUpdate(year=2021, language="nl")
 
     with pytest.raises(ValidationError):
-        update_history(db_session, entry_b.id, history_in, BASE_URL)
+        update_history(db_session, entry_b.year, entry_b.language, history_in, BASE_URL)
 
 
 def test_update_history_not_found(db_session):
@@ -116,22 +116,27 @@ def test_update_history_not_found(db_session):
         update_history(
             db_session,
             9999,
+            "nl",
             HistoryUpdate(title="x"),
             BASE_URL,
         )
 
 
-def test_delete_history_by_id_success(db_session):
+def test_delete_history_entry_success(db_session):
     entry = History(year=2010, language="en", title="Delete", content="Delete me")
     db_session.add(entry)
     db_session.commit()
 
-    delete_history_by_id(db_session, entry.id)
+    delete_history_entry(db_session, entry.year, entry.language)
 
-    remaining = db_session.query(History).filter(History.id == entry.id).first()
+    remaining = (
+        db_session.query(History)
+        .filter(History.year == entry.year, History.language == entry.language)
+        .first()
+    )
     assert remaining is None
 
 
-def test_delete_history_by_id_not_found(db_session):
+def test_delete_history_entry_not_found(db_session):
     with pytest.raises(NotFoundError):
-        delete_history_by_id(db_session, 9999)
+        delete_history_entry(db_session, 9999, "nl")
