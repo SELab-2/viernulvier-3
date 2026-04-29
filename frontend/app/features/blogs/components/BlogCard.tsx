@@ -10,6 +10,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -50,6 +51,7 @@ export function BlogCard({
   imageUrl,
   className,
 }: BlogCardProps) {
+  const { t } = useTranslation();
   return (
     <Card
       role="button"
@@ -60,7 +62,7 @@ export function BlogCard({
         "width": "100%",
         "height": "250px",
         "display": "flex",
-        "flexDirection": "row", // ← horizontal layout
+        "flexDirection": "row",
         "borderRadius": 4,
         "overflow": "hidden",
         "cursor": "pointer",
@@ -90,7 +92,6 @@ export function BlogCard({
       }}
       elevation={0}
     >
-      {/* Left: image */}
       <Box
         sx={{
           position: "relative",
@@ -116,7 +117,6 @@ export function BlogCard({
         />
       </Box>
 
-      {/* Right: content */}
       <CardContent
         className="blog-card-content"
         sx={{
@@ -208,7 +208,7 @@ export function BlogCard({
                   whiteSpace: "nowrap",
                 }}
               >
-                +{production_titles.length - 1} more productions
+                +{production_titles.length - 1} {t("blogs.card.other_prods")}
               </Typography>
             )}
             {production_titles.length == 0 && (
@@ -220,7 +220,7 @@ export function BlogCard({
                   whiteSpace: "nowrap",
                 }}
               >
-                no productions linked
+                {t("blogs.card.no_prods")}
               </Typography>
             )}
           </Stack>
@@ -242,7 +242,7 @@ export function BlogCard({
               flexShrink: 0,
             }}
           >
-            Details <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
+            {t("blogs.card.details")} <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
           </Link>
         </Stack>
       </CardContent>
