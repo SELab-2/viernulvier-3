@@ -78,6 +78,25 @@ def test_get_all_history_with_language_filter(client: TestClient, db_session: Se
     assert data[0]["language"] == "nl"
 
 
+def test_get_all_history_with_sort_order_ascending(
+    client: TestClient, db_session: Session
+):
+    db_session.add_all(
+        [
+            History(year=2024, language="nl", title="Y2024", content="A"),
+            History(year=2022, language="en", title="Y2022", content="B"),
+            History(year=2023, language="nl", title="Y2023", content="C"),
+        ]
+    )
+    db_session.commit()
+
+    response = client.get(BASE_URL + "/?sort_order=Ascending")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert [item["year"] for item in data] == [2022, 2023, 2024]
+
+
 def test_get_history_by_key(client: TestClient, db_session: Session):
     entry = History(year=2000, language="en", title="Millennium", content="History")
     db_session.add(entry)

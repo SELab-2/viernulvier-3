@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
 
 from src.api.dependencies import RequirePermissions
@@ -11,6 +11,7 @@ from src.schemas.history import HistoryCreate, HistoryResponse, HistoryUpdate
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.history import (
+    ORDER,
     create_history,
     delete_history_entry,
     get_all_history_entries,
@@ -27,9 +28,12 @@ def get_history(
     db: Session = Depends(get_db),
     year: int | None = None,
     language: str | None = Depends(get_accepted_language),
+    sort_order: ORDER = Query(ORDER.DESCENDING),
 ):
     base_url = get_base_url(str(request.url))
-    return get_all_history_entries(db, base_url, year=year, language=language)
+    return get_all_history_entries(
+        db, base_url, year=year, language=language, sort_order=sort_order
+    )
 
 
 @router.get("/{year}/{language}", response_model=HistoryResponse)

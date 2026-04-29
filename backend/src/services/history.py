@@ -1,11 +1,18 @@
+from enum import StrEnum
 from typing import List
 
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from src.api.exceptions import NotFoundError, ValidationError
 from src.models.history import History
 from src.schemas.history import HistoryCreate, HistoryResponse, HistoryUpdate
+
+
+class ORDER(StrEnum):
+    ASCENDING = "Ascending"
+    DESCENDING = "Descending"
 
 
 def build_history_response(history: History, base_url: str) -> HistoryResponse:
@@ -23,7 +30,10 @@ def get_all_history_entries(
     base_url: str,
     year: int | None = None,
     language: str | None = None,
+    sort_order: ORDER = ORDER.DESCENDING,
 ) -> List[HistoryResponse]:
+    order_func = asc if sort_order == ORDER.ASCENDING else desc
+
     query = db.query(History)
 
     if year is not None:
@@ -31,7 +41,7 @@ def get_all_history_entries(
     if language:
         query = query.filter(History.language == language)
 
-    entries = query.order_by(History.year.desc()).all()
+    entries = query.order_by(order_func(History.year), order_func(History.language)).all()
     return [build_history_response(entry, base_url) for entry in entries]
 
 

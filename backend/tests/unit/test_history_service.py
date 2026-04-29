@@ -4,6 +4,7 @@ from src.api.exceptions import NotFoundError, ValidationError
 from src.models.history import History
 from src.schemas.history import HistoryCreate, HistoryUpdate
 from src.services.history import (
+    ORDER,
     create_history,
     delete_history_entry,
     get_all_history_entries,
@@ -81,6 +82,36 @@ def test_get_all_history_entries_with_filters(db_session):
     assert result[0].year == 2023
     assert result[0].language == "nl"
     assert result[0].title == "A"
+
+
+def test_get_all_history_entries_sort_order_descending(db_session):
+    db_session.add_all(
+        [
+            History(year=2021, language="nl", title="A", content="A"),
+            History(year=2023, language="en", title="B", content="B"),
+            History(year=2022, language="nl", title="C", content="C"),
+        ]
+    )
+    db_session.commit()
+
+    result = get_all_history_entries(db_session, BASE_URL, sort_order=ORDER.DESCENDING)
+
+    assert [entry.year for entry in result] == [2023, 2022, 2021]
+
+
+def test_get_all_history_entries_sort_order_ascending(db_session):
+    db_session.add_all(
+        [
+            History(year=2021, language="nl", title="A", content="A"),
+            History(year=2023, language="en", title="B", content="B"),
+            History(year=2022, language="nl", title="C", content="C"),
+        ]
+    )
+    db_session.commit()
+
+    result = get_all_history_entries(db_session, BASE_URL, sort_order=ORDER.ASCENDING)
+
+    assert [entry.year for entry in result] == [2021, 2022, 2023]
 
 
 def test_update_history_success(db_session):
