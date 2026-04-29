@@ -14,11 +14,6 @@ import {
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-const DEFAULT_CARD_VALUES = {
-  imageUrl: DEFAULT_IMAGE,
-  tagNames: [] as string[],
-} as const;
-
 const CARD_COLORS = {
   surfaceStart: "var(--color-archive-surface-strong)",
   surfaceEnd: "var(--color-archive-surface)",
@@ -41,19 +36,19 @@ function colorWithOpacity(color: string, opacity: number): string {
 }
 
 interface BlogCardProps {
-  title: string,
-  content: string,
-  production_titles: string[],
-  imageUrl: string,
+  title: string;
+  content: string;
+  production_titles: string[];
+  imageUrl: string;
   className?: string;
 }
 
 export function BlogCard({
-	title,
-	content,
-	production_titles,
-	imageUrl,
-	className
+  title,
+  content,
+  production_titles,
+  imageUrl,
+  className,
 }: BlogCardProps) {
   return (
     <Card
@@ -63,9 +58,9 @@ export function BlogCard({
       className={className}
       sx={{
         "width": "100%",
-		"height": "250px",
+        "height": "250px",
         "display": "flex",
-        "flexDirection": "row",   // ← horizontal layout
+        "flexDirection": "row", // ← horizontal layout
         "borderRadius": 4,
         "overflow": "hidden",
         "cursor": "pointer",
@@ -125,14 +120,14 @@ export function BlogCard({
       <CardContent
         className="blog-card-content"
         sx={{
-          flexGrow: 1,
-          px: 2.5,
-          py: 2,
-          display: "flex",
-          flexDirection: "column",
-          transform: "translateY(0)",
-          transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-          willChange: "transform",
+          "flexGrow": 1,
+          "px": 2.5,
+          "py": 2,
+          "display": "flex",
+          "flexDirection": "column",
+          "transform": "translateY(0)",
+          "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+          "willChange": "transform",
           // remove MUI's default last-child bottom padding override
           "&:last-child": { pb: 2 },
         }}
@@ -179,26 +174,31 @@ export function BlogCard({
             {content}
           </Typography>
         </Box>
-		<Divider
-		  sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mt: 1.5 }}
-		/>
-		<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1.5 }}>
+        <Divider
+          sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mt: 1.5 }}
+        />
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mt: 1.5 }}
+        >
           <Stack direction="row" alignItems="center" gap={1}>
-		   {production_titles.length > 0 && (
-		    <Chip
-              className="blog-card-text"
-              size="small"
-              label={production_titles[0]}
-              sx={{
-                borderRadius: 1,
-                background: "transparent",
-                border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.24)}`,
-                color: colorWithOpacity(CARD_COLORS.textSecondary, 0.86),
-                letterSpacing: "var(--tracking-archive-label)",
-                height: 22,
-              }}
-            />
-		  )}
+            {production_titles.length > 0 && (
+              <Chip
+                className="blog-card-text"
+                size="small"
+                label={production_titles[0]}
+                sx={{
+                  borderRadius: 1,
+                  background: "transparent",
+                  border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.24)}`,
+                  color: colorWithOpacity(CARD_COLORS.textSecondary, 0.86),
+                  letterSpacing: "var(--tracking-archive-label)",
+                  height: 22,
+                }}
+              />
+            )}
             {production_titles.length > 1 && (
               <Typography
                 sx={{
@@ -211,7 +211,7 @@ export function BlogCard({
                 +{production_titles.length - 1} more productions
               </Typography>
             )}
-			{production_titles.length == 0 && (
+            {production_titles.length == 0 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
@@ -220,9 +220,9 @@ export function BlogCard({
                   whiteSpace: "nowrap",
                 }}
               >
-			    no productions linked
+                no productions linked
               </Typography>
-		  )}
+            )}
           </Stack>
 
           <Link
@@ -245,22 +245,28 @@ export function BlogCard({
             Details <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
           </Link>
         </Stack>
-
-
       </CardContent>
     </Card>
   );
 }
 
 export function BlogCardList() {
-  const title = "Temp title"
-  const title_long = "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos."
-  const content = "Temp Content"
-  const content_long = "Temp Content\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos."
-  const prod_titles_0: string[] = []
-  const prod_titles_1 = ["Test prod"]
-  const prod_titles_3 = ["Test prod 1/3", "Test prod 2/3", "Test prod 3/3"]
-  const prod_titles_5 = ["Test prod 1/5", "Test prod 2/5", "Test prod 3/5", "Test prod 4/5", "Test prod 5/5"]
+  const title = "Temp title";
+  const title_long =
+    "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.";
+  const content = "Temp Content";
+  const content_long =
+    "Temp Content\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.";
+  const prod_titles_0: string[] = [];
+  const prod_titles_1 = ["Test prod"];
+  const prod_titles_3 = ["Test prod 1/3", "Test prod 2/3", "Test prod 3/3"];
+  const prod_titles_5 = [
+    "Test prod 1/5",
+    "Test prod 2/5",
+    "Test prod 3/5",
+    "Test prod 4/5",
+    "Test prod 5/5",
+  ];
   return (
     <Box
       sx={{
@@ -270,10 +276,30 @@ export function BlogCardList() {
         width: "100%",
       }}
     >
-      <BlogCard title={title} content={content} production_titles={prod_titles_0} imageUrl={DEFAULT_IMAGE}/>
-      <BlogCard title={title_long} content={content} production_titles={prod_titles_1} imageUrl={DEFAULT_IMAGE}/>
-      <BlogCard title={title} content={content_long} production_titles={prod_titles_3} imageUrl={DEFAULT_IMAGE}/>
-      <BlogCard title={title_long} content={content_long} production_titles={prod_titles_5} imageUrl={DEFAULT_IMAGE}/>
+      <BlogCard
+        title={title}
+        content={content}
+        production_titles={prod_titles_0}
+        imageUrl={DEFAULT_IMAGE}
+      />
+      <BlogCard
+        title={title_long}
+        content={content}
+        production_titles={prod_titles_1}
+        imageUrl={DEFAULT_IMAGE}
+      />
+      <BlogCard
+        title={title}
+        content={content_long}
+        production_titles={prod_titles_3}
+        imageUrl={DEFAULT_IMAGE}
+      />
+      <BlogCard
+        title={title_long}
+        content={content_long}
+        production_titles={prod_titles_5}
+        imageUrl={DEFAULT_IMAGE}
+      />
     </Box>
   );
 }
