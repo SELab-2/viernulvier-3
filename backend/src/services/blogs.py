@@ -151,12 +151,6 @@ def update_blog_by_id(
     if not blog:
         raise NotFoundError("Blog", blog_id)
 
-    update_data = blog_in.model_dump(
-        exclude_unset=True, exclude={"remove_languages", "blog_contents"}
-    )
-    for field, value in update_data.items():
-        setattr(blog, field, value)
-
     if blog_in.production_id_urls is not None:
         production_id_urls = blog_in.production_id_urls or []
         production_ids = [
