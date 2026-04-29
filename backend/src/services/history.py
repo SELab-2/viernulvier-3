@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from src.api.exceptions import NotFoundError, ValidationError
 from src.models.history import History
@@ -42,31 +43,22 @@ def get_history_by_id(db: Session, history_id: int, base_url: str) -> HistoryRes
     return build_history_response(entry, base_url)
 
 
-def _ensure_unique_year_language(
-    db: Session,
-    year: int,
-    language: str,
-    current_id: int | None = None,
-) -> None:
-    query = db.query(History).filter(History.year == year, History.language == language)
-    if current_id is not None:
-        query = query.filter(History.id != current_id)
-
-    existing = query.first()
-    if existing:
-        raise ValidationError(
-            f"History entry for year {year} and language '{language}' already exists"
-        )
 
 
 def create_history(
     db: Session, history_in: HistoryCreate, base_url: str
 ) -> HistoryResponse:
-    _ensure_unique_year_language(db, history_in.year, history_in.language)
+    
 
     entry = History(**history_in.model_dump())
     db.add(entry)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValidationError(
+            f"History entry for year {history_in.year} and language '{history_in.language}' already exists"
+        )
     db.refresh(entry)
 
     return build_history_response(entry, base_url)
@@ -86,12 +78,19 @@ def update_history(
 
     new_year = update_data.get("year", entry.year)
     new_language = update_data.get("language", entry.language)
-    _ensure_unique_year_language(db, new_year, new_language, current_id=entry.id)
+    
 
     for field, value in update_data.items():
         setattr(entry, field, value)
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValidationError(
+            f"History entry for year {history_in.year} and language '{history_in.language}' already exists"
+        )
+        
     db.refresh(entry)
 
     return build_history_response(entry, base_url)
