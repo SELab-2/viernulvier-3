@@ -75,11 +75,7 @@ def update_history(
         raise NotFoundError("History", history_id)
 
     update_data = history_in.model_dump(exclude_unset=True)
-
-    new_year = update_data.get("year", entry.year)
-    new_language = update_data.get("language", entry.language)
     
-
     for field, value in update_data.items():
         setattr(entry, field, value)
 

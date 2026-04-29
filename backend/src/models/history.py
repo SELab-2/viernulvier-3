@@ -10,7 +10,7 @@ class History(Base):
     year = Column(Integer, nullable=False)
 
     # 'nl', 'en'
-    language = Column(String(5), nullable=False)
+    language = Column(String, nullable=False)
 
     title = Column(String)
     content = Column(String, nullable=False)
