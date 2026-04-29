@@ -4,7 +4,10 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Chip,
   Divider,
+  Link,
+  Stack,
   Typography,
 } from "@mui/material";
 
@@ -38,7 +41,6 @@ function colorWithOpacity(color: string, opacity: number): string {
 }
 
 interface BlogCardProps {
-  preferredLanguage?: string;
   className?: string;
 }
 
@@ -48,6 +50,9 @@ export function BlogCard({ className }: BlogCardProps) {
   let content = "temp content\n";
   content = content + "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos."
 
+  const production_titles = ["test prod 1", "test prod 2", "test prod 3", "test prod 4", "test prod 5"]
+  // const production_titles = ["test prod 1"]
+
   return (
     <Card
       role="button"
@@ -56,7 +61,7 @@ export function BlogCard({ className }: BlogCardProps) {
       className={className}
       sx={{
         "width": "100%",
-		"height": "240px",
+		"height": "250px",
         "display": "flex",
         "flexDirection": "row",   // ← horizontal layout
         "borderRadius": 4,
@@ -175,6 +180,70 @@ export function BlogCard({ className }: BlogCardProps) {
 		<Divider
 		  sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mt: 1.5 }}
 		/>
+		<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1.5 }}>
+          <Stack direction="row" alignItems="center" gap={1}>
+		   {production_titles.length > 0 && (
+		    <Chip
+              className="blog-card-text"
+              size="small"
+              label={production_titles[0]}
+              sx={{
+                borderRadius: 1,
+                background: "transparent",
+                border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.24)}`,
+                color: colorWithOpacity(CARD_COLORS.textSecondary, 0.86),
+                letterSpacing: "var(--tracking-archive-label)",
+                height: 22,
+              }}
+            />
+		  )}
+            {production_titles.length > 1 && (
+              <Typography
+                sx={{
+                  fontSize: "var(--text-archive-meta)",
+                  color: colorWithOpacity(CARD_COLORS.textSecondary, 0.5),
+                  letterSpacing: "var(--tracking-archive-label)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                +{production_titles.length - 1} more productions
+              </Typography>
+            )}
+			{production_titles.length == 0 && (
+              <Typography
+                sx={{
+                  fontSize: "var(--text-archive-meta)",
+                  color: colorWithOpacity(CARD_COLORS.textSecondary, 0.5),
+                  letterSpacing: "var(--tracking-archive-label)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+			    no productions linked
+              </Typography>
+		  )}
+          </Stack>
+
+          <Link
+            className="blog-card-text"
+            component="span"
+            underline="none"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.25,
+              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
+              fontWeight: "var(--weight-archive-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "var(--tracking-archive-label)",
+              fontSize: "var(--text-archive-meta)",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          >
+            Details <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
+          </Link>
+        </Stack>
+
 
       </CardContent>
     </Card>
