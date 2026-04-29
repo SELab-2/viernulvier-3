@@ -119,6 +119,7 @@ def test_list_media(client: TestClient, media_items_for_production):
     data = response.json()
 
     assert len(data["media"]) == 3
+    assert data["pagination"]["total_count"] == 3
     assert data["pagination"]["has_more"] is False
     assert data["pagination"]["next_cursor"] is None
 
@@ -171,6 +172,7 @@ def test_list_media_pagination(client: TestClient, media_items_for_production):
 
     page1 = client.get(f"{BASE_URL}/{prod_id}/media/?limit=2").json()
     assert len(page1["media"]) == 2
+    assert page1["pagination"]["total_count"] == 3
     assert page1["pagination"]["has_more"] is True
     next_cursor = page1["pagination"]["next_cursor"]
     assert next_cursor is not None
@@ -178,6 +180,7 @@ def test_list_media_pagination(client: TestClient, media_items_for_production):
     page2 = client.get(
         f"{BASE_URL}/{prod_id}/media/?cursor={next_cursor}&limit=2"
     ).json()
+    assert page2["pagination"]["total_count"] == 3
     assert len(page2["media"]) == 1
     assert page2["pagination"]["has_more"] is False
 

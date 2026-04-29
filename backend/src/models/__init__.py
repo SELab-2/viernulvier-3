@@ -5,9 +5,11 @@ SQLAlchemy-modellen — importeer alle modellen zodat Base.metadata volledig is.
 from src.database import Base
 from src.models.associations import (
     prod_tags,
+    prod_blogs,
     role_permissions,
     user_roles,
 )
+from src.models.blogs import Blog, BlogContent
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
 from src.models.history import History
@@ -22,6 +24,7 @@ import src.models.listeners.production_dates as production_dates
 __all__ = [
     "Base",
     "prod_tags",
+    "prod_blogs",
     "user_roles",
     "role_permissions",
     "Production",
@@ -36,5 +39,7 @@ __all__ = [
     "Role",
     "Permission",
     "Media",
+    "Blog",
+    "BlogContent",
     "production_dates",
 ]

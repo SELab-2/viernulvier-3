@@ -9,7 +9,7 @@ on:
 jobs:
   lint-backend:
     name: Lint Backend Code Base with Ruff
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
 
   lint-frontend:
     name: Lint Frontend Code Base with Prettier and Eslint
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -69,16 +69,17 @@ jobs:
         working-directory: frontend
 
   smoke-test:
-    name: Docker Smoke Test
+    name: Docker Smoke Test (${{ matrix.target }})
     needs:
       - lint-backend
       - lint-frontend
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target: [frontend, backend]
 
     steps:
-      - name: Cleanup Docker
-        run: docker system prune -a -f --volumes
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -87,35 +88,41 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "POSTGRES_USER=viernulvier" > .env
-          echo "POSTGRES_PASSWORD=archief_test_password" >> .env
-          echo "POSTGRES_DB=viernulvier_archief" >> .env
-          echo "DATABASE_HOST=database" >> .env
-          echo "DATABASE_PORT=5432" >> .env
-          echo "JWT_SECRET_KEY=viernulvier_test_secret_2026_longer_for_ci_testing" >> .env
-          echo "JWT_ALGORITHM=HS256" >> .env
-          echo "ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
-          echo "REFRESH_TOKEN_EXPIRE_MINUTES=43200" >> .env
-          echo "VIERNULVIER_KEY=viernulvier_test_api_key" >> .env
-          echo "VITE_API_BASE_URL=http://localhost/" >> .env
-          echo "MINIO_ROOT_USER=minioadmin" >> .env
-          echo "MINIO_ROOT_PASSWORD=minioadmin" >> .env
-          echo "MINIO_ENDPOINT=minio:9000" >> .env
-          echo "MINIO_BUCKET=media" >> .env
+          cat <<EOF > .env
+          POSTGRES_USER=viernulvier
+          POSTGRES_PASSWORD=archief_test_password
+          POSTGRES_DB=viernulvier_archief
+          DATABASE_HOST=database
+          DATABASE_PORT=5432
+          JWT_SECRET_KEY=viernulvier_test_secret_2026_longer_for_ci_testing
+          JWT_ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=30
+          REFRESH_TOKEN_EXPIRE_MINUTES=43200
+          VIERNULVIER_KEY=viernulvier_test_api_key
+          VITE_API_BASE_URL=http://localhost/
+          MINIO_ROOT_USER=minioadmin
+          MINIO_ROOT_PASSWORD=minioadmin
+          MINIO_ENDPOINT=minio:9000
+          MINIO_BUCKET=media
+          EOF
+      - name: Set project name
+        run: echo "PROJECT_NAME=viernulvier-ci-${{ matrix.target }}" >> $GITHUB_ENV
 
       - name: Build Docker Environment
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci up -d --build --wait
-
-      - name: Run Backend Tests
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci exec -T backend pytest tests/
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME up -d --build --wait
 
       - name: Run Frontend Tests
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci run --rm frontend npm run test
+        if: matrix.target == 'frontend'
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME run --rm frontend npm run test
+
+      - name: Run Backend Tests
+        if: matrix.target == 'backend'
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME exec -T backend pytest tests/
 
       - name: Dump Docker Logs
         if: failure()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci logs
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME logs
 
       - name: Shut Down Docker Environment
         if: always()
-        run: docker compose -f docker-compose.ci.yml --project-name viernulvier-ci down -v
+        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME down -v
