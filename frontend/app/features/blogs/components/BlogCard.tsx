@@ -211,7 +211,7 @@ export function BlogCard({
                 +{production_titles.length - 1} {t("blogs.card.other_prods")}
               </Typography>
             )}
-            {production_titles.length == 0 && (
+            {production_titles.length === 0 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
