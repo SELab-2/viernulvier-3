@@ -4,6 +4,10 @@ from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 from src.worker.converters.genres import api_genre_to_model_tag
 from src.services.language import Languages
+from src.worker.converters.hall import (
+    get_address_from_location,
+    api_location_to_model_halls,
+)
 
 
 # Test normal test case from the actual API
@@ -275,3 +279,26 @@ def test_api_genre_to_none():
     assert tag is not None
     assert tag.viernulvier_id == 7
     assert len(tag_names) == 0
+
+
+def test_get_address_from_location():
+    test_input1 = {
+        "street": "Chinastraat",
+        "number": "1",
+        "postal_code": "9000",
+        "city": "Gent",
+        "own_location": "",
+    }
+
+    address_1 = get_address_from_location(test_input1)
+    assert address_1 == "Chinastraat 1, 9000 Gent"
+
+    test_input2 = {
+        "street": "Sint-Pietersnieuwstraat",
+        "number": "23",
+        "postal_code": "9000",
+        "city": "Gent",
+        "country": "BE",
+    }
+    address_2 = get_address_from_location(test_input2)
+    assert address_2 == "Sint-Pietersnieuwstraat 23, 9000 Gent (BE)"
