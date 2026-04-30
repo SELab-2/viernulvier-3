@@ -12,6 +12,11 @@ class Permissions:
     ARCHIVE_UPDATE = "archive:update"
     ARCHIVE_DELETE = "archive:delete"
 
+    # History
+    HISTORY_CREATE = "history:create"
+    HISTORY_UPDATE = "history:update"
+    HISTORY_DELETE = "history:delete"
+
     # Users
     USERS_READ = "users:read"
     USERS_CREATE = "users:create"

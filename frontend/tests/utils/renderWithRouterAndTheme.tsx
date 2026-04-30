@@ -7,6 +7,7 @@ import { vi } from "vitest";
 import Home from "~/routes/home";
 import Archive from "~/routes/archive";
 import History from "~/routes/history";
+import Blogs from "~/routes/blogs";
 import Users from "~/routes/users";
 import NotFound from "~/routes/not-found";
 
@@ -18,6 +19,7 @@ export function renderWithRouterAndTheme({
   useRealHome = false,
   useRealArchive = false,
   useRealHistory = false,
+  useRealBlogs = false,
   useRealUsers = false,
   useRealNotFound = false,
   initialPath = "/",
@@ -55,6 +57,17 @@ export function renderWithRouterAndTheme({
           </>
         ) : (
           <History />
+        ),
+      },
+      {
+        path: "/blogs",
+        element: !useRealBlogs ? (
+          <>
+            <Navbar />
+            <div>TEST_BLOGS_PAGE</div>
+          </>
+        ) : (
+          <Blogs />
         ),
       },
       {
