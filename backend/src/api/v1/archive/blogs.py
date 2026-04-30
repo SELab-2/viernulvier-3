@@ -87,7 +87,7 @@ async def patch_blog(
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.BLOG_UPDATE])),
 ) -> BlogResponse:
-    base_url = get_base_url(str(request.url))
+    base_url = get_base_url(str(request.url), 2)
     blog_data = update_blog_by_id(db, blog_in, blog_id, base_url)
     return blog_data
 
