@@ -379,11 +379,13 @@ def update_production_by_id(
                 setattr(production_info, field, value)
 
     if production_in.remove_languages:
-        for lang in production_in.remove_languages:
-            db.query(ProdInfo).filter(
-                ProdInfo.production_id == production_id,
-                ProdInfo.language == lang,
-            ).delete()
+        prod_infos = db.query(ProdInfo).filter(ProdInfo.production_id == production_id).all()
+        if len(prod_infos) <= len(production_in.remove_languages):
+            raise Exception("Cannot remove all languages. At least one language must remain.")
+
+        for prod_info in prod_infos:
+            if prod_info.language in production_in.remove_languages:
+                db.delete(prod_info)
 
     db.commit()
     # Refreshes the whole production with eager loading (simplest).
