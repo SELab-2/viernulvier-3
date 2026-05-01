@@ -11,6 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -52,8 +54,11 @@ export function BlogCard({
   className,
 }: BlogCardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
   return (
     <Card
+	  onClick={() => navigate(lp("/blogs/1"))}
       role="button"
       tabIndex={0}
       aria-label={`Open details for ${title}`}
