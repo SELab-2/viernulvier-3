@@ -60,7 +60,7 @@ export function BlogCard({
       className={className}
       sx={{
         "width": "100%",
-        "height": "250px",
+        "height": { xs: "180px", sm: "210px", md: "250px" },
         "display": "flex",
         "flexDirection": "row",
         "borderRadius": 4,
@@ -97,7 +97,7 @@ export function BlogCard({
           position: "relative",
           overflow: "hidden",
           flexShrink: 0,
-          width: { xs: "40%", sm: "320px" },
+          width: { xs: "0%", sm: "30%", md: "320px" },
         }}
       >
         <CardMedia
@@ -128,7 +128,6 @@ export function BlogCard({
           "transform": "translateY(0)",
           "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
           "willChange": "transform",
-          // remove MUI's default last-child bottom padding override
           "&:last-child": { pb: 2 },
         }}
       >
@@ -156,7 +155,7 @@ export function BlogCard({
             flexGrow: 1,
             overflow: "hidden",
             position: "relative",
-            // fade-out mask at the bottom
+            // fade-out at the bottom
             maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
           }}
@@ -175,13 +174,17 @@ export function BlogCard({
           </Typography>
         </Box>
         <Divider
-          sx={{ borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15), mt: 1.5 }}
+          sx={{
+            borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15),
+            mt: 1.5,
+            display: { xs: "none", sm: "flex" },
+          }}
         />
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ mt: 1.5 }}
+          sx={{ mt: 1.5, display: { xs: "none", sm: "flex" } }}
         >
           <Stack direction="row" alignItems="center" gap={1}>
             {production_titles.length > 0 && (
