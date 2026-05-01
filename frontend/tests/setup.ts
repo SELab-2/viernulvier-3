@@ -36,6 +36,7 @@ vi.mock("react-i18next", async () => {
           "nav.home": "I18N_Home",
           "nav.archive": "I18N_Archive",
           "nav.history": "I18N_History",
+          "nav.blogs": "I18N_Blogs",
           "nav.users": "I18N_Users",
           "auth.actions.logout": "I18N_Logout",
           "home.title": "I18N_Title",
@@ -114,6 +115,7 @@ vi.mock("react-i18next", async () => {
           "productionPage.dateLabel": "I18N_Production_DateLabel",
           "productionPage.placeLabel": "I18N_Production_PlaceLabel",
           "productionPage.timeLabel": "I18N_Production_TimeLabel",
+          "productionPage.eventMore": "I18N_Production_EventMore",
           "productionPage.priceLabel": "I18N_Production_PriceLabel",
           "productionPage.noPrice": "I18N_Production_NoPrice",
         };

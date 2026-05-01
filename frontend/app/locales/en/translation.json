@@ -3,6 +3,7 @@
     "home": "Home",
     "archive": "Archive",
     "history": "History",
+    "blogs": "Blogs",
     "users": "Users"
   },
   "footer": {
@@ -64,6 +65,7 @@
     "headerBrandAria": "VIERNULVIER Archive",
     "archiveLabel": "Archive",
     "backToCollection": "Back to the collection",
+    "eventMore": "More",
     "archiveSchema": "Archive schema",
     "dateLabel": "Date",
     "timeLabel": "Time",

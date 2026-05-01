@@ -1,15 +1,23 @@
+from enum import StrEnum
 from typing import List
 
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from src.api.exceptions import NotFoundError, ValidationError
 from src.models.history import History
 from src.schemas.history import HistoryCreate, HistoryResponse, HistoryUpdate
 
 
+class ORDER(StrEnum):
+    ASCENDING = "Ascending"
+    DESCENDING = "Descending"
+
+
 def build_history_response(history: History, base_url: str) -> HistoryResponse:
     return HistoryResponse(
-        id_url=f"{base_url}/history/{history.id}",
+        id_url=f"{base_url}/history/{history.year}/{history.language}",
         year=history.year,
         language=history.language,
         title=history.title,
@@ -22,7 +30,10 @@ def get_all_history_entries(
     base_url: str,
     year: int | None = None,
     language: str | None = None,
+    sort_order: ORDER = ORDER.DESCENDING,
 ) -> List[HistoryResponse]:
+    order_func = asc if sort_order == ORDER.ASCENDING else desc
+
     query = db.query(History)
 
     if year is not None:
@@ -30,43 +41,38 @@ def get_all_history_entries(
     if language:
         query = query.filter(History.language == language)
 
-    entries = query.order_by(History.year.desc()).all()
+    entries = query.order_by(
+        order_func(History.year), order_func(History.language)
+    ).all()
     return [build_history_response(entry, base_url) for entry in entries]
 
 
-def get_history_by_id(db: Session, history_id: int, base_url: str) -> HistoryResponse:
-    entry = db.query(History).filter(History.id == history_id).first()
+def get_history_entry(
+    db: Session, year: int, language: str, base_url: str
+) -> HistoryResponse:
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     return build_history_response(entry, base_url)
-
-
-def _ensure_unique_year_language(
-    db: Session,
-    year: int,
-    language: str,
-    current_id: int | None = None,
-) -> None:
-    query = db.query(History).filter(History.year == year, History.language == language)
-    if current_id is not None:
-        query = query.filter(History.id != current_id)
-
-    existing = query.first()
-    if existing:
-        raise ValidationError(
-            f"History entry for year {year} and language '{language}' already exists"
-        )
 
 
 def create_history(
     db: Session, history_in: HistoryCreate, base_url: str
 ) -> HistoryResponse:
-    _ensure_unique_year_language(db, history_in.year, history_in.language)
-
     entry = History(**history_in.model_dump())
     db.add(entry)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValidationError(
+            f"History entry for year {history_in.year} and language '{history_in.language}' already exists"
+        )
     db.refresh(entry)
 
     return build_history_response(entry, base_url)
@@ -74,33 +80,45 @@ def create_history(
 
 def update_history(
     db: Session,
-    history_id: int,
+    year: int,
+    language: str,
     history_in: HistoryUpdate,
     base_url: str,
 ) -> HistoryResponse:
-    entry = db.query(History).filter(History.id == history_id).first()
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     update_data = history_in.model_dump(exclude_unset=True)
-
-    new_year = update_data.get("year", entry.year)
-    new_language = update_data.get("language", entry.language)
-    _ensure_unique_year_language(db, new_year, new_language, current_id=entry.id)
 
     for field, value in update_data.items():
         setattr(entry, field, value)
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValidationError(
+            f"History entry for year {history_in.year} and language '{history_in.language}' already exists"
+        )
+
     db.refresh(entry)
 
     return build_history_response(entry, base_url)
 
 
-def delete_history_by_id(db: Session, history_id: int) -> None:
-    entry = db.query(History).filter(History.id == history_id).first()
+def delete_history_entry(db: Session, year: int, language: str) -> None:
+    entry = (
+        db.query(History)
+        .filter(History.year == year, History.language == language)
+        .first()
+    )
     if not entry:
-        raise NotFoundError("History", history_id)
+        raise NotFoundError("History", f"{year}/{language}")
 
     db.delete(entry)
     db.commit()
