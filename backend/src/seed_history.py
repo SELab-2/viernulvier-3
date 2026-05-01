@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+
 def seed_history_if_empty(session: Session):
     from src.models.history import History
 
@@ -13,8 +14,8 @@ def seed_history_if_empty(session: Session):
         session.add(History(**row))
 
     session.commit()
-    
-    
+
+
 DEFAULT_HISTORY = [
     {
         "year": 1910,
@@ -39,8 +40,6 @@ DEFAULT_HISTORY = [
             "Dierkens aan als architect. De arbeiders kregen een reusachtig volkshuis."
         ),
     },
-
-
     {
         "year": 1946,
         "language": "en",
@@ -62,8 +61,6 @@ DEFAULT_HISTORY = [
             "zoals De Samenwerkster, Anseele Vrienden en Leesclub Boekuil sloten zich aan."
         ),
     },
-
-
     {
         "year": 1970,
         "language": "en",
@@ -84,8 +81,6 @@ DEFAULT_HISTORY = [
             "enigszins in gebruik."
         ),
     },
-
-
     {
         "year": 1980,
         "language": "en",
@@ -106,8 +101,6 @@ DEFAULT_HISTORY = [
             "ontmoetingscentrum van te maken, los van het vroegere politieke etiket."
         ),
     },
-
-  
     {
         "year": 1988,
         "language": "en",
@@ -128,8 +121,6 @@ DEFAULT_HISTORY = [
             "kunstenaars uit binnen- en buitenland."
         ),
     },
-
- 
     {
         "year": 2013,
         "language": "en",
@@ -148,8 +139,6 @@ DEFAULT_HISTORY = [
             "een culturele instelling van formaat. Het opschrift 'Kunst veredelt' blijft het motto van het gebouw."
         ),
     },
-
-
     {
         "year": 2017,
         "language": "en",
@@ -168,8 +157,6 @@ DEFAULT_HISTORY = [
             "missie rond zes speerpunten: support, experiment, connect, engage, reflect en celebrate."
         ),
     },
-
-  
     {
         "year": 2022,
         "language": "en",
