@@ -9,7 +9,7 @@ from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
 from src.api.exceptions import NotFoundError, ValidationError
 from src.models import Event, ProdInfo, Production, Tag
-from src.schemas.pagination import Pagination
+from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
@@ -228,7 +228,7 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=Pagination(
+        pagination=JsonPagination(
             next_cursor=next_cursor,
             has_more=has_more,
             total_count=total_count,

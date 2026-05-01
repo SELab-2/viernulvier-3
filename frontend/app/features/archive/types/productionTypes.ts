@@ -1,6 +1,6 @@
 import type { Event } from "./eventTypes";
 import type { Tag } from "./tagTypes";
-import type { PaginationResponse } from "./paginationTypes";
+import type { JsonPaginationResponse } from "./paginationTypes";
 
 export interface ProductionInfo {
   production_id_url: string;
@@ -39,7 +39,7 @@ export interface Production {
 
 export interface ProductionList {
   productions: Production[];
-  pagination: PaginationResponse;
+  pagination: JsonPaginationResponse;
 }
 
 export interface ProductionInfoCreate {

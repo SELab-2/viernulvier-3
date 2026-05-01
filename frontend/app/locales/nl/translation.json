@@ -3,6 +3,7 @@
     "home": "Home",
     "archive": "Archief",
     "history": "Geschiedenis",
+    "blogs": "Blogs",
     "users": "Gebruikers"
   },
   "footer": {
@@ -63,6 +64,7 @@
     "headerBrandAria": "VIERNULVIER Archief",
     "archiveLabel": "Archief",
     "backToCollection": "Terug naar de collectie",
+    "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
@@ -134,6 +136,14 @@
         "description": "In 2022 verandert Kunstencentrum Vooruit haar naam naar Kunstencentrum VIERNULVIER, nadat de Vlaamse socialistische partij in 2021 voor de nieuwe naam ‘Vooruit’ koos. Het gebouw zelf blijft De Vooruit heten. Enkel de organisatie draagt dus een nieuwe naam."
       }
     ]
+  },
+
+  "blogs": {
+    "card": {
+      "other_prods": "andere producties",
+      "no_prods": "Geen gelinkte producties gevonden voor deze blog",
+      "details": "Details"
+    }
   },
 
   "auth": {
