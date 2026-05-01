@@ -39,8 +39,6 @@ it("cleared editor when value is null", () => {
   expect(mockQuill.setContents).toHaveBeenCalledWith([], "silent");
 });
 
-// Quill-specific
-
 it("setContents gets called if value differs from current", () => {
   const delta = { ops: [{ insert: "hello" }] };
   mockQuill.getContents.mockReturnValue({ ops: [] } as unknown as Delta);
