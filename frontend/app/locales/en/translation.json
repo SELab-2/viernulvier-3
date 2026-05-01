@@ -121,7 +121,7 @@
     },
     "empty": {
       "title": "No history entries found",
-      "description": "Once the backend returns history entries, they will appear here in chronological order."
+      "description": "No history-data has been found yet..."
     },
     "form": {
       "labels": {

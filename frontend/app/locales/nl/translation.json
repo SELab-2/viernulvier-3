@@ -119,7 +119,7 @@
     },
     "empty": {
       "title": "Geen geschiedenisitems gevonden",
-      "description": "Zodra de backend geschiedenisitems teruggeeft, verschijnen ze hier in chronologische volgorde."
+      "description": "Er is nog geen geschiedenis-data beschikbaar..."
     },
     "form": {
       "labels": {
