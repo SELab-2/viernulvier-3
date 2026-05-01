@@ -12,7 +12,7 @@ from minio import Minio
 from sqlalchemy.orm import Session
 
 from src.api.dependencies import RequirePermissions
-from src.api.exceptions import NotFoundError
+from src.api.exceptions import NotFoundError, ValidationError
 from src.database import get_db
 from src.models.user import User
 from src.schemas.media import MediaResponse, MediaListResponse
@@ -24,6 +24,7 @@ from src.services.media import (
     get_minio_client,
     list_media_for_blog,
     upload_media,
+    get_media_by_id,
 )
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
@@ -94,10 +95,15 @@ async def post_media(
 async def delete_media_endpoint(
     blog_id: int,
     media_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.BLOG_DELETE])),
 ) -> None:
+    base_url = get_base_url(str(request.url), 3)
+    media = get_media_by_id(db, media_id, base_url)
+    if media.blog_id_url is None or int(media.blog_id_url.split("/")[-1]) != blog_id:
+        raise ValidationError(f"Media {media_id} does not exist for Blog {blog_id}")
     deleted = delete_media(db, media_id, minio)
     if not deleted:
         raise NotFoundError("Media", media_id)

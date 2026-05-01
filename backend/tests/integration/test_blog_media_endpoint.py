@@ -155,6 +155,19 @@ def test_delete_media_no_permission(
     assert response.status_code == 403
 
 
+def test_delete_media_incorrect_id(
+    client: TestClient, db_session: Session, media_items_prod_blog
+):
+    headers = create_user_and_login(
+        client, db_session, "delete_user", [Permissions.BLOG_DELETE]
+    )
+    response = client.delete(
+        f"{BASE_URL}/{media_items_prod_blog[1].blog_id}/media/{media_items_prod_blog[0].id}",
+        headers=headers,
+    )
+    assert response.status_code == 400
+
+
 def test_delete_media_not_found(
     client: TestClient, db_session: Session, blog_with_no_media
 ):
