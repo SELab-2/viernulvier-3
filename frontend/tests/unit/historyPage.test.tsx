@@ -157,16 +157,16 @@ describe("HistoryPage", () => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
       });
 
-      const editButton = screen.getAllByRole("button", { name: /pas aan/i })[0];
+      const editButton = screen.getAllByRole("button", { name: /edit\.edit|pas aan/i })[0];
       const user = userEvent.setup();
       await user.click(editButton);
 
-      const saveButton = await screen.findByRole("button", { name: /opslaan/i });
+      const saveButton = await screen.findByRole("button", { name: /edit\.save|opslaan/i });
       await user.click(saveButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("Opslaan mislukt")
+          expect.stringContaining("history.messages.updateFailed")
         );
       });
     });
@@ -186,13 +186,13 @@ describe("HistoryPage", () => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
       });
 
-      const deleteButton = screen.getAllByRole("button", { name: /verwijder/i })[0];
+      const deleteButton = screen.getAllByRole("button", { name: /history\.actions\.delete|verwijder/i })[0];
       const user = userEvent.setup();
       await user.click(deleteButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("Verwijderen mislukt")
+          expect.stringContaining("history.messages.deleteFailed")
         );
       });
     });
@@ -208,7 +208,7 @@ describe("HistoryPage", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /nieuwe entry/i })
+          screen.getByRole("button", { name: /history\.actions\.create|nieuwe entry/i })
         ).toBeInTheDocument();
       });
     });
@@ -220,7 +220,7 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /nieuwe entry/i });
+      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -253,7 +253,7 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /nieuwe entry/i });
+      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -262,12 +262,17 @@ describe("HistoryPage", () => {
       });
       fireEvent.change(titleInput, { target: { value: "New Event" } });
 
-      const contentInput = screen.getByRole("textbox", {
+      const contentInput = await screen.findByRole("textbox", {
         name: /history\.form\.labels\.content/i,
       });
       fireEvent.change(contentInput, { target: { value: "A new event" } });
 
-      const makeButton = screen.getByRole("button", { name: /maak aan/i });
+      await waitFor(() => {
+        expect(titleInput).toHaveValue("New Event");
+        expect(contentInput).toHaveValue("A new event");
+      });
+
+      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
       await user.click(makeButton);
 
       await waitFor(() => {
@@ -294,21 +299,21 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /nieuwe entry/i });
+      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
       const user = userEvent.setup();
       await user.click(createButton);
 
       const titleInput = await screen.findByRole("textbox", {
         name: /history\.form\.labels\.title/i,
       });
-      fireEvent.change(titleInput, { target: { value: "New Event" } });
+      await user.type(titleInput, "New Event");
 
-      const makeButton = screen.getByRole("button", { name: /maak aan/i });
+      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
       await user.click(makeButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /nieuwe entry/i })
+          screen.getByRole("button", { name: /history\.actions\.create|nieuwe entry/i })
         ).toBeInTheDocument();
         expect(
           screen.queryByRole("textbox", { name: /history\.form\.labels\.title/i })
@@ -326,16 +331,16 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /nieuwe entry/i });
+      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
       const user = userEvent.setup();
       await user.click(createButton);
 
-      const makeButton = screen.getByRole("button", { name: /maak aan/i });
+      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
       await user.click(makeButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("Aanmaken mislukt")
+          expect.stringContaining("history.messages.createFailed")
         );
       });
     });
