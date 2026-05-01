@@ -1,18 +1,18 @@
 import { vi } from "vitest";
+import { Delta } from "quill";
 
-const mockQuill = {
-  on: vi.fn(),
-  off: vi.fn(),
-  getContents: vi.fn(() => ({ ops: [] })),
-  setContents: vi.fn(),
-  getSelection: vi.fn(() => null),
-  getLength: vi.fn(() => 1),
-  root: document.createElement("div"),
+export const mockQuill = {
+    on: vi.fn(),
+    off: vi.fn(),
+    getContents: vi.fn(() => ({ ops: [] }) as unknown as Delta),
+    setContents: vi.fn(),
+    getSelection: vi.fn(() => null as { index: number; length: number } | null),
+    setSelection: vi.fn(),
+    getLength: vi.fn(() => 1),
+    root: document.createElement("div"),
 };
 
-vi.mock("react-quilljs", () => ({
-  useQuill: () => ({
+export const useQuill = vi.fn(() => ({
     quill: mockQuill,
     quillRef: { current: null },
-  }),
 }));
