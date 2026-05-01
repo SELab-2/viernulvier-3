@@ -14,10 +14,10 @@ type Props = {
 };
 
 const archiveRichTextFieldSx: SxProps<Theme> = {
-  borderRadius: "0.5rem",
-  backgroundColor: "var(--archive-surface)",
-  border: "1px solid var(--archive-border)",
-  transition: "border-color 160ms ease, background-color 160ms ease",
+  "borderRadius": "0.5rem",
+  "backgroundColor": "var(--archive-surface)",
+  "border": "1px solid var(--archive-border)",
+  "transition": "border-color 160ms ease, background-color 160ms ease",
 
   "&:hover": {
     backgroundColor: "var(--archive-control)",
@@ -61,7 +61,7 @@ const archiveRichTextFieldSx: SxProps<Theme> = {
     fontSize: "0.875rem",
     fontStyle: "normal",
   },
-}
+};
 
 function toSxArray(sx: SxProps<Theme> | undefined) {
   if (Array.isArray(sx)) {
@@ -100,13 +100,17 @@ export function ArchiveRichTextField({
   });
 
   const onChangeRef = useRef(onChange);
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     if (!quill) return;
     const handler = () => onChangeRef.current(quill.getContents());
     quill.on("text-change", handler);
-    return () => { quill.off("text-change", handler); };
+    return () => {
+      quill.off("text-change", handler);
+    };
   }, [quill]);
 
   useEffect(() => {
@@ -116,7 +120,7 @@ export function ArchiveRichTextField({
       return;
     }
     const current = quill.getContents();
-    
+
     if (!isSameDelta(current, value)) {
       const selection = quill.getSelection();
 

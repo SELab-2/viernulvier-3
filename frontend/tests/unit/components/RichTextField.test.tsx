@@ -1,7 +1,7 @@
 import { vi, it, expect, beforeEach } from "vitest";
 import { ArchiveRichTextField } from "~/shared/components/ArchiveRichTextField";
 import { render } from "@testing-library/react";
-import { mockQuill } from "tests/mocks/react-quilljs.mock"
+import { mockQuill } from "tests/mocks/react-quilljs.mock";
 import { Delta } from "quill";
 
 vi.mock("react-quilljs", () => import("tests/mocks/react-quilljs.mock"));
@@ -11,9 +11,7 @@ beforeEach(() => {
 });
 
 it("renders without crashing", async () => {
-  const { container } = render(
-    <ArchiveRichTextField onChange={() => {}} />
-  );
+  const { container } = render(<ArchiveRichTextField onChange={() => {}} />);
 
   expect(container).toBeInTheDocument();
 });
@@ -22,9 +20,11 @@ it("calls onChange when text changes", () => {
   const onChange = vi.fn();
   render(<ArchiveRichTextField onChange={onChange} />);
 
-  const handler = mockQuill.on.mock.calls.find(([event]) => event === "text-change")?.[1];
-    expect(handler).toBeDefined();
-    handler?.();
+  const handler = mockQuill.on.mock.calls.find(
+    ([event]) => event === "text-change"
+  )?.[1];
+  expect(handler).toBeDefined();
+  handler?.();
 
   expect(onChange).toHaveBeenCalledWith({ ops: [] });
 });
