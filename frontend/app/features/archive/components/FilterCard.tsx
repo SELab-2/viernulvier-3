@@ -7,7 +7,7 @@ interface FilterCardProps {
 }
 
 const FilterCard: React.FC<FilterCardProps> = ({ title, children }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <div className="bg-archive-ink/5 bg-archive-ink-dark/5 border-archive-ink/5 border-archive-ink-dark/5 rounded-2xl border p-6 shadow-sm">
