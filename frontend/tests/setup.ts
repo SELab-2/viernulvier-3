@@ -57,7 +57,6 @@ vi.mock("react-i18next", async () => {
           "users.actions.add": "I18N_Users_Add",
           "users.actions.refresh": "I18N_Users_Refresh",
           "history.heroAlt": "I18N_History_Hero_Alt",
-          "history.title": "I18N_History_Title",
           "history.loading": "history.loading",
           "history.errorTitle": "history.errorTitle",
           "history.empty.title": "history.empty.title",
