@@ -143,7 +143,9 @@ describe("historyService", () => {
         title: "Updated",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/history/1999/en").reply(200, MOCK_HISTORY_ENTRY);
+      mockAdapter
+        .onPatch("/api/v1/archive/history/1999/en")
+        .reply(200, MOCK_HISTORY_ENTRY);
 
       await updateHistoryEntry(year, language, request);
 

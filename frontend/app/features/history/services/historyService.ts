@@ -1,5 +1,9 @@
 import { getFromArchiveList } from "~/shared/services/sharedService";
-import { postToArchive, patchToArchive, deleteFromArchive } from "~/shared/services/sharedService";
+import {
+  postToArchive,
+  patchToArchive,
+  deleteFromArchive,
+} from "~/shared/services/sharedService";
 
 import type { HistoryEntryRecord } from "~/features/history/types/historyTypes";
 
@@ -33,9 +37,15 @@ export async function updateHistoryEntry(
   language: string,
   request: HistoryEntryUpdateRequest
 ): Promise<HistoryEntryRecord> {
-  return patchToArchive<HistoryEntryRecord>(buildHistoryEntryPath(year, language), request);
+  return patchToArchive<HistoryEntryRecord>(
+    buildHistoryEntryPath(year, language),
+    request
+  );
 }
 
-export async function deleteHistoryEntry(year: number, language: string): Promise<void> {
+export async function deleteHistoryEntry(
+  year: number,
+  language: string
+): Promise<void> {
   return deleteFromArchive(buildHistoryEntryPath(year, language));
 }

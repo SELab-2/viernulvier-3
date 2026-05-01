@@ -65,15 +65,21 @@ export default function HistoryPage() {
     content: string;
   }) {
     try {
-      const updated = await updateHistoryEntry(payload.entryYear, payload.entryLanguage, {
-        year: payload.year,
-        language: payload.language,
-        title: payload.title,
-        content: payload.content,
-      });
+      const updated = await updateHistoryEntry(
+        payload.entryYear,
+        payload.entryLanguage,
+        {
+          year: payload.year,
+          language: payload.language,
+          title: payload.title,
+          content: payload.content,
+        }
+      );
       setEntries((prev) =>
         prev.map((e) =>
-          e.year === payload.entryYear && e.language === payload.entryLanguage ? updated : e
+          e.year === payload.entryYear && e.language === payload.entryLanguage
+            ? updated
+            : e
         )
       );
     } catch (err) {
@@ -88,7 +94,9 @@ export default function HistoryPage() {
   async function handleDelete(year: number, language: string) {
     try {
       await deleteHistoryEntry(year, language);
-      setEntries((prev) => prev.filter((e) => !(e.year === year && e.language === language)));
+      setEntries((prev) =>
+        prev.filter((e) => !(e.year === year && e.language === language))
+      );
     } catch (err) {
       window.alert(
         t("history.messages.deleteFailed", {
@@ -111,7 +119,12 @@ export default function HistoryPage() {
       const created = await createHistoryEntry(newEntry);
       setEntries((prev) => [created, ...prev]);
       setIsCreating(false);
-      setNewEntry({ year: new Date().getFullYear(), language: i18n.resolvedLanguage ?? "nl", title: "", content: "" });
+      setNewEntry({
+        year: new Date().getFullYear(),
+        language: i18n.resolvedLanguage ?? "nl",
+        title: "",
+        content: "",
+      });
     } catch (err) {
       window.alert(
         t("history.messages.createFailed", {
@@ -144,11 +157,15 @@ export default function HistoryPage() {
           <div className="border-archive-accent/10 mx-auto max-w-4xl border-l-2 pr-[clamp(1rem,3vw,2rem)] pb-12 pl-[clamp(1rem,3vw,3rem)] xl:max-w-7xl">
             {isLoading ? (
               <div className="flex min-h-[40vh] items-center justify-center">
-                <p className="font-serif text-3xl italic opacity-60">{t("history.loading")}</p>
+                <p className="font-serif text-3xl italic opacity-60">
+                  {t("history.loading")}
+                </p>
               </div>
             ) : errorMessage ? (
               <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-                <p className="font-serif text-3xl italic opacity-60">{t("history.errorTitle")}</p>
+                <p className="font-serif text-3xl italic opacity-60">
+                  {t("history.errorTitle")}
+                </p>
                 <p className="mt-3 max-w-2xl opacity-70">{errorMessage}</p>
               </div>
             ) : entries.length > 0 ? (
@@ -157,26 +174,36 @@ export default function HistoryPage() {
                   <div className="mb-6 flex items-start gap-3">
                     {!isCreating ? (
                       <button
-                        className="rounded bg-archive-accent px-3 py-1 text-sm text-white"
+                        className="bg-archive-accent rounded px-3 py-1 text-sm text-white"
                         onClick={() => setIsCreating(true)}
                       >
                         {t("history.actions.create")}
                       </button>
                     ) : (
-                      <div className="w-full rounded border bg-archive-paper p-4">
+                      <div className="bg-archive-paper w-full rounded border p-4">
                         <div className="mb-2 flex gap-2">
                           <input
                             aria-label={t("history.form.labels.year")}
                             placeholder={t("history.form.placeholders.year")}
                             value={String(newEntry.year)}
-                            onChange={(e) => setNewEntry((prev) => ({ ...prev, year: Number(e.target.value) }))}
+                            onChange={(e) =>
+                              setNewEntry((prev) => ({
+                                ...prev,
+                                year: Number(e.target.value),
+                              }))
+                            }
                             className="w-24 rounded border px-2 py-1"
                           />
                           <input
                             aria-label={t("history.form.labels.title")}
                             placeholder={t("history.form.placeholders.title")}
                             value={newEntry.title ?? undefined}
-                            onChange={(e) => setNewEntry((prev) => ({ ...prev, title: e.target.value }))}
+                            onChange={(e) =>
+                              setNewEntry((prev) => ({
+                                ...prev,
+                                title: e.target.value,
+                              }))
+                            }
                             className="flex-1 rounded border px-2 py-1"
                           />
                         </div>
@@ -184,15 +211,26 @@ export default function HistoryPage() {
                           aria-label={t("history.form.labels.content")}
                           placeholder={t("history.form.placeholders.content")}
                           value={newEntry.content}
-                          onChange={(e) => setNewEntry((prev) => ({ ...prev, content: e.target.value }))}
+                          onChange={(e) =>
+                            setNewEntry((prev) => ({
+                              ...prev,
+                              content: e.target.value,
+                            }))
+                          }
                           rows={4}
                           className="mb-2 w-full rounded border px-2 py-1"
                         />
                         <div className="flex gap-2">
-                          <button className="rounded bg-archive-accent px-3 py-1 text-sm text-white" onClick={handleCreate}>
+                          <button
+                            className="bg-archive-accent rounded px-3 py-1 text-sm text-white"
+                            onClick={handleCreate}
+                          >
                             {t("history.actions.submit")}
                           </button>
-                          <button className="rounded bg-archive-control px-3 py-1 text-sm" onClick={() => setIsCreating(false)}>
+                          <button
+                            className="bg-archive-control rounded px-3 py-1 text-sm"
+                            onClick={() => setIsCreating(false)}
+                          >
                             {t("edit.cancel")}
                           </button>
                         </div>
@@ -217,8 +255,12 @@ export default function HistoryPage() {
               </div>
             ) : (
               <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-                <p className="font-serif text-3xl italic opacity-60">{t("history.empty.title")}</p>
-                <p className="mt-3 max-w-2xl opacity-70">{t("history.empty.description")}</p>
+                <p className="font-serif text-3xl italic opacity-60">
+                  {t("history.empty.title")}
+                </p>
+                <p className="mt-3 max-w-2xl opacity-70">
+                  {t("history.empty.description")}
+                </p>
               </div>
             )}
           </div>

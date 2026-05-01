@@ -19,7 +19,14 @@ export function HistoryEntry({
   language: string;
   title: string;
   description: string;
-  onUpdate?: (payload: { entryYear: number; entryLanguage: string; year: number; language: string; title: string; content: string }) => Promise<void> | void;
+  onUpdate?: (payload: {
+    entryYear: number;
+    entryLanguage: string;
+    year: number;
+    language: string;
+    title: string;
+    content: string;
+  }) => Promise<void> | void;
   onDelete?: (year: number, language: string) => Promise<void> | void;
 }) {
   const { t } = useTranslation();
@@ -73,7 +80,7 @@ export function HistoryEntry({
           <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
             {!isEditing ? (
               <button
-                className="whitespace-nowrap rounded bg-archive-control px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors hover:bg-archive-control/80 disabled:opacity-50"
+                className="bg-archive-control hover:bg-archive-control/80 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase transition-colors disabled:opacity-50"
                 onClick={() => {
                   setDraftYear(String(year));
                   setDraftTitle(title);
@@ -86,14 +93,14 @@ export function HistoryEntry({
             ) : (
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                 <button
-                  className="whitespace-nowrap rounded bg-archive-accent px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-archive-accent/90 disabled:opacity-50"
+                  className="bg-archive-accent hover:bg-archive-accent/90 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-white uppercase transition-colors disabled:opacity-50"
                   onClick={handleSave}
                   disabled={isSaving}
                 >
                   {isSaving ? t("history.actions.saving") : t("edit.save")}
                 </button>
                 <button
-                  className="whitespace-nowrap rounded bg-archive-control px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors hover:bg-archive-control/80 disabled:opacity-50"
+                  className="bg-archive-control hover:bg-archive-control/80 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase transition-colors disabled:opacity-50"
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
@@ -105,7 +112,7 @@ export function HistoryEntry({
 
           <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
             <button
-              className="whitespace-nowrap rounded bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+              className="rounded bg-red-600 px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-white uppercase transition-colors hover:bg-red-700 disabled:opacity-50"
               onClick={handleDelete}
             >
               {t("history.actions.delete")}
@@ -115,7 +122,7 @@ export function HistoryEntry({
       </div>
 
       {isEditing && (
-        <div className="mb-6 mt-2 rounded border bg-archive-paper p-4">
+        <div className="bg-archive-paper mt-2 mb-6 rounded border p-4">
           <label className="mb-2 block text-sm">{t("history.form.labels.year")}</label>
           <input
             placeholder={t("history.form.placeholders.year")}
@@ -132,7 +139,9 @@ export function HistoryEntry({
             className="mb-2 w-full rounded border px-2 py-1"
           />
 
-          <label className="mb-2 block text-sm">{t("history.form.labels.content")}</label>
+          <label className="mb-2 block text-sm">
+            {t("history.form.labels.content")}
+          </label>
           <textarea
             placeholder={t("history.form.placeholders.content")}
             value={draftContent}

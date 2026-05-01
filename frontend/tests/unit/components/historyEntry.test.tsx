@@ -51,7 +51,9 @@ describe("HistoryEntry", () => {
       await waitFor(() => {
         expect(screen.getByText("2024")).toBeInTheDocument();
         expect(screen.getByText("Important Event")).toBeInTheDocument();
-        expect(screen.getByText("This is an important event in our history")).toBeInTheDocument();
+        expect(
+          screen.getByText("This is an important event in our history")
+        ).toBeInTheDocument();
       });
     });
 
@@ -86,7 +88,9 @@ describe("HistoryEntry", () => {
       await waitFor(() => {
         expect(screen.getByDisplayValue("2024")).toBeInTheDocument();
         expect(screen.getByDisplayValue("Important Event")).toBeInTheDocument();
-        expect(screen.getByDisplayValue("This is an important event in our history")).toBeInTheDocument();
+        expect(
+          screen.getByDisplayValue("This is an important event in our history")
+        ).toBeInTheDocument();
       });
     });
 
@@ -197,7 +201,9 @@ describe("HistoryEntry", () => {
       const editButton = await screen.findByRole("button", { name: /pas aan/i });
       await user.click(editButton);
 
-      const contentInput = screen.getByDisplayValue("This is an important event in our history");
+      const contentInput = screen.getByDisplayValue(
+        "This is an important event in our history"
+      );
       await user.clear(contentInput);
       await user.type(contentInput, "New content");
 
@@ -260,7 +266,9 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, undefined, undefined, userWithoutPermission);
 
       await waitFor(() => {
-        expect(screen.queryByRole("button", { name: /pas aan/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /pas aan/i })
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -272,7 +280,9 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, undefined, undefined, userWithoutPermission);
 
       await waitFor(() => {
-        expect(screen.queryByRole("button", { name: /verwijder/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /verwijder/i })
+        ).not.toBeInTheDocument();
       });
     });
 

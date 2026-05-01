@@ -77,7 +77,9 @@ describe("HistoryPage", () => {
     });
 
     it("hides loading message after entries are loaded", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage();
 
@@ -89,7 +91,9 @@ describe("HistoryPage", () => {
 
   describe("Display Entries", () => {
     it("renders all history entries after loading", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage();
 
@@ -140,7 +144,9 @@ describe("HistoryPage", () => {
     });
 
     it("shows alert when update fails", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
       vi.spyOn(historyServiceModule, "updateHistoryEntry").mockRejectedValue(
         new Error("Update failed")
       );
@@ -166,7 +172,9 @@ describe("HistoryPage", () => {
     });
 
     it("shows alert when delete fails", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
       vi.spyOn(historyServiceModule, "deleteHistoryEntry").mockRejectedValue(
         new Error("Delete failed")
       );
@@ -192,17 +200,23 @@ describe("HistoryPage", () => {
 
   describe("Create Entry", () => {
     it("shows create form when not creating", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /nieuwe entry/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /nieuwe entry/i })
+        ).toBeInTheDocument();
       });
     });
 
     it("shows form inputs when create button is clicked", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage();
 
@@ -211,21 +225,31 @@ describe("HistoryPage", () => {
       await user.click(createButton);
 
       await waitFor(() => {
-        expect(screen.getByRole("textbox", { name: /history\.form\.labels\.year/i })).toBeInTheDocument();
-        expect(screen.getByRole("textbox", { name: /history\.form\.labels\.title/i })).toBeInTheDocument();
-        expect(screen.getByRole("textbox", { name: /history\.form\.labels\.content/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("textbox", { name: /history\.form\.labels\.year/i })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("textbox", { name: /history\.form\.labels\.title/i })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("textbox", { name: /history\.form\.labels\.content/i })
+        ).toBeInTheDocument();
       });
     });
 
     it("creates a new entry when form is submitted", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
-      const mockCreate = vi.spyOn(historyServiceModule, "createHistoryEntry").mockResolvedValue({
-        id_url: "http://localhost/api/v1/archive/history/3",
-        year: 2025,
-        language: "nl",
-        title: "New Event",
-        content: "A new event",
-      });
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
+      const mockCreate = vi
+        .spyOn(historyServiceModule, "createHistoryEntry")
+        .mockResolvedValue({
+          id_url: "http://localhost/api/v1/archive/history/3",
+          year: 2025,
+          language: "nl",
+          title: "New Event",
+          content: "A new event",
+        });
 
       renderPage();
 
@@ -257,7 +281,9 @@ describe("HistoryPage", () => {
     });
 
     it("resets form after successful creation", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
       vi.spyOn(historyServiceModule, "createHistoryEntry").mockResolvedValue({
         id_url: "http://localhost/api/v1/archive/history/3",
         year: 2025,
@@ -281,7 +307,9 @@ describe("HistoryPage", () => {
       await user.click(makeButton);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /nieuwe entry/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /nieuwe entry/i })
+        ).toBeInTheDocument();
         expect(
           screen.queryByRole("textbox", { name: /history\.form\.labels\.title/i })
         ).not.toBeInTheDocument();
@@ -289,7 +317,9 @@ describe("HistoryPage", () => {
     });
 
     it("shows alert when create fails", async () => {
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
       vi.spyOn(historyServiceModule, "createHistoryEntry").mockRejectedValue(
         new Error("Already exists")
       );
@@ -317,12 +347,16 @@ describe("HistoryPage", () => {
         ...baseUser,
         permissions: ["archive:update", "archive:delete"],
       };
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage(userWithoutPermission);
 
       await waitFor(() => {
-        expect(screen.queryByRole("button", { name: /nieuwe entry/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /nieuwe entry/i })
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -331,13 +365,17 @@ describe("HistoryPage", () => {
         ...baseUser,
         permissions: [],
       };
-      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(mockHistoryEntries);
+      vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
+        mockHistoryEntries
+      );
 
       renderPage(viewOnlyUser);
 
       await waitFor(() => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
-        expect(screen.queryByRole("button", { name: /nieuwe entry/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /nieuwe entry/i })
+        ).not.toBeInTheDocument();
       });
     });
   });
