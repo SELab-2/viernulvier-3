@@ -105,6 +105,18 @@
     "loading": "Geschiedenis wordt geladen",
     "errorTitle": "Geschiedenis kon niet worden geladen",
     "error": "De geschiedenis-tijdlijn kon niet worden opgehaald van de server.",
+    "messages": {
+      "createFailed": "Aanmaken mislukt: {{error}}",
+      "updateFailed": "Opslaan mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je deze entry wilt verwijderen?"
+    },
+    "actions": {
+      "create": "Nieuwe entry",
+      "submit": "Maak aan",
+      "delete": "Verwijder",
+      "saving": "Opslaan..."
+    },
     "empty": {
       "title": "Geen geschiedenisitems gevonden",
       "description": "Zodra de backend geschiedenisitems teruggeeft, verschijnen ze hier in chronologische volgorde."

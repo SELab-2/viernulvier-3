@@ -49,7 +49,7 @@ export function HistoryEntry({
 
   async function handleDelete() {
     if (!onDelete) return;
-    if (!confirm("Weet je zeker dat je deze entry wilt verwijderen?")) return;
+    if (!confirm(t("history.messages.confirmDelete"))) return;
     await onDelete(year, language);
   }
 
@@ -81,7 +81,7 @@ export function HistoryEntry({
                   setIsEditing(true);
                 }}
               >
-                Pas aan
+                {t("edit.edit")}
               </button>
             ) : (
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
@@ -90,14 +90,14 @@ export function HistoryEntry({
                   onClick={handleSave}
                   disabled={isSaving}
                 >
-                  {isSaving ? "Saving..." : "Opslaan"}
+                  {isSaving ? t("history.actions.saving") : t("edit.save")}
                 </button>
                 <button
                   className="whitespace-nowrap rounded bg-archive-control px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors hover:bg-archive-control/80 disabled:opacity-50"
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
-                  Annuleren
+                  {t("edit.cancel")}
                 </button>
               </div>
             )}
@@ -108,7 +108,7 @@ export function HistoryEntry({
               className="whitespace-nowrap rounded bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               onClick={handleDelete}
             >
-              Verwijder
+              {t("history.actions.delete")}
             </button>
           </Protected>
         </div>

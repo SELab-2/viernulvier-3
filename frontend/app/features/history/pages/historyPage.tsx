@@ -77,7 +77,11 @@ export default function HistoryPage() {
         )
       );
     } catch (err) {
-      window.alert(`Opslaan mislukt: ${err}`);
+      window.alert(
+        t("history.messages.updateFailed", {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
     }
   }
 
@@ -86,7 +90,11 @@ export default function HistoryPage() {
       await deleteHistoryEntry(year, language);
       setEntries((prev) => prev.filter((e) => !(e.year === year && e.language === language)));
     } catch (err) {
-      window.alert(`Verwijderen mislukt: ${err}`);
+      window.alert(
+        t("history.messages.deleteFailed", {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
     }
   }
 
@@ -105,7 +113,11 @@ export default function HistoryPage() {
       setIsCreating(false);
       setNewEntry({ year: new Date().getFullYear(), language: i18n.resolvedLanguage ?? "nl", title: "", content: "" });
     } catch (err) {
-      window.alert(`Aanmaken mislukt: ${err}`);
+      window.alert(
+        t("history.messages.createFailed", {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
     }
   }
 
@@ -148,7 +160,7 @@ export default function HistoryPage() {
                         className="rounded bg-archive-accent px-3 py-1 text-sm text-white"
                         onClick={() => setIsCreating(true)}
                       >
-                        Nieuwe entry
+                        {t("history.actions.create")}
                       </button>
                     ) : (
                       <div className="w-full rounded border bg-archive-paper p-4">
@@ -178,10 +190,10 @@ export default function HistoryPage() {
                         />
                         <div className="flex gap-2">
                           <button className="rounded bg-archive-accent px-3 py-1 text-sm text-white" onClick={handleCreate}>
-                            Maak aan
+                            {t("history.actions.submit")}
                           </button>
                           <button className="rounded bg-archive-control px-3 py-1 text-sm" onClick={() => setIsCreating(false)}>
-                            Annuleren
+                            {t("edit.cancel")}
                           </button>
                         </div>
                       </div>
