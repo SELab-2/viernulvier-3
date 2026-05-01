@@ -157,11 +157,15 @@ describe("HistoryPage", () => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
       });
 
-      const editButton = screen.getAllByRole("button", { name: /edit\.edit|pas aan/i })[0];
+      const editButton = screen.getAllByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      })[0];
       const user = userEvent.setup();
       await user.click(editButton);
 
-      const saveButton = await screen.findByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = await screen.findByRole("button", {
+        name: /edit\.save|opslaan/i,
+      });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -186,7 +190,9 @@ describe("HistoryPage", () => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
       });
 
-      const deleteButton = screen.getAllByRole("button", { name: /history\.actions\.delete|verwijder/i })[0];
+      const deleteButton = screen.getAllByRole("button", {
+        name: /history\.actions\.delete|verwijder/i,
+      })[0];
       const user = userEvent.setup();
       await user.click(deleteButton);
 
@@ -220,7 +226,9 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
+      const createButton = await screen.findByRole("button", {
+        name: /history\.actions\.create|nieuwe entry/i,
+      });
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -253,7 +261,9 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
+      const createButton = await screen.findByRole("button", {
+        name: /history\.actions\.create|nieuwe entry/i,
+      });
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -272,7 +282,9 @@ describe("HistoryPage", () => {
         expect(contentInput).toHaveValue("A new event");
       });
 
-      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
+      const makeButton = await screen.findByRole("button", {
+        name: /history\.actions\.submit|maak aan/i,
+      });
       await user.click(makeButton);
 
       await waitFor(() => {
@@ -299,7 +311,9 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
+      const createButton = await screen.findByRole("button", {
+        name: /history\.actions\.create|nieuwe entry/i,
+      });
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -308,7 +322,9 @@ describe("HistoryPage", () => {
       });
       await user.type(titleInput, "New Event");
 
-      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
+      const makeButton = await screen.findByRole("button", {
+        name: /history\.actions\.submit|maak aan/i,
+      });
       await user.click(makeButton);
 
       await waitFor(() => {
@@ -331,11 +347,15 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      const createButton = await screen.findByRole("button", { name: /history\.actions\.create|nieuwe entry/i });
+      const createButton = await screen.findByRole("button", {
+        name: /history\.actions\.create|nieuwe entry/i,
+      });
       const user = userEvent.setup();
       await user.click(createButton);
 
-      const makeButton = await screen.findByRole("button", { name: /history\.actions\.submit|maak aan/i });
+      const makeButton = await screen.findByRole("button", {
+        name: /history\.actions\.submit|maak aan/i,
+      });
       await user.click(makeButton);
 
       await waitFor(() => {

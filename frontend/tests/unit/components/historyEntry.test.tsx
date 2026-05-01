@@ -87,7 +87,9 @@ describe("HistoryEntry", () => {
       const user = userEvent.setup();
       renderEntry();
 
-        const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       await waitFor(() => {
@@ -103,12 +105,18 @@ describe("HistoryEntry", () => {
       const user = userEvent.setup();
       renderEntry();
 
-        const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       await waitFor(() => {
-          expect(screen.getByRole("button", { name: /edit\.save|opslaan/i })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /edit\.cancel/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /edit\.save|opslaan/i })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /edit\.cancel/i })
+        ).toBeInTheDocument();
       });
     });
 
@@ -116,10 +124,14 @@ describe("HistoryEntry", () => {
       const user = userEvent.setup();
       renderEntry();
 
-      const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
-      const cancelButton = await screen.findByRole("button", { name: /edit\.cancel|annuleren/i });
+      const cancelButton = await screen.findByRole("button", {
+        name: /edit\.cancel|annuleren/i,
+      });
       await user.click(cancelButton);
 
       await waitFor(() => {
@@ -134,14 +146,16 @@ describe("HistoryEntry", () => {
       const mockOnUpdate = vi.fn();
       renderEntry(baseEntry, mockOnUpdate);
 
-      const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       const titleInput = screen.getByDisplayValue("Important Event");
       await user.clear(titleInput);
       await user.type(titleInput, "Updated Event");
 
-        const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -161,18 +175,22 @@ describe("HistoryEntry", () => {
       const mockOnUpdate = vi.fn().mockResolvedValue(undefined);
       renderEntry(baseEntry, mockOnUpdate);
 
-      const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       const titleInput = screen.getByDisplayValue("Important Event");
       await user.clear(titleInput);
       await user.type(titleInput, "Updated Event");
 
-        const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
       await user.click(saveButton);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /edit\.edit|pas aan/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /edit\.edit|pas aan/i })
+        ).toBeInTheDocument();
       });
     });
 
@@ -181,7 +199,9 @@ describe("HistoryEntry", () => {
       const mockOnUpdate = vi.fn();
       renderEntry(baseEntry, mockOnUpdate);
 
-      const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       const yearInput = screen.getByDisplayValue("2024");
@@ -205,7 +225,9 @@ describe("HistoryEntry", () => {
       const mockOnUpdate = vi.fn();
       renderEntry(baseEntry, mockOnUpdate);
 
-      const editButton = await screen.findByRole("button", { name: /edit\.edit|pas aan/i });
+      const editButton = await screen.findByRole("button", {
+        name: /edit\.edit|pas aan/i,
+      });
       await user.click(editButton);
 
       const contentInput = screen.getByDisplayValue(
@@ -232,7 +254,9 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /history\.actions\.delete/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /history\.actions\.delete/i })
+        ).toBeInTheDocument();
       });
     });
 
@@ -241,7 +265,9 @@ describe("HistoryEntry", () => {
       const mockOnDelete = vi.fn();
       renderEntry(baseEntry, undefined, mockOnDelete);
 
-      const deleteButton = await screen.findByRole("button", { name: /history\.actions\.delete/i });
+      const deleteButton = await screen.findByRole("button", {
+        name: /history\.actions\.delete/i,
+      });
       await user.click(deleteButton);
 
       await waitFor(() => {
@@ -255,7 +281,9 @@ describe("HistoryEntry", () => {
       vi.spyOn(window, "confirm").mockReturnValue(false);
       renderEntry(baseEntry, undefined, mockOnDelete);
 
-      const deleteButton = await screen.findByRole("button", { name: /history\.actions\.delete|verwijder/i });
+      const deleteButton = await screen.findByRole("button", {
+        name: /history\.actions\.delete|verwijder/i,
+      });
       await user.click(deleteButton);
 
       await waitFor(() => {
@@ -298,7 +326,9 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /edit\.edit/i })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /history\.actions\.delete/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /history\.actions\.delete/i })
+        ).toBeInTheDocument();
       });
     });
   });
