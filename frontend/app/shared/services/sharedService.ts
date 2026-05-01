@@ -1,3 +1,4 @@
+import type { PaginationRequest } from "~/features/archive/types/paginationTypes";
 import { createApiClient } from "./apiClient";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
@@ -15,12 +16,6 @@ function normalizeRequestUrl(url: string): string {
   }
 
   return trimmedUrl;
-}
-
-export interface PaginationParams {
-  cursor?: number;
-  has_more?: boolean;
-  limit?: number;
 }
 
 export async function getByUrl<T>(url: string, lang?: string): Promise<T> {
@@ -58,9 +53,9 @@ export async function deleteFromArchive(url: string): Promise<void> {
   await apiClient.delete(`${ARCHIVE_PATH}${url}`);
 }
 
-export async function getFromArchiveList<T>(
+export async function getFromArchiveList<T, CursorT = number>(
   url: string,
-  params?: PaginationParams
+  params?: PaginationRequest<CursorT>
 ): Promise<T[]> {
   const apiClient = createApiClient();
   const data = await apiClient.get<T[]>(`${ARCHIVE_PATH}${url}`, {
