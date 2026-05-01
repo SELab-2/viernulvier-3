@@ -60,7 +60,7 @@ function renderPage(user = baseUser) {
 describe("HistoryPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    vi.spyOn(window, "alert").mockImplementation(() => {}) as any;
+    vi.spyOn(window, "alert").mockImplementation(() => undefined);
   });
 
   describe("Loading State", () => {

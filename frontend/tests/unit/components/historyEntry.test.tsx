@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,16 +17,21 @@ const baseUser = {
 };
 
 const baseEntry = {
-  id_url: "http://localhost/api/v1/archive/history/1",
+  entryYear: 2024,
+  entryLanguage: "nl",
   year: 2024,
+  language: "nl",
   title: "Important Event",
   description: "This is an important event in our history",
 };
 
+type HistoryEntryUpdateHandler = Parameters<typeof HistoryEntry>[0]["onUpdate"];
+type HistoryEntryDeleteHandler = Parameters<typeof HistoryEntry>[0]["onDelete"];
+
 function renderEntry(
   entry = baseEntry,
-  onUpdate?: any,
-  onDelete?: any,
+  onUpdate?: HistoryEntryUpdateHandler,
+  onDelete?: HistoryEntryDeleteHandler,
   user = baseUser
 ) {
   vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(user);
@@ -141,8 +146,10 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(mockOnUpdate).toHaveBeenCalledWith({
-          id_url: baseEntry.id_url,
+          entryYear: baseEntry.entryYear,
+          entryLanguage: baseEntry.entryLanguage,
           year: 2024,
+          language: "nl",
           title: "Updated Event",
           content: "This is an important event in our history",
         });
@@ -238,7 +245,7 @@ describe("HistoryEntry", () => {
       await user.click(deleteButton);
 
       await waitFor(() => {
-        expect(mockOnDelete).toHaveBeenCalledWith(baseEntry.id_url);
+        expect(mockOnDelete).toHaveBeenCalledWith(baseEntry.year, baseEntry.language);
       });
     });
 
