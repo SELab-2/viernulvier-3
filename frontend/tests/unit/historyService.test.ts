@@ -114,7 +114,8 @@ describe("historyService", () => {
 
   describe("updateHistoryEntry", () => {
     it("updates a history entry and returns the result", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/1";
+      const year = 2024;
+      const language = "nl";
       const request: HistoryEntryUpdateRequest = {
         title: "Updated Title",
         content: "Updated content",
@@ -126,38 +127,40 @@ describe("historyService", () => {
         content: "Updated content",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/history/1").reply(200, updatedEntry);
+      mockAdapter.onPatch("/api/v1/archive/history/2024/nl").reply(200, updatedEntry);
 
-      const result = await updateHistoryEntry(id_url, request);
+      const result = await updateHistoryEntry(year, language, request);
 
       expect(result).toEqual(updatedEntry);
       expect(mockAdapter.history.patch).toHaveLength(1);
       expect(JSON.parse(mockAdapter.history.patch[0].data)).toEqual(request);
     });
 
-    it("extracts the ID from the full URL and sends only the ID to the API", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/42";
+    it("builds the history endpoint from year and language", async () => {
+      const year = 1999;
+      const language = "en";
       const request: HistoryEntryUpdateRequest = {
         title: "Updated",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/history/42").reply(200, MOCK_HISTORY_ENTRY);
+      mockAdapter.onPatch("/api/v1/archive/history/1999/en").reply(200, MOCK_HISTORY_ENTRY);
 
-      await updateHistoryEntry(id_url, request);
+      await updateHistoryEntry(year, language, request);
 
       expect(mockAdapter.history.patch).toHaveLength(1);
-      expect(mockAdapter.history.patch[0].url).toBe("/api/v1/archive/history/42");
+      expect(mockAdapter.history.patch[0].url).toBe("/api/v1/archive/history/1999/en");
     });
 
     it("rejects when the entry does not exist", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/999";
+      const year = 999;
+      const language = "nl";
       const request: HistoryEntryUpdateRequest = { title: "Updated" };
 
-      mockAdapter.onPatch("/api/v1/archive/history/999").reply(404, {
+      mockAdapter.onPatch("/api/v1/archive/history/999/nl").reply(404, {
         detail: "History entry not found",
       });
 
-      await expect(updateHistoryEntry(id_url, request)).rejects.toMatchObject({
+      await expect(updateHistoryEntry(year, language, request)).rejects.toMatchObject({
         response: { status: 404 },
       });
     });
@@ -165,33 +168,36 @@ describe("historyService", () => {
 
   describe("deleteHistoryEntry", () => {
     it("deletes a history entry by id_url", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/1";
+      const year = 2024;
+      const language = "nl";
 
-      mockAdapter.onDelete("/api/v1/archive/history/1").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/history/2024/nl").reply(204);
 
-      await expect(deleteHistoryEntry(id_url)).resolves.toBeUndefined();
+      await expect(deleteHistoryEntry(year, language)).resolves.toBeUndefined();
       expect(mockAdapter.history.delete).toHaveLength(1);
     });
 
-    it("extracts the ID from the full URL and sends only the ID to the API", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/42";
+    it("builds the delete endpoint from year and language", async () => {
+      const year = 1999;
+      const language = "en";
 
-      mockAdapter.onDelete("/api/v1/archive/history/42").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/history/1999/en").reply(204);
 
-      await deleteHistoryEntry(id_url);
+      await deleteHistoryEntry(year, language);
 
       expect(mockAdapter.history.delete).toHaveLength(1);
-      expect(mockAdapter.history.delete[0].url).toBe("/api/v1/archive/history/42");
+      expect(mockAdapter.history.delete[0].url).toBe("/api/v1/archive/history/1999/en");
     });
 
     it("rejects when the entry does not exist", async () => {
-      const id_url = "http://localhost/api/v1/archive/history/999";
+      const year = 999;
+      const language = "nl";
 
-      mockAdapter.onDelete("/api/v1/archive/history/999").reply(404, {
+      mockAdapter.onDelete("/api/v1/archive/history/999/nl").reply(404, {
         detail: "History entry not found",
       });
 
-      await expect(deleteHistoryEntry(id_url)).rejects.toMatchObject({
+      await expect(deleteHistoryEntry(year, language)).rejects.toMatchObject({
         response: { status: 404 },
       });
     });

@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
-from src.models.history import History
-
-
 
 def seed_history_if_empty(session: Session):
-    exists = session.query(History.id).first()
+    from src.models.history import History
+
+    exists = session.query(History).first()
     if exists:
         print("History already seeded")
         return

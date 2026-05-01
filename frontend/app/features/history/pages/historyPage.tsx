@@ -57,27 +57,34 @@ export default function HistoryPage() {
   }, [i18n.resolvedLanguage]);
 
   async function handleUpdate(payload: {
-    id_url: string;
+    entryYear: number;
+    entryLanguage: string;
     year: number;
+    language: string;
     title: string;
     content: string;
   }) {
     try {
-      const updated = await updateHistoryEntry(payload.id_url, {
+      const updated = await updateHistoryEntry(payload.entryYear, payload.entryLanguage, {
         year: payload.year,
+        language: payload.language,
         title: payload.title,
         content: payload.content,
       });
-      setEntries((prev) => prev.map((e) => (e.id_url === updated.id_url ? updated : e)));
+      setEntries((prev) =>
+        prev.map((e) =>
+          e.year === payload.entryYear && e.language === payload.entryLanguage ? updated : e
+        )
+      );
     } catch (err) {
       window.alert(`Opslaan mislukt: ${err}`);
     }
   }
 
-  async function handleDelete(id_url: string) {
+  async function handleDelete(year: number, language: string) {
     try {
-      await deleteHistoryEntry(id_url);
-      setEntries((prev) => prev.filter((e) => e.id_url !== id_url));
+      await deleteHistoryEntry(year, language);
+      setEntries((prev) => prev.filter((e) => !(e.year === year && e.language === language)));
     } catch (err) {
       window.alert(`Verwijderen mislukt: ${err}`);
     }
@@ -184,9 +191,11 @@ export default function HistoryPage() {
 
                 {entries.map((entry) => (
                   <HistoryEntry
-                    key={entry.id_url}
-                    id_url={entry.id_url}
+                    key={`${entry.year}-${entry.language}`}
+                    entryYear={entry.year}
+                    entryLanguage={entry.language}
                     year={entry.year}
+                    language={entry.language}
                     title={entry.title ?? String(entry.year)}
                     description={entry.content}
                     onUpdate={handleUpdate}

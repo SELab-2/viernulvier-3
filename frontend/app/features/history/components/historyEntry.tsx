@@ -4,19 +4,23 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
 export function HistoryEntry({
-  id_url,
+  entryYear,
+  entryLanguage,
   year,
+  language,
   title,
   description,
   onUpdate,
   onDelete,
 }: {
-  id_url: string;
+  entryYear: number;
+  entryLanguage: string;
   year: number;
+  language: string;
   title: string;
   description: string;
-  onUpdate?: (payload: { id_url: string; year: number; title: string; content: string }) => Promise<void> | void;
-  onDelete?: (id_url: string) => Promise<void> | void;
+  onUpdate?: (payload: { entryYear: number; entryLanguage: string; year: number; language: string; title: string; content: string }) => Promise<void> | void;
+  onDelete?: (year: number, language: string) => Promise<void> | void;
 }) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
@@ -29,7 +33,14 @@ export function HistoryEntry({
     if (!onUpdate) return;
     setIsSaving(true);
     try {
-      await onUpdate({ id_url, year: Number(draftYear), title: draftTitle, content: draftContent });
+      await onUpdate({
+        entryYear,
+        entryLanguage,
+        year: Number(draftYear),
+        language,
+        title: draftTitle,
+        content: draftContent,
+      });
       setIsEditing(false);
     } finally {
       setIsSaving(false);
@@ -39,7 +50,7 @@ export function HistoryEntry({
   async function handleDelete() {
     if (!onDelete) return;
     if (!confirm("Weet je zeker dat je deze entry wilt verwijderen?")) return;
-    await onDelete(id_url);
+    await onDelete(year, language);
   }
 
   return (
