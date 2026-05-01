@@ -124,15 +124,9 @@ async def patch_production(
             db, production_in, production_id, base_url
         )
     except NotFoundError as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
     return production_data
 
 
