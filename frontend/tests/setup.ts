@@ -118,6 +118,7 @@ vi.mock("react-i18next", async () => {
           "productionPage.dateLabel": "I18N_Production_DateLabel",
           "productionPage.placeLabel": "I18N_Production_PlaceLabel",
           "productionPage.timeLabel": "I18N_Production_TimeLabel",
+          "productionPage.eventMore": "I18N_Production_EventMore",
           "productionPage.priceLabel": "I18N_Production_PriceLabel",
           "productionPage.noPrice": "I18N_Production_NoPrice",
         };
