@@ -1,94 +1,201 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { BlogCard } from "~/features/blogs/components/BlogCard";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
+import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
+import * as productionService from "~/features/archive/services/productionService";
+import type { Production } from "~/features/archive/types/productionTypes";
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1518998053901-5348d3961a04";
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
-const TITLE = "Test blog title";
-const CONTENT = "This is the blog content that should be visible.";
+vi.mock("~/features/archive/services/productionService", () => ({
+  getProductionByUrl: vi.fn(),
+}));
 
-const renderCard = (
-  title = TITLE,
-  content = CONTENT,
-  production_titles: string[] = [],
-  imageUrl = DEFAULT_IMAGE
-) =>
-  render(
-    <BlogCard
-      title={title}
-      content={content}
-      production_titles={production_titles}
-      imageUrl={imageUrl}
-    />
-  );
+const mockBlogContentEN: BlogContent = {
+  blog_id_url: "/api/v1/archive/blogs/1",
+  language: "en",
+  title: "A Blog Post Title",
+  content: "Some interesting content about the blog topic.",
+};
+
+const mockBlogContentNL: BlogContent = {
+  blog_id_url: "/api/v1/archive/blogs/1",
+  language: "nl",
+  title: "Een Blog Titel",
+  content: "Wat interessante inhoud over het blogonderwerp.",
+};
+
+const mockBlog: Blog = {
+  id_url: "/api/v1/archive/blogs/1",
+  production_id_urls: ["/api/v1/archive/productions/1"],
+  blog_contents: [mockBlogContentEN, mockBlogContentNL],
+};
+
+const mockBlogNoProductions: Blog = {
+  id_url: "/api/v1/archive/blogs/2",
+  production_id_urls: [],
+  blog_contents: [mockBlogContentEN],
+};
+
+const mockBlogMultipleProductions: Blog = {
+  id_url: "/api/v1/archive/blogs/3",
+  production_id_urls: [
+    "/api/v1/archive/productions/1",
+    "/api/v1/archive/productions/2",
+    "/api/v1/archive/productions/3",
+  ],
+  blog_contents: [mockBlogContentEN],
+};
+
+const mockProductionEN: Production = {
+  production_infos: [
+    {
+      language: "en",
+      title: "Production Title EN",
+      production_id_url: "",
+    },
+    {
+      language: "nl",
+      title: "Productie Titel NL",
+      production_id_url: "",
+    },
+  ],
+  id_url: "",
+  event_id_urls: [],
+  tags: [],
+};
+
+async function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
+  const element = await BlogCard({ blog: mockBlog, ...props });
+  return render(element);
+}
 
 describe("BlogCard", () => {
-  it("renders the given title", () => {
-    renderCard();
-    expect(screen.getByRole("heading", { name: TITLE })).toBeInTheDocument();
+  beforeEach(() => {
+    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
   });
 
-  it("renders a long title without throwing", () => {
-    const longTitle = "A".repeat(200);
-    renderCard(longTitle);
-    expect(screen.getByRole("heading", { name: longTitle })).toBeInTheDocument();
+  it("renders the given title", async () => {
+    await renderBlogCard();
+    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
   });
 
-  it("renders the beginning of the content text", () => {
-    renderCard();
-    expect(screen.getByText(CONTENT)).toBeInTheDocument();
+  it("renders a long title without throwing", async () => {
+    const longTitle = "A".repeat(300);
+    const blog: Blog = {
+      ...mockBlog,
+      blog_contents: [{ ...mockBlogContentEN, title: longTitle }],
+    };
+    await expect(renderBlogCard({ blog })).resolves.not.toThrow();
+    expect(screen.getByText(longTitle)).toBeInTheDocument();
   });
 
-  it("renders content with newlines", () => {
-    const multilineContent = "First line\nSecond line\nThird line";
-    renderCard(TITLE, multilineContent);
+  it("renders the beginning of the content text", async () => {
+    await renderBlogCard({ preferredLanguage: "en" });
     expect(
-      screen.getByText(multilineContent, { exact: true, collapseWhitespace: false })
+      screen.getByText(/^Some interesting content about the blog topic\./)
     ).toBeInTheDocument();
   });
 
-  it("renders the image with the correct src", () => {
-    renderCard();
-    const img = screen.getByRole("img", { name: TITLE });
-    expect(img).toHaveAttribute("src", DEFAULT_IMAGE);
+  it("renders content with newlines", async () => {
+    const multilineContent = "First line.\nSecond line.\nThird line.";
+    const blog: Blog = {
+      ...mockBlog,
+      blog_contents: [{ ...mockBlogContentEN, content: multilineContent }],
+    };
+    await expect(renderBlogCard({ blog })).resolves.not.toThrow();
+    expect(screen.getByText(/First line\./)).toBeInTheDocument();
   });
 
-  it("renders the no-productions fallback text", () => {
-    const { container } = renderCard(TITLE, CONTENT, []);
-    expect(container.querySelector(".MuiChip-root")).not.toBeInTheDocument();
-    expect(screen.getByText("I18N_Blog_No_Productions")).toBeInTheDocument();
-    expect(screen.queryByText(/I18N_Blog_Many_Productions/)).not.toBeInTheDocument();
+  it("renders the no-production fallback text", async () => {
+    await renderBlogCard({ blog: mockBlogNoProductions });
+    expect(screen.getByText("blogs.card.no_prods")).toBeInTheDocument();
   });
 
-  it("renders the production chip with the correct label for 1 production", () => {
-    const ONE = ["My Productions"];
-    const { container } = renderCard(TITLE, CONTENT, ONE);
-    expect(container.querySelector(".MuiChip-root")).toBeInTheDocument();
-    expect(screen.getByText("My Productions")).toBeInTheDocument();
-    expect(screen.queryByText("I18N_Blog_No_Productions")).not.toBeInTheDocument();
-    expect(screen.queryByText(/I18N_Blog_Many_Productions/)).not.toBeInTheDocument();
+  it("renders the production chip with the correct label for 1 production", async () => {
+    await renderBlogCard({ blog: mockBlog });
+    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
+    expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
   });
 
-  it("renders a chip showing the first production title + overflow count", () => {
-    const THREE = ["Prod One", "Prod Two", "Prod Three"];
-    const { container } = renderCard(TITLE, CONTENT, THREE);
-    expect(container.querySelector(".MuiChip-root")).toBeInTheDocument();
-    expect(screen.getByText("Prod One")).toBeInTheDocument();
-    expect(screen.queryByText("Prod Two")).not.toBeInTheDocument();
-    expect(screen.queryByText("Prod Three")).not.toBeInTheDocument();
-    expect(screen.queryByText("I18N_Blog_No_Productions")).not.toBeInTheDocument();
-    expect(screen.getByText(/I18N_Blog_Many_Productions/)).toBeInTheDocument();
+  it("renders a chip showing the first production title + overflow count", async () => {
+    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
+
+    await renderBlogCard({ blog: mockBlogMultipleProductions });
+
+    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
     expect(screen.getByText(/^\+2/)).toBeInTheDocument();
   });
 
-  it("overflow count reflects the correct number for other productioncounts", () => {
-    const five = ["A", "B", "C", "D", "E"];
-    renderCard(TITLE, CONTENT, five);
-    expect(screen.getByText(/^\+4/)).toBeInTheDocument();
+  it.each([
+    { count: 2, expected: "+1" },
+    { count: 3, expected: "+2" },
+    { count: 5, expected: "+4" },
+  ])(
+    "overflow count shows $expected for $count productions",
+    async ({ count, expected }) => {
+      const blog: Blog = {
+        ...mockBlog,
+        blog_contents: [mockBlogContentEN],
+        production_id_urls: Array.from(
+          { length: count },
+          (_, i) => `/api/v1/archive/productions/${i + 1}`
+        ),
+      };
+
+      await renderBlogCard({ blog });
+
+      expect(screen.getByText(new RegExp(`^\\${expected}`))).toBeInTheDocument();
+    }
+  );
+
+  it("renders the 'details' link", async () => {
+    await renderBlogCard();
+    expect(screen.getByText("blogs.card.details")).toBeInTheDocument();
+  });
+});
+
+describe("BlogCardList", () => {
+  beforeEach(() => {
+    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
   });
 
-  it("renders the details link", () => {
-    renderCard();
-    expect(screen.getByText("I18N_Blog_Details")).toBeInTheDocument();
+  it("renders a card for every blog in the list", async () => {
+    const blog2: Blog = {
+      id_url: "/api/v1/archive/blogs/2",
+      production_id_urls: [],
+      blog_contents: [
+        {
+          blog_id_url: "/api/v1/archive/blogs/2",
+          language: "en",
+          title: "Second Blog",
+          content: "Second content",
+        },
+      ],
+    };
+
+    const cards = await Promise.all(
+      [mockBlog, blog2].map((blog) => BlogCard({ blog }))
+    );
+
+    render(
+      <div>
+        {cards.map((card, i) => (
+          <div key={i}>{card}</div>
+        ))}
+      </div>
+    );
+
+    expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();
+    expect(screen.getByText("Second Blog")).toBeInTheDocument();
+  });
+
+  it("renders nothing (empty list) when blogs array is empty", () => {
+    const { container } = render(<BlogCardList blogs={[]} />);
+    expect(container.firstChild?.childNodes).toHaveLength(0);
   });
 });

@@ -94,13 +94,13 @@ interface BlogCardProps {
 
 export async function BlogCard({
   blog,
-  preferredLanguage = "nl",
+  preferredLanguage = "en",
   className,
 }: BlogCardProps) {
   const blog_content = getBlogContentByLanguage(blog.blog_contents, preferredLanguage);
 
   const title = blog_content.title;
-  const content = blog_content.title;
+  const content = blog_content.content;
   const production_titles = await getProductionTitlesByLanguage(blog, preferredLanguage);
   const imageUrl = DEFAULT_IMAGE;
 
