@@ -2,7 +2,6 @@ import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
-import { isAxiosError } from "axios";
 
 import type {
   Production,
@@ -114,7 +113,11 @@ function isInfoModified(
   );
 }
 
-async function handleInfoAdd() {}
+async function handleInfoAdd(language: string) {
+  if (language) {
+    // TODO: implement
+  }
+}
 
 async function handleInfoSave(
   production_id_url: string,
@@ -184,7 +187,7 @@ async function handleInfoDelete(
       remove_languages: [language],
     });
     window.location.reload();
-  } catch (err) {
+  } catch {
     window.alert(errorMessage);
   }
 }
@@ -472,7 +475,7 @@ function AddInfoButton({ language }: AddInfoButtonProps) {
     <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
       <button
         id="add-production-button"
-        onClick={() => handleInfoAdd()}
+        onClick={() => handleInfoAdd(language)}
         className={`${shared_css} bg-archive-accent`}
       >
         {t("productionPage.add.add")}
