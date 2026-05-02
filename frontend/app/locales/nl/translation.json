@@ -50,6 +50,7 @@
     }
   },
   "productionPage": {
+    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
       "unknownProduction": "Onbekende productie",
       "archive": "Archief",

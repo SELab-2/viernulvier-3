@@ -51,6 +51,7 @@
   },
 
   "productionPage": {
+    "infoNotAvailable": "Information in this language is not available.",
     "fallback": {
       "unknownProduction": "Unknown production",
       "archive": "Archive",
