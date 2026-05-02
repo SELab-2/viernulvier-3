@@ -273,7 +273,7 @@ function ProductionHeader({
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
+      <div className="absolute right-7 bottom-4 left-7 md:right-12 md:bottom-10 md:left-12">
         <SimpleEditableField
           label={t("productionPage.edit.supertitle")}
           value={draftInfo?.supertitle ?? ""}
