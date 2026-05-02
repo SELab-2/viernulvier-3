@@ -225,6 +225,34 @@ def many_productions(db_session):
 
 
 @pytest.fixture
+def productions_with_null_dates(db_session):
+    prods = []
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=datetime(2026, 3, i + 1),
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=None,
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    db_session.commit()
+    return prods
+
+
+@pytest.fixture
 def productions_with_different_artists(db_session):
     productions = []
     artists = [["Steven", "Bob", ""], ["Steve", "", "Donald"]]
