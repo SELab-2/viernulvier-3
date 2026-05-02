@@ -1,4 +1,4 @@
-import type { PaginationRequest } from "~/features/archive/types/paginationTypes";
+import type { JsonPaginationRequest } from "~/features/archive/types/paginationTypes";
 import { createApiClient } from "~/shared/services/apiClient";
 import type { Blog, BlogCreate, BlogList, BlogUpdate } from "../types/blogTypes";
 import {
@@ -12,7 +12,9 @@ import {
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
-export async function getBlogsPaginated(params?: PaginationRequest): Promise<BlogList> {
+export async function getBlogsPaginated(
+  params?: JsonPaginationRequest
+): Promise<BlogList> {
   const apiClient = createApiClient();
 
   const response = await apiClient.get<BlogList>(`${ARCHIVE_PATH}/blogs`, {

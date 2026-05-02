@@ -10,7 +10,7 @@ import type {
 } from "~/features/blogs/types/blogTypes";
 import { createApiClient } from "~/shared/services/apiClient";
 import axios from "axios";
-import type { PaginationResponse } from "~/features/archive/types/paginationTypes";
+import type { JsonPaginationResponse } from "~/features/archive/types/paginationTypes";
 import {
   createBlog,
   deleteBlog,
@@ -74,7 +74,7 @@ describe("blogService", () => {
 
   describe("getBlogs", () => {
     it("returns blogs list", async () => {
-      const pagination: PaginationResponse = {
+      const pagination: JsonPaginationResponse = {
         has_more: false,
         total_count: 2,
       };

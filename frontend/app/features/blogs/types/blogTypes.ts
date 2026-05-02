@@ -1,4 +1,4 @@
-import type { PaginationResponse } from "~/features/archive/types/paginationTypes";
+import type { JsonPaginationResponse } from "~/features/archive/types/paginationTypes";
 
 export interface BlogContent {
   blog_id_url: string;
@@ -16,7 +16,7 @@ export interface Blog {
 
 export interface BlogList {
   blogs: Blog[];
-  pagination: PaginationResponse;
+  pagination: JsonPaginationResponse;
 }
 
 export interface BlogContentCreate {
