@@ -87,7 +87,8 @@
     },
     "delete": {
       "delete": "Delete",
-      "confirm": "Are you sure you want to delete this production info? This action cannot be undone."
+      "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
+      "error": "Error: Each production should have info in at least one language."
     },
     "add": {
       "add": "Add production info"

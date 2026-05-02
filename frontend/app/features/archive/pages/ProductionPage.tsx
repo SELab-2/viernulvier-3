@@ -2,6 +2,7 @@ import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
+import { isAxiosError } from "axios";
 
 import type {
   Production,
@@ -170,7 +171,7 @@ function useUnsavedChangesBlocker(when: boolean) {
   }, [blocker]);
 }
 
-async function handleInfoDelete(production_id_url: string, language: string, confirmeMessage: string) {
+async function handleInfoDelete(production_id_url: string, language: string, confirmeMessage: string, errorMessage: string) {
   const confirmed = window.confirm(confirmeMessage);
   if (!confirmed) return;
   try {
@@ -179,7 +180,7 @@ async function handleInfoDelete(production_id_url: string, language: string, con
     });
     window.location.reload();
   } catch (err) {
-    window.alert(`Deletion of info failed: ${err}`);
+    window.alert(errorMessage);
   }
 }
 
@@ -565,7 +566,7 @@ function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps
     <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
       <button
         id="delete-production-button"
-        onClick={() => handleInfoDelete(production_id_url, language, t("productionPage.delete.confirm"))}
+        onClick={() => handleInfoDelete(production_id_url, language, t("productionPage.delete.confirm"), t("productionPage.delete.error"))}
         className={`${shared_css} bg-archive-accent`}
       >
         {t("productionPage.delete.delete")}
