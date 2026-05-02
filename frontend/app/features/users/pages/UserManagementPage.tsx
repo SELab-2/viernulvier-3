@@ -379,7 +379,7 @@ export function UserManagementAccessDenied() {
     <section className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
       <div className="border-archive-border bg-archive-surface rounded-[2rem] border p-8 shadow-[0_20px_70px_rgba(45,40,37,0.05)]">
         <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-          {t("users.accessDenied.eyebrow")}
+          {t("users.accessDenied.sectionLabel")}
         </p>
         <h1 className="mt-3 font-serif text-4xl italic md:text-5xl">
           {t("users.accessDenied.title")}
@@ -637,7 +637,7 @@ export default function UserManagementPage() {
 
         <div className="max-w-3xl">
           <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-            {t("users.eyebrow")}
+            {t("users.sectionLabel")}
           </p>
           <h1 className="mt-3 font-serif text-4xl italic md:text-6xl">
             {t("users.title")}
@@ -713,7 +713,7 @@ export default function UserManagementPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-                {t("users.roles.eyebrow")}
+                {t("users.roles.sectionLabel")}
               </p>
               <h2 className="mt-2 font-serif text-3xl italic md:text-4xl">
                 {t("users.roles.title")}

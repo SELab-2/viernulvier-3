@@ -162,7 +162,7 @@
   },
 
   "users": {
-    "eyebrow": "Administration",
+    "sectionLabel": "Administration",
     "title": "User management",
     "description": "Review active accounts and make lightweight account changes without leaving the overview.",
     "loading": "Loading users",
@@ -224,12 +224,12 @@
       "userLabel": "User #{{id}}"
     },
     "accessDenied": {
-      "eyebrow": "Restricted area",
+      "sectionLabel": "Restricted area",
       "title": "You do not have access to user management",
       "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
     },
     "roles": {
-      "eyebrow": "Access control",
+      "sectionLabel": "Access control",
       "title": "Roles",
       "loading": "Loading roles",
       "fields": {

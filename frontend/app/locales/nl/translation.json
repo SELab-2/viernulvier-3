@@ -160,7 +160,7 @@
   },
 
   "users": {
-    "eyebrow": "Beheer",
+    "sectionLabel": "Beheer",
     "title": "Gebruikersbeheer",
     "description": "Bekijk accounts en voer eenvoudige accountwijzigingen uit zonder het overzicht te verlaten.",
     "loading": "Gebruikers worden geladen",
@@ -222,12 +222,12 @@
       "userLabel": "Gebruiker #{{id}}"
     },
     "accessDenied": {
-      "eyebrow": "Beperkt gebied",
+      "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot gebruikersbeheer",
       "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
     },
     "roles": {
-      "eyebrow": "Toegangsbeheer",
+      "sectionLabel": "Toegangsbeheer",
       "title": "Rollen",
       "loading": "Rollen worden geladen",
       "fields": {
