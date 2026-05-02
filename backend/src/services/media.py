@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from src.config import settings
 from src.models.media import Media
 from src.schemas.media import MediaResponse, MediaListResponse
-from src.schemas.pagination import Pagination
+from src.schemas.pagination import IdPagination
 from src.api.exceptions import NotFoundError
 
 MEDIA_DEFAULT_PAGE_SIZE = 20
@@ -75,7 +75,7 @@ def list_media_for_production(
 
     return MediaListResponse(
         media=[build_media_response(m, base_url) for m in items],
-        pagination=Pagination(
+        pagination=IdPagination(
             next_cursor=items[-1].id if has_more else None,
             has_more=has_more,
             total_count=total_count,

@@ -12,6 +12,7 @@ from src.models.associations import (
 from src.models.blogs import Blog, BlogContent
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall
+from src.models.history import History
 from src.models.permission import Permission
 from src.models.production import ProdInfo, Production
 from src.models.role import Role
@@ -31,6 +32,7 @@ __all__ = [
     "Tag",
     "TagName",
     "Hall",
+    "History",
     "Event",
     "EventPrice",
     "User",

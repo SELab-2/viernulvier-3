@@ -497,6 +497,24 @@ def test_patch_production_delete_info_success(
     assert len(data["production_infos"]) == 1
 
 
+# User with permissions cannot delete all existing infos of an existing production.
+def test_patch_production_delete_info_failure(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    production = productions_limited[0]
+
+    response = client.patch(
+        f"{BASE_PROD_URL}/{production.id}",
+        json={"remove_languages": [Languages.ENGLISH, Languages.NEDERLANDS]},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
+
+
 # User should be able to create a new production.
 def test_create_production_success(client: TestClient, db_session: Session):
     headers = create_user_and_login(
