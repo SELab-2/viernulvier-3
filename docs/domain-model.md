@@ -49,6 +49,17 @@ Table prod_tags {
   prod_id int [pk, ref: - productions.id]
 }
 
+Table production_groups {
+  id int [pk]
+  title varchar
+  is_public_filter boolean [default: true]
+}
+
+Table prod_groups {
+  group_id int [pk, ref: - production_groups.id]
+  prod_id int [pk, ref: - productions.id]
+}
+
 Table events {
     id int [pk]                     // event ID from "@id"
     viernulvier_id int [unique]
