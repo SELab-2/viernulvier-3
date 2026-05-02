@@ -23,16 +23,16 @@ import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
 
-function renderPage(production: Production) {
+function renderPage(production: Production, preferredLanguage: string = "nl") {
   const router = createMemoryRouter(
     [
       {
         path: "/:lang/productions/:productionId",
-        element: <ProductionPage production={production} preferredLanguage="en" />,
+        element: <ProductionPage production={production} preferredLanguage={preferredLanguage} />,
       },
     ],
     {
-      initialEntries: ["/nl/productions/1"],
+      initialEntries: [`/${preferredLanguage}/productions/1`],
     }
   );
 
@@ -76,13 +76,38 @@ const baseProduction: Production = {
   ],
 };
 
+const baseProductionOneInfo: Production = {
+  id_url: "http://localhost/api/v1/archive/productions/1",
+  performer_type: "Opera",
+  production_infos: [
+    {
+      production_id_url: "http://localhost/api/v1/archive/productions/1",
+      language: "nl",
+      title: "Nederlandse Titel",
+      supertitle: "Collectie",
+      artist: "Artiest NL",
+      tagline: "Nederlandse tagline",
+    },
+  ],
+  event_id_urls: [],
+  tags: [
+    {
+      id_url: "http://localhost/api/v1/archive/tags/1",
+      names: [
+        { language: "nl", name: "Klassiek" },
+        { language: "en", name: "Classical" },
+      ],
+    },
+  ],
+};
+
 describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
   it("renders title, tags and gallery for the active language", async () => {
-    renderPage(baseProduction);
+    renderPage(baseProduction, "en");
 
     expect(screen.getByRole("heading", { name: "English Title" })).toBeInTheDocument();
     expect(screen.getByText("Artist EN")).toBeInTheDocument();
@@ -95,36 +120,17 @@ describe("ProductionPage", () => {
     );
   });
 
-  it("falls back to default texts and shows no-events state", async () => {
-    renderPage({
-      ...baseProduction,
-      production_infos: [
-        {
-          production_id_url: "http://localhost/api/v1/archive/productions/1",
-          language: "nl",
-          title: "   ",
-          supertitle: "",
-          artist: "  ",
-          tagline: "",
-        },
-      ],
-      tags: [],
-    });
-
-    expect(
-      screen.getByRole("heading", {
-        name: "I18N_Production_Fallback_UnknownProduction",
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("I18N_Production_Fallback_DefaultArtist")
-    ).toBeInTheDocument();
-    expect(screen.queryByText("I18N_Production_Fallback_NoDescription")).toBeNull();
-    expect(screen.queryByText("I18N_Production_Fallback_NoTeaser")).toBeNull();
-    expect(screen.getByText("I18N_Production_Fallback_NoInfo")).toBeInTheDocument();
-    expect(
-      await screen.findByText("I18N_Production_Fallback_NoEvents")
-    ).toBeInTheDocument();
+  it("shows message that there is no information in this language", async () => {
+    renderPage({...baseProductionOneInfo}, "en");
+    const elements = await screen.findAllByText("I18N_ProductionInfo_NotAvailable");
+    expect(elements).toHaveLength(2);
+    // Normal information should still be visisble.
+    expect(screen.getByText("Opera")).toBeInTheDocument();
+    expect(screen.getByText("Classical")).toBeInTheDocument();
+    expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
+    expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(
+      "Mock gallery for I18N_Production_Fallback_UnknownProduction"
+    );
   });
 
   it("loads related event data and renders chronologically sorted events", async () => {
@@ -170,7 +176,7 @@ describe("ProductionPage", () => {
         "http://localhost/api/v1/archive/events/2",
         "http://localhost/api/v1/archive/events/1",
       ],
-    });
+    }, "nl");
 
     expect(await screen.findByText("Hall One")).toBeInTheDocument();
     expect(screen.getByText("Hall Two")).toBeInTheDocument();
