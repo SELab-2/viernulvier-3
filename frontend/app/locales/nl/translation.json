@@ -82,6 +82,13 @@
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest"
+    },
+    "delete": {
+      "delete": "Verwijder",
+      "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "add": {
+      "add": "Voeg productie-informatie toe"
     }
   },
 
