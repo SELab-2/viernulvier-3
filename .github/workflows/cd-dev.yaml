@@ -1,0 +1,45 @@
+name: Continuous Deployment (Dev)
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Server (Dev)
+    runs-on: self-hosted
+
+    steps:
+      - name: Cleanup Docker
+        run: docker system prune -af
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Clean workspace
+        run: git clean -fdx
+
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env.dev
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env.dev
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env.dev
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env.dev
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env.dev
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env.dev
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env.dev
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env.dev
+          echo "REFRESH_TOKEN_EXPIRE_MINUTES=${{ secrets.REFRESH_TOKEN_EXPIRE_MINUTES }}" >> .env.dev
+          echo "VIERNULVIER_KEY=${{ secrets.VIERNULVIER_KEY }}" >> .env.dev
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env.dev
+          echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env.dev
+          echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env.dev
+          echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env.dev
+          echo "MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}" >> .env.dev
+          echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env.dev
+
+      - name: Build and Restart Containers
+        run: docker compose -f docker-compose.dev.yml --env-file .env.dev --project-name viernulvier-dev up --build -d --remove-orphans
