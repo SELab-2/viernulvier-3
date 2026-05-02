@@ -225,6 +225,34 @@ def many_productions(db_session):
 
 
 @pytest.fixture
+def productions_with_null_dates(db_session):
+    prods = []
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=datetime(2026, 3, i + 1),
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=None,
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    db_session.commit()
+    return prods
+
+
+@pytest.fixture
 def productions_with_different_artists(db_session):
     productions = []
     artists = [["Steven", "Bob", ""], ["Steve", "", "Donald"]]
@@ -306,6 +334,28 @@ def media_item_blog(db_session, blog_with_no_media):
     db_session.commit()
     db_session.refresh(media)
     return media
+
+
+@pytest.fixture
+def media_items_prod_blog(db_session, production_with_no_media, blog_with_no_media):
+    m1 = Media(
+        production_id=production_with_no_media.id,
+        object_key=f"gallery-{production_with_no_media.id}/file-1.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    m2 = Media(
+        blog_id=blog_with_no_media.id,
+        object_key=f"gallery-{blog_with_no_media.id}/file-2.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    medias = [m1, m2]
+    db_session.add_all(medias)
+    db_session.commit()
+    db_session.refresh(medias[0])
+    db_session.refresh(medias[1])
+    return medias
 
 
 @pytest.fixture

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from src.api.dependencies.language import get_accepted_language
 from src.database import get_db
+from src.api.exceptions import NotFoundError
 from src.schemas.production import (
     ProductionCreate,
     ProductionListResponse,
@@ -118,10 +119,14 @@ async def patch_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
     base_url = get_base_url(str(request.url), 2)
-    production_data = update_production_by_id(
-        db, production_in, production_id, base_url
-    )
-
+    try:
+        production_data = update_production_by_id(
+            db, production_in, production_id, base_url
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return production_data
 
 

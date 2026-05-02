@@ -572,6 +572,27 @@ def test_update_production_info_delete(db_session, productions_limited):
     assert len(production_response.production_infos) == 1
 
 
+# Update an existing production - delete all existing production infos should fail.
+def test_update_production_info_delete_all(db_session, productions_limited):
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
+
+    # Should throw an exception.
+    update = ProductionUpdate(
+        remove_languages=[Languages.ENGLISH, Languages.NEDERLANDS]
+    )
+    with pytest.raises(Exception):
+        update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+
+    # Not updated in database.
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
+
+
 # Update an existing production - delete not existing production info (nothing happens, also no error).
 def test_update_production_info_delete_invalid(db_session, productions_limited):
     production_response = get_production_by_id(
