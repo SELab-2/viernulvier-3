@@ -28,7 +28,12 @@ function renderPage(production: Production, preferredLanguage: string = "nl") {
     [
       {
         path: "/:lang/productions/:productionId",
-        element: <ProductionPage production={production} preferredLanguage={preferredLanguage} />,
+        element: (
+          <ProductionPage
+            production={production}
+            preferredLanguage={preferredLanguage}
+          />
+        ),
       },
     ],
     {
@@ -121,7 +126,7 @@ describe("ProductionPage", () => {
   });
 
   it("shows message that there is no information in this language", async () => {
-    renderPage({...baseProductionOneInfo}, "en");
+    renderPage({ ...baseProductionOneInfo }, "en");
     const elements = await screen.findAllByText("I18N_ProductionInfo_NotAvailable");
     expect(elements).toHaveLength(2);
     // Other information should still be visisble.
@@ -170,13 +175,16 @@ describe("ProductionPage", () => {
       amount: url.endsWith("/2") ? 20 : 10,
     }));
 
-    renderPage({
-      ...baseProduction,
-      event_id_urls: [
-        "http://localhost/api/v1/archive/events/2",
-        "http://localhost/api/v1/archive/events/1",
-      ],
-    }, "nl");
+    renderPage(
+      {
+        ...baseProduction,
+        event_id_urls: [
+          "http://localhost/api/v1/archive/events/2",
+          "http://localhost/api/v1/archive/events/1",
+        ],
+      },
+      "nl"
+    );
 
     expect(await screen.findByText("Hall One")).toBeInTheDocument();
     expect(screen.getByText("Hall Two")).toBeInTheDocument();

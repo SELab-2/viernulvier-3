@@ -171,7 +171,12 @@ function useUnsavedChangesBlocker(when: boolean) {
   }, [blocker]);
 }
 
-async function handleInfoDelete(production_id_url: string, language: string, confirmeMessage: string, errorMessage: string) {
+async function handleInfoDelete(
+  production_id_url: string,
+  language: string,
+  confirmeMessage: string,
+  errorMessage: string
+) {
   const confirmed = window.confirm(confirmeMessage);
   if (!confirmed) return;
   try {
@@ -288,7 +293,10 @@ function ProductionHeader({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
         <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-          <h1 id="title" className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl">
+          <h1
+            id="title"
+            className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
+          >
             {title}
           </h1>
         </div>
@@ -444,7 +452,7 @@ const Spinner = () => (
 
 type AddInfoButtonProps = {
   language: string;
-}
+};
 
 function AddInfoButton({ language }: AddInfoButtonProps) {
   const { t } = useTranslation();
@@ -546,7 +554,7 @@ function EditButton({
 type DeleteInfoButtonProps = {
   production_id_url: string;
   language: string;
-}
+};
 
 function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps) {
   const { t } = useTranslation();
@@ -566,7 +574,14 @@ function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps
     <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
       <button
         id="delete-production-button"
-        onClick={() => handleInfoDelete(production_id_url, language, t("productionPage.delete.confirm"), t("productionPage.delete.error"))}
+        onClick={() =>
+          handleInfoDelete(
+            production_id_url,
+            language,
+            t("productionPage.delete.confirm"),
+            t("productionPage.delete.error")
+          )
+        }
         className={`${shared_css} bg-archive-accent`}
       >
         {t("productionPage.delete.delete")}
@@ -630,8 +645,8 @@ function ProductionInfoSection({
           {t("productionPage.fallback.noInfo")}
         </p>
       )}
-    </>        
-  )
+    </>
+  );
 }
 
 export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
@@ -855,15 +870,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             is_saving={isSaving}
             _handleSave={_handleSave}
           />
-          {!isEditing ? ( 
-            <DeleteInfoButton production_id_url={production.id_url} language={language} /> 
-          ) : 
-            null
-          }
+          {!isEditing ? (
+            <DeleteInfoButton
+              production_id_url={production.id_url}
+              language={language}
+            />
+          ) : null}
         </div>
       ) : (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-          <AddInfoButton language={""}/>
+          <AddInfoButton language={""} />
         </div>
       )}
     </div>
