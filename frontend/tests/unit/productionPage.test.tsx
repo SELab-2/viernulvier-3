@@ -124,7 +124,7 @@ describe("ProductionPage", () => {
     renderPage({...baseProductionOneInfo}, "en");
     const elements = await screen.findAllByText("I18N_ProductionInfo_NotAvailable");
     expect(elements).toHaveLength(2);
-    // Normal information should still be visisble.
+    // Other information should still be visisble.
     expect(screen.getByText("Opera")).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
     expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
