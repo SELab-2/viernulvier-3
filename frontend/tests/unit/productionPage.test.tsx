@@ -179,6 +179,9 @@ describe("ProductionPage", () => {
     expect(renderedDates[0]).toHaveTextContent("9/5/2026");
     expect(renderedDates[1]).toHaveTextContent("10/5/2026");
 
+    expect(screen.getByText("18:30")).toBeInTheDocument();
+    expect(screen.getByText("20:00")).toBeInTheDocument();
+
     // Quick check for more button
     expect(screen.getAllByText("I18N_Production_EventMore").length).toBe(2);
   });
