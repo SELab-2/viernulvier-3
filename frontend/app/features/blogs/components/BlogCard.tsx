@@ -62,8 +62,10 @@ function getBlogContentByLanguage(
   return blogContents[0];
 }
 
-
-async function getProductionTitlesByLanguage(blog: Blog, language: string): Promise<string[]> {
+async function getProductionTitlesByLanguage(
+  blog: Blog,
+  language: string
+): Promise<string[]> {
   if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
     return [];
   }
@@ -85,7 +87,6 @@ async function getProductionTitlesByLanguage(blog: Blog, language: string): Prom
   );
 }
 
-
 interface BlogCardProps {
   blog: Blog;
   preferredLanguage?: string;
@@ -99,11 +100,37 @@ export async function BlogCard({
 }: BlogCardProps) {
   const blog_content = getBlogContentByLanguage(blog.blog_contents, preferredLanguage);
 
-  const title = blog_content.title;
-  const content = blog_content.content;
-  const production_titles = await getProductionTitlesByLanguage(blog, preferredLanguage);
-  const imageUrl = DEFAULT_IMAGE;
+  const production_titles = await getProductionTitlesByLanguage(
+    blog,
+    preferredLanguage
+  );
 
+  return (
+    <BlogCardClient
+      title={blog_content.title}
+      content={blog_content.content}
+      productionTitles={production_titles}
+      imageUrl={DEFAULT_IMAGE}
+      className={className}
+    />
+  );
+}
+
+interface BlogCardClientProps {
+  title: string;
+  content: string;
+  productionTitles: string[];
+  imageUrl: string;
+  className?: string;
+}
+
+export function BlogCardClient({
+  title,
+  content,
+  productionTitles,
+  imageUrl,
+  className,
+}: BlogCardClientProps) {
   const { t } = useTranslation();
 
   return (
@@ -241,11 +268,11 @@ export async function BlogCard({
           sx={{ mt: 1.5, display: { xs: "none", sm: "flex" } }}
         >
           <Stack direction="row" alignItems="center" gap={1}>
-            {production_titles.length > 0 && (
+            {productionTitles.length > 0 && (
               <Chip
                 className="blog-card-text"
                 size="small"
-                label={production_titles[0]}
+                label={productionTitles[0]}
                 sx={{
                   borderRadius: 1,
                   background: "transparent",
@@ -256,7 +283,7 @@ export async function BlogCard({
                 }}
               />
             )}
-            {production_titles.length > 1 && (
+            {productionTitles.length > 1 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
@@ -265,10 +292,10 @@ export async function BlogCard({
                   whiteSpace: "nowrap",
                 }}
               >
-                +{production_titles.length - 1} {t("blogs.card.other_prods")}
+                +{productionTitles.length - 1} {t("blogs.card.other_prods")}
               </Typography>
             )}
-            {production_titles.length === 0 && (
+            {productionTitles.length === 0 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
@@ -308,7 +335,7 @@ export async function BlogCard({
 }
 
 export interface BlogCardListProps {
-	blogs: Blog[];
+  blogs: Blog[];
 }
 
 export function BlogCardList({ blogs }: BlogCardListProps) {
@@ -321,9 +348,9 @@ export function BlogCardList({ blogs }: BlogCardListProps) {
         width: "100%",
       }}
     >
-	  {blogs.map((blog) => (
-		  <BlogCard key={blog.id_url} blog={blog} />
-	  ))}
+      {blogs.map((blog) => (
+        <BlogCard key={blog.id_url} blog={blog} />
+      ))}
     </Box>
   );
 }
