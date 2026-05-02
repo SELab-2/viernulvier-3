@@ -13,7 +13,7 @@ from src.config import settings
 from src.models.media import Media
 from src.schemas.media import MediaResponse, MediaListResponse
 from src.schemas.pagination import IdPagination
-from src.api.exceptions import NotFoundError
+from src.api.exceptions import NotFoundError, ValidationError
 
 MEDIA_DEFAULT_PAGE_SIZE = 20
 MEDIA_MAX_PAGE_SIZE = 100
@@ -23,8 +23,15 @@ def build_media_response(media: Media, base_url: str) -> MediaResponse:
     parsed = urlparse(base_url)
     host_url = f"{parsed.scheme}://{parsed.netloc}"
     return MediaResponse(
-        id_url=f"{base_url}/productions/{media.production_id}/media/{media.id}",
-        production_id_url=f"{base_url}/productions/{media.production_id}",
+        id_url=f"{base_url}/productions/{media.production_id}/media/{media.id}"
+        if media.production_id is not None
+        else f"{base_url}/blogs/{media.blog_id}/media/{media.id}",
+        production_id_url=f"{base_url}/productions/{media.production_id}"
+        if media.production_id is not None
+        else None,
+        blog_id_url=f"{base_url}/blogs/{media.blog_id}"
+        if media.blog_id is not None
+        else None,
         url=f"{host_url}/media/{media.object_key}",
         content_type=media.content_type,
         uploaded_at=media.uploaded_at,
@@ -83,17 +90,53 @@ def list_media_for_production(
     )
 
 
+def list_media_for_blog(
+    db: Session,
+    blog_id: int,
+    base_url: str,
+    cursor: int | None = None,
+    limit: int = MEDIA_DEFAULT_PAGE_SIZE,
+) -> MediaListResponse:
+    limit = min(limit, MEDIA_MAX_PAGE_SIZE)
+
+    query = db.query(Media).filter(Media.blog_id == blog_id)
+
+    if cursor is not None:
+        query = query.filter(Media.id > cursor)
+
+    items = query.order_by(Media.id.asc()).limit(limit + 1).all()
+
+    has_more = len(items) > limit
+    items = items[:limit]
+
+    total_count = (
+        db.query(func.count(Media.id)).filter(Media.blog_id == blog_id).scalar()
+    )
+
+    return MediaListResponse(
+        media=[build_media_response(m, base_url) for m in items],
+        pagination=IdPagination(
+            next_cursor=items[-1].id if has_more else None,
+            has_more=has_more,
+            total_count=total_count,
+        ),
+    )
+
+
 def upload_media(
     db: Session,
-    production_id: int,
+    production_id: int | None,
+    blog_id: int | None,
     filename: str,
     content_type: str,
     data: bytes,
     minio_client: Minio,
     base_url: str,
 ) -> MediaResponse:
+    if production_id is None and blog_id is None:
+        raise ValidationError("Media need either a production_id or a blog_id")
     ext = os.path.splitext(filename)[1].lower()
-    object_key = f"gallery-{production_id}/{uuid.uuid4()}{ext}"
+    object_key = f"gallery-{production_id if production_id is not None else blog_id}/{uuid.uuid4()}{ext}"
 
     minio_client.put_object(
         settings.MINIO_BUCKET,
@@ -105,6 +148,7 @@ def upload_media(
 
     media = Media(
         production_id=production_id,
+        blog_id=blog_id,
         object_key=object_key,
         content_type=content_type,
     )
