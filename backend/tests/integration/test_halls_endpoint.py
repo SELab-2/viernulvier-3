@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from src.models.hall import Hall
+from src.models.hall import Hall, HallName
 from src.models.user import User
 from src.models.role import Role
 from src.services.auth.password import get_password_hash
@@ -47,7 +47,8 @@ def create_user_and_login(
 
 
 def test_get_all_halls(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall A", address="Street A")
+    hall = Hall(address="Street A")
+    hall.names.append(HallName(language="en", name="Hall A"))
     db_session.add(hall)
     db_session.commit()
 
@@ -57,11 +58,16 @@ def test_get_all_halls(client: TestClient, db_session: Session):
     data = response.json()
 
     assert len(data) == 1
-    assert data[0]["name"] == "Hall A"
+    response_hall = data[0]
+    assert response_hall["address"] == "Street A"
+    assert len(response_hall["names"]) == 1
+    assert response_hall["names"][0]["language"] == "en"
+    assert response_hall["names"][0]["name"] == "Hall A"
 
 
 def test_get_hall_by_id(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall B", address="Street B")
+    hall = Hall(address="Street B")
+    hall.names.append(HallName(language="en", name="Hall B"))
     db_session.add(hall)
     db_session.commit()
 
@@ -70,7 +76,8 @@ def test_get_hall_by_id(client: TestClient, db_session: Session):
     assert response.status_code == 200
     data = response.json()
 
-    assert data["name"] == "Hall B"
+    assert len(data["names"]) == 1
+    assert data["names"][0]["name"] == "Hall B"
 
 
 def test_get_hall_not_found(client: TestClient):
@@ -86,14 +93,18 @@ def test_create_hall(client: TestClient, db_session: Session):
 
     response = client.post(
         BASE_URL + "/",
-        json={"name": "New Hall", "address": "New Street"},
+        json={
+            "names": [{"language": "en", "name": "New Hall"}],
+            "address": "New Street",
+        },
         headers=headers,
     )
 
     assert response.status_code == 201
     data = response.json()
 
-    assert data["name"] == "New Hall"
+    assert len(data["names"]) == 1
+    assert data["names"][0]["name"] == "New Hall"
 
 
 def test_update_hall(client: TestClient, db_session: Session):
@@ -101,20 +112,29 @@ def test_update_hall(client: TestClient, db_session: Session):
         client, db_session, "update_hall_user", [Permissions.ARCHIVE_UPDATE]
     )
 
-    hall = Hall(name="Old Hall", address="Old Street")
+    hall = Hall(address="Old Street")
+    hall.names.append(HallName(language="en", name="Old Hall"))
+
     db_session.add(hall)
     db_session.commit()
 
     response = client.patch(
         f"{BASE_URL}/{hall.id}",
-        json={"name": "Updated Hall", "address": "Updated Street"},
+        json={
+            "names": [
+                {"language": "en", "name": "Updated Hall"},
+                {"language": "nl", "name": "Nederlandse Hall"}
+            ],
+            "address": "Updated Street",
+        },
         headers=headers,
     )
 
     assert response.status_code == 200
     data = response.json()
 
-    assert data["name"] == "Updated Hall"
+    assert len(data["names"]) == 2
+    assert data["names"][0]["name"] == "Updated Hall"
 
 
 def test_delete_hall(client: TestClient, db_session: Session):
@@ -122,7 +142,8 @@ def test_delete_hall(client: TestClient, db_session: Session):
         client, db_session, "delete_hall_user", [Permissions.ARCHIVE_DELETE]
     )
 
-    hall = Hall(name="Delete Hall", address="Delete Street")
+    hall = Hall(address="Delete Street")
+    hall.names.append(HallName(language="en", name="Delete Hall"))
     db_session.add(hall)
     db_session.commit()
 
