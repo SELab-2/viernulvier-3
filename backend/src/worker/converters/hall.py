@@ -39,9 +39,10 @@ def get_address_from_location(json_location):
 def api_hall_to_model_hall(
     json_hall: dict, space_names: dict, location_address: str
 ) -> Hall:
-    vnv_id = json_hall.get("@id").split("/")[-1]
+    vnv_id = int(json_hall.get("@id").split("/")[-1])
 
     address = ""
+    using_spacename_as_address: bool = False
     if location_address:
         address = location_address
     else:
@@ -49,8 +50,10 @@ def api_hall_to_model_hall(
         # unless the space name is the same as the hall name, in that case we
         # just do not have an address
         address = space_names.get("nl") or space_names.get("en")
+        using_spacename_as_address = True
         if address == json_hall["name"].get("nl"):
             address = None
+            using_spacename_as_address = False
 
     names: list[HallName] = []
 
@@ -63,8 +66,8 @@ def api_hall_to_model_hall(
             continue
 
         if space_name := space_names.get(lang_code):
-            if space_name != name:
-                name += f"({space_name})"
+            if not using_spacename_as_address and space_name != name:
+                name += f" ({space_name})"
 
         names.append(HallName(language=lang, name=name))
 
