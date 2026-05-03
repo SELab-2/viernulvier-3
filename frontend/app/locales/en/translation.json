@@ -146,7 +146,12 @@
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
     },
-	"create_blog": "Create blog"
+    "create_blog": "Create blog",
+    "accessDenied": {
+      "eyebrow": "Restricted area",
+      "title": "You do not have access to blog creation",
+      "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
+    }
   },
 
   "auth": {

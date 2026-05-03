@@ -17,7 +17,7 @@ export default function BlogPage() {
 
   return (
     <div>
-	  <CreateBlogButton />
+      <CreateBlogButton />
       <BlogCardList blogs={blogs} />
     </div>
   );

@@ -144,7 +144,12 @@
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
     },
-	"create_blog": "Nieuwe blog"
+    "create_blog": "Nieuwe blog",
+    "accessDenied": {
+      "eyebrow": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
+    }
   },
 
   "auth": {
