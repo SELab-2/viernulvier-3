@@ -829,12 +829,12 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             isEditing={isEditing}
             originalInfo={originalInfo}
             draftInfo={draftInfo}
-            setDraftInfo={setDraftInfo} 
+            setDraftInfo={setDraftInfo}
           />
         ) : (
-          <EmptyProductionHeader image_url={imageUrl}/>
+          <EmptyProductionHeader image_url={imageUrl} />
         )}
-        
+
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
