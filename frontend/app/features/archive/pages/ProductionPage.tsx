@@ -523,17 +523,17 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   useEffect(() => {
-  const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
-  const productionNumericId = match ? Number(match[1]) : undefined;
-  if (!productionNumericId) return;
+    const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+    const productionNumericId = match ? Number(match[1]) : undefined;
+    if (!productionNumericId) return;
 
-  getMediaForProduction(productionNumericId, { limit: 1 })
-    .then((response) => {
-      const first = response.media.find((m) => m.content_type.startsWith("image/"));
-      if (first) setFirstImageUrl(first.url);
-    })
-    .catch(() => {});
-}, [production.id_url]);
+    getMediaForProduction(productionNumericId, { limit: 1 })
+      .then((response) => {
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setFirstImageUrl(first.url);
+      })
+      .catch(() => {});
+  }, [production.id_url]);
 
   // Prevent moving away from page when edit is modified (browser aways)
   useEffect(() => {
