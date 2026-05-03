@@ -368,6 +368,7 @@ def test_api_location_to_model_halls_normal(caplog):
 
 # NOTE: from down here the location->hall tests use a cut-down location object
 
+
 # Test a normal location
 def test_api_location_to_model_halls_no_location_address():
     test_input = {
