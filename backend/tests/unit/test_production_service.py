@@ -1,5 +1,6 @@
 from typing import List
 from src.models.production import Production
+from src.models.production_group import ProductionGroup
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
@@ -109,6 +110,32 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
+
+
+def test_get_productions_with_group(db_session, many_productions):
+    first_group = ProductionGroup(
+        title="First group",
+        productions=many_productions[:5],
+    )
+    second_group = ProductionGroup(
+        title="Second group",
+        productions=many_productions[5:],
+        is_public_filter=False,
+    )
+    db_session.add_all([first_group, second_group])
+    db_session.commit()
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, groups=[first_group.id]
+    )
+    assert len(result.productions) == 5
+    assert result.pagination.total_count == 5
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, groups=[first_group.id, second_group.id]
+    )
+    assert len(result.productions) == 10
     assert result.pagination.total_count == 10
 
 
