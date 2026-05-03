@@ -59,7 +59,7 @@ def store_new_events(db_session: Session, events: list[dict]):
                     newest_timestamp = created_at_str
 
         except Exception as e:
-            logger.warn(f"Error storing event ({json_event}):\n{e}")
+            logger.warning(f"Error storing event ({json_event}):\n{e}")
 
     if orphans > 2:
         logger.warning(f"Skipped {orphans} events due to no valid production_id")

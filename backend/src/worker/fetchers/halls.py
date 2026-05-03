@@ -52,6 +52,6 @@ class HallFetcher(PagedFetcher):
             try:
                 resolved_locations.append(self.resolve_location(location))
             except RuntimeError as e:
-                self.logger.warn(f"Error when resolving location ({location}): ", e)
+                self.logger.warning(f"Error when resolving location ({location}):\n{e}")
 
         return resolved_locations

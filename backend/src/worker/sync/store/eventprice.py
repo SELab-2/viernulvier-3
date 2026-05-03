@@ -57,7 +57,7 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
                     newest_timestamp = created_at_str
 
         except Exception as e:
-            logger.warn(f"Error storing genre ({json_price}):\n{e}")
+            logger.warning(f"Error storing genre ({json_price}):\n{e}")
 
     if orphans > 2:
         logger.warning(f"Skipped {orphans} eventprices due to no valid event_id")
