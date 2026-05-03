@@ -16,6 +16,7 @@ import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGal
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
 interface ProductionPageProps {
   production: Production;
@@ -488,7 +489,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     language
   );
 
-  const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
+  const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
@@ -521,6 +522,19 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     [originalInfo, draftInfo]
   );
 
+  useEffect(() => {
+  const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+  const productionNumericId = match ? Number(match[1]) : undefined;
+  if (!productionNumericId) return;
+
+  getMediaForProduction(productionNumericId, { limit: 1 })
+    .then((response) => {
+      const first = response.media.find((m) => m.content_type.startsWith("image/"));
+      if (first) setFirstImageUrl(first.url);
+    })
+    .catch(() => {});
+}, [production.id_url]);
+
   // Prevent moving away from page when edit is modified (browser aways)
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -545,8 +559,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrl =
-    mediaImageUrlsByProductionId[production.id_url]?.[0] ?? fallbackImageUrl;
+  const imageUrl = firstImageUrl ?? fallbackImageUrl;
   const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
