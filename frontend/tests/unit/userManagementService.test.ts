@@ -73,6 +73,47 @@ describe("userManagementService", () => {
       createdAt: "2026-04-15T09:30:00",
       lastLoginAt: null,
     });
+
+    expect(mockAdapter.history.post[0].data).toBe(
+      JSON.stringify({ username: "new-user", password: "temporary-secret" })
+    );
+  });
+
+  it("sends selected roles when creating a user", async () => {
+    mockAdapter.onPost("/api/v1/auth/users").reply(201, {
+      id: 13,
+      id_url: "http://localhost/api/v1/auth/users/13",
+      username: "editor-user",
+      super_user: false,
+      roles: ["editor", "viewer"],
+      permissions: ["users:read"],
+      created_at: "2026-04-16T10:45:00",
+      last_login_at: null,
+    });
+
+    await expect(
+      createUser({
+        username: "editor-user",
+        password: "temporary-secret",
+        roles: ["editor", "viewer"],
+      })
+    ).resolves.toEqual({
+      id: 13,
+      username: "editor-user",
+      isSuperUser: false,
+      roles: ["editor", "viewer"],
+      permissions: ["users:read"],
+      createdAt: "2026-04-16T10:45:00",
+      lastLoginAt: null,
+    });
+
+    expect(mockAdapter.history.post[0].data).toBe(
+      JSON.stringify({
+        username: "editor-user",
+        password: "temporary-secret",
+        roles: ["editor", "viewer"],
+      })
+    );
   });
 
   it("deletes a user by id and resolves without a value", async () => {
