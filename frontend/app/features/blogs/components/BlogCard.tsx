@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -94,11 +95,14 @@ interface BlogCardProps {
   className?: string;
 }
 
-export function BlogCard({ blog, preferredLanguage = "en", className }: BlogCardProps) {
+export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
-  const { t } = useTranslation();
 
-  const blog_content = getBlogContentByLanguage(blog.blog_contents, preferredLanguage);
+  const { t } = useTranslation();
+  const { lang } = useParams();
+  const language = preferredLanguage ?? lang!;
+
+  const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
 
   const title = blog_content.title;
   const content = blog_content.content;
@@ -106,11 +110,11 @@ export function BlogCard({ blog, preferredLanguage = "en", className }: BlogCard
 
   useEffect(() => {
     async function fetchProductionTitles() {
-      const result = await getProductionTitlesByLanguage(blog, preferredLanguage);
+      const result = await getProductionTitlesByLanguage(blog, language);
       setProductionTitles(result);
     }
     fetchProductionTitles();
-  }, [blog, preferredLanguage]);
+  }, [blog, language]);
 
   return (
     <Card
