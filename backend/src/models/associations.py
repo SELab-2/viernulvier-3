@@ -1,5 +1,5 @@
-"""Koppeltabellen (many-to-many) tussen producties en tags, producties en blogs
-users en rollen, rollen en permissies"""
+"""Koppeltabellen (many-to-many) tussen producties en tags, producties en groepen,
+producties en blogs, users en rollen, rollen en permissies."""
 
 from sqlalchemy import Column, ForeignKey, Integer, Table
 from src.database import Base
@@ -8,6 +8,18 @@ prod_tags = Table(
     "prod_tags",
     Base.metadata,
     Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
+    Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
+)
+
+prod_groups = Table(
+    "prod_groups",
+    Base.metadata,
+    Column(
+        "group_id",
+        Integer,
+        ForeignKey("production_groups.id"),
+        primary_key=True,
+    ),
     Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
 )
 

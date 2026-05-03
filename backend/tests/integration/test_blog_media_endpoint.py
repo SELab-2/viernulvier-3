@@ -8,7 +8,7 @@ from src.models.user import User
 from src.models.role import Role
 from src.models.permission import Permission
 
-BASE_URL = "/api/v1/archive/productions"
+BASE_URL = "/api/v1/archive/blogs"
 
 
 def create_user_and_login(
@@ -50,17 +50,17 @@ def create_user_and_login(
     "content_type", ["image/jpeg", "image/png", "image/webp", "image/gif"]
 )
 def test_upload_media_success(
-    client: TestClient, db_session: Session, production_with_no_media, content_type: str
+    client: TestClient, db_session: Session, blog_with_no_media, content_type: str
 ):
     """Test media upload - matches MediaResponse schema exactly."""
     headers = create_user_and_login(
-        client, db_session, "upload_user", [Permissions.ARCHIVE_CREATE]
+        client, db_session, "upload_user", [Permissions.BLOG_CREATE]
     )
 
     test_file = ("test.jpg", io.BytesIO(b"fake image data"), content_type)
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{blog_with_no_media.id}/media/",
         files={"file": test_file},
         headers=headers,
     )
@@ -70,26 +70,26 @@ def test_upload_media_success(
     # Exact MediaResponse schema validation
     assert data["content_type"] == content_type
     assert "id_url" in data
-    assert "production_id_url" in data
+    assert "blog_id_url" in data
     assert "uploaded_at" in data
     assert "url" in data
 
-    # Verify production relationship
-    assert f"productions/{production_with_no_media.id}" in data["production_id_url"]
-    assert f"productions/{production_with_no_media.id}/media/" in data["id_url"]
+    # Verify blog relationship
+    assert f"blogs/{blog_with_no_media.id}" in data["blog_id_url"]
+    assert f"blogs/{blog_with_no_media.id}/media/" in data["id_url"]
 
 
 def test_upload_media_unsupported_type(
-    client: TestClient, db_session: Session, production_with_no_media
+    client: TestClient, db_session: Session, blog_with_no_media
 ):
     headers = create_user_and_login(
-        client, db_session, "upload_user", [Permissions.ARCHIVE_CREATE]
+        client, db_session, "upload_user", [Permissions.BLOG_CREATE]
     )
 
     test_file = ("test.pdf", io.BytesIO(b"fake pdf"), "application/pdf")
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{blog_with_no_media.id}/media/",
         files={"file": test_file},
         headers=headers,
     )
@@ -98,23 +98,23 @@ def test_upload_media_unsupported_type(
 
 
 def test_upload_media_no_permission(
-    client: TestClient, db_session: Session, production_with_no_media
+    client: TestClient, db_session: Session, blog_with_no_media
 ):
     headers = create_user_and_login(client, db_session, "no_perm_user")
 
     test_file = ("test.jpg", io.BytesIO(b"fake"), "image/jpeg")
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{blog_with_no_media.id}/media/",
         files={"file": test_file},
         headers=headers,
     )
     assert response.status_code == 403
 
 
-def test_list_media(client: TestClient, media_items_for_production):
-    prod_id = media_items_for_production[0].production_id
-    response = client.get(f"{BASE_URL}/{prod_id}/media/")
+def test_list_media(client: TestClient, media_items_for_blog):
+    blog_id = media_items_for_blog[0].blog_id
+    response = client.get(f"{BASE_URL}/{blog_id}/media/")
     assert response.status_code == 200
     data = response.json()
 
@@ -123,54 +123,69 @@ def test_list_media(client: TestClient, media_items_for_production):
     assert data["pagination"]["has_more"] is False
     assert data["pagination"]["next_cursor"] is None
 
-    prod_path = f"productions/{prod_id}"
+    blog_path = f"blogs/{blog_id}"
     for item in data["media"]:
         assert "content_type" in item
         assert "id_url" in item
-        assert "production_id_url" in item
-        assert prod_path in item["production_id_url"]
+        assert "blog_id_url" in item
+        assert blog_path in item["blog_id_url"]
 
 
-def test_delete_media_success(client: TestClient, db_session: Session, media_item):
+def test_delete_media_success(client: TestClient, db_session: Session, media_item_blog):
     headers = create_user_and_login(
-        client, db_session, "delete_user", [Permissions.ARCHIVE_DELETE]
+        client, db_session, "delete_user", [Permissions.BLOG_DELETE]
     )
 
     response = client.delete(
-        f"{BASE_URL}/{media_item.production_id}/media/{media_item.id}", headers=headers
+        f"{BASE_URL}/{media_item_blog.blog_id}/media/{media_item_blog.id}",
+        headers=headers,
     )
     assert response.status_code == 204
 
 
 def test_delete_media_no_permission(
-    client: TestClient, db_session: Session, media_item
+    client: TestClient, db_session: Session, media_item_blog
 ):
     headers = create_user_and_login(client, db_session, "no_perm_user")
 
     response = client.delete(
-        f"{BASE_URL}/{media_item.production_id}/media/{media_item.id}", headers=headers
+        f"{BASE_URL}/{media_item_blog.blog_id}/media/{media_item_blog.id}",
+        headers=headers,
     )
     assert response.status_code == 403
 
 
-def test_delete_media_not_found(
-    client: TestClient, db_session: Session, production_with_no_media
+def test_delete_media_incorrect_id(
+    client: TestClient, db_session: Session, media_items_prod_blog
 ):
     headers = create_user_and_login(
-        client, db_session, "delete_user", [Permissions.ARCHIVE_DELETE]
+        client, db_session, "delete_user", [Permissions.BLOG_DELETE]
+    )
+    response = client.delete(
+        f"{BASE_URL}/{media_items_prod_blog[1].blog_id}/media/{media_items_prod_blog[0].id}",
+        headers=headers,
+    )
+    assert response.status_code == 400
+
+
+def test_delete_media_not_found(
+    client: TestClient, db_session: Session, blog_with_no_media
+):
+    headers = create_user_and_login(
+        client, db_session, "delete_user", [Permissions.BLOG_DELETE]
     )
 
     response = client.delete(
-        f"{BASE_URL}/{production_with_no_media.id}/media/999", headers=headers
+        f"{BASE_URL}/{blog_with_no_media.id}/media/999", headers=headers
     )
     assert response.status_code == 404
     assert "Media" in response.json()["detail"]
 
 
-def test_list_media_pagination(client: TestClient, media_items_for_production):
-    prod_id = media_items_for_production[0].production_id
+def test_list_media_pagination(client: TestClient, media_items_for_blog):
+    blog_id = media_items_for_blog[0].blog_id
 
-    page1 = client.get(f"{BASE_URL}/{prod_id}/media/?limit=2").json()
+    page1 = client.get(f"{BASE_URL}/{blog_id}/media/?limit=2").json()
     assert len(page1["media"]) == 2
     assert page1["pagination"]["total_count"] == 3
     assert page1["pagination"]["has_more"] is True
@@ -178,20 +193,20 @@ def test_list_media_pagination(client: TestClient, media_items_for_production):
     assert next_cursor is not None
 
     page2 = client.get(
-        f"{BASE_URL}/{prod_id}/media/?cursor={next_cursor}&limit=2"
+        f"{BASE_URL}/{blog_id}/media/?cursor={next_cursor}&limit=2"
     ).json()
     assert page2["pagination"]["total_count"] == 3
     assert len(page2["media"]) == 1
     assert page2["pagination"]["has_more"] is False
 
 
-def test_list_media_invalid_cursor(client: TestClient, media_items_for_production):
-    prod_id = media_items_for_production[0].production_id
-    response = client.get(f"{BASE_URL}/{prod_id}/media/?cursor=notanumber")
+def test_list_media_invalid_cursor(client: TestClient, media_items_for_blog):
+    blog_id = media_items_for_blog[0].blog_id
+    response = client.get(f"{BASE_URL}/{blog_id}/media/?cursor=notanumber")
     assert response.status_code == 422
 
 
-def test_list_media_invalid_limit(client: TestClient, media_items_for_production):
-    prod_id = media_items_for_production[0].production_id
-    response = client.get(f"{BASE_URL}/{prod_id}/media/?limit=0")
+def test_list_media_invalid_limit(client: TestClient, media_items_for_blog):
+    blog_id = media_items_for_blog[0].blog_id
+    response = client.get(f"{BASE_URL}/{blog_id}/media/?limit=0")
     assert response.status_code == 422
