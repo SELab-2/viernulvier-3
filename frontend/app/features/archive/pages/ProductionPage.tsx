@@ -1,5 +1,6 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import Add from "@mui/icons-material/Add";
 import React, { useEffect, useMemo, useState } from "react";
 import DOMPurify from "dompurify";
 
@@ -9,13 +10,23 @@ import type {
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
+import {
+  createEvent,
+  getEventByUrl,
+  getPriceByUrl,
+  updateEventByUrl,
+} from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
+import {
+  EditableEventCard,
+  EventCard,
+  type EventWithResolvedRelations,
+} from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { deleteByUrl } from "~/shared/services/sharedService";
 
 interface ProductionPageProps {
   production: Production;
@@ -116,16 +127,32 @@ function isInfoModified(
   );
 }
 
+function isEventModified(original: Event, draft: Event): boolean {
+  return (
+    original.starts_at !== draft.starts_at ||
+    original.ends_at !== draft.ends_at ||
+    original.order_url !== draft.order_url ||
+    original.hall?.id_url !== draft.hall?.id_url
+  );
+}
+
 async function handleSave(
   production_id_url: string,
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  draftEvents: EventWithResolvedRelations[],
+  setOriginalEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  newEvents: EventWithResolvedRelations[],
+  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  deletedEvents: EventWithResolvedRelations[],
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string
 ) {
   if (!draftInfo || !originalInfo) return;
+  console.log(draftEvents);
 
   setIsSaving(true);
   try {
@@ -144,8 +171,44 @@ async function handleSave(
       ],
     });
 
+    // Patch edited events
+    for (const event of draftEvents) {
+      await updateEventByUrl(event.id_url, {
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+      });
+    }
+
+    // Create newly made events
+    const createdEvents: EventWithResolvedRelations[] = [];
+    for (const event of newEvents) {
+      const created = await createEvent({
+        production_id_url,
+        hall_id_url: event.hall?.id_url ?? "",
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+        order_url: event.order_url,
+      });
+
+      createdEvents.push({
+        ...created,
+        resolvedHall: event.resolvedHall,
+        resolvedPrices: [],
+      });
+    }
+
+    for (const event of deletedEvents) {
+      // skip events that were never created
+      if (!event.id_url) continue;
+
+      await deleteByUrl(event.id_url);
+    }
+
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
+    setOriginalEvents([...draftEvents, ...createdEvents]);
+    setNewEvents([]);
+    setDeletedEvents([]);
 
     setIsEditing(false);
   } catch (err) {
@@ -404,6 +467,53 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
+function EditEvents({
+  draftEvents,
+  setDraftEvents,
+  setDeletedEvents,
+}: {
+  draftEvents: EventWithResolvedRelations[];
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+}) {
+  return (
+    <ul className="mt-6 space-y-2.5">
+      {draftEvents.map((event, index) => (
+        <EditableEventCard
+          key={event.id_url}
+          event={event}
+          onChange={(updated) => {
+            setDraftEvents((prev) => {
+              const copy = [...prev];
+              copy[index] = updated;
+              return copy;
+            });
+          }}
+          onDelete={() => {
+            setDraftEvents((prev) => prev.filter((_, i) => i !== index));
+            if (setDeletedEvents !== undefined) {
+              setDeletedEvents((prev) => [...prev, event]);
+            }
+          }}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function NewEventButton({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="mt-4 flex justify-center">
+      <button
+        onClick={onClick}
+        className="bg-archive-accent hover:bg-archive-accent/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all duration-100 active:scale-95"
+      >
+        <Add fontSize="small" />
+        <p className="text-sm font-medium tracking-wide uppercase">New Event</p>
+      </button>
+    </div>
+  );
+}
 const Spinner = () => (
   <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
 );
@@ -413,6 +523,10 @@ type EditButtonProps = {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  originalEvents: EventWithResolvedRelations[] | null;
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
@@ -423,6 +537,10 @@ function EditButton({
   setIsEditing,
   originalInfo,
   setDraftInfo,
+  originalEvents,
+  setDraftEvents,
+  setNewEvents,
+  setDeletedEvents,
   enable_save,
   is_saving,
   _handleSave,
@@ -457,6 +575,11 @@ function EditButton({
             onClick={() => {
               // Copy (not by reference)
               setDraftInfo(originalInfo ? { ...originalInfo } : null);
+              setDraftEvents(
+                originalEvents ? originalEvents.map((e) => ({ ...e })) : []
+              );
+              setNewEvents([]);
+              setDeletedEvents([]);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}
@@ -489,9 +612,12 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
-  const [eventsWithDetails, setEventsWithDetails] = useState<
-    EventWithResolvedRelations[]
-  >([]);
+  const [originalEvents, setOriginalEvents] = useState<EventWithResolvedRelations[]>(
+    []
+  );
+  const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [newEvents, setNewEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [deletedEvents, setDeletedEvents] = useState<EventWithResolvedRelations[]>([]);
 
   // States for editing the production info shown
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -509,17 +635,44 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       originalInfo,
       draftInfo,
       setOriginalInfo,
+      draftEvents,
+      setOriginalEvents,
+      newEvents,
+      setNewEvents,
+      deletedEvents,
+      setDeletedEvents,
       setIsEditing,
       setIsSaving,
       language
     );
+  const areEventsModified = useMemo(() => {
+    return draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft));
+  }, [draftEvents, originalEvents]);
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
   const isModified = useMemo(
-    () => isInfoModified(originalInfo, draftInfo),
-    [originalInfo, draftInfo]
+    () =>
+      isInfoModified(originalInfo, draftInfo) ||
+      areEventsModified ||
+      newEvents.length > 0 ||
+      deletedEvents.length > 0,
+    [originalInfo, draftInfo, areEventsModified, newEvents, deletedEvents]
   );
+
+  // Helper to create an empty event when pressing new event button
+  function createEmptyEvent(): EventWithResolvedRelations {
+    return {
+      id_url: "", // temporary ID
+      production_id_url: production.id_url,
+      starts_at: "",
+      ends_at: "",
+      order_url: "",
+      price_urls: [],
+      resolvedHall: undefined,
+      resolvedPrices: [],
+    };
+  }
 
   // Prevent moving away from page when edit is modified (browser aways)
   useEffect(() => {
@@ -551,7 +704,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
-      eventsWithDetails.slice().sort((leftEvent, rightEvent) => {
+      originalEvents.slice().sort((leftEvent, rightEvent) => {
         const startDifference =
           getEventTimestamp(leftEvent.starts_at) -
           getEventTimestamp(rightEvent.starts_at);
@@ -562,7 +715,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
         return leftEvent.id_url.localeCompare(rightEvent.id_url);
       }),
-    [eventsWithDetails]
+    [originalEvents]
   );
 
   useEffect(() => {
@@ -570,7 +723,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
     const loadEventDetails = async () => {
       if (!isCancelled) {
-        setEventsWithDetails([]);
+        setOriginalEvents([]);
       }
 
       try {
@@ -627,15 +780,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         );
 
         if (!isCancelled) {
-          setEventsWithDetails(
-            hydratedEvents.filter(
-              (event): event is EventWithResolvedRelations => event !== null
-            )
+          const validEvents = hydratedEvents.filter(
+            (event): event is EventWithResolvedRelations => event !== null
           );
+
+          setOriginalEvents(validEvents);
+          setDraftEvents(validEvents.map((e) => ({ ...e }))); // copy
         }
       } catch {
         if (!isCancelled) {
-          setEventsWithDetails([]);
+          setOriginalEvents([]);
         }
       }
     };
@@ -699,7 +853,27 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 {t("productionPage.archiveSchema")}
               </h2>
 
-              <Events event_objects={eventObjects} />
+              {isEditing ? (
+                <>
+                  {/* Events that are being edited */}
+                  <EditEvents
+                    draftEvents={draftEvents}
+                    setDraftEvents={setDraftEvents}
+                    setDeletedEvents={setDeletedEvents}
+                  />
+                  {/* Events that are being newly created */}
+                  <EditEvents draftEvents={newEvents} setDraftEvents={setNewEvents} />
+                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                    <NewEventButton
+                      onClick={() => {
+                        setNewEvents((prev) => [...prev, createEmptyEvent()]);
+                      }}
+                    />
+                  </Protected>
+                </>
+              ) : (
+                <Events event_objects={eventObjects} />
+              )}
             </section>
           </article>
         </section>
@@ -714,6 +888,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         setIsEditing={setIsEditing}
         originalInfo={originalInfo}
         setDraftInfo={setDraftInfo}
+        originalEvents={originalEvents}
+        setDraftEvents={setDraftEvents}
+        setNewEvents={setNewEvents}
+        setDeletedEvents={setDeletedEvents}
         enable_save={isModified}
         is_saving={isSaving}
         _handleSave={_handleSave}

@@ -67,6 +67,8 @@
     "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
     "dateLabel": "Datum",
+    "startDateLabel": "Start datum",
+    "endDateLabel": "Eind datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",

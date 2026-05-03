@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
-
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 export type EventWithResolvedRelations = Event & {
   resolvedHall: Hall | undefined;
@@ -172,6 +174,60 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         </div>
       </details>
+    </li>
+  );
+}
+
+export function EditableEventCard({
+  event,
+  onChange,
+  onDelete,
+}: {
+  event: EventWithResolvedRelations;
+  onChange: (updated: EventWithResolvedRelations) => void;
+  onDelete: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
+      <div className="grid justify-between sm:grid-cols-2">
+        <div>
+          {/* TODO make it so that you can't put start date after end date */}
+          <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+            {t("productionPage.startDateLabel")}
+          </p>
+          <input
+            className="text-sm font-semibold opacity-95 md:text-base"
+            type="datetime-local"
+            value={event.starts_at ?? ""}
+            onChange={(e) => onChange({ ...event, starts_at: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+            {t("productionPage.endDateLabel")}
+          </p>
+          <input
+            className="text-sm font-semibold opacity-95 md:text-base"
+            type="datetime-local"
+            value={event.ends_at ?? ""}
+            onChange={(e) => onChange({ ...event, ends_at: e.target.value })}
+          />
+        </div>
+
+        {/* TODO Venue input */}
+      </div>
+      <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+        <button
+          onClick={onDelete}
+          className="text-red-500 hover:text-red-700"
+          aria-label="Delete Event"
+        >
+          <DeleteOutlined />
+        </button>
+      </Protected>
     </li>
   );
 }

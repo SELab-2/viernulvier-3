@@ -68,6 +68,8 @@
     "eventMore": "More",
     "archiveSchema": "Archive schema",
     "dateLabel": "Date",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
     "timeLabel": "Time",
     "placeLabel": "Venue",
     "priceLabel": "Price",

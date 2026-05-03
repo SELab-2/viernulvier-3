@@ -53,6 +53,11 @@ export async function deleteFromArchive(url: string): Promise<void> {
   await apiClient.delete(`${ARCHIVE_PATH}${url}`);
 }
 
+export async function deleteByUrl(url: string): Promise<void> {
+  const apiClient = createApiClient();
+  await apiClient.delete(url);
+}
+
 export async function getFromArchiveList<T, CursorT = number>(
   url: string,
   params?: PaginationRequest<CursorT>
