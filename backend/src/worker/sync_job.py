@@ -50,7 +50,7 @@ def sync_all():
                 sync_new_items(db, fetcher, resource_type)
                 # And later:
                 # sync_updated_items(db, lang_map, fetcher, resource_type)
-            
+
         logger.info("Starting media sync")
         with VNV_Wrapper() as wrapper:
             sync_all_media(db, wrapper)
@@ -59,6 +59,7 @@ def sync_all():
     finally:
         db.close()
         logger.info("connection with database closed")
+
 
 def sync_one_production(production_id: int):
     db = SESSION_LOCAL()
@@ -81,6 +82,7 @@ def sync_one_production(production_id: int):
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) == 2:
         sync_one_production(int(sys.argv[1]))
     else:

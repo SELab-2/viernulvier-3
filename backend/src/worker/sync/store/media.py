@@ -11,7 +11,7 @@ import uuid
 from urllib.error import URLError
 
 from minio.error import S3Error
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.config import settings
@@ -45,9 +45,12 @@ def _download_image(url: str) -> bytes | None:
 
 
 def _already_synced(db_session: Session, vnv_item_id: int) -> bool:
-    return db_session.execute(
-        select(Media).where(Media.vnv_item_id == vnv_item_id)
-    ).scalar_one_or_none() is not None
+    return (
+        db_session.execute(
+            select(Media).where(Media.vnv_item_id == vnv_item_id)
+        ).scalar_one_or_none()
+        is not None
+    )
 
 
 def sync_media_for_production(
@@ -75,7 +78,10 @@ def sync_media_for_production(
             continue
 
         content_type: str = item.get("format", "image/jpeg")
-        ext = os.path.splitext(item.get("original_filename", "image.jpg"))[1].lower() or ".jpg"
+        ext = (
+            os.path.splitext(item.get("original_filename", "image.jpg"))[1].lower()
+            or ".jpg"
+        )
         object_key = f"gallery-{production_db_id}/{uuid.uuid4()}{ext}"
 
         image_bytes = _download_image(crop_url)
@@ -94,12 +100,14 @@ def sync_media_for_production(
             logger.error(f"  item vnv_id={vnv_item_id}: Minio upload failed: {e}")
             continue
 
-        db_session.add(Media(
-            production_id=production_db_id,
-            object_key=object_key,
-            content_type=content_type,
-            vnv_item_id=vnv_item_id,
-        ))
+        db_session.add(
+            Media(
+                production_id=production_db_id,
+                object_key=object_key,
+                content_type=content_type,
+                vnv_item_id=vnv_item_id,
+            )
+        )
         logger.info(f"  item vnv_id={vnv_item_id}: stored as {object_key}")
 
 
@@ -109,23 +117,31 @@ def sync_all_media(db_session: Session, wrapper) -> None:
     Runs as a separate sync step after productions are fully stored.
     """
     # Find all productions that have a viernulvier_id but no media rows yet
-    prods_without_media = db_session.execute(
-        select(Production)
-        .outerjoin(Production.media)
-        .where(
-            Production.viernulvier_id.isnot(None),
-            Media.id.is_(None),
+    prods_without_media = (
+        db_session.execute(
+            select(Production)
+            .outerjoin(Production.media)
+            .where(
+                Production.viernulvier_id.isnot(None),
+                Media.id.is_(None),
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
-    logger.info(f"Fetching media for {len(prods_without_media)} production(s) without media")
+    logger.info(
+        f"Fetching media for {len(prods_without_media)} production(s) without media"
+    )
 
     for prod in prods_without_media:
         try:
             gallery_data = wrapper.GET(f"/productions/{prod.viernulvier_id}")
             gallery = gallery_data.get("media_gallery")
             if not gallery or not isinstance(gallery, dict):
-                logger.debug(f"Production vnv_id={prod.viernulvier_id} has no gallery, skipping")
+                logger.debug(
+                    f"Production vnv_id={prod.viernulvier_id} has no gallery, skipping"
+                )
                 continue
             sync_media_for_production(
                 db_session=db_session,
@@ -134,5 +150,7 @@ def sync_all_media(db_session: Session, wrapper) -> None:
             )
             db_session.commit()
         except Exception as e:
-            logger.error(f"Failed to sync media for production vnv_id={prod.viernulvier_id}: {e}")
+            logger.error(
+                f"Failed to sync media for production vnv_id={prod.viernulvier_id}: {e}"
+            )
             db_session.rollback()
