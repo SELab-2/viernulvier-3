@@ -10,6 +10,10 @@ from src.worker.fetchers.genres import GenreFetcher
 from src.worker.sync.sync_new import sync_new_items
 from src.worker.vnv_wrapper import VNV_Wrapper
 
+from src.worker.sync.store.production import store_new_productions
+from src.worker.sync.store.media import sync_all_media
+
+
 # Logging is used in the other classes, but seeing as this file is the main
 # one, setting the config here feels appropriate.
 # Currently it logs to stdout, but when this script runs periodically
@@ -50,6 +54,28 @@ def sync_all():
         db.close()
         logger.info("connection with database closed")
 
+def sync_one_production(production_id: int):
+    db = SESSION_LOCAL()
+    logger.info(f"Syncing single production vnv_id={production_id}")
+    try:
+        with VNV_Wrapper() as wrapper:
+            json_prod = wrapper.GET(f"/productions/{production_id}")
+            store_new_productions(db, [json_prod])
+            db.commit()
+
+        with VNV_Wrapper() as wrapper:
+            sync_all_media(db, wrapper)
+        db.commit()
+
+        logger.info(f"Done syncing production vnv_id={production_id}")
+    finally:
+        db.close()
+        logger.info("connection with database closed")
+
 
 if __name__ == "__main__":
-    sync_all()
+    import sys
+    if len(sys.argv) == 2:
+        sync_one_production(int(sys.argv[1]))
+    else:
+        sync_all()
