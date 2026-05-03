@@ -4,7 +4,11 @@ import AxiosMockAdapter from "axios-mock-adapter";
 
 import * as envModule from "~/shared/utils/env";
 import { createApiClient } from "~/shared/services/apiClient";
-import { createRole, listRoles } from "~/features/users/services/roleManagementService";
+import {
+  createRole,
+  deleteRole,
+  listRoles,
+} from "~/features/users/services/roleManagementService";
 
 describe("roleManagementService", () => {
   let mockAdapter: AxiosMockAdapter;
@@ -76,6 +80,22 @@ describe("roleManagementService", () => {
 
     await expect(createRole({ name: "editor" })).rejects.toMatchObject({
       response: { status: 409 },
+    });
+  });
+
+  it("deletes a role", async () => {
+    mockAdapter.onDelete("/api/v1/auth/roles/12").reply(204);
+
+    await expect(deleteRole(12)).resolves.toBeUndefined();
+  });
+
+  it("rejects when the server returns an error on delete", async () => {
+    mockAdapter
+      .onDelete("/api/v1/auth/roles/99")
+      .reply(404, { detail: "Role not found" });
+
+    await expect(deleteRole(99)).rejects.toMatchObject({
+      response: { status: 404 },
     });
   });
 });
