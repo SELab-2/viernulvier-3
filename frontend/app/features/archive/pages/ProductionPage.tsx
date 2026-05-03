@@ -863,11 +863,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   />
                   {/* Events that are being newly created */}
                   <EditEvents draftEvents={newEvents} setDraftEvents={setNewEvents} />
-                  <NewEventButton
-                    onClick={() => {
-                      setNewEvents((prev) => [...prev, createEmptyEvent()]);
-                    }}
-                  />
+                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                    <NewEventButton
+                      onClick={() => {
+                        setNewEvents((prev) => [...prev, createEmptyEvent()]);
+                      }}
+                    />
+                  </Protected>
                 </>
               ) : (
                 <Events event_objects={eventObjects} />

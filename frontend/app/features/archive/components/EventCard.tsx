@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 export type EventWithResolvedRelations = Event & {
   resolvedHall: Hall | undefined;
@@ -221,13 +223,15 @@ export function EditableEventCard({
 
         {/* TODO Venue input */}
       </div>
-      <button
-        onClick={onDelete}
-        className="text-red-500 hover:text-red-700"
-        aria-label="Delete Event"
-      >
-        <DeleteOutlined />
-      </button>
+      <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+        <button
+          onClick={onDelete}
+          className="text-red-500 hover:text-red-700"
+          aria-label="Delete Event"
+        >
+          <DeleteOutlined />
+        </button>
+      </Protected>
     </li>
   );
 }
