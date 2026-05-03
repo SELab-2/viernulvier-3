@@ -18,11 +18,7 @@ import { UserCard } from "../components/UserCard";
 import { RoleCard } from "../components/RoleCard";
 import { USER_PERMISSIONS } from "../users.constants";
 import { createUser, deleteUser, listUsers } from "../services/userManagementService";
-import {
-  createRole,
-  deleteRole,
-  listRoles,
-} from "../services/roleManagementService";
+import { createRole, deleteRole, listRoles } from "../services/roleManagementService";
 import type {
   IRole,
   IRoleCreateRequest,
@@ -406,7 +402,9 @@ function DeleteRoleDialog({
         backdrop: { sx: dialogBackdropSx },
       }}
     >
-      <DialogTitle sx={dialogTitleSx}>{t("users.roles.dialogs.delete.title")}</DialogTitle>
+      <DialogTitle sx={dialogTitleSx}>
+        {t("users.roles.dialogs.delete.title")}
+      </DialogTitle>
       <DialogContent sx={dialogContentSx}>
         <p className="mb-2 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
           {t("users.roles.dialogs.delete.description", { roleName: role?.name })}
