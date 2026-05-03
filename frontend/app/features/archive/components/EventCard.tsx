@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 
@@ -184,15 +183,17 @@ export function EventCard({ event }: EventCardProps) {
 export function EditableEventCard({
   event,
   onChange,
+  onDelete,
 }: {
   event: EventWithResolvedRelations;
   onChange: (updated: EventWithResolvedRelations) => void;
+  onDelete: () => void;
 }) {
   const { t } = useTranslation();
 
   return (
-    <li className="bg-archive-surface rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
-      <div className="grid sm:grid-cols-2">
+    <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
+      <div className="grid justify-between sm:grid-cols-2">
         <div>
           {/* TODO make it so that you can't put start date after end date */}
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
@@ -220,6 +221,13 @@ export function EditableEventCard({
 
         {/* TODO Venue input */}
       </div>
+      <button
+        onClick={onDelete}
+        className="text-red-500 hover:text-red-700"
+        aria-label="Delete Event"
+      >
+        <DeleteOutlined />
+      </button>
     </li>
   );
 }

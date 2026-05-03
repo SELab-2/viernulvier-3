@@ -26,6 +26,7 @@ import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGal
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { deleteByUrl } from "~/shared/services/sharedService";
 
 interface ProductionPageProps {
   production: Production;
@@ -144,6 +145,8 @@ async function handleSave(
   setOriginalEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   newEvents: EventWithResolvedRelations[],
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  deletedEvents: EventWithResolvedRelations[],
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string
@@ -194,10 +197,18 @@ async function handleSave(
       });
     }
 
+    for (const event of deletedEvents) {
+      // skip events that were never created
+      if (!event.id_url) continue;
+
+      await deleteByUrl(event.id_url);
+    }
+
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
     setOriginalEvents([...draftEvents, ...createdEvents]);
     setNewEvents([]);
+    setDeletedEvents([]);
 
     setIsEditing(false);
   } catch (err) {
@@ -459,9 +470,11 @@ function Events({ event_objects }: EventsProps) {
 function EditEvents({
   draftEvents,
   setDraftEvents,
+  setDeletedEvents,
 }: {
   draftEvents: EventWithResolvedRelations[];
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
 }) {
   return (
     <ul className="mt-6 space-y-2.5">
@@ -475,6 +488,12 @@ function EditEvents({
               copy[index] = updated;
               return copy;
             });
+          }}
+          onDelete={() => {
+            setDraftEvents((prev) => prev.filter((_, i) => i !== index));
+            if (setDeletedEvents !== undefined) {
+              setDeletedEvents((prev) => [...prev, event]);
+            }
           }}
         />
       ))}
@@ -507,6 +526,7 @@ type EditButtonProps = {
   originalEvents: EventWithResolvedRelations[] | null;
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
@@ -520,6 +540,7 @@ function EditButton({
   originalEvents,
   setDraftEvents,
   setNewEvents,
+  setDeletedEvents,
   enable_save,
   is_saving,
   _handleSave,
@@ -558,6 +579,7 @@ function EditButton({
                 originalEvents ? originalEvents.map((e) => ({ ...e })) : []
               );
               setNewEvents([]);
+              setDeletedEvents([]);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}
@@ -595,9 +617,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
   const [newEvents, setNewEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [deletedEvents, setDeletedEvents] = useState<EventWithResolvedRelations[]>([]);
 
   // States for editing the production info shown
-  const [isEditing, setIsEditing] = useState<boolean>(true); // todo
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(
     productionInfo
   );
@@ -616,6 +639,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setOriginalEvents,
       newEvents,
       setNewEvents,
+      deletedEvents,
+      setDeletedEvents,
       setIsEditing,
       setIsSaving,
       language
@@ -630,8 +655,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     () =>
       isInfoModified(originalInfo, draftInfo) ||
       areEventsModified ||
-      newEvents.length > 0,
-    [originalInfo, draftInfo, areEventsModified, newEvents]
+      newEvents.length > 0 ||
+      deletedEvents.length > 0,
+    [originalInfo, draftInfo, areEventsModified, newEvents, deletedEvents]
   );
 
   // Helper to create an empty event when pressing new event button
@@ -833,6 +859,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   <EditEvents
                     draftEvents={draftEvents}
                     setDraftEvents={setDraftEvents}
+                    setDeletedEvents={setDeletedEvents}
                   />
                   {/* Events that are being newly created */}
                   <EditEvents draftEvents={newEvents} setDraftEvents={setNewEvents} />
@@ -862,6 +889,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         originalEvents={originalEvents}
         setDraftEvents={setDraftEvents}
         setNewEvents={setNewEvents}
+        setDeletedEvents={setDeletedEvents}
         enable_save={isModified}
         is_saving={isSaving}
         _handleSave={_handleSave}
