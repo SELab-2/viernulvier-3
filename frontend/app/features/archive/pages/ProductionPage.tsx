@@ -259,6 +259,31 @@ export function SimpleEditableField({
   return normal_view;
 }
 
+function EmptyProductionHeader({ image_url }: { image_url: string }) {
+  const { t } = useTranslation();
+  return (
+    <section
+      id="production-header"
+      className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
+    >
+      <img
+        src={image_url}
+        alt={t("productionPage.infoNotAvailable")}
+        className="h-[280px] w-full object-cover object-center md:h-[360px]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+      <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
+        <h1
+          id="title"
+          className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
+        >
+          {t("productionPage.infoNotAvailable")}
+        </h1>
+      </div>
+    </section>
+  );
+}
+
 type ProductionHeaderProps = {
   production_info: ProductionInfo | null;
   image_url: string;
@@ -278,34 +303,6 @@ function ProductionHeader({
   setDraftInfo,
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
-  const title = getTextOrDefault(
-    production_info?.title,
-    t("productionPage.infoNotAvailable")
-  );
-
-  if (production_info === null) {
-    return (
-      <section
-        id="production-header"
-        className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
-      >
-        <img
-          src={image_url}
-          alt={title}
-          className="h-[280px] w-full object-cover object-center md:h-[360px]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-        <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-          <h1
-            id="title"
-            className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-          >
-            {title}
-          </h1>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section
@@ -314,7 +311,7 @@ function ProductionHeader({
     >
       <img
         src={image_url}
-        alt={title}
+        alt={production_info?.title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
@@ -825,15 +822,19 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        <ProductionHeader
-          production_info={productionInfo}
-          image_url={imageUrl}
-          isEditing={isEditing}
-          originalInfo={originalInfo}
-          draftInfo={draftInfo}
-          setDraftInfo={setDraftInfo}
-        />
-
+        {productionInfo !== null ? (
+          <ProductionHeader
+            production_info={productionInfo}
+            image_url={imageUrl}
+            isEditing={isEditing}
+            originalInfo={originalInfo}
+            draftInfo={draftInfo}
+            setDraftInfo={setDraftInfo} 
+          />
+        ) : (
+          <EmptyProductionHeader image_url={imageUrl}/>
+        )}
+        
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
