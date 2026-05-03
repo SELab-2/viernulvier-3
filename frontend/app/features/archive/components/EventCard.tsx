@@ -194,6 +194,7 @@ export function EditableEventCard({
     <li className="bg-archive-surface rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
       <div className="grid sm:grid-cols-2">
         <div>
+          {/* TODO make it so that you can't put start date after end date */}
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.startDateLabel")}
           </p>
