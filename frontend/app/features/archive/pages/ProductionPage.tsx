@@ -210,7 +210,7 @@ export function SimpleEditableField({
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
         <div
-          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-4 backdrop-blur-md transition ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
+          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-2 backdrop-blur-md transition md:p-4 ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
         >
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
@@ -273,7 +273,7 @@ function ProductionHeader({
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
+      <div className="absolute right-7 bottom-4 left-7 md:right-12 md:bottom-10 md:left-12">
         <SimpleEditableField
           label={t("productionPage.edit.supertitle")}
           value={draftInfo?.supertitle ?? ""}
