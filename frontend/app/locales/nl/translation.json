@@ -185,7 +185,9 @@
       "permissions": "Permissies"
     },
     "form": {
-      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt."
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
     },
     "actions": {
       "retry": "Opnieuw proberen",
@@ -214,7 +216,7 @@
     "dialogs": {
       "create": {
         "title": "Gebruiker toevoegen",
-        "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+        "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
       },
       "delete": {
         "title": "Gebruiker verwijderen",
