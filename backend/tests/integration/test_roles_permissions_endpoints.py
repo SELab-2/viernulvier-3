@@ -139,3 +139,35 @@ def test_roles_permission_enforcement(client: TestClient, db_session: Session):
 
     response = client.delete(f"/api/v1/auth/roles/{role.id}", headers=headers)
     assert response.status_code == 403
+
+
+def test_delete_role_forbidden_when_assigned_to_user(
+    client: TestClient, db_session: Session
+):
+    create_user_with_permissions(
+        db_session,
+        "admin_delete_role",
+        [
+            Permissions.USERS_READ,
+            Permissions.USERS_DELETE,
+        ],
+    )
+    token = get_token(client, "admin_delete_role")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    protected_role = Role(name="admin", permissions=[])
+    assigned_user = User(
+        username="assigned_user",
+        hashed_password=get_password_hash("pw"),
+        roles=[protected_role],
+    )
+    db_session.add_all([protected_role, assigned_user])
+    db_session.commit()
+
+    response = client.delete(f"/api/v1/auth/roles/{protected_role.id}", headers=headers)
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Roles assigned to users cannot be deleted"
+    assert (
+        db_session.query(Role).filter(Role.id == protected_role.id).first() is not None
+    )

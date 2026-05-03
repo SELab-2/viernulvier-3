@@ -115,5 +115,12 @@ def delete_role(db: Session, role_id: int) -> None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
+
+    if role.users:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Roles assigned to users cannot be deleted",
+        )
+
     db.delete(role)
     db.commit()
