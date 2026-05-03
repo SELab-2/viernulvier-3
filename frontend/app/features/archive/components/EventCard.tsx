@@ -9,14 +9,10 @@ export type EventWithResolvedRelations = Event & {
 };
 
 function formatEventTime(date: Date): string {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  if (minutes === 0) {
-    return `${hours}u`;
-  }
-
-  return `${hours}u${String(minutes).padStart(2, "0")}`;
+  return `${hours}:${minutes}`;
 }
 
 function formatEventDateTimeRange(
