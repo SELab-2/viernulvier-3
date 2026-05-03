@@ -15,6 +15,7 @@ import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import DOMPurify from "dompurify";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -89,6 +90,21 @@ async function getProductionTitlesByLanguage(
   );
 }
 
+function getSanitizedHtmlOrUndefined(
+  value: string | null | undefined
+): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return undefined;
+  }
+
+  return DOMPurify.sanitize(trimmedValue);
+}
+
 interface BlogCardProps {
   blog: Blog;
   preferredLanguage?: string;
@@ -107,6 +123,8 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
   const title = blog_content.title;
   const content = blog_content.content;
   const imageUrl = DEFAULT_IMAGE;
+
+  const contentHtml = getSanitizedHtmlOrUndefined(content);
 
   useEffect(() => {
     async function fetchProductionTitles() {
@@ -224,18 +242,19 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
             WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
           }}
         >
-          <Typography
-            className="blog-card-text"
-            sx={{
-              color: CARD_COLORS.textSecondary,
-              fontSize: "var(--text-archive-body)",
-              lineHeight: "var(--leading-archive-body)",
-              overflowWrap: "anywhere",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {content}
-          </Typography>
+          {contentHtml && (
+            <div
+              className="blog-card-text"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              style={{
+                color: CARD_COLORS.textSecondary,
+                fontSize: "var(--text-archive-body)",
+                lineHeight: "var(--leading-archive-body)",
+                overflowWrap: "anywhere",
+                whiteSpace: "pre-wrap",
+              }}
+            />
+          )}
         </Box>
         <Divider
           sx={{
@@ -319,9 +338,10 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
 
 export interface BlogCardListProps {
   blogs: Blog[];
+  prefferedLanguage?: string;
 }
 
-export function BlogCardList({ blogs }: BlogCardListProps) {
+export function BlogCardList({ blogs, prefferedLanguage }: BlogCardListProps) {
   return (
     <Box
       sx={{
@@ -332,7 +352,7 @@ export function BlogCardList({ blogs }: BlogCardListProps) {
       }}
     >
       {blogs.map((blog) => (
-        <BlogCard key={blog.id_url} blog={blog} />
+        <BlogCard key={blog.id_url} blog={blog} preferredLanguage={prefferedLanguage} />
       ))}
     </Box>
   );

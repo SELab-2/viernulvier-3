@@ -70,7 +70,7 @@ const mockProductionEN: Production = {
 };
 
 function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
-  return render(<BlogCard blog={mockBlog} {...props} />);
+  return render(<BlogCard blog={mockBlog} preferredLanguage="en" {...props} />);
 }
 
 describe("BlogCard", () => {
@@ -108,6 +108,19 @@ describe("BlogCard", () => {
     };
     renderBlogCard({ blog });
     expect(screen.getByText(/First line\./)).toBeInTheDocument();
+  });
+
+  it("renders content as html", () => {
+    const htmlContent = "<p>First paragraph.</p><p>Second paragraph.</p>";
+    const blog: Blog = {
+      ...mockBlog,
+      blog_contents: [{ ...mockBlogContentEN, content: htmlContent }],
+    };
+    const { container } = renderBlogCard({ blog });
+    const blogCardTexts = container.querySelectorAll(".blog-card-text");
+    const blogCardText = blogCardTexts[1];
+    expect(blogCardText?.innerHTML).toBe(htmlContent);
+    expect(blogCardText?.querySelectorAll("p")).toHaveLength(2);
   });
 
   it("renders the no-production fallback text", () => {
@@ -186,7 +199,7 @@ describe("BlogCardList", () => {
     render(
       <div>
         {[mockBlog, blog2].map((blog) => (
-          <BlogCard key={blog.id_url} blog={blog} />
+          <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
         ))}
       </div>
     );
@@ -196,7 +209,7 @@ describe("BlogCardList", () => {
   });
 
   it("renders nothing (empty list) when blogs array is empty", () => {
-    const { container } = render(<BlogCardList blogs={[]} />);
+    const { container } = render(<BlogCardList blogs={[]} prefferedLanguage="en" />);
     expect(container.firstChild?.childNodes).toHaveLength(0);
   });
 });
