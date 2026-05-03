@@ -18,7 +18,11 @@ import { UserCard } from "../components/UserCard";
 import { RoleCard } from "../components/RoleCard";
 import { USER_PERMISSIONS } from "../users.constants";
 import { createUser, deleteUser, listUsers } from "../services/userManagementService";
-import { createRole, listRoles } from "../services/roleManagementService";
+import {
+  createRole,
+  deleteRole,
+  listRoles,
+} from "../services/roleManagementService";
 import type {
   IRole,
   IRoleCreateRequest,
@@ -372,6 +376,63 @@ function CreateRoleDialog({
   );
 }
 
+function DeleteRoleDialog({
+  role,
+  isSubmitting,
+  errorMessage,
+  onClose,
+  onConfirm,
+}: {
+  role: IRole | null;
+  isSubmitting: boolean;
+  errorMessage: string | null;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+}) {
+  const { t } = useTranslation();
+
+  async function handleConfirm() {
+    await onConfirm();
+  }
+
+  return (
+    <Dialog
+      open={Boolean(role)}
+      onClose={isSubmitting ? undefined : onClose}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        paper: { sx: dialogPaperSx },
+        backdrop: { sx: dialogBackdropSx },
+      }}
+    >
+      <DialogTitle sx={dialogTitleSx}>{t("users.roles.dialogs.delete.title")}</DialogTitle>
+      <DialogContent sx={dialogContentSx}>
+        <p className="mb-2 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
+          {t("users.roles.dialogs.delete.description", { roleName: role?.name })}
+        </p>
+
+        <UserMutationAlert message={errorMessage} />
+      </DialogContent>
+      <DialogActions sx={dialogActionsSx}>
+        <Button onClick={onClose} disabled={isSubmitting} sx={secondaryButtonSx}>
+          {t("users.actions.cancel")}
+        </Button>
+        <Button onClick={handleConfirm} disabled={isSubmitting} sx={dangerButtonSx}>
+          {isSubmitting ? (
+            <>
+              <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
+              {t("users.actions.deleting")}
+            </>
+          ) : (
+            t("users.actions.delete")
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function UserManagementAccessDenied() {
   const { t } = useTranslation();
 
@@ -411,11 +472,18 @@ export default function UserManagementPage() {
   const [isCreateRoleDialogOpen, setIsCreateRoleDialogOpen] = useState(false);
   const [createRoleError, setCreateRoleError] = useState<string | null>(null);
   const [isCreatingRole, setIsCreatingRole] = useState(false);
+  const [deleteRoleError, setDeleteRoleError] = useState<string | null>(null);
+  const [isDeletingRole, setIsDeletingRole] = useState(false);
+  const [roleIdToDelete, setRoleIdToDelete] = useState<number | null>(null);
 
   const userToDelete =
     userIdToDelete === null
       ? null
       : (users.find((managedUser) => managedUser.id === userIdToDelete) ?? null);
+  const roleToDelete =
+    roleIdToDelete === null
+      ? null
+      : (roles.find((managedRole) => managedRole.id === roleIdToDelete) ?? null);
 
   useEffect(() => {
     // Ignore any in-flight response once this effect is cleaned up or rerun.
@@ -598,6 +666,43 @@ export default function UserManagementPage() {
     }
   }
 
+  function openDeleteRoleDialog(roleId: number) {
+    setDeleteRoleError(null);
+    setRoleIdToDelete(roleId);
+  }
+
+  function closeDeleteRoleDialog() {
+    if (isDeletingRole) {
+      return;
+    }
+
+    setDeleteRoleError(null);
+    setRoleIdToDelete(null);
+  }
+
+  async function handleDeleteRole() {
+    if (roleIdToDelete === null) {
+      return;
+    }
+
+    setIsDeletingRole(true);
+    setDeleteRoleError(null);
+
+    try {
+      await deleteRole(roleIdToDelete);
+      setRoles((currentRoles) =>
+        currentRoles.filter((managedRole) => managedRole.id !== roleIdToDelete)
+      );
+      setRoleIdToDelete(null);
+    } catch (error) {
+      setDeleteRoleError(
+        getApiErrorMessage(error, t("users.roles.messages.deleteFailed"))
+      );
+    } finally {
+      setIsDeletingRole(false);
+    }
+  }
+
   function formatDateTime(value: string | null) {
     if (!value) {
       return t("users.empty.date");
@@ -629,6 +734,7 @@ export default function UserManagementPage() {
     currentUser?.isSuperUser,
     USER_PERMISSIONS.delete
   );
+  const canDeleteRoles = canDeleteUsers;
 
   return (
     <>
@@ -751,7 +857,13 @@ export default function UserManagementPage() {
           ) : (
             <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
               {roles.map((role) => (
-                <RoleCard key={role.id} role={role} />
+                <RoleCard
+                  key={role.id}
+                  role={role}
+                  onDelete={
+                    canDeleteRoles ? () => openDeleteRoleDialog(role.id) : undefined
+                  }
+                />
               ))}
             </div>
           )}
@@ -772,6 +884,14 @@ export default function UserManagementPage() {
         errorMessage={userToDelete ? deleteMutationError : null}
         onClose={closeDeleteDialog}
         onConfirm={handleDeleteUser}
+      />
+
+      <DeleteRoleDialog
+        role={roleToDelete}
+        isSubmitting={isDeletingRole}
+        errorMessage={roleToDelete ? deleteRoleError : null}
+        onClose={closeDeleteRoleDialog}
+        onConfirm={handleDeleteRole}
       />
 
       {isCreateRoleDialogOpen ? (

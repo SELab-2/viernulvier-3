@@ -253,12 +253,17 @@
       "messages": {
         "loadFailed": "We could not load roles right now.",
         "createFailed": "We could not create the role right now.",
+        "deleteFailed": "We could not delete the role right now.",
         "nameRequired": "A role name is required."
       },
       "dialogs": {
         "create": {
           "title": "Add role",
           "description": "Create a new role. Permissions can be assigned after creation."
+        },
+        "delete": {
+          "title": "Delete role",
+          "description": "Delete the role {{roleName}}? Users assigned to it will lose this role immediately."
         }
       },
       "empty": {
