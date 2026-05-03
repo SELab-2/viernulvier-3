@@ -2,6 +2,7 @@ import type { Blog } from "../types/blogTypes";
 import { useEffect, useState } from "react";
 import { BlogCardList } from "../components/BlogCard";
 import { getBlogsPaginated } from "../services/blogService";
+import { CreateBlogButton } from "../components/CreateBlogButton";
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -16,6 +17,7 @@ export default function BlogPage() {
 
   return (
     <div>
+	  <CreateBlogButton />
       <BlogCardList blogs={blogs} />
     </div>
   );

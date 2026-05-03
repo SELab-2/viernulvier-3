@@ -145,7 +145,8 @@
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
-    }
+    },
+	"create_blog": "Create blog"
   },
 
   "auth": {

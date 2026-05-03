@@ -143,7 +143,8 @@
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
-    }
+    },
+	"create_blog": "Nieuwe blog"
   },
 
   "auth": {
