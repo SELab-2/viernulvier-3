@@ -7,15 +7,24 @@ import type {
   Production,
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
-import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { Event, EventCreate, Price } from "~/features/archive/types/eventTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
+import {
+  getEventByUrl,
+  getPriceByUrl,
+  updateEventByUrl,
+} from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
+import {
+  EditableEventCard,
+  EventCard,
+  type EventWithResolvedRelations,
+} from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { patchByUrl } from "~/shared/services/sharedService";
 
 interface ProductionPageProps {
   production: Production;
@@ -116,16 +125,30 @@ function isInfoModified(
   );
 }
 
+function isEventModified(original: Event, draft: Event): boolean {
+  return (
+    original.starts_at !== draft.starts_at ||
+    original.ends_at !== draft.ends_at ||
+    original.order_url !== draft.order_url ||
+    original.hall?.id_url !== draft.hall?.id_url
+  );
+}
+
 async function handleSave(
   production_id_url: string,
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  draftEvents: EventWithResolvedRelations[],
+  setOriginalEvents: React.Dispatch<
+    React.SetStateAction<EventWithResolvedRelations[] | null>
+  >,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string
 ) {
   if (!draftInfo || !originalInfo) return;
+  console.log(draftEvents);
 
   setIsSaving(true);
   try {
@@ -144,8 +167,16 @@ async function handleSave(
       ],
     });
 
+    for (const event of draftEvents) {
+      await updateEventByUrl(event.id_url, {
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+      });
+    }
+
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
+    setOriginalEvents(draftEvents);
 
     setIsEditing(false);
   } catch (err) {
@@ -404,6 +435,32 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
+function EditEvents({
+  draftEvents,
+  setDraftEvents,
+}: {
+  draftEvents: EventWithResolvedRelations[];
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+}) {
+  return (
+    <ul className="mt-6 space-y-2.5">
+      {draftEvents.map((event, index) => (
+        <EditableEventCard
+          key={event.id_url}
+          event={event}
+          onChange={(updated) => {
+            setDraftEvents((prev) => {
+              const copy = [...prev];
+              copy[index] = updated;
+              return copy;
+            });
+          }}
+        />
+      ))}
+    </ul>
+  );
+}
+
 const Spinner = () => (
   <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
 );
@@ -492,9 +549,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
+  const [originalEvents, setOriginalEvents] = useState<EventWithResolvedRelations[]>(
+    []
+  );
+  const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
 
   // States for editing the production info shown
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(true); // todo
   const [originalInfo, setOriginalInfo] = useState<ProductionInfo | null>(
     productionInfo
   );
@@ -509,16 +570,21 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       originalInfo,
       draftInfo,
       setOriginalInfo,
+      draftEvents,
+      setOriginalEvents,
       setIsEditing,
       setIsSaving,
       language
     );
+  const areEventsModified = useMemo(() => {
+    return draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft));
+  }, [draftEvents, originalEvents]);
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
   const isModified = useMemo(
-    () => isInfoModified(originalInfo, draftInfo),
-    [originalInfo, draftInfo]
+    () => isInfoModified(originalInfo, draftInfo) || areEventsModified,
+    [originalInfo, draftInfo, areEventsModified]
   );
 
   // Prevent moving away from page when edit is modified (browser aways)
@@ -627,11 +693,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         );
 
         if (!isCancelled) {
-          setEventsWithDetails(
-            hydratedEvents.filter(
-              (event): event is EventWithResolvedRelations => event !== null
-            )
+          const validEvents = hydratedEvents.filter(
+            (event): event is EventWithResolvedRelations => event !== null
           );
+
+          setEventsWithDetails(validEvents);
+          setOriginalEvents(validEvents);
+          setDraftEvents(validEvents.map((e) => ({ ...e }))); // clone
         }
       } catch {
         if (!isCancelled) {
@@ -699,7 +767,11 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 {t("productionPage.archiveSchema")}
               </h2>
 
-              <Events event_objects={eventObjects} />
+              {isEditing ? (
+                <EditEvents draftEvents={draftEvents} setDraftEvents={setDraftEvents} />
+              ) : (
+                <Events event_objects={originalEvents} />
+              )}
             </section>
           </article>
         </section>

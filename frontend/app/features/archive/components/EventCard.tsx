@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { Event, Price } from "~/features/archive/types/eventTypes";
@@ -176,6 +177,48 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         </div>
       </details>
+    </li>
+  );
+}
+
+export function EditableEventCard({
+  event,
+  onChange,
+}: {
+  event: EventWithResolvedRelations;
+  onChange: (updated: EventWithResolvedRelations) => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <li className="bg-archive-surface rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
+      <div className="grid sm:grid-cols-2">
+        <div>
+          <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+            {t("productionPage.startDateLabel")}
+          </p>
+          <input
+            className="text-sm font-semibold opacity-95 md:text-base"
+            type="datetime-local"
+            value={event.starts_at ?? ""}
+            onChange={(e) => onChange({ ...event, starts_at: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+            {t("productionPage.endDateLabel")}
+          </p>
+          <input
+            className="text-sm font-semibold opacity-95 md:text-base"
+            type="datetime-local"
+            value={event.ends_at ?? ""}
+            onChange={(e) => onChange({ ...event, ends_at: e.target.value })}
+          />
+        </div>
+
+        {/* TODO Venue input */}
+      </div>
     </li>
   );
 }
