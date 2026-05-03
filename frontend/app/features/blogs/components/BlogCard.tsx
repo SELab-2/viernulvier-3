@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
+import { useEffect, useState } from "react";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -72,7 +73,7 @@ async function getProductionTitlesByLanguage(
 
   const titles = await Promise.all(
     blog.production_id_urls.map(async (prod_id_url) => {
-      const prod = await getProductionByUrl(prod_id_url, language);
+      const prod = await getProductionByUrl(prod_id_url);
 
       const languageMatch = prod.production_infos.find(
         (prod_info) => prod_info.language === language
@@ -93,45 +94,23 @@ interface BlogCardProps {
   className?: string;
 }
 
-export async function BlogCard({
-  blog,
-  preferredLanguage = "en",
-  className,
-}: BlogCardProps) {
+export function BlogCard({ blog, preferredLanguage = "en", className }: BlogCardProps) {
+  const [productionTitles, setProductionTitles] = useState<string[]>([]);
+  const { t } = useTranslation();
+
   const blog_content = getBlogContentByLanguage(blog.blog_contents, preferredLanguage);
 
-  const production_titles = await getProductionTitlesByLanguage(
-    blog,
-    preferredLanguage
-  );
+  const title = blog_content.title;
+  const content = blog_content.content;
+  const imageUrl = DEFAULT_IMAGE;
 
-  return (
-    <BlogCardClient
-      title={blog_content.title}
-      content={blog_content.content}
-      productionTitles={production_titles}
-      imageUrl={DEFAULT_IMAGE}
-      className={className}
-    />
-  );
-}
-
-interface BlogCardClientProps {
-  title: string;
-  content: string;
-  productionTitles: string[];
-  imageUrl: string;
-  className?: string;
-}
-
-export function BlogCardClient({
-  title,
-  content,
-  productionTitles,
-  imageUrl,
-  className,
-}: BlogCardClientProps) {
-  const { t } = useTranslation();
+  useEffect(() => {
+    async function fetchProductionTitles() {
+      const result = await getProductionTitlesByLanguage(blog, preferredLanguage);
+      setProductionTitles(result);
+    }
+    fetchProductionTitles();
+  }, [blog, preferredLanguage]);
 
   return (
     <Card
