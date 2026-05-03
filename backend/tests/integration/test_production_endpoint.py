@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.models.production_group import ProductionGroup
 from src.models.user import User
 from src.models.role import Role
 from src.services.auth.password import get_password_hash
