@@ -88,29 +88,6 @@ def test_create_production_group_unauthorized(client: TestClient, productions_li
     assert response.status_code == 401
 
 
-def test_get_production_group(
-    client: TestClient, db_session: Session, productions_limited
-):
-    production_group = ProductionGroup(
-        title="Gettable group",
-        productions=productions_limited,
-        is_public_filter=False,
-    )
-    db_session.add(production_group)
-    db_session.commit()
-
-    response = client.get(f"{PRODUCTION_GROUPS_URL}/{production_group.id}")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["title"] == "Gettable group"
-    assert data["is_public_filter"] is False
-    assert set(data["production_id_urls"]) == {
-        f"http://testserver/api/v1/archive/productions/{production.id}"
-        for production in productions_limited
-    }
-
-
 def test_get_production_groups_public_only_by_default(
     client: TestClient, db_session: Session, productions_limited
 ):

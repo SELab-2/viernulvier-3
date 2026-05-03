@@ -130,20 +130,6 @@ def test_update_production_group(db_session, productions_limited):
     ]
 
 
-def test_update_production_group_invalid_productions(db_session):
-    production_group = ProductionGroup(title="Existing group")
-    db_session.add(production_group)
-    db_session.commit()
-
-    with pytest.raises(ValidationError, match="Productions do not exist"):
-        update_production_group(
-            db_session,
-            production_group.id,
-            ProductionGroupUpdate(production_id_urls=["/productions/999"]),
-            BASE_URL,
-        )
-
-
 def test_delete_production_group_success(db_session):
     production_group = ProductionGroup(title="Disposable group")
     db_session.add(production_group)

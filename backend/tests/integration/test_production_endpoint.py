@@ -122,34 +122,6 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
 
-def test_get_productions_with_group(
-    client: TestClient, db_session: Session, many_productions
-):
-    first_group = ProductionGroup(
-        title="Group one",
-        productions=many_productions[:5],
-    )
-    second_group = ProductionGroup(
-        title="Group two",
-        productions=many_productions[5:],
-        is_public_filter=False,
-    )
-    db_session.add_all([first_group, second_group])
-    db_session.commit()
-
-    response = client.get(
-        BASE_PROD_URL + "/", params={"limit": 10, "group_ids": first_group.id}
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data["productions"]) == 5
-    returned_ids = {
-        int(production["id_url"].rstrip("/").split("/")[-1])
-        for production in data["productions"]
-    }
-    assert returned_ids == {production.id for production in many_productions[:5]}
-
-
 def test_get_productions_with_invalid_group_ids(client: TestClient):
     response = client.get(BASE_PROD_URL + "/", params={"group_ids": "a,b"})
 

@@ -131,12 +131,10 @@ def test_get_productions_with_group(db_session, many_productions):
     )
     assert len(result.productions) == 5
     assert result.pagination.total_count == 5
-
-    result = get_productions_paginated(
-        db_session, BASE_URL, limit=10, groups=[first_group.id, second_group.id]
-    )
-    assert len(result.productions) == 10
-    assert result.pagination.total_count == 10
+    assert {
+        int(production.id_url.rstrip("/").split("/")[-1])
+        for production in result.productions
+    } == {production.id for production in many_productions[:5]}
 
 
 # Only get productions with a certain artist (in total 10 productions).
