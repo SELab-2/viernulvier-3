@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
@@ -69,9 +69,8 @@ const mockProductionEN: Production = {
   tags: [],
 };
 
-async function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
-  const element = await BlogCard({ blog: mockBlog, ...props });
-  return render(element);
+function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
+  return render(<BlogCard blog={mockBlog} {...props} />);
 }
 
 describe("BlogCard", () => {
@@ -79,55 +78,59 @@ describe("BlogCard", () => {
     vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
   });
 
-  it("renders the given title", async () => {
-    await renderBlogCard();
-    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
+  it("renders the given title", () => {
+    renderBlogCard();
+    expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();
   });
 
-  it("renders a long title without throwing", async () => {
+  it("renders a long title without throwing", () => {
     const longTitle = "A".repeat(300);
     const blog: Blog = {
       ...mockBlog,
       blog_contents: [{ ...mockBlogContentEN, title: longTitle }],
     };
-    await expect(renderBlogCard({ blog })).resolves.not.toThrow();
+    renderBlogCard({ blog });
     expect(screen.getByText(longTitle)).toBeInTheDocument();
   });
 
-  it("renders the beginning of the content text", async () => {
-    await renderBlogCard({ preferredLanguage: "en" });
+  it("renders the beginning of the content text", () => {
+    renderBlogCard({ preferredLanguage: "en" });
     expect(
       screen.getByText(/^Some interesting content about the blog topic\./)
     ).toBeInTheDocument();
   });
 
-  it("renders content with newlines", async () => {
+  it("renders content with newlines", () => {
     const multilineContent = "First line.\nSecond line.\nThird line.";
     const blog: Blog = {
       ...mockBlog,
       blog_contents: [{ ...mockBlogContentEN, content: multilineContent }],
     };
-    await expect(renderBlogCard({ blog })).resolves.not.toThrow();
+    renderBlogCard({ blog });
     expect(screen.getByText(/First line\./)).toBeInTheDocument();
   });
 
-  it("renders the no-production fallback text", async () => {
-    await renderBlogCard({ blog: mockBlogNoProductions });
+  it("renders the no-production fallback text", () => {
+    renderBlogCard({ blog: mockBlogNoProductions });
     expect(screen.getByText("blogs.card.no_prods")).toBeInTheDocument();
   });
 
   it("renders the production chip with the correct label for 1 production", async () => {
-    await renderBlogCard({ blog: mockBlog });
-    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
+    renderBlogCard({ blog: mockBlog });
+    await waitFor(() =>
+      expect(screen.getByText("Production Title EN")).toBeInTheDocument()
+    );
     expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
   });
 
   it("renders a chip showing the first production title + overflow count", async () => {
     vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
 
-    await renderBlogCard({ blog: mockBlogMultipleProductions });
+    renderBlogCard({ blog: mockBlogMultipleProductions });
 
-    expect(screen.getByText("Production Title EN")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText("Production Title EN")).toBeInTheDocument()
+    );
     expect(screen.getByText(/^\+2/)).toBeInTheDocument();
   });
 
@@ -147,14 +150,16 @@ describe("BlogCard", () => {
         ),
       };
 
-      await renderBlogCard({ blog });
+      renderBlogCard({ blog });
 
-      expect(screen.getByText(new RegExp(`^\\${expected}`))).toBeInTheDocument();
+      await waitFor(() =>
+        expect(screen.getByText(new RegExp(`^\\${expected}`))).toBeInTheDocument()
+      );
     }
   );
 
-  it("renders the 'details' link", async () => {
-    await renderBlogCard();
+  it("renders the 'details' link", () => {
+    renderBlogCard();
     expect(screen.getByText("blogs.card.details")).toBeInTheDocument();
   });
 });
@@ -164,7 +169,7 @@ describe("BlogCardList", () => {
     vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
   });
 
-  it("renders a card for every blog in the list", async () => {
+  it("renders a card for every blog in the list", () => {
     const blog2: Blog = {
       id_url: "/api/v1/archive/blogs/2",
       production_id_urls: [],
@@ -178,14 +183,10 @@ describe("BlogCardList", () => {
       ],
     };
 
-    const cards = await Promise.all(
-      [mockBlog, blog2].map((blog) => BlogCard({ blog }))
-    );
-
     render(
       <div>
-        {cards.map((card, i) => (
-          <div key={i}>{card}</div>
+        {[mockBlog, blog2].map((blog) => (
+          <BlogCard key={blog.id_url} blog={blog} />
         ))}
       </div>
     );
