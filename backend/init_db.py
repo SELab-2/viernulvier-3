@@ -5,6 +5,7 @@ Dit script wordt automatisch uitgevoerd vóór de start van de API-server
 (zie Dockerfile).
 """
 
+import logging
 import os
 from datetime import datetime
 
@@ -16,6 +17,9 @@ from src.models.sync_state import ResourceType, SyncState, SyncType
 from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
+
+
+logger = logging.getLogger(__name__)
 
 
 def seed_db():
@@ -56,20 +60,20 @@ def seed_db():
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
-            print(
-                f"Created default admin user: '{admin_username}' / '{admin_password}'"
-            )
+            logger.info("Created default admin user: '%s'", admin_username)
 
         if not admin_user.super_user:
             admin_user.super_user = True
             db.commit()
             db.refresh(admin_user)
-            print("Promoted the default admin user to protected super user.")
+            logger.info("Promoted the default admin user to protected super user.")
 
         if admin_role not in admin_user.roles:
             admin_user.roles.append(admin_role)
             db.commit()
-            print("Successfully assigned the 'admin' role to the default admin user.")
+            logger.info(
+                "Successfully assigned the 'admin' role to the default admin user."
+            )
 
         start_sync_date = datetime.fromisocalendar(2024, 1, 1)
         for sync_type in SyncType:

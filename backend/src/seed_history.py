@@ -1,14 +1,19 @@
+import logging
+
 from sqlalchemy.orm import Session
 from src.models.history import History
+
+
+logger = logging.getLogger(__name__)
 
 
 def seed_history_if_empty(session: Session):
     exists = session.query(History.year, History.language).first()
     if exists:
-        print("History already seeded")
+        logger.info("History already seeded")
         return
 
-    print("Seeding history table...")
+    logger.info("Seeding history table...")
     for row in DEFAULT_HISTORY:
         session.add(History(**row))
 
