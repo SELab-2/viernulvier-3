@@ -380,7 +380,9 @@ describe("HistoryPage", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByRole("button", { name: /nieuwe entry|I18N_History_Edit_Create/i })
+          screen.queryByRole("button", {
+            name: /nieuwe entry|I18N_History_Edit_Create/i,
+          })
         ).not.toBeInTheDocument();
       });
     });
@@ -399,7 +401,9 @@ describe("HistoryPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
         expect(
-          screen.queryByRole("button", { name: /I18N_History_Edit_Create|nieuwe entry/i })
+          screen.queryByRole("button", {
+            name: /I18N_History_Edit_Create|nieuwe entry/i,
+          })
         ).not.toBeInTheDocument();
       });
     });

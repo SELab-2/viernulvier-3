@@ -244,7 +244,9 @@ describe("HistoryEntry", () => {
       await user.clear(contentInput);
       await user.type(contentInput, "New content");
 
-      const saveButton = screen.getByRole("button", { name: /I18N_History_Edit_Save|opslaan/i });
+      const saveButton = screen.getByRole("button", {
+        name: /I18N_History_Edit_Save|opslaan/i,
+      });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -333,7 +335,9 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /I18N_History_Edit_Edit/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /I18N_History_Edit_Edit/i })
+        ).toBeInTheDocument();
         expect(
           screen.getByRole("button", { name: /I18N_History_Edit_Delete/i })
         ).toBeInTheDocument();

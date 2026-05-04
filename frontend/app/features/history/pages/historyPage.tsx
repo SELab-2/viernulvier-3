@@ -187,9 +187,7 @@ export default function HistoryPage() {
   function renderLoadingState() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="font-serif text-3xl italic opacity-60">
-          {t("history.loading")}
-        </p>
+        <p className="font-serif text-3xl italic opacity-60">{t("history.loading")}</p>
       </div>
     );
   }
@@ -211,9 +209,7 @@ export default function HistoryPage() {
         <p className="font-serif text-3xl italic opacity-60">
           {t("history.empty.title")}
         </p>
-        <p className="mt-3 max-w-2xl opacity-70">
-          {t("history.empty.description")}
-        </p>
+        <p className="mt-3 max-w-2xl opacity-70">{t("history.empty.description")}</p>
       </div>
     );
   }
