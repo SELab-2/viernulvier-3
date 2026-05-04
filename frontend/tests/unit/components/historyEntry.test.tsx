@@ -79,7 +79,9 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /edit\.edit/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /history\.actions\.edit|pas aan/i })
+        ).toBeInTheDocument();
       });
     });
 
@@ -88,7 +90,7 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -106,16 +108,16 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /edit\.save|opslaan/i })
+          screen.getByRole("button", { name: /history\.actions\.save|opslaan/i })
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: /edit\.cancel/i })
+          screen.getByRole("button", { name: /history\.actions\.cancel|annuleren/i })
         ).toBeInTheDocument();
       });
     });
@@ -125,12 +127,12 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
       const cancelButton = await screen.findByRole("button", {
-        name: /edit\.cancel|annuleren/i,
+        name: /history\.actions\.cancel|annuleren/i,
       });
       await user.click(cancelButton);
 
@@ -147,7 +149,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -155,7 +157,9 @@ describe("HistoryEntry", () => {
       await user.clear(titleInput);
       await user.type(titleInput, "Updated Event");
 
-      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", {
+        name: /history\.actions\.save|opslaan/i,
+      });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -176,7 +180,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -184,7 +188,9 @@ describe("HistoryEntry", () => {
       await user.clear(titleInput);
       await user.type(titleInput, "Updated Event");
 
-      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", {
+        name: /history\.actions\.save|opslaan/i,
+      });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -200,7 +206,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -208,7 +214,9 @@ describe("HistoryEntry", () => {
       await user.clear(yearInput);
       await user.type(yearInput, "2023");
 
-      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", {
+        name: /history\.actions\.save|opslaan/i,
+      });
       await user.click(saveButton);
 
       await waitFor(() => {

@@ -112,6 +112,9 @@
       "confirmDelete": "Weet je zeker dat je deze entry wilt verwijderen?"
     },
     "actions": {
+      "edit": "Pas aan",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
       "create": "Nieuwe entry",
       "submit": "Maak aan",
       "delete": "Verwijder",

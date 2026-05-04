@@ -36,6 +36,9 @@ export function HistoryEntry({
   const [draftContent, setDraftContent] = useState<string>(description);
   const [isSaving, setIsSaving] = useState(false);
 
+  const actionButtonClass =
+    "rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase transition-colors disabled:opacity-50";
+
   async function handleSave() {
     if (!onUpdate) return;
     setIsSaving(true);
@@ -80,7 +83,7 @@ export function HistoryEntry({
           <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
             {!isEditing ? (
               <button
-                className="bg-archive-control hover:bg-archive-control/80 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase transition-colors disabled:opacity-50"
+                className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
                 onClick={() => {
                   setDraftYear(String(year));
                   setDraftTitle(title);
@@ -88,23 +91,23 @@ export function HistoryEntry({
                   setIsEditing(true);
                 }}
               >
-                {t("edit.edit")}
+                {t("history.actions.edit")}
               </button>
             ) : (
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                 <button
-                  className="bg-archive-accent hover:bg-archive-accent/90 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-white uppercase transition-colors disabled:opacity-50"
+                  className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
                   onClick={handleSave}
                   disabled={isSaving}
                 >
-                  {isSaving ? t("history.actions.saving") : t("edit.save")}
+                  {isSaving ? t("history.actions.saving") : t("history.actions.save")}
                 </button>
                 <button
-                  className="bg-archive-control hover:bg-archive-control/80 rounded px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase transition-colors disabled:opacity-50"
+                  className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80`}
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
-                  {t("edit.cancel")}
+                  {t("history.actions.cancel")}
                 </button>
               </div>
             )}
@@ -112,7 +115,7 @@ export function HistoryEntry({
 
           <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
             <button
-              className="rounded bg-red-600 px-4 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-white uppercase transition-colors hover:bg-red-700 disabled:opacity-50"
+              className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
               onClick={handleDelete}
             >
               {t("history.actions.delete")}

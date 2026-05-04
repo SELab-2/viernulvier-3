@@ -158,13 +158,13 @@ describe("HistoryPage", () => {
       });
 
       const editButton = screen.getAllByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /history\.actions\.edit|pas aan/i,
       })[0];
       const user = userEvent.setup();
       await user.click(editButton);
 
       const saveButton = await screen.findByRole("button", {
-        name: /edit\.save|opslaan/i,
+        name: /history\.actions\.save|opslaan/i,
       });
       await user.click(saveButton);
 

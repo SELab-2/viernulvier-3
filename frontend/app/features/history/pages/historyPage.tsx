@@ -114,6 +114,9 @@ export default function HistoryPage() {
     content: "",
   });
 
+  const actionButtonClass =
+    "rounded px-3 py-1 text-sm font-semibold transition-colors disabled:opacity-50";
+
   async function handleCreate() {
     try {
       const created = await createHistoryEntry(newEntry);
@@ -174,7 +177,7 @@ export default function HistoryPage() {
                   <div className="mb-6 flex items-start gap-3">
                     {!isCreating ? (
                       <button
-                        className="bg-archive-accent rounded px-3 py-1 text-sm text-white"
+                        className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
                         onClick={() => setIsCreating(true)}
                       >
                         {t("history.actions.create")}
@@ -222,16 +225,16 @@ export default function HistoryPage() {
                         />
                         <div className="flex gap-2">
                           <button
-                            className="bg-archive-accent rounded px-3 py-1 text-sm text-white"
+                            className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
                             onClick={handleCreate}
                           >
                             {t("history.actions.submit")}
                           </button>
                           <button
-                            className="bg-archive-control rounded px-3 py-1 text-sm"
+                            className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80`}
                             onClick={() => setIsCreating(false)}
                           >
-                            {t("edit.cancel")}
+                            {t("history.actions.cancel")}
                           </button>
                         </div>
                       </div>
