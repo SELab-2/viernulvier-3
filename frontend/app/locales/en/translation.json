@@ -113,14 +113,13 @@
       "deleteFailed": "Could not delete the entry: {{error}}",
       "confirmDelete": "Are you sure you want to delete this entry?"
     },
-    "actions": {
+    "edit": {
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
-      "create": "New entry",
-      "submit": "Create entry",
+      "saving": "Saving...",
       "delete": "Delete",
-      "saving": "Saving..."
+      "create": "Create"
     },
     "empty": {
       "title": "No history entries found",

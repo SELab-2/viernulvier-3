@@ -177,10 +177,10 @@ export default function HistoryPage() {
                   <div className="mb-6 flex items-start gap-3">
                     {!isCreating ? (
                       <button
-                        className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
+                        className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
                         onClick={() => setIsCreating(true)}
                       >
-                        {t("history.actions.create")}
+                        {t("history.edit.create")}
                       </button>
                     ) : (
                       <div className="bg-archive-paper w-full rounded border p-4">
@@ -225,7 +225,7 @@ export default function HistoryPage() {
                         />
                         <div className="flex gap-2">
                           <button
-                            className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
+                            className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
                             onClick={handleCreate}
                           >
                             {t("history.actions.submit")}

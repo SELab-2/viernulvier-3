@@ -83,7 +83,7 @@ export function HistoryEntry({
           <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
             {!isEditing ? (
               <button
-                className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
+                className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
                 onClick={() => {
                   setDraftYear(String(year));
                   setDraftTitle(title);
@@ -91,23 +91,23 @@ export function HistoryEntry({
                   setIsEditing(true);
                 }}
               >
-                {t("history.actions.edit")}
+                {t("history.edit.edit")}
               </button>
             ) : (
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                 <button
-                  className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
+                  className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
                   onClick={handleSave}
                   disabled={isSaving}
                 >
-                  {isSaving ? t("history.actions.saving") : t("history.actions.save")}
+                  {isSaving ? t("history.edit.saving") : t("history.edit.save")}
                 </button>
                 <button
                   className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80`}
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
-                  {t("history.actions.cancel")}
+                  {t("history.edit.cancel")}
                 </button>
               </div>
             )}
@@ -115,10 +115,10 @@ export function HistoryEntry({
 
           <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
             <button
-              className={`${actionButtonClass} bg-archive-accent text-white hover:bg-archive-accent/90`}
+              className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
               onClick={handleDelete}
             >
-              {t("history.actions.delete")}
+              {t("history.edit.delete")}
             </button>
           </Protected>
         </div>
@@ -126,7 +126,9 @@ export function HistoryEntry({
 
       {isEditing && (
         <div className="bg-archive-paper mt-2 mb-6 rounded border p-4">
-          <label className="mb-2 block text-sm font-semibold">{t("history.form.labels.year")}</label>
+          <label className="mb-2 block text-sm font-semibold">
+            {t("history.form.labels.year")}
+          </label>
           <input
             placeholder={t("history.form.placeholders.year")}
             value={draftYear}
@@ -134,7 +136,9 @@ export function HistoryEntry({
             className="mb-2 w-full rounded border px-2 py-1"
           />
 
-          <label className="mb-2 block text-sm font-semibold">{t("history.form.labels.title")}</label>
+          <label className="mb-2 block text-sm font-semibold">
+            {t("history.form.labels.title")}
+          </label>
           <input
             placeholder={t("history.form.placeholders.title")}
             value={draftTitle}
