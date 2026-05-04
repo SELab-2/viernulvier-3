@@ -73,7 +73,7 @@ describe("HistoryPage", () => {
 
       renderPage();
 
-      expect(screen.getByText("history.loading")).toBeInTheDocument();
+      expect(screen.getByText("I18N_History_Loading")).toBeInTheDocument();
     });
 
     it("hides loading message after entries are loaded", async () => {
@@ -84,7 +84,7 @@ describe("HistoryPage", () => {
       renderPage();
 
       await waitFor(() => {
-        expect(screen.queryByText("history.loading")).not.toBeInTheDocument();
+        expect(screen.queryByText("I18N_History_Loading")).not.toBeInTheDocument();
       });
     });
   });
@@ -111,8 +111,8 @@ describe("HistoryPage", () => {
       renderPage();
 
       await waitFor(() => {
-        expect(screen.getByText("history.empty.title")).toBeInTheDocument();
-        expect(screen.getByText("history.empty.description")).toBeInTheDocument();
+        expect(screen.getByText("I18N_History_Empty_Title")).toBeInTheDocument();
+        expect(screen.getByText("I18N_History_Empty_Description")).toBeInTheDocument();
       });
     });
   });
@@ -126,7 +126,7 @@ describe("HistoryPage", () => {
       renderPage();
 
       await waitFor(() => {
-        expect(screen.getByText("history.errorTitle")).toBeInTheDocument();
+        expect(screen.getByText("I18N_History_Error_Title")).toBeInTheDocument();
       });
     });
 
@@ -158,19 +158,19 @@ describe("HistoryPage", () => {
       });
 
       const editButton = screen.getAllByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       })[0];
       const user = userEvent.setup();
       await user.click(editButton);
 
       const saveButton = await screen.findByRole("button", {
-        name: /history\.actions\.save|opslaan/i,
+        name: /I18N_History_Edit_Save|opslaan/i,
       });
       await user.click(saveButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("history.messages.updateFailed")
+          expect.stringContaining("I18N_History_Message_UpdateFailed")
         );
       });
     });
@@ -191,14 +191,14 @@ describe("HistoryPage", () => {
       });
 
       const deleteButton = screen.getAllByRole("button", {
-        name: /history\.actions\.delete|verwijder/i,
+        name: /I18N_History_Edit_Delete|verwijder/i,
       })[0];
       const user = userEvent.setup();
       await user.click(deleteButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("history.messages.deleteFailed")
+          expect.stringContaining("I18N_History_Message_DeleteFailed")
         );
       });
     });
@@ -214,7 +214,7 @@ describe("HistoryPage", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /history\.actions\.create|nieuwe entry/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Create|nieuwe entry/i })
         ).toBeInTheDocument();
       });
     });
@@ -227,20 +227,20 @@ describe("HistoryPage", () => {
       renderPage();
 
       const createButton = await screen.findByRole("button", {
-        name: /history\.actions\.create|nieuwe entry/i,
+        name: /I18N_History_Edit_Create|nieuwe entry/i,
       });
       const user = userEvent.setup();
       await user.click(createButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("textbox", { name: /history\.form\.labels\.year/i })
+          screen.getByRole("textbox", { name: /I18N_History_Form_Label_Year/i })
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("textbox", { name: /history\.form\.labels\.title/i })
+          screen.getByRole("textbox", { name: /I18N_History_Form_Label_Title/i })
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("textbox", { name: /history\.form\.labels\.content/i })
+          screen.getByRole("textbox", { name: /I18N_History_Form_Label_Content/i })
         ).toBeInTheDocument();
       });
     });
@@ -262,18 +262,18 @@ describe("HistoryPage", () => {
       renderPage();
 
       const createButton = await screen.findByRole("button", {
-        name: /history\.actions\.create|nieuwe entry/i,
+        name: /I18N_History_Edit_Create|nieuwe entry/i,
       });
       const user = userEvent.setup();
       await user.click(createButton);
 
       const titleInput = await screen.findByRole("textbox", {
-        name: /history\.form\.labels\.title/i,
+        name: /I18N_History_Form_Label_Title/i,
       });
       fireEvent.change(titleInput, { target: { value: "New Event" } });
 
       const contentInput = await screen.findByRole("textbox", {
-        name: /history\.form\.labels\.content/i,
+        name: /I18N_History_Form_Label_Content/i,
       });
       fireEvent.change(contentInput, { target: { value: "A new event" } });
 
@@ -283,7 +283,7 @@ describe("HistoryPage", () => {
       });
 
       const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan/i,
+        name: /history\.actions\.submit|maak aan|create entry/i,
       });
       await user.click(makeButton);
 
@@ -312,27 +312,27 @@ describe("HistoryPage", () => {
       renderPage();
 
       const createButton = await screen.findByRole("button", {
-        name: /history\.actions\.create|nieuwe entry/i,
+        name: /I18N_History_Edit_Create|nieuwe entry/i,
       });
       const user = userEvent.setup();
       await user.click(createButton);
 
       const titleInput = await screen.findByRole("textbox", {
-        name: /history\.form\.labels\.title/i,
+        name: /I18N_History_Form_Label_Title/i,
       });
       await user.type(titleInput, "New Event");
 
       const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan/i,
+        name: /history\.actions\.submit|maak aan|create entry/i,
       });
       await user.click(makeButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /history\.actions\.create|nieuwe entry/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Create|nieuwe entry/i })
         ).toBeInTheDocument();
         expect(
-          screen.queryByRole("textbox", { name: /history\.form\.labels\.title/i })
+          screen.queryByRole("textbox", { name: /I18N_History_Form_Label_Title/i })
         ).not.toBeInTheDocument();
       });
     });
@@ -348,19 +348,19 @@ describe("HistoryPage", () => {
       renderPage();
 
       const createButton = await screen.findByRole("button", {
-        name: /history\.actions\.create|nieuwe entry/i,
+        name: /I18N_History_Edit_Create|nieuwe entry/i,
       });
       const user = userEvent.setup();
       await user.click(createButton);
 
       const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan/i,
+        name: /history\.actions\.submit|maak aan|create entry/i,
       });
       await user.click(makeButton);
 
       await waitFor(() => {
         expect(window.alert).toHaveBeenCalledWith(
-          expect.stringContaining("history.messages.createFailed")
+          expect.stringContaining("I18N_History_Message_CreateFailed")
         );
       });
     });
@@ -380,7 +380,7 @@ describe("HistoryPage", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByRole("button", { name: /nieuwe entry/i })
+          screen.queryByRole("button", { name: /nieuwe entry|I18N_History_Edit_Create/i })
         ).not.toBeInTheDocument();
       });
     });
@@ -399,7 +399,7 @@ describe("HistoryPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Recent Event")).toBeInTheDocument();
         expect(
-          screen.queryByRole("button", { name: /nieuwe entry/i })
+          screen.queryByRole("button", { name: /I18N_History_Edit_Create|nieuwe entry/i })
         ).not.toBeInTheDocument();
       });
     });

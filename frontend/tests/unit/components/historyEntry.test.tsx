@@ -80,7 +80,7 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /history\.actions\.edit|pas aan/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Edit|pas aan/i })
         ).toBeInTheDocument();
       });
     });
@@ -90,7 +90,7 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -108,16 +108,16 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /history\.actions\.save|opslaan/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Save|opslaan/i })
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: /history\.actions\.cancel|annuleren/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Cancel|annuleren/i })
         ).toBeInTheDocument();
       });
     });
@@ -127,12 +127,12 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
       const cancelButton = await screen.findByRole("button", {
-        name: /history\.actions\.cancel|annuleren/i,
+        name: /I18N_History_Edit_Cancel|annuleren/i,
       });
       await user.click(cancelButton);
 
@@ -149,7 +149,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -158,7 +158,7 @@ describe("HistoryEntry", () => {
       await user.type(titleInput, "Updated Event");
 
       const saveButton = screen.getByRole("button", {
-        name: /history\.actions\.save|opslaan/i,
+        name: /I18N_History_Edit_Save|opslaan/i,
       });
       await user.click(saveButton);
 
@@ -180,7 +180,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -189,13 +189,13 @@ describe("HistoryEntry", () => {
       await user.type(titleInput, "Updated Event");
 
       const saveButton = screen.getByRole("button", {
-        name: /history\.actions\.save|opslaan/i,
+        name: /I18N_History_Edit_Save|opslaan/i,
       });
       await user.click(saveButton);
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /edit\.edit|pas aan/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Edit|pas aan/i })
         ).toBeInTheDocument();
       });
     });
@@ -206,7 +206,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /history\.actions\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -215,7 +215,7 @@ describe("HistoryEntry", () => {
       await user.type(yearInput, "2023");
 
       const saveButton = screen.getByRole("button", {
-        name: /history\.actions\.save|opslaan/i,
+        name: /I18N_History_Edit_Save|opslaan/i,
       });
       await user.click(saveButton);
 
@@ -234,7 +234,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, mockOnUpdate);
 
       const editButton = await screen.findByRole("button", {
-        name: /edit\.edit|pas aan/i,
+        name: /I18N_History_Edit_Edit|pas aan/i,
       });
       await user.click(editButton);
 
@@ -244,7 +244,7 @@ describe("HistoryEntry", () => {
       await user.clear(contentInput);
       await user.type(contentInput, "New content");
 
-      const saveButton = screen.getByRole("button", { name: /edit\.save|opslaan/i });
+      const saveButton = screen.getByRole("button", { name: /I18N_History_Edit_Save|opslaan/i });
       await user.click(saveButton);
 
       await waitFor(() => {
@@ -263,7 +263,7 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /history\.actions\.delete/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Delete|verwijder/i })
         ).toBeInTheDocument();
       });
     });
@@ -274,7 +274,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, undefined, mockOnDelete);
 
       const deleteButton = await screen.findByRole("button", {
-        name: /history\.actions\.delete/i,
+        name: /I18N_History_Edit_Delete|verwijder/i,
       });
       await user.click(deleteButton);
 
@@ -290,7 +290,7 @@ describe("HistoryEntry", () => {
       renderEntry(baseEntry, undefined, mockOnDelete);
 
       const deleteButton = await screen.findByRole("button", {
-        name: /history\.actions\.delete|verwijder/i,
+        name: /I18N_History_Edit_Delete|verwijder/i,
       });
       await user.click(deleteButton);
 
@@ -310,7 +310,7 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByRole("button", { name: /edit\.edit/i })
+          screen.queryByRole("button", { name: /I18N_History_Edit_Edit/i })
         ).not.toBeInTheDocument();
       });
     });
@@ -324,7 +324,7 @@ describe("HistoryEntry", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByRole("button", { name: /history\.actions\.delete/i })
+          screen.queryByRole("button", { name: /I18N_History_Edit_Delete/i })
         ).not.toBeInTheDocument();
       });
     });
@@ -333,9 +333,9 @@ describe("HistoryEntry", () => {
       renderEntry();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /edit\.edit/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /I18N_History_Edit_Edit/i })).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: /history\.actions\.delete/i })
+          screen.getByRole("button", { name: /I18N_History_Edit_Delete/i })
         ).toBeInTheDocument();
       });
     });
