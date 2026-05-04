@@ -70,9 +70,9 @@ export function HistoryEntry({
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <h3 className="font-serif text-[clamp(1.5rem,2.5vw,2.25rem)] italic">
-            <span className="mr-2">{year}</span>
+            <span className="mr-2 text-neutral-500">{year}</span>
             <span className="mx-2">-</span>
-            <span>{title}</span>
+            <span className="font-semibold">{title}</span>
           </h3>
           <p className="text-[clamp(1rem,1.5vw,1.25rem)] leading-relaxed italic opacity-70">
             {description}
@@ -126,7 +126,7 @@ export function HistoryEntry({
 
       {isEditing && (
         <div className="bg-archive-paper mt-2 mb-6 rounded border p-4">
-          <label className="mb-2 block text-sm">{t("history.form.labels.year")}</label>
+          <label className="mb-2 block text-sm font-semibold">{t("history.form.labels.year")}</label>
           <input
             placeholder={t("history.form.placeholders.year")}
             value={draftYear}
@@ -134,7 +134,7 @@ export function HistoryEntry({
             className="mb-2 w-full rounded border px-2 py-1"
           />
 
-          <label className="mb-2 block text-sm">{t("history.form.labels.title")}</label>
+          <label className="mb-2 block text-sm font-semibold">{t("history.form.labels.title")}</label>
           <input
             placeholder={t("history.form.placeholders.title")}
             value={draftTitle}
@@ -142,7 +142,7 @@ export function HistoryEntry({
             className="mb-2 w-full rounded border px-2 py-1"
           />
 
-          <label className="mb-2 block text-sm">
+          <label className="mb-2 block text-sm font-semibold">
             {t("history.form.labels.content")}
           </label>
           <textarea
