@@ -70,7 +70,7 @@ def seed_db():
             db.commit()
             print("Successfully assigned the 'admin' role to the default admin user.")
 
-        start_sync_date = datetime.fromisocalendar(2024, 1, 1)
+        start_sync_date = datetime.fromisocalendar(2026, 14, 1)
         for sync_type in SyncType:
             for resource_type in ResourceType:
                 sync_state = (
