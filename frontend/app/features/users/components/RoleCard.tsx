@@ -56,7 +56,7 @@ export function RoleCard({ role, onDelete }: RoleCardProps) {
       {onDelete ? (
         <div className="border-archive-border mt-5 border-t pt-4">
           <Button onClick={onDelete} sx={deleteButtonSx}>
-            {t("users.actions.delete")}
+            {t("users.roles.actions.delete")}
           </Button>
         </div>
       ) : null}

@@ -256,10 +256,10 @@ function DeleteUserDialog({
           {isSubmitting ? (
             <>
               <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
-              {t("users.actions.deleting")}
+              {t("users.roles.actions.deleting")}
             </>
           ) : (
-            t("users.actions.delete")
+            t("users.roles.actions.delete")
           )}
         </Button>
       </DialogActions>

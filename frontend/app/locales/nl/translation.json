@@ -246,7 +246,9 @@
       "actions": {
         "add": "Rol toevoegen",
         "create": "Rol aanmaken",
-        "creating": "Rol wordt aangemaakt"
+        "creating": "Rol wordt aangemaakt",
+        "delete": "Rol verwijderen",
+        "deleting": "Rol wordt verwijderd"
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
@@ -261,7 +263,7 @@
         },
         "delete": {
           "title": "Rol verwijderen",
-          "description": "De rol {{roleName}} verwijderen? Gebruikers die eraan gekoppeld zijn, verliezen deze rol meteen."
+          "description": "De rol {{roleName}} verwijderen? Dit is alleen mogelijk als er geen gebruikers aan deze rol gekoppeld zijn."
         }
       },
       "empty": {
