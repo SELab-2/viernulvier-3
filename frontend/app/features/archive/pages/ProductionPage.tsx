@@ -16,7 +16,7 @@ import {
   getPriceByUrl,
   updateEventByUrl,
 } from "~/features/archive/services/eventService";
-import { getHallByUrl } from "~/features/archive/services/hallService";
+import { getAllHalls, getHallByUrl } from "~/features/archive/services/hallService";
 import {
   EditableEventCard,
   EventCard,
@@ -27,6 +27,7 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { deleteByUrl } from "~/shared/services/sharedService";
+import type { Hall } from "../types/hallTypes";
 
 interface ProductionPageProps {
   production: Production;
@@ -142,6 +143,8 @@ async function handleSave(
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
   draftEvents: EventWithResolvedRelations[],
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  originalEvents: EventWithResolvedRelations[],
   setOriginalEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   newEvents: EventWithResolvedRelations[],
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
@@ -170,7 +173,9 @@ async function handleSave(
     });
 
     // Patch edited events
-    for (const event of draftEvents) {
+    for (const event of draftEvents.filter((event, i) =>
+      isEventModified(originalEvents[i], event)
+    )) {
       await updateEventByUrl(event.id_url, {
         hall_id_url: event.hall?.id_url,
         starts_at: event.starts_at,
@@ -206,6 +211,7 @@ async function handleSave(
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
     setOriginalEvents([...draftEvents, ...createdEvents]);
+    setDraftEvents([...draftEvents, ...createdEvents]);
     setNewEvents([]);
     setDeletedEvents([]);
 
@@ -470,10 +476,12 @@ function EditEvents({
   draftEvents,
   setDraftEvents,
   setDeletedEvents,
+  halls,
 }: {
   draftEvents: EventWithResolvedRelations[];
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  halls: Hall[];
 }) {
   return (
     <ul className="mt-6 space-y-2.5">
@@ -481,6 +489,7 @@ function EditEvents({
         <EditableEventCard
           key={event.id_url}
           event={event}
+          halls={halls}
           onChange={(updated) => {
             setDraftEvents((prev) => {
               const copy = [...prev];
@@ -628,6 +637,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  // State containing all halls so that editable event cards don't have to each fetch all the halls themselves for every event
+  const [allHalls, setAllHalls] = useState<Hall[]>([]);
+
   const _handleSave = () =>
     handleSave(
       production.id_url,
@@ -635,6 +647,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       draftInfo,
       setOriginalInfo,
       draftEvents,
+      setDraftEvents,
+      originalEvents,
       setOriginalEvents,
       newEvents,
       setNewEvents,
@@ -800,6 +814,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
+  useEffect(() => {
+    if (isEditing) {
+      const loadHalls = async () => {
+        const halls = await getAllHalls();
+        setAllHalls(halls);
+      };
+      loadHalls();
+    }
+  }, [isEditing]);
+
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
@@ -859,9 +883,14 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                     draftEvents={draftEvents}
                     setDraftEvents={setDraftEvents}
                     setDeletedEvents={setDeletedEvents}
+                    halls={allHalls}
                   />
                   {/* Events that are being newly created */}
-                  <EditEvents draftEvents={newEvents} setDraftEvents={setNewEvents} />
+                  <EditEvents
+                    draftEvents={newEvents}
+                    setDraftEvents={setNewEvents}
+                    halls={allHalls}
+                  />
                   <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
                     <NewEventButton
                       onClick={() => {

@@ -4,8 +4,7 @@ import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-import { useEffect, useState } from "react";
-import { getAllHalls } from "../services/hallService";
+import { useState } from "react";
 
 export type EventWithResolvedRelations = Event & {
   resolvedHall: Hall | undefined;
@@ -208,10 +207,12 @@ function HallDropdown({
 
 export function EditableEventCard({
   event,
+  halls,
   onChange,
   onDelete,
 }: {
   event: EventWithResolvedRelations;
+  halls: Hall[];
   onChange: (updated: EventWithResolvedRelations) => void;
   onDelete: () => void;
 }) {
@@ -219,21 +220,11 @@ export function EditableEventCard({
 
   const [hallName, setHallname] = useState<string>(event.hall?.name ?? "");
   const [hallDropdownActive, setHallDropdownActive] = useState<boolean>(false);
-  const [allHalls, setAllHalls] = useState<Hall[]>([]);
 
-  const filteredHalls = allHalls.filter((hall) =>
+  const filteredHalls = halls.filter((hall) =>
     hall.name.toLowerCase().includes(hallName.toLowerCase())
   );
-  useEffect(() => {
-    const loadHalls = async () => {
-      const halls = await getAllHalls();
-      setAllHalls(halls);
-    };
-    loadHalls();
-    return () => {
-      return;
-    };
-  }, []);
+
   const isInvalid =
     event.starts_at &&
     event.ends_at &&
@@ -241,7 +232,7 @@ export function EditableEventCard({
 
   return (
     <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
-      <div className="flex flex-col justify-between gap-4 lg:flex-row">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_auto]">
         <div>
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.startDateLabel")}
@@ -274,7 +265,8 @@ export function EditableEventCard({
           </p>
           <div className="relative">
             <input
-              className="overflow-hidden text-sm font-semibold opacity-95 md:text-base"
+              className="border-archive-accent/95 bg-archive-control/20 w-full rounded-md border px-3 py-1 text-sm font-semibold opacity-95 focus:border-blue-500 focus:outline-none md:text-base"
+              placeholder={t("productionPage.placeLabel")}
               value={hallName}
               onFocus={() => setHallDropdownActive(true)}
               onBlur={() => setHallDropdownActive(false)}
