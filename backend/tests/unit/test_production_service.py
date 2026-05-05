@@ -1,5 +1,6 @@
 from typing import List
 from src.models.production import Production
+from src.models.production_group import ProductionGroup
 from src.services.production import (
     get_production_by_id,
     get_productions_paginated,
@@ -110,6 +111,30 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
     assert result.pagination.total_count == 10
+
+
+def test_get_productions_with_group(db_session, many_productions):
+    first_group = ProductionGroup(
+        title="First group",
+        productions=many_productions[:5],
+    )
+    second_group = ProductionGroup(
+        title="Second group",
+        productions=many_productions[5:],
+        is_public_filter=False,
+    )
+    db_session.add_all([first_group, second_group])
+    db_session.commit()
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, groups=[first_group.id]
+    )
+    assert len(result.productions) == 5
+    assert result.pagination.total_count == 5
+    assert {
+        int(production.id_url.rstrip("/").split("/")[-1])
+        for production in result.productions
+    } == {production.id for production in many_productions[:5]}
 
 
 # Only get productions with a certain artist (in total 10 productions).
@@ -570,6 +595,27 @@ def test_update_production_info_delete(db_session, productions_limited):
         db_session, productions_limited[0].id, BASE_URL
     )
     assert len(production_response.production_infos) == 1
+
+
+# Update an existing production - delete all existing production infos should fail.
+def test_update_production_info_delete_all(db_session, productions_limited):
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
+
+    # Should throw an exception.
+    update = ProductionUpdate(
+        remove_languages=[Languages.ENGLISH, Languages.NEDERLANDS]
+    )
+    with pytest.raises(Exception):
+        update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+
+    # Not updated in database.
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
 
 
 # Update an existing production - delete not existing production info (nothing happens, also no error).

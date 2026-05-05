@@ -1,3 +1,4 @@
+<<<<<<< subfeat/display-and-edit-history
 from sqlalchemy.orm import Session
 
 
@@ -10,6 +11,24 @@ def seed_history_if_empty(session: Session):
         return
 
     print("Seeding history table...")
+=======
+import logging
+
+from sqlalchemy.orm import Session
+from src.models.history import History
+
+
+logger = logging.getLogger(__name__)
+
+
+def seed_history_if_empty(session: Session):
+    exists = session.query(History.year, History.language).first()
+    if exists:
+        logger.info("History already seeded")
+        return
+
+    logger.info("Seeding history table...")
+>>>>>>> dev
     for row in DEFAULT_HISTORY:
         session.add(History(**row))
 

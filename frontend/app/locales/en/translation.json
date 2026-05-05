@@ -51,6 +51,7 @@
   },
 
   "productionPage": {
+    "infoNotAvailable": "Information in this language is not available.",
     "fallback": {
       "unknownProduction": "Unknown production",
       "archive": "Archive",
@@ -83,6 +84,14 @@
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist"
+    },
+    "delete": {
+      "delete": "Delete",
+      "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
+      "error": "Error: Each production should have info in at least one language."
+    },
+    "add": {
+      "add": "Add production info"
     }
   },
 
@@ -174,6 +183,14 @@
     ]
   },
 
+  "blogs": {
+    "card": {
+      "other_prods": "other productions",
+      "no_prods": "No productions are linked to this blog",
+      "details": "Details"
+    }
+  },
+
   "auth": {
     "actions": {
       "login": "Login",
@@ -198,7 +215,7 @@
   },
 
   "users": {
-    "eyebrow": "Administration",
+    "sectionLabel": "Administration",
     "title": "User management",
     "description": "Review active accounts and make lightweight account changes without leaving the overview.",
     "loading": "Loading users",
@@ -260,9 +277,41 @@
       "userLabel": "User #{{id}}"
     },
     "accessDenied": {
-      "eyebrow": "Restricted area",
+      "sectionLabel": "Restricted area",
       "title": "You do not have access to user management",
       "description": "This section requires the users:read permission. Contact an administrator if you need access to manage accounts."
+    },
+    "roles": {
+      "sectionLabel": "Access control",
+      "title": "Roles",
+      "loading": "Loading roles",
+      "fields": {
+        "name": "Role name"
+      },
+      "actions": {
+        "add": "Add role",
+        "create": "Create role",
+        "creating": "Creating role"
+      },
+      "messages": {
+        "loadFailed": "We could not load roles right now.",
+        "createFailed": "We could not create the role right now.",
+        "nameRequired": "A role name is required."
+      },
+      "dialogs": {
+        "create": {
+          "title": "Add role",
+          "description": "Create a new role. Permissions can be assigned after creation."
+        }
+      },
+      "empty": {
+        "title": "No roles found",
+        "description": "Once roles are created they will appear here with their assigned permissions.",
+        "permissions": "No permissions assigned"
+      },
+      "card": {
+        "label": "Role"
+      }
     }
   },
   "notFound": {

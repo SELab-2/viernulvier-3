@@ -62,7 +62,7 @@ export function ProductionPageMediaGallery({
     const loadAllMediaImages = async () => {
       try {
         const imageUrlsSet = new Set<string>();
-        let cursor: string | number | undefined;
+        let cursor: number | undefined;
         let hasMore = true;
 
         // continue paginated requests until there are no more pages

@@ -13,6 +13,7 @@ from src.main import app
 from src.models.production import ProdInfo, Production
 from src.models.event import Event
 from src.models.tag import Tag, TagName
+from src.models.blogs import Blog, BlogContent
 from src.services.language import Languages
 from src.models import Media
 
@@ -224,6 +225,34 @@ def many_productions(db_session):
 
 
 @pytest.fixture
+def productions_with_null_dates(db_session):
+    prods = []
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=datetime(2026, 3, i + 1),
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    for i in range(3):
+        p = Production(
+            performer_type="test",
+            attendance_mode="offline",
+            earliest_at=None,
+        )
+        db_session.add(p)
+        db_session.flush()
+        prods.append(p)
+
+    db_session.commit()
+    return prods
+
+
+@pytest.fixture
 def productions_with_different_artists(db_session):
     productions = []
     artists = [["Steven", "Bob", ""], ["Steve", "", "Donald"]]
@@ -283,6 +312,53 @@ def media_item(db_session, production_with_no_media):
 
 
 @pytest.fixture
+def blog_with_no_media(db_session: Session) -> Blog:
+    blog = Blog(
+        contents=[BlogContent(language=Languages.ENGLISH, title="foo", content="bar")]
+    )
+    db_session.add(blog)
+    db_session.commit()
+    db_session.refresh(blog)
+    return blog
+
+
+@pytest.fixture
+def media_item_blog(db_session, blog_with_no_media):
+    media = Media(
+        blog_id=blog_with_no_media.id,
+        object_key=f"gallery-{blog_with_no_media.id}/example.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(media)
+    db_session.commit()
+    db_session.refresh(media)
+    return media
+
+
+@pytest.fixture
+def media_items_prod_blog(db_session, production_with_no_media, blog_with_no_media):
+    m1 = Media(
+        production_id=production_with_no_media.id,
+        object_key=f"gallery-{production_with_no_media.id}/file-1.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    m2 = Media(
+        blog_id=blog_with_no_media.id,
+        object_key=f"gallery-{blog_with_no_media.id}/file-2.jpg",
+        content_type="image/jpeg",
+        uploaded_at=datetime.now(timezone.utc),
+    )
+    medias = [m1, m2]
+    db_session.add_all(medias)
+    db_session.commit()
+    db_session.refresh(medias[0])
+    db_session.refresh(medias[1])
+    return medias
+
+
+@pytest.fixture
 def media_items_for_production(db_session, production_with_no_media):
     items = []
     for idx in range(3):
@@ -298,3 +374,112 @@ def media_items_for_production(db_session, production_with_no_media):
     for m in items:
         db_session.refresh(m)
     return items
+
+
+@pytest.fixture
+def media_items_for_blog(db_session, blog_with_no_media):
+    items = []
+    for idx in range(3):
+        m = Media(
+            blog_id=blog_with_no_media.id,
+            object_key=f"gallery-{blog_with_no_media.id}/file-{idx}.jpg",
+            content_type="image/jpeg",
+            uploaded_at=datetime.now(timezone.utc),
+        )
+        db_session.add(m)
+        items.append(m)
+    db_session.commit()
+    for m in items:
+        db_session.refresh(m)
+    return items
+
+
+@pytest.fixture
+def blogs_limited(db_session):
+    prod1 = Production(
+        performer_type="theater",
+        attendance_mode="offline",
+        earliest_at=datetime.fromtimestamp(123123),
+        latest_at=datetime.fromtimestamp(223123),
+    )
+    prod2 = Production(
+        performer_type="concert",
+        attendance_mode="online",
+        earliest_at=datetime.fromtimestamp(423123),
+        latest_at=datetime.fromtimestamp(823123),
+    )
+    db_session.add_all([prod1, prod2])
+    db_session.flush()
+
+    blog1 = Blog(
+        productions=[prod1],
+    )
+    blog2 = Blog(
+        productions=[prod1, prod2],
+    )
+    db_session.add_all([blog1, blog2])
+    db_session.flush()
+
+    content1_en = BlogContent(
+        blog_id=blog1.id, language=Languages.ENGLISH, title="title1", content="content1"
+    )
+    content2_en = BlogContent(
+        blog_id=blog2.id, language=Languages.ENGLISH, title="title2", content="content2"
+    )
+    content2_nl = BlogContent(
+        blog_id=blog2.id,
+        language=Languages.NEDERLANDS,
+        title="titel2",
+        content="inhoud2",
+    )
+    db_session.add_all([content1_en, content2_en, content2_nl])
+    db_session.commit()
+
+    db_session.refresh(blog1)
+    db_session.refresh(blog2)
+    return [blog1, blog2]
+
+
+@pytest.fixture
+def many_blogs(db_session):
+    blogs = []
+    prod1 = Production(
+        performer_type="theater",
+        attendance_mode="offline",
+        earliest_at=datetime.fromtimestamp(123123),
+        latest_at=datetime.fromtimestamp(223123),
+    )
+    prod2 = Production(
+        performer_type="concert",
+        attendance_mode="online",
+        earliest_at=datetime.fromtimestamp(423123),
+        latest_at=datetime.fromtimestamp(823123),
+    )
+    db_session.add_all([prod1, prod2])
+    db_session.flush()
+
+    for i in range(10):
+        blog = Blog(
+            productions=[prod1, prod2],
+        )
+        db_session.add(blog)
+        db_session.flush()
+
+        content_en = BlogContent(
+            blog_id=blog.id,
+            language=Languages.ENGLISH,
+            title="title",
+            content="content",
+        )
+        content_nl = BlogContent(
+            blog_id=blog.id,
+            language=Languages.NEDERLANDS,
+            title="titel",
+            content="inhoud",
+        )
+        db_session.add_all([content_en, content_nl])
+        db_session.flush()
+        blogs.append(blog)
+
+    db_session.commit()
+    return blogs

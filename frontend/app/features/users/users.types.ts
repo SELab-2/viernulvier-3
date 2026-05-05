@@ -23,3 +23,20 @@ export interface IUserCreateRequest {
   username: string;
   password: string;
 }
+
+export interface IRoleResponse {
+  id_url: string;
+  name: string;
+  permissions: string[];
+}
+
+export interface IRole {
+  id: number;
+  name: string;
+  permissions: string[];
+}
+
+export interface IRoleCreateRequest {
+  name: string;
+  permissions?: string[];
+}

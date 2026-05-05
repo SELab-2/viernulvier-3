@@ -2,13 +2,14 @@ from datetime import datetime
 
 from pydantic import ConfigDict, Field
 from src.schemas.base_schema import StrictModel
-from src.schemas.pagination import Pagination
+from src.schemas.pagination import IdPagination
 
 
 class MediaResponse(StrictModel):
     id_url: str
     url: str
-    production_id_url: str
+    production_id_url: str | None
+    blog_id_url: str | None
     content_type: str
     uploaded_at: datetime
 
@@ -17,4 +18,4 @@ class MediaResponse(StrictModel):
 
 class MediaListResponse(StrictModel):
     media: list[MediaResponse] = Field(default_factory=list)
-    pagination: Pagination = Field(default_factory=Pagination)
+    pagination: IdPagination = Field(default_factory=IdPagination)

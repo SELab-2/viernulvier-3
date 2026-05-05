@@ -112,6 +112,9 @@ vi.mock("react-i18next", async () => {
               description: "I18N_History_Entry8_Description",
             },
           ],
+          "blogs.card.other_prods": "I18N_Blog_Many_Productions",
+          "blogs.card.no_prods": "I18N_Blog_No_Productions",
+          "blogs.card.details": "I18N_Blog_Details",
           "notFound.title": "I18N_NotFound_Title",
           "notFound.description": "I18N_NotFound_Description",
           "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
@@ -139,6 +142,9 @@ vi.mock("react-i18next", async () => {
           "productionPage.eventMore": "I18N_Production_EventMore",
           "productionPage.priceLabel": "I18N_Production_PriceLabel",
           "productionPage.noPrice": "I18N_Production_NoPrice",
+          "productionPage.infoNotAvailable": "I18N_ProductionInfo_NotAvailable",
+          "productionPage.add.add": "I18N_ProductionInfo_Add",
+          "productionPage.delete.delete": "I18N_ProductionInfo_Delete",
         };
 
         if (options?.returnObjects) {
