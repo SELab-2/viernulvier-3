@@ -184,6 +184,28 @@ export function EventCard({ event }: EventCardProps) {
   );
 }
 
+function HallDropdown({
+  halls,
+  onSelect,
+}: {
+  halls: Hall[];
+  onSelect: (hall: Hall) => void;
+}) {
+  return (
+    <ul className="bg-archive-surface border-archive-ink/20 absolute z-10 mt-1 max-h-40 w-full overflow-scroll rounded shadow">
+      {halls.map((hall) => (
+        <li
+          key={hall.id_url}
+          className="hover:bg-archive-accent/95 cursor-pointer px-2 py-1 hover:text-black"
+          onMouseDown={() => onSelect(hall)}
+        >
+          {hall.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function EditableEventCard({
   event,
   onChange,
@@ -212,19 +234,23 @@ export function EditableEventCard({
       return;
     };
   }, []);
+  const isInvalid =
+    event.starts_at &&
+    event.ends_at &&
+    new Date(event.starts_at) >= new Date(event.ends_at);
 
   return (
     <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
-      <div className="grid justify-between gap-4 sm:grid-cols-3">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row">
         <div>
-          {/* TODO make it so that you can't put start date after end date */}
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.startDateLabel")}
           </p>
           <input
-            className="text-sm font-semibold opacity-95 md:text-base"
+            className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
             type="datetime-local"
             value={event.starts_at ?? ""}
+            max={event.ends_at ?? undefined}
             onChange={(e) => onChange({ ...event, starts_at: e.target.value })}
           />
         </div>
@@ -234,9 +260,10 @@ export function EditableEventCard({
             {t("productionPage.endDateLabel")}
           </p>
           <input
-            className="text-sm font-semibold opacity-95 md:text-base"
+            className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
             type="datetime-local"
             value={event.ends_at ?? ""}
+            min={event.starts_at ?? undefined}
             onChange={(e) => onChange({ ...event, ends_at: e.target.value })}
           />
         </div>
@@ -257,26 +284,19 @@ export function EditableEventCard({
               }}
             />
             {hallDropdownActive && filteredHalls.length > 0 && (
-              <ul className="bg-archive-surface absolute z-10 mt-1 max-h-40 w-full overflow-scroll rounded border shadow">
-                {filteredHalls.map((hall) => (
-                  <li
-                    key={hall.id_url}
-                    className="hover:bg-archive-accent/95 cursor-pointer px-2 py-1 hover:text-black"
-                    onMouseDown={() => {
-                      setHallname(hall.name);
-                      setHallDropdownActive(false);
+              <HallDropdown
+                halls={filteredHalls}
+                onSelect={(hall) => {
+                  setHallname(hall.name);
+                  setHallDropdownActive(false);
 
-                      onChange({
-                        ...event,
-                        resolvedHall: hall,
-                        hall: hall,
-                      });
-                    }}
-                  >
-                    {hall.name}
-                  </li>
-                ))}
-              </ul>
+                  onChange({
+                    ...event,
+                    resolvedHall: hall,
+                    hall: hall,
+                  });
+                }}
+              />
             )}
           </div>
         </div>
