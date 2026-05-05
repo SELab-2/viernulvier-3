@@ -99,6 +99,7 @@ Table halls {
 
 Table media {
   id int [pk]
+  vnv_item_id int [unique]
   production_id int [ref: > productions.id]
   blog_id int [ref: > blogs.id]
   object_key varchar
