@@ -123,7 +123,7 @@ def update_event(
         if not db_hall:
             raise NotFoundError("Hall", hall_id)
 
-        update_dict["hall_id_url"] = hall_id
+        update_dict["hall_id"] = hall_id
 
     # production_id update
     if "production_id_url" in update_dict:
@@ -139,7 +139,7 @@ def update_event(
         if not db_production:
             raise NotFoundError("Production", production_id)
 
-        update_dict["production_id_url"] = production_id
+        update_dict["production_id"] = production_id
 
     # starts_at / ends_at validation
     starts_at = update_dict.get("starts_at", event.starts_at)
