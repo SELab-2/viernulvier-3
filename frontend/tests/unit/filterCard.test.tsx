@@ -6,6 +6,7 @@ import FilterCard from "~/features/archive/components/FilterCard";
 
 const TITLE = "Filter title";
 const CHILD_TEXT = "Child content";
+const ICON_ID = "filter-title-card-dropdown-icon";
 
 const renderCard = (title = TITLE, children: React.ReactNode = <p>{CHILD_TEXT}</p>) =>
   render(<FilterCard title={title}>{children}</FilterCard>);
@@ -16,94 +17,104 @@ describe("initial render", () => {
     expect(screen.getByRole("heading", { name: TITLE })).toBeInTheDocument();
   });
 
-  it("does not render children when closed", () => {
+  it("shows children at first render", async () => {
     renderCard();
-    expect(screen.queryByText(CHILD_TEXT)).not.toBeInTheDocument();
+    expect(screen.getByText(CHILD_TEXT)).toBeVisible();
   });
 
   it("renders the chevron icon", () => {
-    const { container } = renderCard();
-    expect(container.querySelector("svg")).toBeInTheDocument();
-  });
-
-  it("chevron does not have rotate-180 class when closed", () => {
-    const { container } = renderCard();
-    const svg = container.querySelector("svg")!;
-    expect(svg.className).not.toContain("rotate-180");
-  });
-
-  it("header does not have mb-6 class when closed", () => {
-    const { container } = renderCard();
-    // The clickable header div is the first child of the outer wrapper
-    const header = container.querySelector("div > div")!;
-    expect(header.className).not.toContain("mb-6");
-  });
-});
-
-describe("opening the card", () => {
-  it("shows children after clicking the header", async () => {
     renderCard();
-    await userEvent.click(screen.getByRole("heading", { name: TITLE }));
-    expect(screen.getByText(CHILD_TEXT)).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: TITLE });
+    expect(button.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("adds rotate-180 to the chevron when open", async () => {
-    const { container } = renderCard();
-    await userEvent.click(screen.getByRole("heading", { name: TITLE }));
-    const svg = container.querySelector("svg")!;
-    expect(svg.classList).toContain("rotate-180");
+  it("chevron has rotate-180 class when open", () => {
+    renderCard();
+    const icon = document.getElementById(ICON_ID)!;
+    expect(icon).toHaveClass("rotate-180");
   });
 
-  it("adds mb-6 to the header when open", async () => {
-    const { container } = renderCard();
-    await userEvent.click(screen.getByRole("heading", { name: TITLE }));
-    const header = container.querySelector("div > div > div")!;
-    expect(header.className).toContain("mb-6");
+  it("header-button has mb-6 class when open", () => {
+    renderCard();
+    const button = screen.getByRole("button", { name: TITLE });
+    expect(button).toHaveClass("mb-6");
+  });
+
+  it("is expanded by default", () => {
+    renderCard();
+    expect(screen.getByRole("button", { name: TITLE })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
   });
 });
 
 describe("closing the card", () => {
-  it("hides children after clicking the header a second time", async () => {
+  it("hides children after clicking the header", async () => {
     renderCard();
-    const heading = screen.getByRole("heading", { name: TITLE });
-    await userEvent.click(heading);
-    await userEvent.click(heading);
-    expect(screen.queryByText(CHILD_TEXT)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: TITLE }));
+    expect(screen.queryByText(CHILD_TEXT)).not.toBeVisible();
   });
 
-  it("removes rotate-180 from the chevron when closed again", async () => {
+  it("removes rotate-180 to the chevron when open", async () => {
     const { container } = renderCard();
-    const heading = screen.getByRole("heading", { name: TITLE });
-    await userEvent.click(heading);
-    await userEvent.click(heading);
+    await userEvent.click(screen.getByRole("button", { name: TITLE }));
     const svg = container.querySelector("svg")!;
-    expect(svg.className).not.toContain("rotate-180");
+    expect(svg).not.toHaveClass("rotate-180");
   });
 
-  it("removes mb-6 from the header when closed again", async () => {
+  it("removes mb-6 to the header when open", async () => {
     const { container } = renderCard();
-    const heading = screen.getByRole("heading", { name: TITLE });
-    await userEvent.click(heading);
-    await userEvent.click(heading);
+    await userEvent.click(screen.getByRole("button", { name: TITLE }));
     const header = container.querySelector("div > div > div")!;
-    expect(header.className).not.toContain("mb-6");
+    expect(header).not.toHaveClass("mb-6");
+  });
+});
+
+describe("closing the card", () => {
+  it("shows children after clicking the header a second time", async () => {
+    renderCard();
+    const button = screen.getByRole("button", { name: TITLE });
+    await userEvent.click(button);
+    await userEvent.click(button);
+    expect(screen.queryByText(CHILD_TEXT)).toBeInTheDocument();
+  });
+
+  it("adds rotate-180 from the chevron when closed again", async () => {
+    const { container } = renderCard();
+    const button = screen.getByRole("button", { name: TITLE });
+    await userEvent.click(button);
+    await userEvent.click(button);
+    const svg = container.querySelector("svg")!;
+    expect(svg).toHaveClass("rotate-180");
+  });
+
+  it("adds mb-6 from the header when closed again", async () => {
+    renderCard();
+    const button = screen.getByRole("button", { name: TITLE });
+    await userEvent.click(button);
+    await userEvent.click(button);
+    expect(button).toHaveClass("mb-6");
   });
 });
 
 describe("multiple toggles", () => {
   it("correctly alternates open/closed state across several clicks", async () => {
     renderCard();
-    const heading = screen.getByRole("heading", { name: TITLE });
+    const button = screen.getByRole("button", { name: TITLE });
 
     // open → close → open
-    await userEvent.click(heading);
-    expect(screen.getByText(CHILD_TEXT)).toBeInTheDocument();
+    await userEvent.click(button);
+    expect(screen.queryByText(CHILD_TEXT)).not.toBeVisible();
 
-    await userEvent.click(heading);
-    expect(screen.queryByText(CHILD_TEXT)).not.toBeInTheDocument();
+    await userEvent.click(button);
+    expect(screen.getByText(CHILD_TEXT)).toBeVisible();
 
-    await userEvent.click(heading);
-    expect(screen.getByText(CHILD_TEXT)).toBeInTheDocument();
+    await userEvent.click(button);
+    expect(screen.queryByText(CHILD_TEXT)).not.toBeVisible();
+
+    await userEvent.click(button);
+    expect(screen.getByText(CHILD_TEXT)).toBeVisible();
   });
 });
 
@@ -124,7 +135,6 @@ describe("props", () => {
         </ul>
       </FilterCard>
     );
-    await userEvent.click(screen.getByRole("heading", { name: TITLE }));
     expect(screen.getByText("Item A")).toBeInTheDocument();
     expect(screen.getByText("Item B")).toBeInTheDocument();
   });
@@ -136,7 +146,6 @@ describe("props", () => {
         <span>Second</span>
       </FilterCard>
     );
-    await userEvent.click(screen.getByRole("heading", { name: TITLE }));
     expect(screen.getByText("First")).toBeInTheDocument();
     expect(screen.getByText("Second")).toBeInTheDocument();
   });

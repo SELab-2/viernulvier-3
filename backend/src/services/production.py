@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
 from src.api.exceptions import NotFoundError, ValidationError
-from src.models import Event, ProdInfo, Production, Tag
+from src.models import Event, ProdInfo, Production, ProductionGroup, Tag
 from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
@@ -115,13 +115,14 @@ type ProductionSortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
-# A list of tags can be given as a paramter to filter.
+# Lists of tags and production groups can be given as filters.
 def get_productions_paginated(
     db: Session,
     base_url: str,
     cursor: str | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
+    groups: list[int] | None = None,
     artists: list[str] | None = None,
     production_name: str | None = None,
     earliest_at: datetime | None = None,
@@ -158,6 +159,17 @@ def get_productions_paginated(
             db.query(Production.id)
             .join(Production.tags)
             .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        base_query = base_query.filter(Production.id.in_(select(subq)))
+
+    # Production groups filter
+    if groups:
+        subq = (
+            db.query(Production.id)
+            .join(Production.groups)
+            .filter(ProductionGroup.id.in_(groups))
             .distinct()
             .subquery()
         )
