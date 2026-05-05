@@ -294,13 +294,13 @@ export default function HistoryPage() {
         />
         <div className="flex gap-2">
           <button
-            className={`${actionButtonClass} cursor-pointer bg-archive-accent hover:bg-archive-accent/90 text-white`}
+            className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 cursor-pointer text-white`}
             onClick={handleCreate}
           >
             {t("history.edit.submit")}
           </button>
           <button
-            className={`${actionButtonClass} cursor-pointer bg-archive-control hover:bg-archive-control/80`}
+            className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80 cursor-pointer`}
             onClick={() => setIsCreating(false)}
           >
             {t("history.edit.cancel")}

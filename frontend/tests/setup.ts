@@ -73,7 +73,7 @@ vi.mock("react-i18next", async () => {
           "history.edit.saving": "I18N_History_Edit_Saving",
           "history.edit.delete": "I18N_History_Edit_Delete",
           "history.edit.create": "I18N_History_Edit_Create",
-          "history.edit.submit": "I18N_History_Edit_Submit",          
+          "history.edit.submit": "I18N_History_Edit_Submit",
           "history.messages.createFailed": "I18N_History_Message_CreateFailed",
           "history.messages.updateFailed": "I18N_History_Message_UpdateFailed",
           "history.messages.deleteFailed": "I18N_History_Message_DeleteFailed",
