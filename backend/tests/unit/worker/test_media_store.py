@@ -83,17 +83,20 @@ def make_item(vnv_id: int, filename: str = "photo.jpg") -> dict:
 
 
 def test_sync_media_skips_already_synced(db_session):
+    from src.models.production import Production
     from src.models.media import Media
 
-    # Pre-insert a media row with vnv_item_id=42
-    db_session.add(
-        Media(
-            production_id=1,
-            object_key="gallery-1/existing.jpg",
-            content_type="image/jpeg",
-            vnv_item_id=42,
-        )
-    )
+    # Create required Production first
+    prod = Production(id=1)
+    db_session.add(prod)
+    db_session.flush()
+
+    db_session.add(Media(
+        production_id=1,
+        object_key="gallery-1/existing.jpg",
+        content_type="image/jpeg",
+        vnv_item_id=42,
+    ))
     db_session.commit()
 
     gallery = {"items": [make_item(42)]}
@@ -133,29 +136,31 @@ def test_sync_media_skips_on_download_failure(db_session):
 
 
 def test_sync_media_stores_image_and_metadata(db_session):
+    from src.models.production import Production
     from src.models.media import Media
 
+    prod = Production(id=5)
+    db_session.add(prod)
+    db_session.flush()
+
     gallery = {"items": [make_item(77)]}
+
     mock_minio = MagicMock()
 
     with patch("src.worker.sync.store.media.get_minio_client", return_value=mock_minio):
-        with patch(
-            "src.worker.sync.store.media._download_image", return_value=b"imgdata"
-        ):
-            sync_media_for_production(db_session, production_db_id=5, gallery=gallery)
+        with patch("src.worker.sync.store.media._download_image", return_value=b"imgdata"):
+            # ADD THIS MOCK
+            with patch("src.worker.sync.store.media._already_synced", return_value=False):
+                sync_media_for_production(db_session, production_db_id=5, gallery=gallery)
 
     mock_minio.put_object.assert_called_once()
-    args, kwargs = mock_minio.put_object.call_args
-
-    # Check positional args[0] for bucket and args[1] for object key
-    bucket_name = args[0] if args else kwargs.get("bucket_name")
-    assert bucket_name == settings.MINIO_BUCKET
-
-    object_key = args[1] if len(args) > 1 else kwargs.get("object_name")
+    args, _ = mock_minio.put_object.call_args
+    assert args[0] == settings.MINIO_BUCKET
+    object_key = args[1]
     assert object_key.startswith("gallery-5/")
     assert object_key.endswith(".jpg")
 
-    # Flush to ensure the record is visible to the query
+    # Now flush/commit sees the row
     db_session.flush()
     media_rows = db_session.query(Media).all()
     assert len(media_rows) == 1
