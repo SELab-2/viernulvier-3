@@ -1,7 +1,6 @@
 import type { Delta } from "quill";
-import Quill from "quill";
 import { useTranslation } from "react-i18next";
-import { ArchiveRichTextField } from "~/shared/components/ArchiveRichTextField";
+import { ArchiveRichTextFieldWrapper } from "~/shared/components/ArchiveRichTextFieldWrapper"; 
 import { Protected } from "~/features/auth";
 import { useEffect, useState } from "react";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
@@ -17,14 +16,16 @@ type ProductionInfoSectionProps = {
   onSave: (field: Field, html: string) => void
 };
 
-function htmlToDelta(html: string): Delta {
+async function htmlToDelta(html: string): Promise<Delta> {
+  const { default: Quill } = await import("quill");
   const container = document.createElement("div");
   const quill = new Quill(container);
   quill.clipboard.dangerouslyPasteHTML(html);
   return quill.getContents();
 }
 
-function deltaToHtml(delta: Delta): string {
+async function deltaToHtml(delta: Delta): Promise<string> {
+  const { default: Quill } = await import("quill");
   const container = document.createElement("div");
   const quill = new Quill(container);
   quill.setContents(delta);
@@ -56,26 +57,31 @@ function ComplexEditableField({
   const [delta, setDelta] = useState<Delta | null>(null);
 
   useEffect(() => {
-    if (isEditing) {
-      setDelta(html ? htmlToDelta(html) : null);
-    }
+  if (isEditing && html) {
+    htmlToDelta(html).then(setDelta);
+  } else if (isEditing) {
+    setDelta(null);
+  }
   }, [isEditing]);
 
   if (isEditing) {
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
         <div id={id}>
-            <ArchiveRichTextField
+            <ArchiveRichTextFieldWrapper
                 label={field}
                 value={delta}
                 onChange={setDelta}
             />
             <div className="flex gap-2 mt-2">
             <button
-                onClick={() => {
-                if (delta) onSave(deltaToHtml(delta));
+                onClick={async () => {
+                  if (delta) {
+                    const html = await deltaToHtml(delta);
+                    onSave(html);
+                  }
                 }}
-            >
+                            >
                 {t("productionPage.edit.save")}
             </button>
             <button onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
