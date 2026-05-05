@@ -12,9 +12,11 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
+import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -179,13 +181,26 @@ export function ProductionCard({
   );
   const dateParts = dateLabel.split(" - ");
   const venues = getVenues(production);
-  const imageUrl = getTextOrDefault(
-    (production as { image_url?: string }).image_url,
-    defaultCardValues.imageUrl
-  );
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
+
+  const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!productionId) return;
+
+    getMediaForProduction(Number(productionId), { limit: 1 })
+      .then((response) => {
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setFirstImageUrl(first.url);
+      })
+      .catch(() => {
+        // keep default
+      });
+  }, [productionId]);
+
+  const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
 
   const handleOpenDetails = () => {
     if (!productionId) {
