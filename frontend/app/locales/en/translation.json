@@ -119,7 +119,8 @@
       "cancel": "Cancel",
       "saving": "Saving...",
       "delete": "Delete",
-      "create": "Create"
+      "create": "Create",
+      "submit": "Submit"
     },
     "empty": {
       "title": "No history entries found",

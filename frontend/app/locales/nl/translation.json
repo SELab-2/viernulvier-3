@@ -117,7 +117,8 @@
       "cancel": "Annuleren",
       "saving": "Opslaan...",
       "delete": "Verwijder",
-      "create": "Aanmaken"
+      "create": "Aanmaken",
+      "Submit": "Indienen"
     },
     "empty": {
       "title": "Geen geschiedenisitems gevonden",

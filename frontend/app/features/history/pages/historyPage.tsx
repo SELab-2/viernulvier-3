@@ -297,7 +297,7 @@ export default function HistoryPage() {
             className={`${actionButtonClass} cursor-pointer bg-archive-accent hover:bg-archive-accent/90 text-white`}
             onClick={handleCreate}
           >
-            {t("history.actions.submit")}
+            {t("history.edit.submit")}
           </button>
           <button
             className={`${actionButtonClass} cursor-pointer bg-archive-control hover:bg-archive-control/80`}
