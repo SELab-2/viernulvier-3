@@ -358,7 +358,9 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+    await user.click(
+      screen.getByRole("button", { name: "users.roles.actions.delete" })
+    );
 
     expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(users[0].id);
     expect(await screen.findByText("admin")).toBeInTheDocument();
@@ -392,7 +394,9 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+    await user.click(
+      screen.getByRole("button", { name: "users.roles.actions.delete" })
+    );
 
     expect(await screen.findByText("Cannot delete last admin")).toBeInTheDocument();
     // The user should still be in the list
@@ -425,7 +429,9 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+    await user.click(
+      screen.getByRole("button", { name: "users.roles.actions.delete" })
+    );
 
     expect(await screen.findByText("users.messages.deleteFailed")).toBeInTheDocument();
   });
@@ -473,6 +479,48 @@ describe("UserManagementPage", () => {
       expect(screen.getByText("viewer")).toBeInTheDocument();
       expect(screen.getByText("archive:write")).toBeInTheDocument();
       expect(screen.getByText("users.roles.empty.permissions")).toBeInTheDocument();
+    });
+
+    it("shows role delete buttons when user has users:delete permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      render(<UserManagementPage />);
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      ).toBeInTheDocument();
+    });
+
+    it("hides role delete buttons without users:delete permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      render(<UserManagementPage />);
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).queryByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      ).toBeNull();
     });
 
     it("renders the empty state when no roles exist", async () => {
@@ -562,6 +610,39 @@ describe("UserManagementPage", () => {
       expect(screen.queryByText("users.roles.empty.title")).toBeNull();
     });
 
+    it("removes the role from the list after confirming deletion", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockResolvedValue(undefined);
+
+      const user = userEvent.setup();
+      render(<UserManagementPage />);
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+      expect(editorRoleCard).not.toBeNull();
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      expect(
+        await screen.findByText("users.roles.dialogs.delete.title")
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+      expect(roleManagementServiceModule.deleteRole).toHaveBeenCalledWith(roles[0].id);
+      expect(await screen.findByText("viewer")).toBeInTheDocument();
+      expect(screen.queryByText("editor")).toBeNull();
+    });
+
     it("validates that the role name is required", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
@@ -578,6 +659,66 @@ describe("UserManagementPage", () => {
 
       expect(
         await screen.findByText("users.roles.messages.nameRequired")
+      ).toBeInTheDocument();
+    });
+
+    it("shows an error message when role deletion fails", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Role is protected" } },
+      } as AxiosError);
+
+      const user = userEvent.setup();
+      render(<UserManagementPage />);
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+      expect(await screen.findByText("Role is protected")).toBeInTheDocument();
+      expect(screen.getByText("editor")).toBeInTheDocument();
+    });
+
+    it("falls back to the generic role delete failure message for non-axios errors", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockRejectedValue(
+        new Error("network error")
+      );
+
+      const user = userEvent.setup();
+      render(<UserManagementPage />);
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+      expect(
+        await screen.findByText("users.roles.messages.deleteFailed")
       ).toBeInTheDocument();
     });
 

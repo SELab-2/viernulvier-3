@@ -26,3 +26,10 @@ export async function createRole(
   const response = await apiClient.post<IRoleResponse>(ROLES_API_PATH, payload);
   return mapRole(response.data);
 }
+
+export async function deleteRole(
+  roleId: number,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  await apiClient.delete(`${ROLES_API_PATH}/${roleId}`);
+}

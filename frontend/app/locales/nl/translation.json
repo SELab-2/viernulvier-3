@@ -255,17 +255,24 @@
       "actions": {
         "add": "Rol toevoegen",
         "create": "Rol aanmaken",
-        "creating": "Rol wordt aangemaakt"
+        "creating": "Rol wordt aangemaakt",
+        "delete": "Rol verwijderen",
+        "deleting": "Rol wordt verwijderd"
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
       },
       "dialogs": {
         "create": {
           "title": "Rol toevoegen",
           "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+        },
+        "delete": {
+          "title": "Rol verwijderen",
+          "description": "De rol {{roleName}} verwijderen? Dit is alleen mogelijk als er geen gebruikers aan deze rol gekoppeld zijn."
         }
       },
       "empty": {
