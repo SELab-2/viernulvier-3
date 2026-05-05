@@ -111,6 +111,40 @@
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "loading": "Geschiedenis wordt geladen",
+    "errorTitle": "Geschiedenis kon niet worden geladen",
+    "error": "De geschiedenis-tijdlijn kon niet worden opgehaald van de server.",
+    "messages": {
+      "createFailed": "Aanmaken mislukt: {{error}}",
+      "updateFailed": "Opslaan mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je deze entry wilt verwijderen?"
+    },
+    "edit": {
+      "edit": "Pas aan",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "saving": "Opslaan...",
+      "delete": "Verwijder",
+      "create": "Aanmaken",
+      "Submit": "Indienen"
+    },
+    "empty": {
+      "title": "Geen geschiedenisitems gevonden",
+      "description": "Er is nog geen geschiedenis-data beschikbaar..."
+    },
+    "form": {
+      "labels": {
+        "year": "Jaar",
+        "title": "Titel",
+        "content": "Inhoud"
+      },
+      "placeholders": {
+        "year": "bijv. 2024",
+        "title": "Geef een korte titel voor dit moment",
+        "content": "Vertel het verhaal van dit moment in de geschiedenis"
+      }
+    },
     "entries": [
       {
         "title": "1910: De bouw van 'Feestlokaal Vooruit'",
