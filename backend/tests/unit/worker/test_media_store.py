@@ -91,12 +91,14 @@ def test_sync_media_skips_already_synced(db_session):
     db_session.add(prod)
     db_session.flush()
 
-    db_session.add(Media(
-        production_id=1,
-        object_key="gallery-1/existing.jpg",
-        content_type="image/jpeg",
-        vnv_item_id=42,
-    ))
+    db_session.add(
+        Media(
+            production_id=1,
+            object_key="gallery-1/existing.jpg",
+            content_type="image/jpeg",
+            vnv_item_id=42,
+        )
+    )
     db_session.commit()
 
     gallery = {"items": [make_item(42)]}
@@ -148,10 +150,16 @@ def test_sync_media_stores_image_and_metadata(db_session):
     mock_minio = MagicMock()
 
     with patch("src.worker.sync.store.media.get_minio_client", return_value=mock_minio):
-        with patch("src.worker.sync.store.media._download_image", return_value=b"imgdata"):
+        with patch(
+            "src.worker.sync.store.media._download_image", return_value=b"imgdata"
+        ):
             # ADD THIS MOCK
-            with patch("src.worker.sync.store.media._already_synced", return_value=False):
-                sync_media_for_production(db_session, production_db_id=5, gallery=gallery)
+            with patch(
+                "src.worker.sync.store.media._already_synced", return_value=False
+            ):
+                sync_media_for_production(
+                    db_session, production_db_id=5, gallery=gallery
+                )
 
     mock_minio.put_object.assert_called_once()
     args, _ = mock_minio.put_object.call_args
