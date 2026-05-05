@@ -42,6 +42,6 @@ def store_new_productions(db_session: Session, productions: list[dict]):
                 newest_timestamp = created_at
 
         except Exception as e:
-            logger.warn(f"Error storing genre ({json_prod}):\n{e}")
+            logger.warning(f"Error storing genre ({json_prod}):\n{e}")
 
     return newest_timestamp

@@ -1,9 +1,15 @@
+import logging
 from datetime import datetime
-from src.worker.converters.production import api_prod_to_model_prod
+
+from src.services.language import Languages
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 from src.worker.converters.genres import api_genre_to_model_tag
-from src.services.language import Languages
+from src.worker.converters.hall import (
+    api_location_to_model_halls,
+    get_address_from_location,
+)
+from src.worker.converters.production import api_prod_to_model_prod
 
 
 # Test normal test case from the actual API
@@ -275,3 +281,155 @@ def test_api_genre_to_none():
     assert tag is not None
     assert tag.viernulvier_id == 7
     assert len(tag_names) == 0
+
+
+def test_get_address_from_location():
+    test_input1 = {
+        "street": "Chinastraat",
+        "number": "1",
+        "postal_code": "9000",
+        "city": "Gent",
+        "own_location": "",
+    }
+
+    address_1 = get_address_from_location(test_input1)
+    assert address_1 == "Chinastraat 1, 9000 Gent"
+
+    test_input2 = {
+        "street": "Sint-Pietersnieuwstraat",
+        "number": "23",
+        "postal_code": "9000",
+        "city": "Gent",
+        "country": "BE",
+    }
+    address_2 = get_address_from_location(test_input2)
+    assert address_2 == "Sint-Pietersnieuwstraat 23, 9000 Gent (BE)"
+
+
+# Test a normal location with one language we're dropping
+def test_api_location_to_model_halls_normal(caplog):
+    caplog.set_level(logging.WARNING)
+    test_input = {
+        "@context": "/api/contexts/Location",
+        "@id": "/api/v1/locations/91",
+        "@type": "Location",
+        "created_at": "2026-01-27T12:50:22+00:00",
+        "updated_at": "2026-02-05T09:19:17+00:00",
+        "street": "Beekstraat",
+        "number": "3",
+        "postal_code": "9030",
+        "own_location": "",
+        "spaces": [
+            {
+                "@id": "/api/v1/spaces/217",
+                "@type": "Space",
+                "created_at": "2026-01-27T12:52:54+00:00",
+                "updated_at": "2026-01-27T12:52:54+00:00",
+                "name": {"nl": "TestSpace", "en": "TestSpace"},
+                "location": "/api/v1/locations/91",
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/454",
+                        "@type": "Hall",
+                        "created_at": "2026-01-27T12:51:14+00:00",
+                        "updated_at": "2026-01-27T12:54:18+00:00",
+                        "seat_selection": "",
+                        "open_seating": "",
+                        "name": {
+                            "nl": "Fleur-Couleur",
+                            "en": "Fleur-Couleur",
+                            "fr": "Fleur-Couleur",
+                        },
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address == "Beekstraat 3, 9030"
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Fleur-Couleur (TestSpace)"
+    assert names[1].name == "Fleur-Couleur (TestSpace)"
+
+    # Check the log messages for dropped languages (fr)
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0] == "ignoring language fr for Hall(viernulvier_id=454)"
+
+
+# NOTE: from down here the location->hall tests use a cut-down location object
+
+
+# Test a normal location
+def test_api_location_to_model_halls_no_location_address():
+    test_input = {
+        "spaces": [
+            {
+                "name": {"nl": "Rabot, 9000 Gent", "en": "Rabot, 9000 Gent"},
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/447",
+                        "name": {
+                            "nl": "Basketbalplein Opge\u00ebistenlaan",
+                            "en": "Basketbalplein Opge\u00ebistenlaan",
+                        },
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address == "Rabot, 9000 Gent"
+    assert parsed_hall.viernulvier_id == 447
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Basketbalplein Opge\u00ebistenlaan"
+    assert names[1].name == "Basketbalplein Opge\u00ebistenlaan"
+
+
+def test_api_location_to_model_halls_no_address():
+    test_input = {
+        "spaces": [
+            {
+                "name": {"nl": "Fleur-Couleur", "en": "Fleur-Couleur"},
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/454",
+                        "name": {"nl": "Fleur-Couleur", "en": "Fleur-Couleur"},
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address is None
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Fleur-Couleur"
+    assert names[1].name == "Fleur-Couleur"

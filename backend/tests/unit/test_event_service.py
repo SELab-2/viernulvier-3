@@ -13,7 +13,7 @@ from src.services.event_service import (
 
 from src.schemas.event import EventCreate, EventUpdate
 from src.models.event import Event, EventPrice
-from src.models.hall import Hall
+from src.models.hall import Hall, HallName
 from src.models.production import Production
 from src.api.exceptions import NotFoundError
 from src.services.production import get_production_by_id
@@ -32,7 +32,7 @@ def production(db_session):
 
 @pytest.fixture
 def hall(db_session):
-    hall = Hall(name="Hall A", address="Street A")
+    hall = Hall(address="Street A", names=[HallName(language="en", name="Hall A")])
     db_session.add(hall)
     db_session.commit()
     return hall

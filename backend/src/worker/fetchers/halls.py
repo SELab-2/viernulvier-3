@@ -28,4 +28,30 @@ class HallFetcher(PagedFetcher):
         """
 
         parameters = {"created_at[after]": timestamp}
-        return self.fetch_all("/halls", parameters)
+        locations = self.fetch_all("/locations", parameters)
+        return self.resolve_locations(locations)
+
+    def get_and_clear_partial_data(self) -> list[dict]:
+        """
+        Retrieve and clear the stored partial data.
+        """
+        locations = self._paged_data
+        self._paged_data = None
+
+        return self.resolve_locations(locations)
+
+    def resolve_location(self, location: dict) -> dict:
+        path = location["@id"].removeprefix("/api/v1/")
+        resolved_location = self.vnv_wrapper.GET(path, {})
+        self.logger.debug(f"Resolved location '{path}' to:\n{resolved_location}")
+        return resolved_location
+
+    def resolve_locations(self, locations: list[dict]) -> list[dict]:
+        resolved_locations = []
+        for location in locations:
+            try:
+                resolved_locations.append(self.resolve_location(location))
+            except RuntimeError as e:
+                self.logger.warning(f"Error when resolving location ({location}):\n{e}")
+
+        return resolved_locations

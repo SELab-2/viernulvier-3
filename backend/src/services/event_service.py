@@ -24,7 +24,7 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
 
     hall_id_url = f"{base_url}/halls/{event.hall_id}" if hall else None
     hall = (
-        HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
+        HallResponse(id_url=hall_id_url, names=hall.names, address=hall.address)
         if hall
         else None
     )
