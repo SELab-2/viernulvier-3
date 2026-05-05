@@ -2,9 +2,7 @@
 Tests for src/worker/sync/store/media.py
 """
 
-import io
 from unittest.mock import MagicMock, patch
-import pytest
 from src.config import settings
 from src.worker.sync.store.media import (
     _pick_crop_url,
@@ -15,6 +13,7 @@ from src.worker.sync.store.media import (
 
 
 # --- _pick_crop_url ---
+
 
 def test_pick_crop_url_prefers_hd_ready():
     item = {
@@ -44,6 +43,7 @@ def test_pick_crop_url_no_crops_returns_none():
 
 # --- _download_image ---
 
+
 def test_download_image_success():
     fake_data = b"fake image bytes"
 
@@ -70,6 +70,7 @@ def test_download_image_network_error_returns_none():
 
 # --- sync_media_for_production ---
 
+
 def make_item(vnv_id: int, filename: str = "photo.jpg") -> dict:
     return {
         "@id": f"/api/v1/media/items/{vnv_id}",
@@ -85,12 +86,14 @@ def test_sync_media_skips_already_synced(db_session):
     from src.models.media import Media
 
     # Pre-insert a media row with vnv_item_id=42
-    db_session.add(Media(
-        production_id=1,
-        object_key="gallery-1/existing.jpg",
-        content_type="image/jpeg",
-        vnv_item_id=42,
-    ))
+    db_session.add(
+        Media(
+            production_id=1,
+            object_key="gallery-1/existing.jpg",
+            content_type="image/jpeg",
+            vnv_item_id=42,
+        )
+    )
     db_session.commit()
 
     gallery = {"items": [make_item(42)]}
@@ -101,7 +104,16 @@ def test_sync_media_skips_already_synced(db_session):
 
 
 def test_sync_media_skips_item_with_no_crops(db_session):
-    gallery = {"items": [{"@id": "/api/v1/media/items/99", "format": "image/jpeg", "original_filename": "x.jpg", "crops": []}]}
+    gallery = {
+        "items": [
+            {
+                "@id": "/api/v1/media/items/99",
+                "format": "image/jpeg",
+                "original_filename": "x.jpg",
+                "crops": [],
+            }
+        ]
+    }
 
     with patch("src.worker.sync.store.media.get_minio_client") as mock_minio:
         sync_media_for_production(db_session, production_db_id=1, gallery=gallery)
@@ -116,18 +128,20 @@ def test_sync_media_skips_on_download_failure(db_session):
             sync_media_for_production(db_session, production_db_id=1, gallery=gallery)
 
     from src.models.media import Media
+
     assert db_session.query(Media).count() == 0
 
 
 def test_sync_media_stores_image_and_metadata(db_session):
     from src.models.media import Media
-    from minio.error import S3Error
 
     gallery = {"items": [make_item(77)]}
     mock_minio = MagicMock()
 
     with patch("src.worker.sync.store.media.get_minio_client", return_value=mock_minio):
-        with patch("src.worker.sync.store.media._download_image", return_value=b"imgdata"):
+        with patch(
+            "src.worker.sync.store.media._download_image", return_value=b"imgdata"
+        ):
             sync_media_for_production(db_session, production_db_id=5, gallery=gallery)
 
     mock_minio.put_object.assert_called_once()
@@ -136,13 +150,13 @@ def test_sync_media_stores_image_and_metadata(db_session):
     # Check positional args[0] for bucket and args[1] for object key
     bucket_name = args[0] if args else kwargs.get("bucket_name")
     assert bucket_name == settings.MINIO_BUCKET
-    
+
     object_key = args[1] if len(args) > 1 else kwargs.get("object_name")
     assert object_key.startswith("gallery-5/")
     assert object_key.endswith(".jpg")
 
     # Flush to ensure the record is visible to the query
-    db_session.flush() 
+    db_session.flush()
     media_rows = db_session.query(Media).all()
     assert len(media_rows) == 1
     assert media_rows[0].vnv_item_id == 77
@@ -170,6 +184,7 @@ def test_sync_media_skips_on_minio_error(db_session):
 
 # --- sync_all_media ---
 
+
 def test_sync_all_media_fetches_for_prods_without_media(db_session):
     from src.models.production import Production
 
@@ -177,22 +192,23 @@ def test_sync_all_media_fetches_for_prods_without_media(db_session):
     db_session.add(prod)
     db_session.commit()
 
-    gallery_response = {
-        "media_gallery": {
-            "items": [make_item(101)]
-        }
-    }
+    gallery_response = {"media_gallery": {"items": [make_item(101)]}}
 
     mock_wrapper = MagicMock()
     mock_wrapper.GET.return_value = gallery_response
 
-    with patch("src.worker.sync.store.media.get_minio_client", return_value=MagicMock()):
-        with patch("src.worker.sync.store.media._download_image", return_value=b"bytes"):
+    with patch(
+        "src.worker.sync.store.media.get_minio_client", return_value=MagicMock()
+    ):
+        with patch(
+            "src.worker.sync.store.media._download_image", return_value=b"bytes"
+        ):
             sync_all_media(db_session, mock_wrapper)
 
     mock_wrapper.GET.assert_called_once_with("/productions/200")
 
     from src.models.media import Media
+
     assert db_session.query(Media).count() == 1
 
 
@@ -204,12 +220,14 @@ def test_sync_all_media_skips_prods_with_existing_media(db_session):
     db_session.add(prod)
     db_session.flush()
 
-    db_session.add(Media(
-        production_id=prod.id,
-        object_key="gallery-1/already.jpg",
-        content_type="image/jpeg",
-        vnv_item_id=999,
-    ))
+    db_session.add(
+        Media(
+            production_id=prod.id,
+            object_key="gallery-1/already.jpg",
+            content_type="image/jpeg",
+            vnv_item_id=999,
+        )
+    )
     db_session.commit()
 
     mock_wrapper = MagicMock()
@@ -231,4 +249,5 @@ def test_sync_all_media_handles_missing_gallery(db_session):
     sync_all_media(db_session, mock_wrapper)
 
     from src.models.media import Media
+
     assert db_session.query(Media).count() == 0
