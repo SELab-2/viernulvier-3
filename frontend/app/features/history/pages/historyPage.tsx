@@ -303,7 +303,7 @@ export default function HistoryPage() {
             className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80`}
             onClick={() => setIsCreating(false)}
           >
-            {t("history.actions.cancel")}
+            {t("history.edit.cancel")}
           </button>
         </div>
       </div>
