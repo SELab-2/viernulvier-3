@@ -97,7 +97,6 @@ def test_sync_media_skips_already_synced(db_session):
 
     with patch("src.worker.sync.store.media.get_minio_client") as mock_minio:
         sync_media_for_production(db_session, production_db_id=1, gallery=gallery)
-        # Fixed: Code calls get_minio_client() at the start of the function
         assert mock_minio.call_count == 1
 
 
@@ -106,7 +105,6 @@ def test_sync_media_skips_item_with_no_crops(db_session):
 
     with patch("src.worker.sync.store.media.get_minio_client") as mock_minio:
         sync_media_for_production(db_session, production_db_id=1, gallery=gallery)
-        # Fixed: Code calls get_minio_client() at the start of the function
         assert mock_minio.call_count == 1
 
 
@@ -135,7 +133,7 @@ def test_sync_media_stores_image_and_metadata(db_session):
     mock_minio.put_object.assert_called_once()
     args, kwargs = mock_minio.put_object.call_args
 
-    # Fixed: Check positional args[0] for bucket and args[1] for object key
+    # Check positional args[0] for bucket and args[1] for object key
     bucket_name = args[0] if args else kwargs.get("bucket_name")
     assert bucket_name == settings.MINIO_BUCKET
     
@@ -143,6 +141,8 @@ def test_sync_media_stores_image_and_metadata(db_session):
     assert object_key.startswith("gallery-5/")
     assert object_key.endswith(".jpg")
 
+    # Flush to ensure the record is visible to the query
+    db_session.flush() 
     media_rows = db_session.query(Media).all()
     assert len(media_rows) == 1
     assert media_rows[0].vnv_item_id == 77
