@@ -152,8 +152,6 @@ async function handleSave(
   language: string
 ) {
   if (!draftInfo || !originalInfo) return;
-  console.log(draftEvents);
-
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
@@ -174,6 +172,7 @@ async function handleSave(
     // Patch edited events
     for (const event of draftEvents) {
       await updateEventByUrl(event.id_url, {
+        hall_id_url: event.hall?.id_url,
         starts_at: event.starts_at,
         ends_at: event.ends_at,
       });

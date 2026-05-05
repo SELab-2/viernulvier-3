@@ -4,6 +4,8 @@ import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { useEffect, useState } from "react";
+import { getAllHalls } from "../services/hallService";
 
 export type EventWithResolvedRelations = Event & {
   resolvedHall: Hall | undefined;
@@ -193,9 +195,27 @@ export function EditableEventCard({
 }) {
   const { t } = useTranslation();
 
+  const [hallName, setHallname] = useState<string>(event.hall?.name ?? "");
+  const [hallDropdownActive, setHallDropdownActive] = useState<boolean>(false);
+  const [allHalls, setAllHalls] = useState<Hall[]>([]);
+
+  const filteredHalls = allHalls.filter((hall) =>
+    hall.name.toLowerCase().includes(hallName.toLowerCase())
+  );
+  useEffect(() => {
+    const loadHalls = async () => {
+      const halls = await getAllHalls();
+      setAllHalls(halls);
+    };
+    loadHalls();
+    return () => {
+      return;
+    };
+  }, []);
+
   return (
     <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
-      <div className="grid justify-between sm:grid-cols-2">
+      <div className="grid justify-between gap-4 sm:grid-cols-3">
         <div>
           {/* TODO make it so that you can't put start date after end date */}
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
@@ -221,7 +241,45 @@ export function EditableEventCard({
           />
         </div>
 
-        {/* TODO Venue input */}
+        <div>
+          <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+            {t("productionPage.placeLabel")}
+          </p>
+          <div className="relative">
+            <input
+              className="overflow-hidden text-sm font-semibold opacity-95 md:text-base"
+              value={hallName}
+              onFocus={() => setHallDropdownActive(true)}
+              onBlur={() => setHallDropdownActive(false)}
+              onChange={(e) => {
+                setHallname(e.target.value);
+                setHallDropdownActive(true);
+              }}
+            />
+            {hallDropdownActive && filteredHalls.length > 0 && (
+              <ul className="bg-archive-surface absolute z-10 mt-1 max-h-40 w-full overflow-scroll rounded border shadow">
+                {filteredHalls.map((hall) => (
+                  <li
+                    key={hall.id_url}
+                    className="hover:bg-archive-accent/95 cursor-pointer px-2 py-1 hover:text-black"
+                    onMouseDown={() => {
+                      setHallname(hall.name);
+                      setHallDropdownActive(false);
+
+                      onChange({
+                        ...event,
+                        resolvedHall: hall,
+                        hall: hall,
+                      });
+                    }}
+                  >
+                    {hall.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
       <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
         <button
