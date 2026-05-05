@@ -83,7 +83,7 @@ export function HistoryEntry({
           <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
             {!isEditing ? (
               <button
-                className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
+                className={`${actionButtonClass} cursor-pointer bg-archive-accent hover:bg-archive-accent/90 text-white`}
                 onClick={() => {
                   setDraftYear(String(year));
                   setDraftTitle(title);
@@ -96,14 +96,14 @@ export function HistoryEntry({
             ) : (
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                 <button
-                  className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
+                  className={`${actionButtonClass} cursor-pointer bg-archive-accent hover:bg-archive-accent/90 text-white`}
                   onClick={handleSave}
                   disabled={isSaving}
                 >
                   {isSaving ? t("history.edit.saving") : t("history.edit.save")}
                 </button>
                 <button
-                  className={`${actionButtonClass} bg-archive-control hover:bg-archive-control/80`}
+                  className={`${actionButtonClass} cursor-pointer bg-archive-control hover:bg-archive-control/80`}
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                 >
@@ -115,7 +115,7 @@ export function HistoryEntry({
 
           <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
             <button
-              className={`${actionButtonClass} bg-archive-accent hover:bg-archive-accent/90 text-white`}
+              className={`${actionButtonClass} cursor-pointer bg-archive-accent hover:bg-archive-accent/90 text-white`}
               onClick={handleDelete}
             >
               {t("history.edit.delete")}
