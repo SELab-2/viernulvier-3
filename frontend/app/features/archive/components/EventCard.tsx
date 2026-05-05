@@ -240,6 +240,7 @@ export function EditableEventCard({
           <input
             className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
             type="datetime-local"
+            aria-label={`${t("productionPage.startDateLabel")} input`}
             value={event.starts_at ?? ""}
             max={event.ends_at ?? undefined}
             onChange={(e) => onChange({ ...event, starts_at: e.target.value })}
@@ -253,6 +254,7 @@ export function EditableEventCard({
           <input
             className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
             type="datetime-local"
+            aria-label={`${t("productionPage.endDateLabel")} input`}
             value={event.ends_at ?? ""}
             min={event.starts_at ?? undefined}
             onChange={(e) => onChange({ ...event, ends_at: e.target.value })}
