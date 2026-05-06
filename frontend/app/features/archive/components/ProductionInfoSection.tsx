@@ -1,7 +1,7 @@
 import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
 import { htmlToDelta, deltaToHtml } from "~/archive-rich-text.client";
-import { ArchiveRichTextFieldWrapper } from "~/shared/components/ArchiveRichTextFieldWrapper"; 
+import { ArchiveRichTextFieldWrapper } from "~/shared/components/ArchiveRichTextFieldWrapper";
 import { Protected } from "~/features/auth";
 import { useEffect, useState } from "react";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
@@ -33,7 +33,7 @@ function ComplexEditableField({
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
-  const shared_css =`
+  const shared_css = `
     shadow-lg
     hover:bg-archive-control-hover
     rounded-full
@@ -47,25 +47,27 @@ function ComplexEditableField({
     `;
 
   useEffect(() => {
-  if (isEditing && html) {
-    htmlToDelta(html).then(setDelta);
-  } else if (isEditing) {
-    setDelta(null);
-  }
+    if (isEditing && html) {
+      htmlToDelta(html).then(setDelta);
+    } else if (isEditing) {
+      setDelta(null);
+    }
   }, [isEditing]);
 
   if (isEditing) {
     return (
       <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
         <div id={id}>
-            <ArchiveRichTextFieldWrapper
-                label={field}
-                value={delta}
-                onChange={setDelta}
-                canEdit={canEdit}
-            />
-            <div className="flex gap-2 mt-2">
-            <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
+          <ArchiveRichTextFieldWrapper
+            label={field}
+            value={delta}
+            onChange={setDelta}
+            canEdit={canEdit}
+          />
+          <div className="mt-2 flex gap-2">
+            <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>
+              {t("productionPage.edit.cancel")}
+            </button>
             <button
               className={`${shared_css} bg-archive-accent`}
               onClick={async () => {
@@ -74,19 +76,19 @@ function ComplexEditableField({
                   onSave(html);
                 }
               }}
-                          >
+            >
               {t("productionPage.edit.save")}
             </button>
-            </div>
+          </div>
         </div>
       </Protected>
-    )
+    );
   }
 
   return (
     <div
       id={id}
-      className={`opacity-90 rounded ${canEdit ? "!cursor-pointer hover:outline hover:outline-1 hover:outline-archive-accent" : "!cursor-default"}`}
+      className={`rounded opacity-90 ${canEdit ? "hover:outline-archive-accent !cursor-pointer hover:outline hover:outline-1" : "!cursor-default"}`}
       onClick={onStartEdit}
     >
       {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : fallback}
@@ -101,7 +103,7 @@ type ProductionInfoSectionProps = {
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
   isEditing: boolean;
-  onSave: (field: Field, html: string) => void
+  onSave: (field: Field, html: string) => void;
 };
 
 export function ProductionInfoSection({
@@ -145,9 +147,7 @@ export function ProductionInfoSection({
         onStartEdit={() => globalIsEditing && setEditing("teaser")}
         onSave={(html) => handleSave("teaser", html)}
         onCancel={() => setEditing(null)}
-        fallback={
-          <p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>
-        }
+        fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
       />
 
@@ -173,9 +173,7 @@ export function ProductionInfoSection({
         onStartEdit={() => globalIsEditing && setEditing("info")}
         onSave={(html) => handleSave("info", html)}
         onCancel={() => setEditing(null)}
-        fallback={
-          <p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>
-        }
+        fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
       />
     </>

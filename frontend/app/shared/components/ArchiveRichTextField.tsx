@@ -80,7 +80,14 @@ function isSameDelta(a: Delta, b: Delta) {
   return JSON.stringify(a.ops) === JSON.stringify(b.ops);
 }
 
-export function ArchiveRichTextField({ label, value, onChange, placeholder, sx, canEdit }: Props) {
+export function ArchiveRichTextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  sx,
+  canEdit,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<InstanceType<typeof import("quill").default> | null>(null);
   const onChangeRef = useRef(onChange);
