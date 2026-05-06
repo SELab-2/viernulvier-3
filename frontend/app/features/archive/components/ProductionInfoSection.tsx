@@ -33,6 +33,18 @@ function ComplexEditableField({
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
+  const shared_css =`
+    shadow-lg
+    hover:bg-archive-control-hover
+    rounded-full
+    cursor-pointer
+    transition-colors
+    duration-150
+    text-archive-ink
+    inline-flex
+    px-6 py-3
+    font-semibold text-white
+    `;
 
   useEffect(() => {
   if (isEditing && html) {
@@ -54,16 +66,17 @@ function ComplexEditableField({
             />
             <div className="flex gap-2 mt-2">
             <button
-                onClick={async () => {
-                  if (delta) {
-                    const html = await deltaToHtml(delta);
-                    onSave(html);
-                  }
-                }}
-                            >
-                {t("productionPage.edit.save")}
+              className={`${shared_css} bg-archive-accent`}
+              onClick={async () => {
+                if (delta) {
+                  const html = await deltaToHtml(delta);
+                  onSave(html);
+                }
+              }}
+                          >
+              {t("productionPage.edit.save")}
             </button>
-            <button onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
+            <button className={`${shared_css} bg-archive-accent`} onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
             </div>
         </div>
       </Protected>
