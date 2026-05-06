@@ -249,6 +249,7 @@ describe("HistoryPage", () => {
       vi.spyOn(historyServiceModule, "getHistoryEntries").mockResolvedValue(
         mockHistoryEntries
       );
+
       const mockCreate = vi
         .spyOn(historyServiceModule, "createHistoryEntry")
         .mockResolvedValue({
@@ -262,8 +263,9 @@ describe("HistoryPage", () => {
       renderPage();
 
       const createButton = await screen.findByRole("button", {
-        name: /I18N_History_Edit_Create|nieuwe entry/i,
+        name: /I18N_History_Edit_Create/i,
       });
+
       const user = userEvent.setup();
       await user.click(createButton);
 
@@ -282,10 +284,10 @@ describe("HistoryPage", () => {
         expect(contentInput).toHaveValue("A new event");
       });
 
-      const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan|create entry/i,
+      const submitButton = await screen.findByRole("button", {
+        name: /I18N_History_Edit_Submit/i,
       });
-      await user.click(makeButton);
+      fireEvent.click(submitButton);
 
       await waitFor(() => {
         expect(mockCreate).toHaveBeenCalledWith(
@@ -323,7 +325,7 @@ describe("HistoryPage", () => {
       await user.type(titleInput, "New Event");
 
       const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan|create entry/i,
+        name: /I18N_History_Edit_Submit|history\.edit\.submit|maak aan|create entry/i,
       });
       await user.click(makeButton);
 
@@ -354,7 +356,7 @@ describe("HistoryPage", () => {
       await user.click(createButton);
 
       const makeButton = await screen.findByRole("button", {
-        name: /history\.actions\.submit|maak aan|create entry/i,
+        name: /I18N_History_Edit_Submit|history\.edit\.submit|maak aan|create entry/i,
       });
       await user.click(makeButton);
 
