@@ -1,7 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import type { Delta } from "quill";
 
-const ArchiveRichTextField = lazy(() =>
+const ArchiveRichTextFieldLazy = lazy(() =>
   import("./ArchiveRichTextField").then((m) => ({
     default: m.ArchiveRichTextField,
   }))
@@ -13,9 +13,14 @@ export function ArchiveRichTextFieldWrapper(props: {
   onChange: (value: Delta) => void;
   placeholder?: string;
 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
   return (
     <Suspense fallback={<div>Laden...</div>}>
-      <ArchiveRichTextField {...props} />
+      <ArchiveRichTextFieldLazy {...props} />
     </Suspense>
   );
 }

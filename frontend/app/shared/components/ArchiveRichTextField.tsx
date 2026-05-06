@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
-import { useQuill } from "react-quilljs";
 import type { SxProps, Theme } from "@mui/material/styles";
 import "quill/dist/quill.snow.css";
 import type { Delta } from "quill";
@@ -80,69 +79,75 @@ function isSameDelta(a: Delta, b: Delta) {
   return JSON.stringify(a.ops) === JSON.stringify(b.ops);
 }
 
-export function ArchiveRichTextField({
-  label,
-  value,
-  onChange,
-  placeholder,
-  sx,
-}: Props) {
-  const { quill, quillRef } = useQuill({
-    theme: "snow",
-    placeholder: placeholder,
-    modules: {
-      toolbar: [
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-      ],
-    },
-  });
-
+export function ArchiveRichTextField({ label, value, onChange, placeholder, sx }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<InstanceType<typeof import("quill").default> | null>(null);
   const onChangeRef = useRef(onChange);
+
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
   useEffect(() => {
-    if (!quill) return;
-    const handler = () => onChangeRef.current(quill.getContents());
-    quill.on("text-change", handler);
-    return () => {
-      quill.off("text-change", handler);
-    };
-  }, [quill]);
+    if (!containerRef.current || quillRef.current) return;
 
+    import("quill").then(({ default: Quill }) => {
+      if (!containerRef.current) return;
+
+      const quill = new Quill(containerRef.current, {
+        theme: "snow",
+        placeholder,
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+          ],
+        },
+      });
+
+      quillRef.current = quill;
+
+      quill.on("text-change", () => {
+        onChangeRef.current(quill.getContents());
+      });
+
+      if (value) {
+        quill.setContents(value, "silent");
+      }
+
+      if (label) {
+        quill.root.setAttribute("aria-label", label);
+      }
+    });
+
+    return () => {
+      quillRef.current = null;
+    };
+  }, []); // enkel bij mount
+
+  // sync value changes
   useEffect(() => {
+    const quill = quillRef.current;
     if (!quill) return;
     if (!value) {
       quill.setContents([], "silent");
       return;
     }
     const current = quill.getContents();
-
-    if (!isSameDelta(current, value)) {
+    if (JSON.stringify(current.ops) !== JSON.stringify(value.ops)) {
       const selection = quill.getSelection();
-
       quill.setContents(value, "silent");
-
       if (selection) {
-        const length = quill.getLength();
-        const safeIndex = Math.min(selection.index, length - 1);
-
+        const safeIndex = Math.min(selection.index, quill.getLength() - 1);
         quill.setSelection(safeIndex, selection.length);
       }
     }
-  }, [quill, value]);
-
-  useEffect(() => {
-    if (!quill || !label) return;
-    quill.root.setAttribute("aria-label", label);
-  }, [quill, label]);
+  }, [value]);
 
   return (
     <Box sx={toSxArray(sx)}>
-      <div ref={quillRef} />
+      <div ref={containerRef} />
     </Box>
   );
 }

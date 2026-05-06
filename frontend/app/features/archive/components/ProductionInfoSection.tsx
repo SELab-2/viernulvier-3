@@ -1,36 +1,12 @@
 import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
+import { htmlToDelta, deltaToHtml } from "~/archive-rich-text.client";
 import { ArchiveRichTextFieldWrapper } from "~/shared/components/ArchiveRichTextFieldWrapper"; 
 import { Protected } from "~/features/auth";
 import { useEffect, useState } from "react";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 type Field = "teaser" | "description" | "info";
-
-type ProductionInfoSectionProps = {
-  prodinfo_available: boolean;
-  tagline: string;
-  teaserHtml: string | undefined;
-  descriptionHtml: string | undefined;
-  infoHtml: string | undefined;
-  onSave: (field: Field, html: string) => void
-};
-
-async function htmlToDelta(html: string): Promise<Delta> {
-  const { default: Quill } = await import("quill");
-  const container = document.createElement("div");
-  const quill = new Quill(container);
-  quill.clipboard.dangerouslyPasteHTML(html);
-  return quill.getContents();
-}
-
-async function deltaToHtml(delta: Delta): Promise<string> {
-  const { default: Quill } = await import("quill");
-  const container = document.createElement("div");
-  const quill = new Quill(container);
-  quill.setContents(delta);
-  return quill.root.innerHTML;
-}
 
 type ComplexEditableFieldProps = {
   id: string;
@@ -101,6 +77,15 @@ function ComplexEditableField({
     </div>
   );
 }
+
+type ProductionInfoSectionProps = {
+  prodinfo_available: boolean;
+  tagline: string;
+  teaserHtml: string | undefined;
+  descriptionHtml: string | undefined;
+  infoHtml: string | undefined;
+  onSave: (field: Field, html: string) => void
+};
 
 export function ProductionInfoSection({
   prodinfo_available,
