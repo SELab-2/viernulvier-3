@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import "quill/dist/quill.snow.css";
@@ -86,6 +86,7 @@ export function ArchiveRichTextField({
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<InstanceType<typeof import("quill").default> | null>(null);
   const onChangeRef = useRef(onChange);
+  const [quillReady, setQuillReady] = useState(false);
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -123,6 +124,8 @@ export function ArchiveRichTextField({
       if (label) {
         quill.root.setAttribute("aria-label", label);
       }
+
+      setQuillReady(true);
     });
 
     return () => {
@@ -149,7 +152,7 @@ export function ArchiveRichTextField({
         quill.setSelection(safeIndex, selection.length);
       }
     }
-  }, [value]);
+  }, [value, quillReady]);
 
   useEffect(() => {
     const quill = quillRef.current;
