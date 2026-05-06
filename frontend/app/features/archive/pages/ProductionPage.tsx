@@ -128,7 +128,9 @@ function isInfoModified(
   );
 }
 
-function isEventModified(original: Event, draft: Event): boolean {
+function isEventModified(original?: Event, draft?: Event): boolean {
+  if (!original || !draft) return false;
+
   return (
     original.starts_at !== draft.starts_at ||
     original.ends_at !== draft.ends_at ||
@@ -172,10 +174,15 @@ async function handleSave(
       ],
     });
 
-    // Patch edited events
-    for (const event of draftEvents.filter((event, i) =>
-      isEventModified(originalEvents[i], event)
-    )) {
+    // Find and patch edited events
+    const originalMap = new Map(originalEvents.map((e) => [e.id_url, e]));
+    const updatedEvents = draftEvents.filter((draft) => {
+      if (!draft.id_url) return false;
+      const original = originalMap.get(draft.id_url);
+      if (!original) return false;
+      return isEventModified(original, draft);
+    });
+    for (const event of updatedEvents) {
       await updateEventByUrl(event.id_url, {
         hall_id_url: event.hall?.id_url,
         starts_at: event.starts_at,
@@ -510,6 +517,7 @@ function EditEvents({
 }
 
 function NewEventButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="mt-4 flex justify-center">
       <button
@@ -517,7 +525,9 @@ function NewEventButton({ onClick }: { onClick: () => void }) {
         className="bg-archive-accent hover:bg-archive-accent/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all duration-100 active:scale-95"
       >
         <Add fontSize="small" />
-        <p className="text-sm font-medium tracking-wide uppercase">New Event</p>
+        <p className="text-sm font-medium tracking-wide uppercase">
+          {t("productionPage.newEvent")}
+        </p>
       </button>
     </div>
   );
@@ -659,18 +669,18 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       language
     );
   const areEventsModified = useMemo(() => {
-    return draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft));
-  }, [draftEvents, originalEvents]);
+    return (
+      newEvents.length > 0 ||
+      deletedEvents.length > 0 ||
+      draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft))
+    );
+  }, [draftEvents, originalEvents, newEvents, deletedEvents]);
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
   const isModified = useMemo(
-    () =>
-      isInfoModified(originalInfo, draftInfo) ||
-      areEventsModified ||
-      newEvents.length > 0 ||
-      deletedEvents.length > 0,
-    [originalInfo, draftInfo, areEventsModified, newEvents, deletedEvents]
+    () => isInfoModified(originalInfo, draftInfo) || areEventsModified,
+    [originalInfo, draftInfo, areEventsModified]
   );
 
   // Helper to create an empty event when pressing new event button

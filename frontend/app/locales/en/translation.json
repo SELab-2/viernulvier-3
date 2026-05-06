@@ -70,6 +70,7 @@
     "dateLabel": "Date",
     "startDateLabel": "Start date",
     "endDateLabel": "End date",
+    "newEvent": "New Event",
     "timeLabel": "Time",
     "placeLabel": "Venue",
     "priceLabel": "Price",
