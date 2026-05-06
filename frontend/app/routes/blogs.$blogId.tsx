@@ -3,10 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 import { BlogContentPage } from "~/features/blogs/pages/BlogContentPage";
+import { getBlog, getBlogByUrl } from "~/features/blogs/services/blogService";
+import type { Blog } from "~/features/blogs/types/blogTypes";
 
-function getblogNumericIdFromInput(
-  blogIdInput: string
-): number | undefined {
+function getblogNumericIdFromInput(blogIdInput: string): number | undefined {
   if (/^\d+$/.test(blogIdInput)) {
     const numericId = Number(blogIdInput);
     return Number.isInteger(numericId) && numericId > 0 ? numericId : undefined;
@@ -23,13 +23,10 @@ function getblogNumericIdFromInput(
 
 export default function BlogContentRoute() {
   const { blogId = "" } = useParams();
-  const decodedBlogId = useMemo(
-    () => decodeURIComponent(blogId),
-    [blogId]
-  );
+  const decodedBlogId = useMemo(() => decodeURIComponent(blogId), [blogId]);
   const { i18n } = useTranslation();
   const { lang } = useParams();
-  // const [blog, setBlog] = useState<Blog | null>(null);
+  const [blog, setBlog] = useState<Blog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -41,29 +38,29 @@ export default function BlogContentRoute() {
       setHasError(false);
 
       try {
-        // const numericId = getblogNumericIdFromInput(decodedBlogId);
+        const numericId = getblogNumericIdFromInput(decodedBlogId);
 
-        // let blogData =
-        //   typeof numericId === "number"
-        //     ? await getBlog(numericId)
-        //     : await getBlogByUrl(decodedBlogId);
-        //
-        // // Check if the frontend received a blog info, otherwise refetch with another language
-        // if (blogData.blog_infos.length === 0 && !isCancelled) {
-        //   const otherLanguage = lang === "en" ? "nl" : "en";
-        //   blogData =
-        //     typeof numericId === "number"
-        //       ? await getBlog(numericId, otherLanguage)
-        //       : await getBlogByUrl(decodedBlogId, otherLanguage);
-        // }
-        //
-        // if (!isCancelled) {
-        //   setBlog(blogData);
-        // }
+        let blogData =
+          typeof numericId === "number"
+            ? await getBlog(numericId)
+            : await getBlogByUrl(decodedBlogId);
+
+        // Check if the frontend received a blog info, otherwise refetch with another language
+        if (blogData.blog_contents.length === 0 && !isCancelled) {
+          const otherLanguage = lang === "en" ? "nl" : "en";
+          blogData =
+            typeof numericId === "number"
+              ? await getBlog(numericId, otherLanguage)
+              : await getBlogByUrl(decodedBlogId, otherLanguage);
+        }
+
+        if (!isCancelled) {
+          setBlog(blogData);
+        }
       } catch {
         if (!isCancelled) {
           setHasError(true);
-          // setBlog(null);
+          setBlog(null);
         }
       } finally {
         if (!isCancelled) {
@@ -94,9 +91,9 @@ export default function BlogContentRoute() {
     return <div>Failed to load blog.</div>;
   }
 
-  // if (!blog) {
-  //   return <div>Blog not found.</div>;
-  // }
+  if (!blog) {
+    return <div>Blog not found.</div>;
+  }
 
-  return <BlogContentPage blog={"test"} />;
+  return <BlogContentPage blog={blog} />;
 }

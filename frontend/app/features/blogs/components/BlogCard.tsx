@@ -107,6 +107,11 @@ function getSanitizedHtmlOrUndefined(
   return DOMPurify.sanitize(trimmedValue);
 }
 
+function getBlogNumericIdFromUrl(idUrl: string): string | undefined {
+  const match = idUrl.match(/\/blogs\/(\d+)(?:[/?#]|$)/);
+  return match?.[1];
+}
+
 interface BlogCardProps {
   blog: Blog;
   preferredLanguage?: string;
@@ -139,9 +144,19 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
     fetchProductionTitles();
   }, [blog, language]);
 
+  const blogId = getBlogNumericIdFromUrl(blog.id_url);
+
+  const handleOpenDetails = () => {
+    if (!blogId) {
+      return;
+    }
+
+    navigate(lp(`/blogs/${blogId}`));
+  };
+
   return (
     <Card
-	  onClick={() => navigate(lp("/blogs/1"))}
+      onClick={handleOpenDetails}
       role="button"
       tabIndex={0}
       aria-label={`Open details for ${title}`}
