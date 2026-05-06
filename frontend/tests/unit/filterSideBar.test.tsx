@@ -188,7 +188,7 @@ describe("FilterSidebar – reset filters button", () => {
   it("resets all filters when reset button is clicked", async () => {
     const props = {
       ...defaultProps(),
-      searchQuery: "zoekterm",
+      searchQuery: "searchterm",
       dateFrom: "2024-01-01",
       dateTo: "2024-12-31",
       selectedTags: [TAGS[0]],
