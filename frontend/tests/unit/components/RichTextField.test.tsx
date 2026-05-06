@@ -1,11 +1,11 @@
 import { vi, it, expect, beforeEach } from "vitest";
 import { ArchiveRichTextField } from "~/shared/components/ArchiveRichTextField";
 import { act, render } from "@testing-library/react";
-import { mockQuill } from "tests/mocks/react-quilljs.mock";
+import { mockQuill } from "tests/mocks/quill.mock";
 import type { Delta } from "quill";
 
 vi.mock("quill", async () => {
-  const mock = await import("tests/mocks/react-quilljs.mock");
+  const mock = await import("tests/mocks/quill.mock");
   return { default: mock.default };
 });
 
@@ -14,7 +14,6 @@ beforeEach(() => {
   mockQuill.getContents.mockReturnValue({ ops: [] } as unknown as Delta);
 });
 
-// Helper om de dynamische import te laten resolven
 const flushPromises = () => act(() => Promise.resolve());
 
 it("renders without crashing", async () => {

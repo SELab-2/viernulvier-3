@@ -1,11 +1,13 @@
 import type { Op } from "quill";
-import { vi } from "vitest";
+import { vi, type MockInstance } from "vitest";
 
 export const mockQuill = {
   on: vi.fn(),
   getContents: vi.fn(() => ({ ops: [] as Op[] })),
   setContents: vi.fn(),
-  getSelection: vi.fn() as any,
+  getSelection: vi.fn() as unknown as MockInstance & {
+    mockReturnValue: (value: Range | null) => void;
+  },
   setSelection: vi.fn(),
   getLength: vi.fn(() => 1),
   enable: vi.fn(),
