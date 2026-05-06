@@ -11,6 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import type { Blog, BlogContent } from "../types/blogTypes";
+import { getProductionByUrl } from "~/features/archive/services/productionService";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import DOMPurify from "dompurify";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -36,22 +41,99 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
+function getBlogContentByLanguage(
+  blogContents: BlogContent[],
+  language: string
+): BlogContent {
+  const normalizedLanguage = language.toLowerCase();
+  const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
+
+  const preferredLanguages = Array.from(
+    new Set([normalizedLanguage, baseLanguage, "nl", "en"])
+  );
+
+  for (const preferred of preferredLanguages) {
+    const languageMatch = blogContents.find(
+      (info) => info.language.toLowerCase() === preferred
+    );
+
+    if (languageMatch) {
+      return languageMatch;
+    }
+  }
+
+  return blogContents[0];
+}
+
+async function getProductionTitlesByLanguage(
+  blog: Blog,
+  language: string
+): Promise<string[]> {
+  if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
+    return [];
+  }
+
+  const titles = await Promise.all(
+    blog.production_id_urls.map(async (prod_id_url) => {
+      const prod = await getProductionByUrl(prod_id_url);
+
+      const languageMatch = prod.production_infos.find(
+        (prod_info) => prod_info.language === language
+      );
+
+      return languageMatch?.title ?? prod.production_infos[0]?.title;
+    })
+  );
+
+  return titles.filter(
+    (title): title is string => typeof title === "string" && title.length > 0
+  );
+}
+
+function getSanitizedHtmlOrUndefined(
+  value: string | null | undefined
+): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return undefined;
+  }
+
+  return DOMPurify.sanitize(trimmedValue);
+}
+
 interface BlogCardProps {
-  title: string;
-  content: string;
-  production_titles: string[];
-  imageUrl: string;
+  blog: Blog;
+  preferredLanguage?: string;
   className?: string;
 }
 
-export function BlogCard({
-  title,
-  content,
-  production_titles,
-  imageUrl,
-  className,
-}: BlogCardProps) {
+export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) {
+  const [productionTitles, setProductionTitles] = useState<string[]>([]);
+
   const { t } = useTranslation();
+  const { lang } = useParams();
+  const language = preferredLanguage ?? lang!;
+
+  const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
+
+  const title = blog_content.title;
+  const content = blog_content.content;
+  const imageUrl = DEFAULT_IMAGE;
+
+  const contentHtml = getSanitizedHtmlOrUndefined(content);
+
+  useEffect(() => {
+    async function fetchProductionTitles() {
+      const result = await getProductionTitlesByLanguage(blog, language);
+      setProductionTitles(result);
+    }
+    fetchProductionTitles();
+  }, [blog, language]);
+
   return (
     <Card
       role="button"
@@ -160,18 +242,19 @@ export function BlogCard({
             WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
           }}
         >
-          <Typography
-            className="blog-card-text"
-            sx={{
-              color: CARD_COLORS.textSecondary,
-              fontSize: "var(--text-archive-body)",
-              lineHeight: "var(--leading-archive-body)",
-              overflowWrap: "anywhere",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {content}
-          </Typography>
+          {contentHtml && (
+            <div
+              className="blog-card-text"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              style={{
+                color: CARD_COLORS.textSecondary,
+                fontSize: "var(--text-archive-body)",
+                lineHeight: "var(--leading-archive-body)",
+                overflowWrap: "anywhere",
+                whiteSpace: "pre-wrap",
+              }}
+            />
+          )}
         </Box>
         <Divider
           sx={{
@@ -187,11 +270,11 @@ export function BlogCard({
           sx={{ mt: 1.5, display: { xs: "none", sm: "flex" } }}
         >
           <Stack direction="row" alignItems="center" gap={1}>
-            {production_titles.length > 0 && (
+            {productionTitles.length > 0 && (
               <Chip
                 className="blog-card-text"
                 size="small"
-                label={production_titles[0]}
+                label={productionTitles[0]}
                 sx={{
                   borderRadius: 1,
                   background: "transparent",
@@ -202,7 +285,7 @@ export function BlogCard({
                 }}
               />
             )}
-            {production_titles.length > 1 && (
+            {productionTitles.length > 1 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
@@ -211,10 +294,10 @@ export function BlogCard({
                   whiteSpace: "nowrap",
                 }}
               >
-                +{production_titles.length - 1} {t("blogs.card.other_prods")}
+                +{productionTitles.length - 1} {t("blogs.card.other_prods")}
               </Typography>
             )}
-            {production_titles.length === 0 && (
+            {productionTitles.length === 0 && (
               <Typography
                 sx={{
                   fontSize: "var(--text-archive-meta)",
@@ -253,23 +336,12 @@ export function BlogCard({
   );
 }
 
-export function BlogCardList() {
-  const title = "Temp title";
-  const title_long =
-    "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.";
-  const content = "Temp Content";
-  const content_long =
-    "Temp Content\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.\nLorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.";
-  const prod_titles_0: string[] = [];
-  const prod_titles_1 = ["Test prod"];
-  const prod_titles_3 = ["Test prod 1/3", "Test prod 2/3", "Test prod 3/3"];
-  const prod_titles_5 = [
-    "Test prod 1/5",
-    "Test prod 2/5",
-    "Test prod 3/5",
-    "Test prod 4/5",
-    "Test prod 5/5",
-  ];
+export interface BlogCardListProps {
+  blogs: Blog[];
+  prefferedLanguage?: string;
+}
+
+export function BlogCardList({ blogs, prefferedLanguage }: BlogCardListProps) {
   return (
     <Box
       sx={{
@@ -279,30 +351,9 @@ export function BlogCardList() {
         width: "100%",
       }}
     >
-      <BlogCard
-        title={title}
-        content={content}
-        production_titles={prod_titles_0}
-        imageUrl={DEFAULT_IMAGE}
-      />
-      <BlogCard
-        title={title_long}
-        content={content}
-        production_titles={prod_titles_1}
-        imageUrl={DEFAULT_IMAGE}
-      />
-      <BlogCard
-        title={title}
-        content={content_long}
-        production_titles={prod_titles_3}
-        imageUrl={DEFAULT_IMAGE}
-      />
-      <BlogCard
-        title={title_long}
-        content={content_long}
-        production_titles={prod_titles_5}
-        imageUrl={DEFAULT_IMAGE}
-      />
+      {blogs.map((blog) => (
+        <BlogCard key={blog.id_url} blog={blog} preferredLanguage={prefferedLanguage} />
+      ))}
     </Box>
   );
 }

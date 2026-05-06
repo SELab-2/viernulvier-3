@@ -49,6 +49,17 @@ Table prod_tags {
   prod_id int [pk, ref: - productions.id]
 }
 
+Table production_groups {
+  id int [pk]
+  title varchar
+  is_public_filter boolean [default: true]
+}
+
+Table prod_groups {
+  group_id int [pk, ref: - production_groups.id]
+  prod_id int [pk, ref: - productions.id]
+}
+
 Table events {
     id int [pk]                     // event ID from "@id"
     viernulvier_id int [unique]
@@ -88,6 +99,7 @@ Table halls {
 
 Table media {
   id int [pk]
+  vnv_item_id int [unique]
   production_id int [ref: > productions.id]
   blog_id int [ref: > blogs.id]
   object_key varchar

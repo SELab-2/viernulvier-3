@@ -121,6 +121,16 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_invalid_group_ids(client: TestClient):
+    response = client.get(BASE_PROD_URL + "/", params={"group_ids": "a,b"})
+
+    assert response.status_code == 422
+    assert (
+        response.json()["detail"]
+        == "group_ids must be a comma-separated list of integers."
+    )
+
+
 # Productions can be filtered on artist.
 def test_get_productions_with_artist(
     client: TestClient, db_session: Session, many_productions
