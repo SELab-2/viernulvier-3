@@ -1,18 +1,14 @@
-from sqlalchemy import Column, Integer, String, UniqueConstraint
+from sqlalchemy import Column, Integer, String
 from src.database import Base
 
 
 class History(Base):
     __tablename__ = "history"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    year = Column(Integer, nullable=False)
+    year = Column(Integer, primary_key=True)
 
     # 'nl', 'en'
-    language = Column(String(5), nullable=False)
+    language = Column(String, primary_key=True)
 
     title = Column(String)
     content = Column(String, nullable=False)
-
-    __table_args__ = (UniqueConstraint("year", "language", name="uix_year_language"),)

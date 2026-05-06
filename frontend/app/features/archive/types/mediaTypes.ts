@@ -1,4 +1,4 @@
-import type { PaginationResponse } from "./paginationTypes";
+import type { IdPaginationResponse } from "./paginationTypes";
 
 export interface MediaItem {
   id: number;
@@ -12,5 +12,5 @@ export interface MediaItem {
 
 export interface MediaList {
   media: MediaItem[];
-  pagination: PaginationResponse;
+  pagination: IdPaginationResponse;
 }

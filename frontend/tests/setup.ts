@@ -118,8 +118,12 @@ vi.mock("react-i18next", async () => {
           "productionPage.dateLabel": "I18N_Production_DateLabel",
           "productionPage.placeLabel": "I18N_Production_PlaceLabel",
           "productionPage.timeLabel": "I18N_Production_TimeLabel",
+          "productionPage.eventMore": "I18N_Production_EventMore",
           "productionPage.priceLabel": "I18N_Production_PriceLabel",
           "productionPage.noPrice": "I18N_Production_NoPrice",
+          "productionPage.infoNotAvailable": "I18N_ProductionInfo_NotAvailable",
+          "productionPage.add.add": "I18N_ProductionInfo_Add",
+          "productionPage.delete.delete": "I18N_ProductionInfo_Delete",
         };
 
         if (options?.returnObjects) {

@@ -9,14 +9,10 @@ export type EventWithResolvedRelations = Event & {
 };
 
 function formatEventTime(date: Date): string {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  if (minutes === 0) {
-    return `${hours}u`;
-  }
-
-  return `${hours}u${String(minutes).padStart(2, "0")}`;
+  return `${hours}:${minutes}`;
 }
 
 function formatEventDateTimeRange(
@@ -108,6 +104,7 @@ function EventCardSummary({
   dateText,
   locationText,
 }: EventCardSummaryProps) {
+  const { t } = useTranslation();
   return (
     <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
       <div className="min-w-0">
@@ -129,7 +126,7 @@ function EventCardSummary({
       </div>
 
       <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
-        Meer
+        {t("productionPage.eventMore")}
       </span>
     </summary>
   );

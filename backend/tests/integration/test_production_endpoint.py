@@ -121,6 +121,16 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
 
+def test_get_productions_with_invalid_group_ids(client: TestClient):
+    response = client.get(BASE_PROD_URL + "/", params={"group_ids": "a,b"})
+
+    assert response.status_code == 422
+    assert (
+        response.json()["detail"]
+        == "group_ids must be a comma-separated list of integers."
+    )
+
+
 # Productions can be filtered on artist.
 def test_get_productions_with_artist(
     client: TestClient, db_session: Session, many_productions
@@ -495,6 +505,24 @@ def test_patch_production_delete_info_success(
     assert response.status_code == 200
     data = response.json()
     assert len(data["production_infos"]) == 1
+
+
+# User with permissions cannot delete all existing infos of an existing production.
+def test_patch_production_delete_info_failure(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    production = productions_limited[0]
+
+    response = client.patch(
+        f"{BASE_PROD_URL}/{production.id}",
+        json={"remove_languages": [Languages.ENGLISH, Languages.NEDERLANDS]},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
 
 
 # User should be able to create a new production.
