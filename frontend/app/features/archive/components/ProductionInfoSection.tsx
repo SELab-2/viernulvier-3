@@ -65,6 +65,7 @@ function ComplexEditableField({
                 canEdit={canEdit}
             />
             <div className="flex gap-2 mt-2">
+            <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
             <button
               className={`${shared_css} bg-archive-accent`}
               onClick={async () => {
@@ -76,7 +77,6 @@ function ComplexEditableField({
                           >
               {t("productionPage.edit.save")}
             </button>
-            <button className={`${shared_css} bg-archive-accent`} onClick={onCancel}>{t("productionPage.edit.cancel")}</button>
             </div>
         </div>
       </Protected>
