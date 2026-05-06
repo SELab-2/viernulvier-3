@@ -59,11 +59,17 @@ function MonthDisplay({
   productions,
   month,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productions: Production[];
   year: number;
   month: number;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const { lang } = useParams();
   const { t } = useTranslation();
@@ -94,6 +100,9 @@ function MonthDisplay({
             production={prod}
             className=""
             preferredLanguage={language}
+            isSelectable={isSelectable}
+            selected={selectedProductionIds?.includes(prod.id_url)}
+            onToggleSelected={onToggleProductionSelection}
           />
         ))}
       </div>
@@ -106,11 +115,17 @@ function YearDisplay({
   year,
   sortOrder,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productionsPerMonth: Map<number, Production[]>;
   year: number;
   sortOrder?: ArchiveSortOrder;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const { t } = useTranslation();
   const months = [...productionsPerMonth.keys()];
@@ -132,6 +147,9 @@ function YearDisplay({
           month={month}
           year={year}
           preferredLanguage={language}
+          isSelectable={isSelectable}
+          selectedProductionIds={selectedProductionIds}
+          onToggleProductionSelection={onToggleProductionSelection}
         />
       ))}
     </div>
@@ -143,11 +161,17 @@ export function ProductionTimeline({
   className,
   sortOrder,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productions: Production[];
   className?: string;
   sortOrder?: ArchiveSortOrder;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const groupedProductions = groupProductions(productions);
   const years = [...groupedProductions.keys()];
@@ -164,6 +188,9 @@ export function ProductionTimeline({
           year={year}
           sortOrder={sortOrder}
           preferredLanguage={language}
+          isSelectable={isSelectable}
+          selectedProductionIds={selectedProductionIds}
+          onToggleProductionSelection={onToggleProductionSelection}
         />
       ))}
     </div>

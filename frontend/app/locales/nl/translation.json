@@ -30,6 +30,16 @@
     "results": "resultaten",
     "result": "resultaat",
     "show_more": "Toon meer",
+    "selection": {
+      "enter": "Producties selecteren",
+      "exit": "Selectie afronden",
+      "select_all": "Alles zichtbaar selecteren",
+      "clear": "Selectie wissen",
+      "selected_singular": "geselecteerde productie",
+      "selected_plural": "geselecteerde producties",
+      "select": "Selecteer",
+      "selected": "Geselecteerd"
+    },
     "no_results": {
       "header": "Geen resultaten...",
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"

@@ -34,6 +34,16 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "selection": {
+      "enter": "Select productions",
+      "exit": "Done selecting",
+      "select_all": "Select all visible",
+      "clear": "Clear selection",
+      "selected_singular": "selected production",
+      "selected_plural": "selected productions",
+      "select": "Select",
+      "selected": "Selected"
+    },
     "show_more": "Show more",
     "sortBy": "Sort by",
     "sortOrder": {
