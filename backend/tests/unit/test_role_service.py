@@ -1,5 +1,6 @@
 import pytest
 from src.models.role import Role
+from src.models.user import User
 from src.schemas.auth import RoleCreate, RoleUpdate
 from src.services.auth import role as role_service
 
@@ -43,3 +44,16 @@ def test_update_role_invalid_permission(db_session):
 def test_delete_role_not_found(db_session):
     with pytest.raises(Exception):
         role_service.delete_role(db_session, 999)
+
+
+def test_delete_role_assigned_to_user_forbidden(db_session):
+    role = Role(name="admin")
+    user = User(username="manager", hashed_password="hashed", roles=[role])
+    db_session.add_all([role, user])
+    db_session.commit()
+
+    with pytest.raises(Exception) as excinfo:
+        role_service.delete_role(db_session, role.id)
+
+    assert excinfo.value.detail == "Roles assigned to users cannot be deleted"
+    assert db_session.query(Role).filter(Role.id == role.id).first() is not None
