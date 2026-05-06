@@ -38,6 +38,7 @@ async def get_productions(
     cursor: str | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
     tag_ids: str | None = Query(None),
+    group_ids: str | None = Query(None),
     artists: str | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
@@ -54,6 +55,15 @@ async def get_productions(
                 detail="tag_ids must be a comma-separated list of integers.",
             )
 
+    if group_ids:
+        try:
+            group_ids = [int(group_id) for group_id in group_ids.split(",")]
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="group_ids must be a comma-separated list of integers.",
+            )
+
     if artists:
         artists = artists.split(",")
     return get_productions_paginated(
@@ -62,6 +72,7 @@ async def get_productions(
         cursor,
         limit,
         tags=tag_ids,
+        groups=group_ids,
         artists=artists,
         production_name=production_name,
         earliest_at=earliest_at,

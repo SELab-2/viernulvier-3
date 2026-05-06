@@ -9,6 +9,7 @@ jobs:
   deploy:
     name: Deploy to Server (Dev)
     runs-on: self-hosted
+    environment: production
 
     steps:
       - name: Cleanup Docker

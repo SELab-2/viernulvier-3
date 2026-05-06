@@ -51,6 +51,7 @@
   },
 
   "productionPage": {
+    "infoNotAvailable": "Information in this language is not available.",
     "fallback": {
       "unknownProduction": "Unknown production",
       "archive": "Archive",
@@ -83,6 +84,14 @@
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist"
+    },
+    "delete": {
+      "delete": "Delete",
+      "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
+      "error": "Error: Each production should have info in at least one language."
+    },
+    "add": {
+      "add": "Add production info"
     }
   },
 
@@ -250,17 +259,24 @@
       "actions": {
         "add": "Add role",
         "create": "Create role",
-        "creating": "Creating role"
+        "creating": "Creating role",
+        "delete": "Delete role",
+        "deleting": "Deleting role"
       },
       "messages": {
         "loadFailed": "We could not load roles right now.",
         "createFailed": "We could not create the role right now.",
+        "deleteFailed": "We could not delete the role right now.",
         "nameRequired": "A role name is required."
       },
       "dialogs": {
         "create": {
           "title": "Add role",
           "description": "Create a new role. Permissions can be assigned after creation."
+        },
+        "delete": {
+          "title": "Delete role",
+          "description": "Delete the role {{roleName}}? This is only possible when no users are assigned to it."
         }
       },
       "empty": {
