@@ -17,17 +17,14 @@ import {
   updateEventByUrl,
 } from "~/features/archive/services/eventService";
 import { getAllHalls, getHallByUrl } from "~/features/archive/services/hallService";
-import {
-  EditableEventCard,
-  EventCard,
-  type EventWithResolvedRelations,
-} from "../components/EventCard";
+import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { deleteByUrl } from "~/shared/services/sharedService";
 import type { Hall } from "../types/hallTypes";
+import EditableEventCard from "../components/EditableEventCard";
 
 interface ProductionPageProps {
   production: Production;

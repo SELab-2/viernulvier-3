@@ -1,9 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import {
-  EditableEventCard,
-  type EventWithResolvedRelations,
-} from "~/features/archive/components/EventCard";
+import EditableEventCard from "~/features/archive/components/EditableEventCard";
+import { type EventWithResolvedRelations } from "~/features/archive/components/EventCard";
 import type { Hall } from "~/features/archive/types/hallTypes";
 import { AuthSessionProvider } from "~/features/auth";
 
