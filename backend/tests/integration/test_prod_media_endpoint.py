@@ -94,7 +94,7 @@ def test_upload_media_unsupported_type(
         headers=headers,
     )
     assert response.status_code == 415
-    assert "niet toegestaan" in response.json()["detail"]
+    assert "not accepted" in response.json()["detail"]
 
 
 def test_upload_media_no_permission(

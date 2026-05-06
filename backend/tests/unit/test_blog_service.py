@@ -99,7 +99,7 @@ def test_create_blog_valid_content(db_session, blogs_limited):
     assert len(result.blogs) == 2
     new_blog = BlogCreate(
         blog_content=BlogContentCreate(
-            language=Languages.NEDERLANDS,
+            language=Languages.DUTCH,
             title="nieuwe blog",
             content="Dit is mijn nieuwe blog",
         ),
@@ -130,7 +130,7 @@ def test_create_blog_with_tags_valid(db_session, blogs_limited):
     ).productions
     new_blog = BlogCreate(
         blog_content=BlogContentCreate(
-            language=Languages.NEDERLANDS, title="nieuwe blog", content=""
+            language=Languages.DUTCH, title="nieuwe blog", content=""
         ),
         production_id_urls=[prod.id_url for prod in valid_productions],
     )

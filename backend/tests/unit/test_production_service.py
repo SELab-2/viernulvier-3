@@ -353,7 +353,7 @@ def test_create_production_valid_info(db_session, productions_limited):
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(
-            language=Languages.NEDERLANDS, title="nieuw_prod_nl"
+            language=Languages.DUTCH, title="nieuw_prod_nl"
         ),
     )
 
@@ -606,7 +606,7 @@ def test_update_production_info_delete_all(db_session, productions_limited):
 
     # Should throw an exception.
     update = ProductionUpdate(
-        remove_languages=[Languages.ENGLISH, Languages.NEDERLANDS]
+        remove_languages=[Languages.ENGLISH, Languages.DUTCH]
     )
     with pytest.raises(Exception):
         update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)

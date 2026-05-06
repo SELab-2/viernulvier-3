@@ -75,7 +75,7 @@ try:
                 db.flush()
                 tag_id = tag_model.id
                 tag_name_model = TagName(
-                    tag_id=tag_id, language=Languages.NEDERLANDS, name=genre
+                    tag_id=tag_id, language=Languages.DUTCH, name=genre
                 )
                 db.add(tag_name_model)
                 db.flush()
