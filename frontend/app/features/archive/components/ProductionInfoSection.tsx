@@ -50,9 +50,9 @@ function ComplexEditableField({
     if (isEditing && html) {
       htmlToDelta(html).then(setDelta);
     } else if (isEditing) {
-      setDelta(null);
+      setTimeout(() => setDelta(null), 0);
     }
-  }, [isEditing]);
+  }, [isEditing, html]);
 
   if (isEditing) {
     return (
@@ -119,7 +119,9 @@ export function ProductionInfoSection({
   const [editing, setEditing] = useState<Field | null>(null);
 
   useEffect(() => {
-    if (!globalIsEditing) setEditing(null);
+    if (!globalIsEditing) {
+      setTimeout(() => setEditing(null), 0);
+    }
   }, [globalIsEditing]);
 
   if (!prodinfo_available) {

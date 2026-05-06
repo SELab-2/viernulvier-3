@@ -16,7 +16,11 @@ export function ArchiveRichTextFieldWrapper(props: {
   canEdit: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const id = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(id);
+  }, []);
+
   const { t } = useTranslation();
 
   if (!mounted) return null;

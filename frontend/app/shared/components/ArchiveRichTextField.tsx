@@ -75,11 +75,6 @@ function toSxArray(sx: SxProps<Theme> | undefined) {
   return archiveRichTextFieldSx;
 }
 
-function isSameDelta(a: Delta, b: Delta) {
-  if (a.ops.length !== b.ops.length) return false;
-  return JSON.stringify(a.ops) === JSON.stringify(b.ops);
-}
-
 export function ArchiveRichTextField({
   label,
   value,
@@ -133,7 +128,9 @@ export function ArchiveRichTextField({
     return () => {
       quillRef.current = null;
     };
-  }, []); // enkel bij mount
+    // Disable is needed because quill has to be rendered only once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // sync value changes
   useEffect(() => {
