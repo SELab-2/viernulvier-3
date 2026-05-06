@@ -358,9 +358,7 @@ describe("UserManagementPage", () => {
 
     expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "users.roles.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
     expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(users[0].id);
     expect(await screen.findByText("admin")).toBeInTheDocument();
@@ -394,9 +392,7 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "users.roles.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
     expect(await screen.findByText("Cannot delete last admin")).toBeInTheDocument();
     // The user should still be in the list
@@ -429,9 +425,7 @@ describe("UserManagementPage", () => {
       })
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "users.roles.actions.delete" })
-    );
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
 
     expect(await screen.findByText("users.messages.deleteFailed")).toBeInTheDocument();
   });
@@ -636,7 +630,9 @@ describe("UserManagementPage", () => {
         await screen.findByText("users.roles.dialogs.delete.title")
       ).toBeInTheDocument();
 
-      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
 
       expect(roleManagementServiceModule.deleteRole).toHaveBeenCalledWith(roles[0].id);
       expect(await screen.findByText("viewer")).toBeInTheDocument();
@@ -686,7 +682,9 @@ describe("UserManagementPage", () => {
         })
       );
 
-      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
 
       expect(await screen.findByText("Role is protected")).toBeInTheDocument();
       expect(screen.getByText("editor")).toBeInTheDocument();
@@ -715,7 +713,9 @@ describe("UserManagementPage", () => {
         })
       );
 
-      await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
 
       expect(
         await screen.findByText("users.roles.messages.deleteFailed")
