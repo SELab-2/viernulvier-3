@@ -650,9 +650,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     t("productionPage.fallback.unknownProduction")
   );
   const tagline = getTextOrDefault(productionInfo?.tagline, "");
-  const teaserHtml = getSanitizedHtmlOrUndefined(productionInfo?.teaser);
-  const descriptionHtml = getSanitizedHtmlOrUndefined(productionInfo?.description);
-  const infoHtml = getSanitizedHtmlOrUndefined(productionInfo?.info);
+  const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
   const fallbackImageUrl =
