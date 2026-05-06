@@ -787,6 +787,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}
+              isEditing={isEditing}
               onSave={(field, html) => {
                 setDraftInfo((prev) => prev ? { ...prev, [field]: html } : prev);
               }}

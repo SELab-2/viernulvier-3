@@ -10,6 +10,7 @@ type Props = {
   onChange: (value: Delta) => void;
   placeholder?: string;
   sx?: SxProps<Theme>;
+  canEdit: boolean;
 };
 
 const archiveRichTextFieldSx: SxProps<Theme> = {
@@ -79,7 +80,7 @@ function isSameDelta(a: Delta, b: Delta) {
   return JSON.stringify(a.ops) === JSON.stringify(b.ops);
 }
 
-export function ArchiveRichTextField({ label, value, onChange, placeholder, sx }: Props) {
+export function ArchiveRichTextField({ label, value, onChange, placeholder, sx, canEdit }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<InstanceType<typeof import("quill").default> | null>(null);
   const onChangeRef = useRef(onChange);
@@ -96,6 +97,7 @@ export function ArchiveRichTextField({ label, value, onChange, placeholder, sx }
 
       const quill = new Quill(containerRef.current, {
         theme: "snow",
+        readOnly: !canEdit,
         placeholder,
         modules: {
           toolbar: [
@@ -144,6 +146,16 @@ export function ArchiveRichTextField({ label, value, onChange, placeholder, sx }
       }
     }
   }, [value]);
+
+  useEffect(() => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    if (canEdit) {
+      quill.enable();
+    } else {
+      quill.disable();
+    }
+  }, [canEdit]);
 
   return (
     <Box sx={toSxArray(sx)}>

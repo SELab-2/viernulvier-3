@@ -12,6 +12,7 @@ export function ArchiveRichTextFieldWrapper(props: {
   value?: Delta | null;
   onChange: (value: Delta) => void;
   placeholder?: string;
+  canEdit: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);

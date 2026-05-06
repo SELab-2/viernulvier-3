@@ -17,6 +17,7 @@ type ComplexEditableFieldProps = {
   onStartEdit: () => void;
   onSave: (html: string) => void;
   onCancel: () => void;
+  canEdit: boolean;
 };
 
 function ComplexEditableField({
@@ -28,6 +29,7 @@ function ComplexEditableField({
   onStartEdit,
   onSave,
   onCancel,
+  canEdit,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
@@ -48,6 +50,7 @@ function ComplexEditableField({
                 label={field}
                 value={delta}
                 onChange={setDelta}
+                canEdit={canEdit}
             />
             <div className="flex gap-2 mt-2">
             <button
@@ -70,7 +73,7 @@ function ComplexEditableField({
   return (
     <div
       id={id}
-      className="opacity-90 cursor-pointer rounded hover:outline hover:outline-1 hover:outline-archive-accent"
+      className={`opacity-90 rounded ${canEdit ? "!cursor-pointer hover:outline hover:outline-1 hover:outline-archive-accent" : "!cursor-default"}`}
       onClick={onStartEdit}
     >
       {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : fallback}
@@ -84,6 +87,7 @@ type ProductionInfoSectionProps = {
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
+  isEditing: boolean;
   onSave: (field: Field, html: string) => void
 };
 
@@ -93,10 +97,15 @@ export function ProductionInfoSection({
   teaserHtml,
   descriptionHtml,
   infoHtml,
+  isEditing: globalIsEditing,
   onSave,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<Field | null>(null);
+
+  useEffect(() => {
+    if (!globalIsEditing) setEditing(null);
+  }, [globalIsEditing]);
 
   if (!prodinfo_available) {
     return (
@@ -120,12 +129,13 @@ export function ProductionInfoSection({
         field="teaser"
         html={teaserHtml}
         isEditing={editing === "teaser"}
-        onStartEdit={() => setEditing("teaser")}
+        onStartEdit={() => globalIsEditing && setEditing("teaser")}
         onSave={(html) => handleSave("teaser", html)}
         onCancel={() => setEditing(null)}
         fallback={
           <p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>
         }
+        canEdit={globalIsEditing}
       />
 
       <ComplexEditableField
@@ -133,12 +143,13 @@ export function ProductionInfoSection({
         field="description"
         html={descriptionHtml}
         isEditing={editing === "description"}
-        onStartEdit={() => setEditing("description")}
+        onStartEdit={() => globalIsEditing && setEditing("description")}
         onSave={(html) => handleSave("description", html)}
         onCancel={() => setEditing(null)}
         fallback={
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
+        canEdit={globalIsEditing}
       />
 
       <ComplexEditableField
@@ -146,12 +157,13 @@ export function ProductionInfoSection({
         field="info"
         html={infoHtml}
         isEditing={editing === "info"}
-        onStartEdit={() => setEditing("info")}
+        onStartEdit={() => globalIsEditing && setEditing("info")}
         onSave={(html) => handleSave("info", html)}
         onCancel={() => setEditing(null)}
         fallback={
           <p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>
         }
+        canEdit={globalIsEditing}
       />
     </>
   );
