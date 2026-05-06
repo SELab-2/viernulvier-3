@@ -107,12 +107,6 @@ function CreateUserDialog({
     setValidationError(null);
   }
 
-  useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
-  }, [open]);
-
   function toggleRole(roleName: string) {
     setSelectedRoles((currentRoles) =>
       currentRoles.includes(roleName)
@@ -927,6 +921,7 @@ export default function UserManagementPage() {
       </section>
 
       <CreateUserDialog
+        key={isCreateDialogOpen ? "create-user-open" : "create-user-closed"}
         open={isCreateDialogOpen}
         isSubmitting={isCreatingUser}
         availableRoles={roles}
