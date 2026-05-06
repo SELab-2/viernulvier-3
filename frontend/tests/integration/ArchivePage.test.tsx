@@ -12,6 +12,31 @@ vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/tagService");
 
+// Mock auth as an admin user so selection UI is visible in tests
+vi.mock("~/features/auth", async () => {
+  const actual = await vi.importActual<typeof import("~/features/auth")>("~/features/auth");
+  return {
+    ...actual,
+    useAuthSession: () => ({
+      status: "authenticated",
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        id: 1,
+        username: "testadmin",
+        isSuperUser: true,
+        roles: [],
+        permissions: ["archive:create"],
+        createdAt: "2024-01-01T00:00:00Z",
+        lastLoginAt: null,
+      },
+      login: vi.fn(),
+      logout: vi.fn(),
+      refreshSession: vi.fn(),
+    }),
+  };
+});
+
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
   const user = userEvent.setup();
@@ -60,6 +85,23 @@ describe("Archive", () => {
 
     expectEveryProductionVisible(mockProductions);
   });
+
+  it("allows selecting all visible productions", async () => {
+    mockFetchedProductions(mockProductions);
+    await renderArchiveAndNavigate();
+
+    const user = userEvent.setup();
+
+    // "Select all visible" button is always visible for admins in the header
+    await user.click(
+      screen.getByRole("button", { name: "archive.selection.select_all" })
+    );
+
+    expect(
+      screen.getByText(`${mockProductions.length} archive.selection.selected_plural`)
+    ).toBeInTheDocument();
+  });
+
   describe("Result count", async () => {
     it("displays correct result count", async () => {
       mockFetchedProductions(mockProductions);
