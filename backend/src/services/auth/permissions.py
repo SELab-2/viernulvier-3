@@ -4,6 +4,7 @@ Use these constants instead of raw strings, so that typos
 are caught at compile time and autocomplete works.
 """
 
+
 class Permissions:
     # Archive
     ARCHIVE_CREATE = "archive:create"

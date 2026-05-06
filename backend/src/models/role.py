@@ -6,6 +6,7 @@ from src.models.associations import role_permissions, user_roles
 
 class Role(Base):
     """Role for a user, linked to permissions"""
+
     __tablename__ = "roles"
 
     id = Column(Integer, primary_key=True, index=True)
