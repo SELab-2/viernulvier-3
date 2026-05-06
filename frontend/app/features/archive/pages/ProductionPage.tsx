@@ -790,7 +790,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               isEditing={isEditing}
               onSave={(field, html) => {
                 const isEmpty = html === "<p><br></p>" || html === "";
-                setDraftInfo((prev) => prev ? { ...prev, [field]: isEmpty ? null : html } : prev);
+                setDraftInfo((prev) =>
+                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                );
               }}
             />
 
