@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import type { Delta } from "quill";
+import { useTranslation } from "react-i18next";
 
 const ArchiveRichTextFieldLazy = lazy(() =>
   import("./ArchiveRichTextField").then((m) => ({
@@ -16,11 +17,12 @@ export function ArchiveRichTextFieldWrapper(props: {
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const { t } = useTranslation()
 
   if (!mounted) return null;
 
   return (
-    <Suspense fallback={<div>Laden...</div>}>
+    <Suspense fallback={<div>{t("loading")}</div>}>
       <ArchiveRichTextFieldLazy {...props} />
     </Suspense>
   );
