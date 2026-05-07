@@ -11,12 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 import DOMPurify from "dompurify";
 
 const DEFAULT_IMAGE =
