@@ -144,6 +144,83 @@ export function BlogCard({
     fetchProductionTitles();
   }, [blog, language]);
 
+  if (compact) {
+    return (
+      <Card
+        role="button"
+        tabIndex={0}
+        aria-label={`Open details for ${title}`}
+        className={className}
+        sx={{
+          "width": "100%",
+          "display": "flex",
+          "flexDirection": "row",
+          "alignItems": "center",
+          "borderRadius": 1,
+          "overflow": "hidden",
+          "cursor": "pointer",
+          "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
+          "color": CARD_COLORS.textPrimary,
+          "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+          "borderLeft": `3px solid ${CARD_COLORS.accent}`,
+          "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+          "&:hover": {
+            transform: "translateY(-1px)",
+            boxShadow: `0 8px 20px ${colorWithOpacity(CARD_COLORS.ink, 0.08)}`,
+          },
+          "& .blog-card-text": {
+            transition: `color ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+          },
+          "&:hover .blog-card-text": {
+            color: `${CARD_COLORS.textSecondary} !important`,
+          },
+        }}
+        elevation={0}
+      >
+        <CardContent
+          sx={{
+            flexGrow: 1,
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:last-child": { pb: 1 },
+          }}
+        >
+          <Typography
+            className="blog-card-text"
+            component="h3"
+            sx={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "var(--text-archive-body)",
+              lineHeight: 1.3,
+              color: CARD_COLORS.textPrimary,
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {title}
+          </Typography>
+          <ArrowRightAlt
+            sx={{
+              fontSize: "1rem",
+              color: colorWithOpacity(CARD_COLORS.accent, 0.6),
+              flexShrink: 0,
+              transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+              ".MuiCard:hover &": {
+                transform: "translateX(2px)",
+                color: colorWithOpacity(CARD_COLORS.accent, 0.98),
+              },
+            }}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card
       role="button"
@@ -152,12 +229,10 @@ export function BlogCard({
       className={className}
       sx={{
         "width": "100%",
-        "height": compact
-          ? { xs: "140px", sm: "160px", md: "190px" }
-          : { xs: "180px", sm: "210px", md: "250px" },
+        "height": { xs: "180px", sm: "210px", md: "250px" },
         "display": "flex",
         "flexDirection": "row",
-        "borderRadius": compact ? 2 : 4,
+        "borderRadius": 4,
         "overflow": "hidden",
         "cursor": "pointer",
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
@@ -191,9 +266,7 @@ export function BlogCard({
           position: "relative",
           overflow: "hidden",
           flexShrink: 0,
-          width: compact
-            ? { xs: "0%", sm: "26%", md: "220px" }
-            : { xs: "0%", sm: "30%", md: "320px" },
+          width: { xs: "0%", sm: "30%", md: "320px" },
         }}
       >
         <CardMedia
@@ -217,14 +290,14 @@ export function BlogCard({
         className="blog-card-content"
         sx={{
           "flexGrow": 1,
-          "px": compact ? 2 : 2.5,
-          "py": compact ? 1.5 : 2,
+          "px": 2.5,
+          "py": 2,
           "display": "flex",
           "flexDirection": "column",
           "transform": "translateY(0)",
           "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
           "willChange": "transform",
-          "&:last-child": { pb: compact ? 1.5 : 2 },
+          "&:last-child": { pb: 2 },
         }}
       >
         <Typography
@@ -233,14 +306,12 @@ export function BlogCard({
           sx={{
             mb: 1,
             fontFamily: "var(--font-serif)",
-            fontSize: compact
-              ? "var(--text-archive-title-md)"
-              : "var(--text-archive-title-lg)",
+            fontSize: "var(--text-archive-title-lg)",
             lineHeight: "var(--leading-archive-title)",
             color: CARD_COLORS.textPrimary,
             flexShrink: 0,
             display: "-webkit-box",
-            WebkitLineClamp: compact ? 1 : 2,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
           }}
@@ -253,7 +324,6 @@ export function BlogCard({
             flexGrow: 1,
             overflow: "hidden",
             position: "relative",
-            // fade-out at the bottom
             maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
           }}
@@ -276,7 +346,7 @@ export function BlogCard({
         <Divider
           sx={{
             borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15),
-            mt: compact ? 1 : 1.5,
+            mt: 1.5,
             display: { xs: "none", sm: "flex" },
           }}
         />
@@ -369,7 +439,7 @@ export function BlogCardList({
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: compactCards ? 1.5 : 2.5,
+        gap: compactCards ? 1 : 2.5,
         width: "100%",
       }}
     >
