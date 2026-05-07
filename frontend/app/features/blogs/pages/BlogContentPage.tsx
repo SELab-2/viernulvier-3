@@ -11,7 +11,6 @@ import type {
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGellery";
-import { Card } from "@mui/material";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -128,12 +127,15 @@ export default function ProductionLinkCard({ production }: ProductionLinkCardPro
   };
 
   return (
-    <Card onClick={handleOpenDetails} className="h-[60px] cursor-pointer">
-      <div className="h-full rounded-lg p-3 transition hover:bg-gray-100">
+    <div
+      onClick={handleOpenDetails}
+      className="p3 bg-archive-ink/5 bg-archive-ink-dark/5 border-archive-ink/5 border-archive-ink-dark/5 h-[60px] cursor-pointer rounded-lg border shadow-sm"
+    >
+      <div className="h-full rounded-lg p-3 transition">
         <h3 className="truncate text-sm font-semibold">{title}</h3>
-        <p className="truncate text-xs text-gray-500">{artist}</p>
+        <p className="truncate text-xs">{artist}</p>
       </div>
-    </Card>
+    </div>
   );
 }
 
