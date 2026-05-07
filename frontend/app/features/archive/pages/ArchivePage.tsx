@@ -89,7 +89,10 @@ export default function ArchivePage() {
     fetchProductions();
   }, [filters, sortOrder, i18n.resolvedLanguage]);
 
-  const productions = productionList?.productions ?? [];
+  const productions = useMemo(
+    () => productionList?.productions ?? [],
+    [productionList]
+  );
   const total_count = productionList?.pagination.total_count ?? 0;
   const visibleProductionIds = useMemo(
     () => productions.map((production) => production.id_url),
