@@ -29,14 +29,15 @@ def build_blog_content_response(
 def build_blog_response(
     db: Session, blog: Blog, base_url: str, language: str | None = None
 ) -> BlogResponse:
-    blog_contents = None
+    blog_contents = []
     if language is not None:
         blog_contents = (
             db.query(BlogContent)
             .filter(BlogContent.blog_id == blog.id, BlogContent.language == language)
             .all()
         )
-    if blog_contents is None:
+    # Fallback to all available translations when requested language has no content.
+    if len(blog_contents) == 0:
         blog_contents = (
             db.query(BlogContent).filter(BlogContent.blog_id == blog.id).all()
         )
@@ -87,6 +88,33 @@ def get_blogs_paginated(
             total_count=total_count,
         ),
     )
+
+
+def get_blogs_by_production_id(
+    db: Session,
+    production_id: int,
+    base_url: str,
+    language: str | None = None,
+) -> BlogListResponse:
+    # Get all blogs that have this production
+    blogs = (
+        db.query(Blog)
+        .join(Blog.productions)
+        .filter(Production.id == production_id)
+        .all()
+    )
+
+    total_count = len(blogs)
+
+    return BlogListResponse(
+        blogs=[build_blog_response(db, blog, base_url, language) for blog in blogs],
+        pagination=Pagination(
+            next_cursor=None,
+            has_more=False,
+            total_count=total_count,
+        ),
+    )
+
 
 
 def get_blog_by_id(

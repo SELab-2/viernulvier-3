@@ -44,7 +44,11 @@ function colorWithOpacity(color: string, opacity: number): string {
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
   language: string
-): BlogContent {
+): BlogContent | null {
+  if (blogContents.length === 0) {
+    return null;
+  }
+
   const normalizedLanguage = language.toLowerCase();
   const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
 
@@ -120,8 +124,8 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
 
   const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
 
-  const title = blog_content.title;
-  const content = blog_content.content;
+  const title = blog_content?.title ?? "Untitled blog";
+  const content = blog_content?.content ?? "";
   const imageUrl = DEFAULT_IMAGE;
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);
