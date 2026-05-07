@@ -279,7 +279,7 @@ def test_get_production_by_id_valid_language(
     id = productions_limited[0].id
     response = client.get(
         BASE_PROD_URL + f"/{id}",
-        headers={"Accept-Language": Languages.NEDERLANDS},
+        headers={"Accept-Language": Languages.DUTCH},
     )
     assert response.status_code == 200
     data = response.json()
@@ -518,7 +518,7 @@ def test_patch_production_delete_info_failure(
 
     response = client.patch(
         f"{BASE_PROD_URL}/{production.id}",
-        json={"remove_languages": [Languages.ENGLISH, Languages.NEDERLANDS]},
+        json={"remove_languages": [Languages.ENGLISH, Languages.DUTCH]},
         headers=headers,
     )
 
@@ -536,7 +536,7 @@ def test_create_production_success(client: TestClient, db_session: Session):
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {
-                "language": Languages.NEDERLANDS,
+                "language": Languages.DUTCH,
                 "title": "Nieuwe productie",
             },
         },
@@ -611,7 +611,7 @@ def test_create_production_failure(client: TestClient, db_session: Session):
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {
-                "language": Languages.NEDERLANDS,
+                "language": Languages.DUTCH,
                 "title": "Nieuwe productie",
             },
         },
