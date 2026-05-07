@@ -1,5 +1,5 @@
 """
-Viernulvier Archief API — entrypoint.
+Viernulvier Archive API — entrypoint.
 """
 
 from contextlib import asynccontextmanager

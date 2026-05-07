@@ -107,7 +107,7 @@ def test_get_blog_by_id_valid_language(
     id = blogs_limited[1].id
     response = client.get(
         BASE_BLOG_URL + f"/{id}",
-        headers={"Accept-Language": Languages.NEDERLANDS},
+        headers={"Accept-Language": Languages.DUTCH},
     )
     assert response.status_code == 200
     data = response.json()

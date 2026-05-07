@@ -1,8 +1,7 @@
 """
-Database-verbinding en sessie-afhandeling.
-
-Levert een database-sessie aan elke request via ``Depends(get_db)``.
-``Base`` wordt hier gedefinieerd zodat alle modellen dezelfde declarative base delen.
+Database connection and session handling.
+Provides a database session to each request via ``Depends(get_db)``.
+``Base`` is defined here so that all models share the same declarative base.
 """
 
 from collections.abc import Generator
@@ -18,7 +17,7 @@ SESSION_LOCAL = sessionmaker(bind=engine)
 
 
 def get_db() -> Generator[Session, None, None]:
-    """Dependency die een database-sessie levert en correct afsluit."""
+    """Dependency that provides a database session and closes it correctly."""
     db = SESSION_LOCAL()
     try:
         yield db
@@ -27,5 +26,5 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Maak alle tabellen aan als ze nog niet bestaan."""
+    """Make all tables if not yet exists"""
     Base.metadata.create_all(bind=engine)
