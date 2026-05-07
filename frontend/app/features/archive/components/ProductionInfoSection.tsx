@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import ComplexEditableField, {
-} from "~/shared/components/ArchiveRichTextFieldWrapper";
+import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
 
 type ProductionInfoSectionProps = {
   prodinfo_available: boolean;
