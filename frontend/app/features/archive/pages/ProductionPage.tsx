@@ -1,6 +1,6 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -114,12 +114,6 @@ function isInfoModified(
   );
 }
 
-async function handleInfoAdd(language: string) {
-  if (language) {
-    // TODO: implement
-  }
-}
-
 async function handleInfoSave(
   production_id_url: string,
   originalInfo: ProductionInfo | null,
@@ -127,10 +121,11 @@ async function handleInfoSave(
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
-  language: string
+  language: string,
+  skipUnloadWarning: React.MutableRefObject<boolean>
 ) {
-  if (!draftInfo || !originalInfo) return;
-
+  if (!draftInfo) return;
+  
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
@@ -152,6 +147,10 @@ async function handleInfoSave(
     setOriginalInfo(draftInfo);
 
     setIsEditing(false);
+    if (!originalInfo) {
+      skipUnloadWarning.current = true;
+      window.location.reload();
+    }
   } catch (err) {
     window.alert(`Save failed: ${err}`);
   } finally {
@@ -258,31 +257,6 @@ function SimpleEditableField({
   }
 
   return normal_view;
-}
-
-function EmptyProductionHeader({ image_url }: { image_url: string }) {
-  const { t } = useTranslation();
-  return (
-    <section
-      id="production-header"
-      className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
-    >
-      <img
-        src={image_url}
-        alt={t("productionPage.infoNotAvailable")}
-        className="h-[280px] w-full object-cover object-center md:h-[360px]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-        <h1
-          id="title"
-          className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-        >
-          {t("productionPage.infoNotAvailable")}
-        </h1>
-      </div>
-    </section>
-  );
 }
 
 type ProductionHeaderProps = {
@@ -451,38 +425,8 @@ const Spinner = () => (
   <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
 );
 
-type AddInfoButtonProps = {
-  language: string;
-};
-
-function AddInfoButton({ language }: AddInfoButtonProps) {
-  const { t } = useTranslation();
-  const shared_css = `
-    shadow-lg
-    hover:bg-archive-control-hover
-    rounded-full
-    cursor-pointer
-    transition-colors
-    duration-150
-    text-archive-ink
-    inline-flex
-    px-6 py-3
-    font-semibold text-white
-    `;
-  return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-      <button
-        id="add-production-button"
-        onClick={() => handleInfoAdd(language)}
-        className={`${shared_css} bg-archive-accent`}
-      >
-        {t("productionPage.add.add")}
-      </button>
-    </Protected>
-  );
-}
-
 type EditButtonProps = {
+  action: string,
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
@@ -493,6 +437,7 @@ type EditButtonProps = {
 };
 
 function EditButton({
+  action,
   isEditing,
   setIsEditing,
   originalInfo,
@@ -522,7 +467,7 @@ function EditButton({
           onClick={() => setIsEditing(true)}
           className={`${shared_css} bg-archive-accent`}
         >
-          {t("productionPage.edit.edit")}
+          {action}
         </button>
       ) : (
         <div id="edit-actions" className="flex gap-3">
@@ -624,26 +569,34 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setOriginalInfo,
       setIsEditing,
       setIsSaving,
-      language
+      language,
+      skipUnloadWarning,
     );
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
-  const isModified = useMemo(
-    () => isInfoModified(originalInfo, draftInfo),
-    [originalInfo, draftInfo]
-  );
+  const isModified = useMemo(() => {
+    if (originalInfo === null) {
+      return isEditing; // With add always true.
+    }
+    return isInfoModified(originalInfo, draftInfo);
+  }, [originalInfo, draftInfo, isEditing]);
 
   // Prevent moving away from page when edit is modified (browser aways)
+  // Browser does not show warning when saving.
+  const skipUnloadWarning = useRef(false);
+
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
+      if (skipUnloadWarning.current) return; // skip bij reload na save
       if (isEditing && isModified) e.preventDefault();
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isEditing, isModified]);
+
   // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified);
+  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -764,25 +717,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        {productionInfo !== null ? (
-          <ProductionHeader
-            production_info={productionInfo}
-            image_url={imageUrl}
-            isEditing={isEditing}
-            originalInfo={originalInfo}
-            draftInfo={draftInfo}
-            setDraftInfo={setDraftInfo}
-          />
-        ) : (
-          <EmptyProductionHeader image_url={imageUrl} />
-        )}
+        <ProductionHeader
+          production_info={productionInfo}
+          image_url={imageUrl}
+          isEditing={isEditing}
+          originalInfo={originalInfo}
+          draftInfo={draftInfo}
+          setDraftInfo={setDraftInfo}
+        />
 
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
-              prodinfo_available={productionInfo !== null}
               tagline={tagline}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
@@ -815,6 +763,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       {productionInfo !== null ? (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
           <EditButton
+            action={t("productionPage.edit.edit")}
             isEditing={isEditing}
             setIsEditing={setIsEditing}
             originalInfo={originalInfo}
@@ -832,7 +781,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         </div>
       ) : (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-          <AddInfoButton language={""} />
+          <EditButton
+            action={t("productionPage.edit.add")}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            originalInfo={null}
+            setDraftInfo={setDraftInfo}
+            enable_save={isModified}
+            is_saving={isSaving}
+            _handleSave={_handleSave}
+          />
         </div>
       )}
     </div>
