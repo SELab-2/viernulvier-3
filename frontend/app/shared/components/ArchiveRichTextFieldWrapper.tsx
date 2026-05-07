@@ -121,8 +121,14 @@ export default function ComplexEditableField({
       className={`rounded opacity-90 ${canEdit ? "className=flex hover:outline-archive-accent !cursor-pointer items-center gap-2 hover:outline hover:outline-1" : "!cursor-default"}`}
       onClick={onStartEdit}
     >
+      {canEdit ? (
+        <div>
+          <p className="font-bold underline">{field}</p>
+          <FiEdit2 />
+        </div>
+      ) : null}
+
       {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : fallback}
-      {canEdit ? <FiEdit2 /> : null}
     </div>
   );
 }
