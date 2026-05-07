@@ -113,9 +113,15 @@ interface BlogCardProps {
   blog: Blog;
   preferredLanguage?: string;
   className?: string;
+  compact?: boolean;
 }
 
-export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) {
+export function BlogCard({
+  blog,
+  preferredLanguage,
+  className,
+  compact = false,
+}: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
 
   const { t } = useTranslation();
@@ -146,10 +152,12 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
       className={className}
       sx={{
         "width": "100%",
-        "height": { xs: "180px", sm: "210px", md: "250px" },
+        "height": compact
+          ? { xs: "140px", sm: "160px", md: "190px" }
+          : { xs: "180px", sm: "210px", md: "250px" },
         "display": "flex",
         "flexDirection": "row",
-        "borderRadius": 4,
+        "borderRadius": compact ? 2 : 4,
         "overflow": "hidden",
         "cursor": "pointer",
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
@@ -183,7 +191,9 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
           position: "relative",
           overflow: "hidden",
           flexShrink: 0,
-          width: { xs: "0%", sm: "30%", md: "320px" },
+          width: compact
+            ? { xs: "0%", sm: "26%", md: "220px" }
+            : { xs: "0%", sm: "30%", md: "320px" },
         }}
       >
         <CardMedia
@@ -207,14 +217,14 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
         className="blog-card-content"
         sx={{
           "flexGrow": 1,
-          "px": 2.5,
-          "py": 2,
+          "px": compact ? 2 : 2.5,
+          "py": compact ? 1.5 : 2,
           "display": "flex",
           "flexDirection": "column",
           "transform": "translateY(0)",
           "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
           "willChange": "transform",
-          "&:last-child": { pb: 2 },
+          "&:last-child": { pb: compact ? 1.5 : 2 },
         }}
       >
         <Typography
@@ -223,12 +233,12 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
           sx={{
             mb: 1,
             fontFamily: "var(--font-serif)",
-            fontSize: "var(--text-archive-title-lg)",
+            fontSize: compact ? "var(--text-archive-title-md)" : "var(--text-archive-title-lg)",
             lineHeight: "var(--leading-archive-title)",
             color: CARD_COLORS.textPrimary,
             flexShrink: 0,
             display: "-webkit-box",
-            WebkitLineClamp: 2,
+            WebkitLineClamp: compact ? 1 : 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
           }}
@@ -236,34 +246,36 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
           {title}
         </Typography>
 
-        <Box
-          sx={{
-            flexGrow: 1,
-            overflow: "hidden",
-            position: "relative",
-            // fade-out at the bottom
-            maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
-          }}
-        >
-          {contentHtml && (
-            <div
-              className="blog-card-text"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-              style={{
-                color: CARD_COLORS.textSecondary,
-                fontSize: "var(--text-archive-body)",
-                lineHeight: "var(--leading-archive-body)",
-                overflowWrap: "anywhere",
-                whiteSpace: "pre-wrap",
-              }}
-            />
-          )}
-        </Box>
+        
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflow: "hidden",
+              position: "relative",
+              // fade-out at the bottom
+              maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+            }}
+          >
+            {contentHtml && (
+              <div
+                className="blog-card-text"
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+                style={{
+                  color: CARD_COLORS.textSecondary,
+                  fontSize: "var(--text-archive-body)",
+                  lineHeight: "var(--leading-archive-body)",
+                  overflowWrap: "anywhere",
+                  whiteSpace: "pre-wrap",
+                }}
+              />
+            )}
+          </Box>
+        
         <Divider
           sx={{
             borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15),
-            mt: 1.5,
+            mt: compact ? 1 : 1.5,
             display: { xs: "none", sm: "flex" },
           }}
         />
@@ -343,20 +355,30 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
 export interface BlogCardListProps {
   blogs: Blog[];
   prefferedLanguage?: string;
+  compactCards?: boolean;
 }
 
-export function BlogCardList({ blogs, prefferedLanguage }: BlogCardListProps) {
+export function BlogCardList({
+  blogs,
+  prefferedLanguage,
+  compactCards = false,
+}: BlogCardListProps) {
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2.5,
+        gap: compactCards ? 1.5 : 2.5,
         width: "100%",
       }}
     >
       {blogs.map((blog) => (
-        <BlogCard key={blog.id_url} blog={blog} preferredLanguage={prefferedLanguage} />
+        <BlogCard
+          key={blog.id_url}
+          blog={blog}
+          preferredLanguage={prefferedLanguage}
+          compact={compactCards}
+        />
       ))}
     </Box>
   );

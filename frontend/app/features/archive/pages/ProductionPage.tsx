@@ -19,7 +19,7 @@ import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
-import { LinkedBlogsList } from "~/features/blogs/components/LinkedBlogCard";
+import { BlogCardList } from "~/features/blogs/components/BlogCard";
 
 interface ProductionPageProps {
   production: Production;
@@ -902,7 +902,11 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   {t("productionPage.linkedBlogs")}
                 </h2>
 
-                <LinkedBlogsList blogs={linkedBlogs} preferredLanguage={language} />
+                <BlogCardList
+                  blogs={linkedBlogs}
+                  prefferedLanguage={language}
+                  compactCards
+                />
               </section>
             )}
           </article>
