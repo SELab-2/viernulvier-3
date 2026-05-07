@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField, {
-  type Field,
 } from "~/shared/components/ArchiveRichTextFieldWrapper";
 
 type ProductionInfoSectionProps = {
@@ -11,7 +10,7 @@ type ProductionInfoSectionProps = {
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
   isEditing: boolean;
-  onSave: (field: Field, html: string) => void;
+  onSave: (field: string, html: string) => void;
 };
 
 export function ProductionInfoSection({
@@ -24,7 +23,7 @@ export function ProductionInfoSection({
   onSave,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
-  const [editing, setEditing] = useState<Field | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
 
   useEffect(() => {
     if (!globalIsEditing) {
@@ -40,7 +39,7 @@ export function ProductionInfoSection({
     );
   }
 
-  function handleSave(field: Field, html: string) {
+  function handleSave(field: string, html: string) {
     onSave(field, html);
     setEditing(null);
   }
@@ -51,7 +50,7 @@ export function ProductionInfoSection({
 
       <ComplexEditableField
         id="teaser"
-        field="teaser"
+        field={t("productionPage.edit.teaser")}
         html={teaserHtml}
         isEditing={editing === "teaser"}
         onStartEdit={() => globalIsEditing && setEditing("teaser")}
@@ -63,7 +62,7 @@ export function ProductionInfoSection({
 
       <ComplexEditableField
         id="description"
-        field="description"
+        field={t("productionPage.edit.description")}
         html={descriptionHtml}
         isEditing={editing === "description"}
         onStartEdit={() => globalIsEditing && setEditing("description")}
@@ -77,7 +76,7 @@ export function ProductionInfoSection({
 
       <ComplexEditableField
         id="info"
-        field="info"
+        field={t("productionPage.edit.info")}
         html={infoHtml}
         isEditing={editing === "info"}
         onStartEdit={() => globalIsEditing && setEditing("info")}

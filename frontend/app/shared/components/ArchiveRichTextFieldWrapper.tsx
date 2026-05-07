@@ -36,11 +36,9 @@ export function ArchiveRichTextFieldWrapper(props: {
   );
 }
 
-export type Field = "teaser" | "description" | "info";
-
 type ComplexEditableFieldProps = {
   id: string;
-  field: Field;
+  field: string;
   html: string | undefined;
   fallback?: React.ReactNode;
   isEditing: boolean;
@@ -122,7 +120,7 @@ export default function ComplexEditableField({
       onClick={onStartEdit}
     >
       {canEdit ? (
-        <div>
+        <div className="flex items-center gap-2">
           <p className="font-bold underline">{field}</p>
           <FiEdit2 />
         </div>
