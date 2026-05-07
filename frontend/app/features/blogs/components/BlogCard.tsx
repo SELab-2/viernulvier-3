@@ -233,7 +233,9 @@ export function BlogCard({
           sx={{
             mb: 1,
             fontFamily: "var(--font-serif)",
-            fontSize: compact ? "var(--text-archive-title-md)" : "var(--text-archive-title-lg)",
+            fontSize: compact
+              ? "var(--text-archive-title-md)"
+              : "var(--text-archive-title-lg)",
             lineHeight: "var(--leading-archive-title)",
             color: CARD_COLORS.textPrimary,
             flexShrink: 0,
@@ -246,32 +248,31 @@ export function BlogCard({
           {title}
         </Typography>
 
-        
-          <Box
-            sx={{
-              flexGrow: 1,
-              overflow: "hidden",
-              position: "relative",
-              // fade-out at the bottom
-              maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
-            }}
-          >
-            {contentHtml && (
-              <div
-                className="blog-card-text"
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
-                style={{
-                  color: CARD_COLORS.textSecondary,
-                  fontSize: "var(--text-archive-body)",
-                  lineHeight: "var(--leading-archive-body)",
-                  overflowWrap: "anywhere",
-                  whiteSpace: "pre-wrap",
-                }}
-              />
-            )}
-          </Box>
-        
+        <Box
+          sx={{
+            flexGrow: 1,
+            overflow: "hidden",
+            position: "relative",
+            // fade-out at the bottom
+            maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+          }}
+        >
+          {contentHtml && (
+            <div
+              className="blog-card-text"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              style={{
+                color: CARD_COLORS.textSecondary,
+                fontSize: "var(--text-archive-body)",
+                lineHeight: "var(--leading-archive-body)",
+                overflowWrap: "anywhere",
+                whiteSpace: "pre-wrap",
+              }}
+            />
+          )}
+        </Box>
+
         <Divider
           sx={{
             borderColor: colorWithOpacity(CARD_COLORS.accent, 0.15),

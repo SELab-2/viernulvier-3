@@ -898,7 +898,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
             {linkedBlogs.length > 0 && (
               <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">
-                <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70 mb-6">
+                <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
                   {t("productionPage.linkedBlogs")}
                 </h2>
 

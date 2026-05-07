@@ -123,7 +123,9 @@ describe("ProductionPage", () => {
     vi.mocked(getProductionByUrl).mockResolvedValue({
       id_url: "",
       event_id_urls: [],
-      production_infos: [{ language: "en", title: "Mock Production", production_id_url: "" }],
+      production_infos: [
+        { language: "en", title: "Mock Production", production_id_url: "" },
+      ],
       tags: [],
     });
   });
@@ -263,7 +265,9 @@ describe("ProductionPage", () => {
 
     // The blogs section should not be rendered if there are no blogs
     // i18n key for "I18N_ProductionPage_LinkedBlogs" should not appear
-    expect(screen.queryByText("I18N_ProductionPage_LinkedBlogs")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("I18N_ProductionPage_LinkedBlogs")
+    ).not.toBeInTheDocument();
   });
 
   it("handles blog loading error gracefully", async () => {
@@ -274,6 +278,8 @@ describe("ProductionPage", () => {
 
     // Page should still render without blogs
     expect(screen.getByRole("heading", { name: "English Title" })).toBeInTheDocument();
-    expect(screen.queryByText("I18N_ProductionPage_LinkedBlogs")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("I18N_ProductionPage_LinkedBlogs")
+    ).not.toBeInTheDocument();
   });
-})
+});
