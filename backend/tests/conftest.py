@@ -103,22 +103,22 @@ def mock_minio_dependency():
 def productions_limited(db_session):
     tag1 = Tag()
     tag1.names = [
-        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.DUTCH, name="theater"),
         TagName(language=Languages.ENGLISH, name="theatre"),
     ]
     tag2 = Tag()
     tag2.names = [
-        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.DUTCH, name="band"),
         TagName(language=Languages.ENGLISH, name="band"),
     ]
     tag3 = Tag()
     tag3.names = [
-        TagName(language=Languages.NEDERLANDS, name="groep"),
+        TagName(language=Languages.DUTCH, name="groep"),
         TagName(language=Languages.ENGLISH, name="group"),
     ]
     tag4 = Tag()
     tag4.names = [
-        TagName(language=Languages.NEDERLANDS, name="muziek"),
+        TagName(language=Languages.DUTCH, name="muziek"),
         TagName(language=Languages.ENGLISH, name="music"),
     ]
     db_session.add_all([tag1, tag2, tag3, tag4])
@@ -141,13 +141,13 @@ def productions_limited(db_session):
     db_session.flush()
 
     info1_nl = ProdInfo(
-        production_id=prod1.id, language=Languages.NEDERLANDS, title="prod1_nl"
+        production_id=prod1.id, language=Languages.DUTCH, title="prod1_nl"
     )
     info1_en = ProdInfo(
         production_id=prod1.id, language=Languages.ENGLISH, title="prod1_en"
     )
     info2_nl = ProdInfo(
-        production_id=prod2.id, language=Languages.NEDERLANDS, title="prod2_nl"
+        production_id=prod2.id, language=Languages.DUTCH, title="prod2_nl"
     )
 
     db_session.add_all([info1_nl, info1_en, info2_nl])
@@ -175,12 +175,12 @@ def many_productions(db_session):
     productions = []
     tag1 = Tag()
     tag1.names = [
-        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.DUTCH, name="theater"),
         TagName(language=Languages.ENGLISH, name="theatre"),
     ]
     tag2 = Tag()
     tag2.names = [
-        TagName(language=Languages.NEDERLANDS, name="band"),
+        TagName(language=Languages.DUTCH, name="band"),
         TagName(language=Languages.ENGLISH, name="band"),
     ]
     db_session.add_all([tag1, tag2])
@@ -201,7 +201,7 @@ def many_productions(db_session):
 
         info_nl = ProdInfo(
             production_id=prod.id,
-            language=Languages.NEDERLANDS,
+            language=Languages.DUTCH,
             title=f"prod{i}_nl",
             artist=artist,
         )
@@ -266,7 +266,7 @@ def productions_with_different_artists(db_session):
 
         info_nl = ProdInfo(
             production_id=prod.id,
-            language=Languages.NEDERLANDS,
+            language=Languages.DUTCH,
             title=f"prod{i}_nl",
             artist=artists[0][i % 3],
         )
@@ -428,7 +428,7 @@ def blogs_limited(db_session):
     )
     content2_nl = BlogContent(
         blog_id=blog2.id,
-        language=Languages.NEDERLANDS,
+        language=Languages.DUTCH,
         title="titel2",
         content="inhoud2",
     )
@@ -473,7 +473,7 @@ def many_blogs(db_session):
         )
         content_nl = BlogContent(
             blog_id=blog.id,
-            language=Languages.NEDERLANDS,
+            language=Languages.DUTCH,
             title="titel",
             content="inhoud",
         )
