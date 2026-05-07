@@ -288,24 +288,24 @@ export function ProductionCard({
               }
             }}
             sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              width: 26,
-              height: 26,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 200ms ease",
-              backgroundColor: selected
+              "position": "absolute",
+              "top": 10,
+              "right": 10,
+              "width": 26,
+              "height": 26,
+              "borderRadius": "50%",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center",
+              "cursor": "pointer",
+              "transition": "all 200ms ease",
+              "backgroundColor": selected
                 ? "var(--color-archive-accent)"
                 : colorWithOpacity("var(--color-archive-paper)", 0.82),
-              border: selected
+              "border": selected
                 ? "none"
                 : `1.5px solid ${colorWithOpacity("var(--color-archive-accent)", 0.45)}`,
-              backdropFilter: "blur(6px)",
+              "backdropFilter": "blur(6px)",
               "&:hover": {
                 backgroundColor: selected
                   ? "var(--color-archive-accent)"

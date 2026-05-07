@@ -163,12 +163,12 @@ export default function ArchivePage() {
                   onClick={handleSelectAllVisible}
                   disabled={visibleProductionIds.length === 0 || allVisibleSelected}
                   sx={{
-                    color: "var(--color-archive-ink)",
-                    opacity: 0.55,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
+                    "color": "var(--color-archive-ink)",
+                    "opacity": 0.55,
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.08em",
+                    "fontSize": "0.72rem",
+                    "fontWeight": 600,
                     "&:hover": { opacity: 1 },
                     "&:disabled": { opacity: 0.25 },
                   }}
@@ -181,9 +181,9 @@ export default function ArchivePage() {
           </div>
 
           {selectedProductionIds.length > 0 ? (
-            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-archive-accent/20 bg-archive-surface/60 px-5 py-3.5 backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
-              <p className="font-serif text-xl tracking-tight text-archive-ink">
-                <span className="font-bold text-archive-accent">
+            <div className="border-archive-accent/20 bg-archive-surface/60 mb-4 flex flex-col gap-3 rounded-2xl border px-5 py-3.5 backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
+              <p className="text-archive-ink font-serif text-xl tracking-tight">
+                <span className="text-archive-accent font-bold">
                   {selectedProductionIds.length}
                 </span>{" "}
                 {selectedProductionIds.length === 1
@@ -198,14 +198,15 @@ export default function ArchivePage() {
                   size="small"
                   onClick={handleClearSelection}
                   sx={{
-                    borderColor: "var(--color-archive-accent)",
-                    color: "var(--color-archive-accent)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    fontSize: "0.72rem",
+                    "borderColor": "var(--color-archive-accent)",
+                    "color": "var(--color-archive-accent)",
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.08em",
+                    "fontSize": "0.72rem",
                     "&:hover": {
                       borderColor: "var(--color-archive-accent)",
-                      backgroundColor: "color-mix(in srgb, var(--color-archive-accent) 8%, transparent)",
+                      backgroundColor:
+                        "color-mix(in srgb, var(--color-archive-accent) 8%, transparent)",
                     },
                   }}
                 >

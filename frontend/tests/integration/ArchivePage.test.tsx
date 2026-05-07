@@ -14,7 +14,8 @@ vi.mock("~/features/archive/services/tagService");
 
 // Mock auth as an admin user so selection UI is visible in tests
 vi.mock("~/features/auth", async () => {
-  const actual = await vi.importActual<typeof import("~/features/auth")>("~/features/auth");
+  const actual =
+    await vi.importActual<typeof import("~/features/auth")>("~/features/auth");
   return {
     ...actual,
     useAuthSession: () => ({
