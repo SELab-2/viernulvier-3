@@ -116,7 +116,6 @@ def get_blogs_by_production_id(
     )
 
 
-
 def get_blog_by_id(
     db: Session, blog_id: int, base_url: str, language: str | None = None
 ) -> BlogResponse:
