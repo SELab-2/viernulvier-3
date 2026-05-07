@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { deltaToHtml, htmlToDelta } from "~/archive-rich-text.client";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
+import { FiEdit2 } from 'react-icons/fi'
 
 const ArchiveRichTextFieldLazy = lazy(() =>
   import("./ArchiveRichTextField").then((m) => ({
@@ -117,10 +118,11 @@ export default function ComplexEditableField({
   return (
     <div
       id={id}
-      className={`rounded opacity-90 ${canEdit ? "hover:outline-archive-accent !cursor-pointer hover:outline hover:outline-1" : "!cursor-default"}`}
+      className={`rounded opacity-90 ${canEdit ? "className=flex items-center gap-2 hover:outline-archive-accent !cursor-pointer hover:outline hover:outline-1" : "!cursor-default"}`}
       onClick={onStartEdit}
     >
       {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : fallback}
+      {canEdit ? <FiEdit2 /> : null}
     </div>
   );
 }
