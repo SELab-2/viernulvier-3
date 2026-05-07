@@ -9,13 +9,13 @@ def get_accepted_language(
     if not accept_language:
         return None
 
-    # Parse de header (bijv. "en-US,en;q=0.9,nl;q=0.8")
+    # Parse the header (example: "en-US,en;q=0.9,nl;q=0.8")
     languages = [lang.split(";")[0].strip() for lang in accept_language.split(",")]
 
     for lang in languages:
         if lang.lower() in ["en", "english"]:
             return Languages.ENGLISH
         elif lang.lower() in ["nl", "nederlands", "dutch"]:
-            return Languages.NEDERLANDS
+            return Languages.DUTCH
 
     return None

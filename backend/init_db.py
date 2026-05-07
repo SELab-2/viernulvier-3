@@ -1,8 +1,7 @@
 """
-Database-initialisatie — maakt alle tabellen aan op basis van de SQLAlchemy-modellen.
-
-Dit script wordt automatisch uitgevoerd vóór de start van de API-server
-(zie Dockerfile).
+Database initialization — creates all tables based on the SQLAlchemy models.
+This script is automatically executed before the API server starts
+(see Dockerfile).
 """
 
 import logging
@@ -75,7 +74,7 @@ def seed_db():
                 "Successfully assigned the 'admin' role to the default admin user."
             )
 
-        start_sync_date = datetime.fromisocalendar(2024, 1, 1)
+        start_sync_date = datetime.fromisocalendar(2026, 14, 1)
         for sync_type in SyncType:
             for resource_type in ResourceType:
                 sync_state = (

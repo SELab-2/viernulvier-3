@@ -68,8 +68,8 @@ async def post_media(
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             detail=(
-                f"Bestandstype '{file.content_type}' niet toegestaan. "
-                f"Toegestane types: {', '.join(sorted(ALLOWED_CONTENT_TYPES))}"
+                f"FileType '{file.content_type}' not accepted. "
+                f"Accepted types: {', '.join(sorted(ALLOWED_CONTENT_TYPES))}"
             ),
         )
     data = await file.read()

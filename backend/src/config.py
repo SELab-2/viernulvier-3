@@ -1,8 +1,7 @@
 """
-Configuratie — omgevingsvariabelen en applicatie-instellingen.
-
-Gebruikt pydantic-settings voor type-safe configuratie met automatische
-.env-bestandslading en validatie bij opstart.
+Configuration — environment variables and application settings.
+Uses pydantic-settings for type-safe configuration with automatic
+.env file loading and validation on startup.
 """
 
 from pydantic import computed_field
@@ -16,7 +15,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    APP_TITLE: str = "Viernulvier Archief API"
+    APP_TITLE: str = "Viernulvier archive API"
     API_VERSION: str = "0.1.0"
 
     POSTGRES_USER: str
@@ -28,7 +27,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 dagen
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
 
     VIERNULVIER_KEY: str
 

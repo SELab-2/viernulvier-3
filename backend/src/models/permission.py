@@ -5,7 +5,7 @@ from src.models.associations import role_permissions
 
 
 class Permission(Base):
-    """Specifieke actie of toegang (bijv. 'archive:create')."""
+    """Specific action or access (e.g. 'archive:create')."""
 
     __tablename__ = "permissions"
 
