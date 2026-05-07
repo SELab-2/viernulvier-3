@@ -206,11 +206,11 @@ export function BlogCard({
 
         <CardContent
           sx={{
-            flexGrow: 1,
-            px: 2,
-            py: 1.5,
-            display: "flex",
-            alignItems: "center",
+            "flexGrow": 1,
+            "px": 2,
+            "py": 1.5,
+            "display": "flex",
+            "alignItems": "center",
             "&:last-child": { pb: 1.5 },
           }}
         >
