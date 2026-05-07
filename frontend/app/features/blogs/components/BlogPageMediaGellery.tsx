@@ -29,7 +29,7 @@ export function BlogPageMediaGallery({
 
   const imageUrls = useMemo(() => {
     const extracted = extractImageSrcs(contentHtml);
-    // TODO: remove fallback array before production — mirrors ProductionPageMediaGallery placeholder behaviour
+    // TODO: remove fallback array before production mirrors ProductionPageMediaGallery placeholder behaviour
     return extracted.length > 0
       ? extracted
       : [
@@ -47,9 +47,9 @@ export function BlogPageMediaGallery({
       className="mt-16 border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] pt-14"
     >
       <div className="mb-8 flex items-end justify-between gap-6">
-        <h2 className="font-serif text-4xl italic opacity-85 md:text-6xl">
-          {t("blogPage.visualEvidence", "Visual evidence")}
-        </h2>
+        <h3 className="font-serif text-4xl italic opacity-85 md:text-6xl">
+          {t("blogs.contentPage.media")}
+        </h3>
       </div>
 
       <div

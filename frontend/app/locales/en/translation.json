@@ -154,6 +154,12 @@
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
+    },
+    "contentPage": {
+      "backToBlogs": "Back to blogs",
+      "linkedProductions": "Linked productions:",
+      "fallback": "No translation available",
+      "media": "Linked media:"
     }
   },
 

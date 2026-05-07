@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
@@ -6,9 +6,12 @@ import DOMPurify from "dompurify";
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
-import type { Production } from "~/features/archive/types/productionTypes";
-import { ProductionCard } from "~/features/archive/components/ProductionCard";
+import type {
+  Production,
+  ProductionInfo,
+} from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGellery";
+import { Card } from "@mui/material";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -38,7 +41,7 @@ function BackToBlogsLink() {
       to={lp("/blogs")}
       className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
     >
-      {t("blogPage.backToBlogs", "← Back to blogs")}
+      {t("blogs.contentPage.backToBlogs")}
     </Link>
   );
 }
@@ -77,6 +80,63 @@ function BlogContentSection({ contentHtml }: BlogContentSectionProps) {
   );
 }
 
+function getProductionInfoByLanguage(
+  productionInfos: ProductionInfo[],
+  language: string
+): ProductionInfo {
+  const normalizedLanguage = language.toLowerCase();
+  const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
+
+  const preferredLanguages = Array.from(
+    new Set([normalizedLanguage, baseLanguage, "nl", "en"])
+  );
+
+  for (const preferred of preferredLanguages) {
+    const languageMatch = productionInfos.find(
+      (info) => info.language.toLowerCase() === preferred
+    );
+
+    if (languageMatch) {
+      return languageMatch;
+    }
+  }
+
+  return productionInfos[0];
+}
+
+type ProductionLinkCardProps = {
+  production: Production;
+};
+
+export default function ProductionLinkCard({ production }: ProductionLinkCardProps) {
+  const { lang } = useParams();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
+
+  const primaryInfo = getProductionInfoByLanguage(
+    production.production_infos,
+    lang ?? "en"
+  );
+
+  const { title, artist } = primaryInfo;
+
+  const id = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/)?.[1];
+
+  const handleOpenDetails = () => {
+    if (!id) return;
+    navigate(lp(`/archive/productions/${id}`));
+  };
+
+  return (
+    <Card onClick={handleOpenDetails} className="h-[60px] cursor-pointer">
+      <div className="h-full rounded-lg p-3 transition hover:bg-gray-100">
+        <h3 className="truncate text-sm font-semibold">{title}</h3>
+        <p className="truncate text-xs text-gray-500">{artist}</p>
+      </div>
+    </Card>
+  );
+}
+
 type LinkedProductionsProps = {
   productions: Production[];
 };
@@ -93,7 +153,7 @@ function LinkedProductions({ productions }: LinkedProductionsProps) {
       className="mt-12"
     >
       <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
-        {t("blogPage.linkedProductions", "Related productions")}
+        {t("blogs.contentPage.linkedProductions")}
       </h2>
 
       <div
@@ -103,7 +163,7 @@ function LinkedProductions({ productions }: LinkedProductionsProps) {
         }}
       >
         {productions.map((production) => (
-          <ProductionCard key={production.id_url} production={production} />
+          <ProductionLinkCard key={production.id_url} production={production} />
         ))}
       </div>
     </section>
@@ -124,8 +184,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   const language = preferredLanguage ?? lang!;
   const blogContent = getBlogContentByLanguage(blog.blog_contents, language);
 
-  const title =
-    blogContent?.title.trim() || t("blogPage.fallback.untitled", "Untitled");
+  const title = blogContent?.title.trim() || t("blogs.contentPage.fallback");
   const contentHtml = getSanitizedHtml(blogContent?.content);
 
   useEffect(() => {
@@ -168,16 +227,14 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             {contentHtml ? (
               <BlogContentSection contentHtml={contentHtml} />
             ) : (
-              <p className="opacity-75">
-                {t("blogPage.fallback.noContent", "No content available.")}
-              </p>
+              <p className="opacity-75">{t("blogs.contentPage.fallback")}</p>
             )}
           </article>
         </section>
 
-        <LinkedProductions productions={linkedProductions} />
-
         <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
+
+        <LinkedProductions productions={linkedProductions} />
       </main>
     </div>
   );
