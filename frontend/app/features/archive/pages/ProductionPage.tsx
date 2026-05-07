@@ -125,7 +125,7 @@ async function handleInfoSave(
   skipUnloadWarning: React.MutableRefObject<boolean>
 ) {
   if (!draftInfo) return;
-  
+
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
@@ -426,7 +426,7 @@ const Spinner = () => (
 );
 
 type EditButtonProps = {
-  action: string,
+  action: string;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
@@ -570,7 +570,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setIsEditing,
       setIsSaving,
       language,
-      skipUnloadWarning,
+      skipUnloadWarning
     );
 
   // State when editing, keeps track if something has changed
