@@ -843,7 +843,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       try {
         const blogs = await getBlogsForProduction(production.id_url);
         if (!isCancelled) {
-          setLinkedBlogs(blogs);
+          setLinkedBlogs(blogs ?? []);
         }
       } catch {
         if (!isCancelled) {
