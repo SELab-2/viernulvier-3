@@ -127,11 +127,10 @@ export default function ComplexEditableField({
       ) : null}
 
       {html ? (
-        <div
-          className="prose prose-invert"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      ) : fallback}
+        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+      ) : (
+        fallback
+      )}
     </div>
   );
 }

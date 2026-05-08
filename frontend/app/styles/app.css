@@ -106,6 +106,10 @@
   --archive-logo-filter: none;
 }
 
+.prose * {
+  color: inherit;
+}
+
 .prose ol ol {
   list-style-type: lower-alpha;
 }
