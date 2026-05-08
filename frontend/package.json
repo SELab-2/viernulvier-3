@@ -18,7 +18,6 @@
     "@mui/material": "^7.3.8",
     "@react-router/node": "^7.12.0",
     "@react-router/serve": "^7.12.0",
-    "@tailwindcss/oxide-linux-x64-gnu": "^4.2.4",
     "axios": "^1.13.6",
     "dompurify": "^3.4.1",
     "i18next": "^25.10.10",
