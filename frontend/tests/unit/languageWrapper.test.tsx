@@ -21,11 +21,20 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
+type RedirectResult = { status: number; headers: { Location: string } };
+
 function makeLoaderArgs(pathname: string, lang: string | undefined) {
   return {
     params: { lang },
     request: new Request(`http://localhost${pathname}`),
-  } as any;
+  } as Parameters<typeof loader>[0];
+}
+
+async function getRedirectResult(
+  pathname: string,
+  lang: string | undefined
+): Promise<RedirectResult> {
+  return loader(makeLoaderArgs(pathname, lang)) as unknown as RedirectResult;
 }
 
 describe("LanguageWrapper loader", () => {
@@ -40,17 +49,17 @@ describe("LanguageWrapper loader", () => {
   });
 
   it("redirects to /en when lang is undefined", async () => {
-    const result = await loader(makeLoaderArgs("/undefined", undefined)) as any;
+    const result = await getRedirectResult("/undefined", undefined);
     expect(result.headers.Location).toBe("/en/undefined");
   });
 
   it("redirects /login to /en/login when lang is unsupported", async () => {
-    const result = await loader(makeLoaderArgs("/login", "login")) as any;
+    const result = await getRedirectResult("/login", "login");
     expect(result.headers.Location).toBe("/en/login");
   });
 
   it("redirects /fr/home to /en/fr/home when lang is unsupported", async () => {
-    const result = await loader(makeLoaderArgs("/fr/home", "fr")) as any;
+    const result = await getRedirectResult("/fr/home", "fr");
     expect(result.headers.Location).toBe("/en/fr/home");
   });
 });
