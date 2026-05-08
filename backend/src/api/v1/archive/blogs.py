@@ -9,11 +9,10 @@ from src.schemas.blogs import (
 )
 from src.services.blogs import (
     create_blog,
+    delete_blog_by_id,
     get_blog_by_id,
     get_blogs_paginated,
-    get_blogs_by_production_id,
     update_blog_by_id,
-    delete_blog_by_id,
 )
 from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
@@ -40,20 +39,7 @@ async def get_blogs(
     return get_blogs_paginated(db, base_url, cursor=cursor, limit=limit)
 
 
-@router.get(
-    "/by-production/{production_id}",
-    response_model=BlogListResponse,
-    summary="Get blogs by production id",
-    description="Get all blogs linked to a specific production",
-)
-async def get_blogs_by_production(
-    production_id: int,
-    request: Request,
-    db: Session = Depends(get_db),
-    language: str | None = Depends(get_accepted_language),
-) -> BlogListResponse:
-    base_url = get_base_url(str(request.url), 2)
-    return get_blogs_by_production_id(db, production_id, base_url, language)
+
 
 
 @router.get(

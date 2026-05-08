@@ -53,7 +53,6 @@ export async function deleteBlog(blogId: number): Promise<void> {
 
 export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
   try {
-    // Extract production ID from URL (format: /productions/{id})
     const productionId = productionUrl.split("/").pop();
     if (!productionId) {
       return [];
@@ -61,7 +60,7 @@ export async function getBlogsForProduction(productionUrl: string): Promise<Blog
 
     const apiClient = createApiClient();
     const response = await apiClient.get<BlogList>(
-      `${ARCHIVE_PATH}/blogs/by-production/${productionId}`
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
     );
 
     return response.data.blogs;

@@ -83,6 +83,13 @@ export default function ProductionDetailRoute() {
       }
     };
 
+    if (decodedProductionId.trim().length === 0) {
+      setProduction(null);
+      setHasError(true);
+      setIsLoading(false);
+      return;
+    }
+
     void loadProduction();
 
     return () => {

@@ -299,7 +299,7 @@ def test_delete_blog_failure(client: TestClient, db_session: Session, blogs_limi
 def test_get_blogs_by_production_success(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_BLOG_URL}/by-production/1")
+    response = client.get(f"{BASE_PROD_URL}/1/blogs/")
     assert response.status_code == 200
 
     data = response.json()
@@ -314,7 +314,7 @@ def test_get_blogs_by_production_with_language(
     client: TestClient, db_session: Session, blogs_limited
 ):
     response = client.get(
-        f"{BASE_BLOG_URL}/by-production/1",
+        f"{BASE_PROD_URL}/1/blogs/",
         headers={"Accept-Language": Languages.ENGLISH},
     )
     assert response.status_code == 200
@@ -330,7 +330,7 @@ def test_get_blogs_by_production_with_language(
 def test_get_blogs_by_production_empty(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_BLOG_URL}/by-production/999")
+    response = client.get(f"{BASE_PROD_URL}/999/blogs/")
     assert response.status_code == 200
 
     data = response.json()

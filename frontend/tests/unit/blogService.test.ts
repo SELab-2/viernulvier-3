@@ -235,7 +235,7 @@ describe("blogService", () => {
         pagination: { has_more: false, total_count: 2 },
       };
 
-      mockAdapter.onGet("/api/v1/archive/blogs/by-production/1").reply(200, blogList);
+      mockAdapter.onGet("/api/v1/archive/productions/1/blogs/").reply(200, blogList);
 
       const result = await getBlogsForProduction("/api/v1/archive/productions/1");
 
@@ -245,7 +245,7 @@ describe("blogService", () => {
     });
 
     it("returns empty array when request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/blogs/by-production/1").reply(500);
+      mockAdapter.onGet("/api/v1/archive/productions/1/blogs/").reply(500);
 
       const result = await getBlogsForProduction("/api/v1/archive/productions/1");
 
@@ -264,7 +264,7 @@ describe("blogService", () => {
         pagination: { has_more: false, total_count: 1 },
       };
 
-      mockAdapter.onGet("/api/v1/archive/blogs/by-production/42").reply(200, blogList);
+      mockAdapter.onGet("/api/v1/archive/productions/42/blogs/").reply(200, blogList);
 
       const result = await getBlogsForProduction("/api/v1/archive/productions/42");
 
