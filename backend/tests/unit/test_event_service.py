@@ -39,6 +39,14 @@ def hall(db_session):
 
 
 @pytest.fixture
+def hall2(db_session):
+    hall = Hall(name="Hall B", address="Street B")
+    db_session.add(hall)
+    db_session.commit()
+    return hall
+
+
+@pytest.fixture
 def event(db_session, production, hall):
     event = Event(
         production_id=production.id,
@@ -158,6 +166,21 @@ def test_update_event_start_date(db_session, event, production):
     updated_production = get_production_by_id(db_session, production.id, "http://test")
     assert updated_production.earliest_at == update_data.starts_at
     assert updated_production.latest_at == update_data.starts_at
+
+
+def test_update_event_hall(db_session, event: Event, hall2: Hall):
+    # Assert the event's hall wasn't already hall2 as to ensure this test actually means something
+    assert event.hall.id != hall2.id
+
+    # Update event hall to hall 2
+    update_data = EventUpdate(hall_id_url=f"{BASE_URL}/halls/{hall2.id}")
+    updated = update_event(db_session, event.id, update_data, BASE_URL)
+
+    # Assert event hall is now hall 2
+    assert updated.hall is not None
+    assert updated.hall.id_url == update_data.hall_id_url
+    assert updated.hall.name == hall2.name
+    assert updated.hall.address == hall2.address
 
 
 def test_update_event_not_found(db_session):

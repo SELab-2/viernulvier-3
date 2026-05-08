@@ -1,8 +1,7 @@
 """
-Centraal overzicht van alle permissies in de applicatie.
-
-Gebruik deze constanten in plaats van ruwe strings, zodat typos
-bij compilatie al opvallen en autocomplete werkt.
+Central overview of all permissions in the application.
+Use these constants instead of raw strings, so that typos
+are caught at compile time and autocomplete works.
 """
 
 
@@ -30,7 +29,7 @@ class Permissions:
 
     @classmethod
     def all(cls) -> list[str]:
-        """Return een lijst van alle permissies gedefinieerd in deze klasse."""
+        """Returns a list of all permissions defined in this class"""
         return [
             v
             for k, v in vars(cls).items()

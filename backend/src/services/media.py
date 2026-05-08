@@ -39,7 +39,7 @@ def build_media_response(media: Media, base_url: str) -> MediaResponse:
 
 
 def get_minio_client() -> Minio:
-    """FastAPI dependency, kan overschreven worden in testen."""
+    """FastAPI dependency, can be overridden in tests"""
     return Minio(
         settings.MINIO_ENDPOINT,
         access_key=settings.MINIO_ROOT_USER,

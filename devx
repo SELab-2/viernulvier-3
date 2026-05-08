@@ -81,6 +81,7 @@ cat <<END_HELP
 
  Subcommands:
    sync [build]         Run the sync worker once
+   sync-one <id> [build]   Sync a single production by VNV ID (for testing)
    csv                  Run the csv worker once (always builds first)
 
  The [build] is an argument that accepts yes or no, but can also use their name
@@ -342,7 +343,7 @@ function worker() {
 		exit 0
 	fi
 
-	local types=(sync csv)
+	local types=(sync sync-one csv)
 	if ! contains "$type" "${types[@]}" ; then
 		choose "Worker?" "${types[@]}"
 		type="$choose_return"
@@ -364,7 +365,20 @@ function worker() {
 			run docker compose --profile csv build
 			run docker compose --profile csv run --rm csv_worker
 			;;
-	esac
+		sync-one)
+			local prod_id="${2:-}"
+			if [[ -z "$prod_id" ]]; then
+				read -rp "VNV Production ID: " prod_id
+			fi
+			local mode="${3:-}"
+			yes_no "$mode" build "Build before syncing?"
+			mode="$yes_no_return"
+			if [[ "$mode" == "yes" ]]; then
+				run docker compose --profile sync build
+			fi
+			run docker compose --profile sync run --rm sync_worker python -m src.worker.sync_job "$prod_id"
+			;;
+			esac
 }
 
 # Main entrypoint
