@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import LanguageWrapper from "~/shared/components/LanguageWrapper";
+import LanguageWrapper, { loader } from "~/shared/components/LanguageWrapper";
 
 const mockChangeLanguage = vi.fn();
 let mockLang: string | undefined = "en";
@@ -8,16 +8,8 @@ let mockI18nLanguage = "en";
 
 vi.mock("react-router", () => ({
   useParams: () => ({ lang: mockLang }),
-  useTranslation: () => ({
-    i18n: {
-      language: mockI18nLanguage,
-      changeLanguage: mockChangeLanguage,
-    },
-  }),
-  Navigate: ({ to }: { to: string }) => {
-    return <div data-testid="navigate" data-to={to} />;
-  },
   Outlet: () => <div data-testid="outlet" />,
+  redirect: (to: string) => ({ status: 302, headers: { Location: to } }),
 }));
 
 vi.mock("react-i18next", () => ({
@@ -29,7 +21,41 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-describe("LanguageWrapper", () => {
+function makeLoaderArgs(pathname: string, lang: string | undefined) {
+  return {
+    params: { lang },
+    request: new Request(`http://localhost${pathname}`),
+  } as any;
+}
+
+describe("LanguageWrapper loader", () => {
+  it("returns null for a supported language", async () => {
+    const result = await loader(makeLoaderArgs("/en", "en"));
+    expect(result).toBeNull();
+  });
+
+  it("returns null for nl", async () => {
+    const result = await loader(makeLoaderArgs("/nl", "nl"));
+    expect(result).toBeNull();
+  });
+
+  it("redirects to /en when lang is undefined", async () => {
+    const result = await loader(makeLoaderArgs("/undefined", undefined)) as any;
+    expect(result.headers.Location).toBe("/en/undefined");
+  });
+
+  it("redirects /login to /en/login when lang is unsupported", async () => {
+    const result = await loader(makeLoaderArgs("/login", "login")) as any;
+    expect(result.headers.Location).toBe("/en/login");
+  });
+
+  it("redirects /fr/home to /en/fr/home when lang is unsupported", async () => {
+    const result = await loader(makeLoaderArgs("/fr/home", "fr")) as any;
+    expect(result.headers.Location).toBe("/en/fr/home");
+  });
+});
+
+describe("LanguageWrapper component", () => {
   afterEach(() => {
     cleanup();
     mockChangeLanguage.mockReset();
@@ -50,18 +76,6 @@ describe("LanguageWrapper", () => {
     mockI18nLanguage = "nl";
     render(<LanguageWrapper />);
     expect(screen.getByTestId("outlet")).toBeTruthy();
-  });
-
-  it("redirects to /en when lang is undefined", () => {
-    mockLang = undefined;
-    render(<LanguageWrapper />);
-    expect(screen.getByTestId("navigate").getAttribute("data-to")).toBe("/en");
-  });
-
-  it("redirects to /en when lang is unsupported", () => {
-    mockLang = "fr";
-    render(<LanguageWrapper />);
-    expect(screen.getByTestId("navigate").getAttribute("data-to")).toBe("/en");
   });
 
   it("calls changeLanguage when i18n language differs from the url lang", () => {
