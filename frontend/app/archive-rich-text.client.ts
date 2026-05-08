@@ -13,5 +13,5 @@ export async function deltaToHtml(delta: Delta): Promise<string> {
   const container = document.createElement("div");
   const quill = new Quill(container);
   quill.setContents(delta);
-  return quill.root.innerHTML;
+  return quill.getSemanticHTML();
 }
