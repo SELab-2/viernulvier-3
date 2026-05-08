@@ -262,11 +262,11 @@ describe("HistoryPage", () => {
 
       renderPage();
 
+      const user = userEvent.setup();
+
       const createButton = await screen.findByRole("button", {
         name: /I18N_History_Edit_Create/i,
       });
-
-      const user = userEvent.setup();
       await user.click(createButton);
 
       const titleInput = await screen.findByRole("textbox", {
@@ -287,7 +287,7 @@ describe("HistoryPage", () => {
       const submitButton = await screen.findByRole("button", {
         name: /I18N_History_Edit_Submit/i,
       });
-      fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
         expect(mockCreate).toHaveBeenCalledWith(
