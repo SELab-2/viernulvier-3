@@ -60,6 +60,7 @@ export default function ProductionDetailRoute() {
             ? await getProduction(numericId)
             : await getProductionByUrl(decodedProductionId);
 
+        // Check if the frontend received a production info, otherwise refetch with another language
         if (productionData.production_infos.length === 0 && !isCancelled) {
           const otherLanguage = lang === "en" ? "nl" : "en";
           productionData =
@@ -82,13 +83,6 @@ export default function ProductionDetailRoute() {
         }
       }
     };
-
-    if (decodedProductionId.trim().length === 0) {
-      setProduction(null);
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
 
     void loadProduction();
 
