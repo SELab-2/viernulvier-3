@@ -1,6 +1,6 @@
 class Languages:
     ENGLISH = "en"
-    NEDERLANDS = "nl"
+    DUTCH = "nl"
 
     @classmethod
     def all(cls) -> list[str]:

@@ -1,8 +1,7 @@
 """
-Database-initialisatie — maakt alle tabellen aan op basis van de SQLAlchemy-modellen.
-
-Dit script wordt automatisch uitgevoerd vóór de start van de API-server
-(zie Dockerfile).
+Database initialization — creates all tables based on the SQLAlchemy models.
+This script is automatically executed before the API server starts
+(see Dockerfile).
 """
 
 import logging

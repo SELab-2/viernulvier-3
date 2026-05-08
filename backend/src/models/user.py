@@ -7,7 +7,7 @@ from src.models.associations import user_roles
 
 
 class User(Base):
-    """Gebruiker (User) met rollen en inloginformatie."""
+    """User with roles and login information"""
 
     __tablename__ = "users"
 
