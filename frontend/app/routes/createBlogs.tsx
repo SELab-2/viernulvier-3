@@ -11,7 +11,7 @@ export default function CreateBlogRoute() {
       permissions={[BLOG_PERMISSIONS.create]}
       fallback={<CreateBlogAccessDenied />}
     >
-      <CreateBlogPage />;
+      <CreateBlogPage />
     </Protected>
   );
 }

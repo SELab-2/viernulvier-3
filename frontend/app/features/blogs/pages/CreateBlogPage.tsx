@@ -1,16 +1,14 @@
 import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
-import { ArchiveRichTextField } from "~/shared/components/ArchiveRichTextField";
-import { useState } from "react";
-import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
 
 export function CreateBlogPage() {
-  const [content, setContent] = useState<Delta | null>(null);
 
   return (
     <div>
       <ArchiveTextField label="title" />
-      <ArchiveRichTextField label="content" value={content} onChange={setContent} />
+      <ArchiveTextField label="content" />
+	  <p> images </p>
+	  <p> productions </p>
     </div>
   );
 }

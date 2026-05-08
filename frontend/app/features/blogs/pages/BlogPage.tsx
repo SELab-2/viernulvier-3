@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 import { BlogCardList } from "../components/BlogCard";
 import { getBlogsPaginated } from "../services/blogService";
 import { CreateBlogButton } from "../components/CreateBlogButton";
+import { useNavigate } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
 
   useEffect(() => {
     async function fetchBlogs() {
@@ -15,9 +19,13 @@ export default function BlogPage() {
     fetchBlogs();
   }, []);
 
+  const openCreateBlogPage = () => {
+	 navigate(lp("/blogs/create"));
+  };
+
   return (
     <div>
-      <CreateBlogButton />
+      <CreateBlogButton onClick={openCreateBlogPage}/>
       <BlogCardList blogs={blogs} />
     </div>
   );
