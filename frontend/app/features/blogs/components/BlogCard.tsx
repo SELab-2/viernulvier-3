@@ -109,11 +109,7 @@ function getSanitizedHtmlOrUndefined(
   return DOMPurify.sanitize(trimmedValue);
 }
 
-function ProductionTitles({
-  productionTitles,
-}: {
-  productionTitles: string[];
-}) {
+function ProductionTitles({ productionTitles }: { productionTitles: string[] }) {
   const { t } = useTranslation();
 
   return (
@@ -275,12 +271,12 @@ export function BlogCard({
           "py": compact ? 1.5 : 2,
           "display": "flex",
           ...(!compact && {
-            "flexDirection": "column",
-            "transform": "translateY(0)",
-            "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-            "willChange": "transform",
+            flexDirection: "column",
+            transform: "translateY(0)",
+            transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+            willChange: "transform",
           }),
-          ...(compact && { "alignItems": "center" }),
+          ...(compact && { alignItems: "center" }),
           "&:last-child": { pb: compact ? 1.5 : 2 },
         }}
       >
@@ -288,16 +284,16 @@ export function BlogCard({
           className="blog-card-text"
           component="h3"
           sx={{
-            "fontFamily": "var(--font-serif)",
-            "fontSize": compact
+            fontFamily: "var(--font-serif)",
+            fontSize: compact
               ? "var(--text-archive-title-md)"
               : "var(--text-archive-title-lg)",
-            "lineHeight": "var(--leading-archive-title)",
-            "color": CARD_COLORS.textPrimary,
-            "display": "-webkit-box",
-            "WebkitLineClamp": 2,
-            "WebkitBoxOrient": "vertical",
-            "overflow": "hidden",
+            lineHeight: "var(--leading-archive-title)",
+            color: CARD_COLORS.textPrimary,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
             ...(!compact && { mb: 1, flexShrink: 0 }),
           }}
         >
@@ -312,8 +308,7 @@ export function BlogCard({
                   flexGrow: 1,
                   overflow: "hidden",
                   position: "relative",
-                  maskImage:
-                    "linear-gradient(to bottom, black 30%, transparent 100%)",
+                  maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
                   WebkitMaskImage:
                     "linear-gradient(to bottom, black 30%, transparent 100%)",
                 }}
@@ -364,8 +359,7 @@ export function BlogCard({
                   flexShrink: 0,
                 }}
               >
-                {t("blogs.card.details")}{" "}
-                <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
+                {t("blogs.card.details")} <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
               </Link>
             </Stack>
           </>
