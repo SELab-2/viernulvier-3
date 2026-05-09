@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -272,12 +272,12 @@ describe("HistoryPage", () => {
       const titleInput = await screen.findByRole("textbox", {
         name: /I18N_History_Form_Label_Title/i,
       });
-      fireEvent.change(titleInput, { target: { value: "New Event" } });
+      await user.type(titleInput, "New Event");
 
       const contentInput = await screen.findByRole("textbox", {
         name: /I18N_History_Form_Label_Content/i,
       });
-      fireEvent.change(contentInput, { target: { value: "A new event" } });
+      await user.type(contentInput, "A new event");
 
       await waitFor(() => {
         expect(titleInput).toHaveValue("New Event");
@@ -287,7 +287,7 @@ describe("HistoryPage", () => {
       const submitButton = await screen.findByRole("button", {
         name: /I18N_History_Edit_Submit/i,
       });
-      fireEvent.click(submitButton);
+      await user.click(submitButton);
 
       await waitFor(() => {
         expect(mockCreate).toHaveBeenCalledWith(

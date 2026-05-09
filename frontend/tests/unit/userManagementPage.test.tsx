@@ -173,12 +173,13 @@ describe("UserManagementPage", () => {
 
   it("creates a user from the add dialog", async () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
     vi.spyOn(userManagementServiceModule, "createUser").mockResolvedValue({
       id: 7,
       username: "fresh-account",
       isSuperUser: false,
-      roles: [],
-      permissions: [],
+      roles: ["editor"],
+      permissions: ["archive:write"],
       createdAt: "2026-04-15T10:00:00",
       lastLoginAt: null,
     });
@@ -191,11 +192,13 @@ describe("UserManagementPage", () => {
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
     await user.type(screen.getByLabelText("users.fields.username"), " fresh-account ");
     await user.type(screen.getByLabelText("users.fields.password"), "temporary-secret");
+    await user.click(screen.getByRole("checkbox", { name: "editor" }));
     await user.click(screen.getByRole("button", { name: "users.actions.create" }));
 
     expect(userManagementServiceModule.createUser).toHaveBeenCalledWith({
       username: "fresh-account",
       password: "temporary-secret",
+      roles: ["editor"],
     });
 
     const createdUserCard = (await screen.findByText("fresh-account")).closest(
@@ -236,6 +239,7 @@ describe("UserManagementPage", () => {
 
   it("shows create API errors and resets create dialog state on close", async () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
     vi.spyOn(userManagementServiceModule, "createUser").mockRejectedValue({
       isAxiosError: true,
       response: { data: { detail: "Username already exists" } },
@@ -249,6 +253,7 @@ describe("UserManagementPage", () => {
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
     await user.type(screen.getByLabelText("users.fields.username"), "operator");
     await user.type(screen.getByLabelText("users.fields.password"), "secret");
+    await user.click(screen.getByRole("checkbox", { name: "editor" }));
     await user.click(screen.getByRole("button", { name: "users.actions.create" }));
 
     expect(await screen.findByText("Username already exists")).toBeInTheDocument();
@@ -265,8 +270,12 @@ describe("UserManagementPage", () => {
     const passwordInput = screen.getByLabelText(
       "users.fields.password"
     ) as HTMLInputElement;
+    const editorRoleCheckbox = screen.getByRole("checkbox", {
+      name: "editor",
+    }) as HTMLInputElement;
     expect(usernameInput.value).toBe("");
     expect(passwordInput.value).toBe("");
+    expect(editorRoleCheckbox.checked).toBe(false);
   });
 
   it("hides create actions without the matching permissions", async () => {

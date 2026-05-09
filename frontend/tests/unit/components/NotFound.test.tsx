@@ -23,4 +23,8 @@ describe("NotFound", () => {
       screen.getByRole("link", { name: "I18N_NotFound_Button_History" })
     ).toBeInTheDocument();
   });
+
+  it("renders quote", () => {
+    expect(screen.getByText('"I18N_NotFound_Quote"')).toBeInTheDocument();
+  });
 });
