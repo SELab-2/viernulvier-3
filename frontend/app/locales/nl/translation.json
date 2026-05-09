@@ -60,6 +60,7 @@
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"
     },
@@ -68,6 +69,7 @@
     "backToCollection": "Terug naar de collectie",
     "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
@@ -225,6 +227,10 @@
         "title": "Je hebt geen toegang tot blogcreatie",
         "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
       }
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
 

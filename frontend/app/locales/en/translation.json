@@ -61,6 +61,7 @@
       "noDescription": "No additional description is available for this production.",
       "noInfo": "No extra information is available for this production.",
       "noEvents": "No events recorded for this production.",
+      "noLinkedBlogs": "No blogs linked to this production.",
       "dateUnknown": "Date unknown",
       "locationUnknown": "Location unknown"
     },
@@ -69,6 +70,7 @@
     "backToCollection": "Back to the collection",
     "eventMore": "More",
     "archiveSchema": "Archive schema",
+    "linkedBlogs": "Linked blogs",
     "dateLabel": "Date",
     "timeLabel": "Time",
     "placeLabel": "Venue",
@@ -227,6 +229,10 @@
         "title": "You do not have access to blog creation",
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "This blog page is coming soon."
     }
   },
 
