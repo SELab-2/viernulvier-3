@@ -94,9 +94,11 @@ export function ArchiveRichTextField({
 
   useEffect(() => {
     if (!containerRef.current || quillRef.current) return;
+    if (containerRef.current.querySelector('.ql-editor')) return;
 
     import("quill").then(({ default: Quill }) => {
       if (!containerRef.current) return;
+      if (containerRef.current.querySelector('.ql-editor')) return;
 
       const quill = new Quill(containerRef.current, {
         theme: "snow",
