@@ -76,6 +76,7 @@ type ProductionLinkCardProps = {
 };
 
 function ProductionLinkCard({ production }: ProductionLinkCardProps) {
+  const { t } = useTranslation();
   const { lang } = useParams();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -85,7 +86,8 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
     lang ?? "en"
   );
 
-  const { title, artist } = primaryInfo;
+  const title = primaryInfo?.title ?? t("blogs.contentPage.fallback");
+  const artist = primaryInfo?.artist ?? "";
 
   const id = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/)?.[1];
 
