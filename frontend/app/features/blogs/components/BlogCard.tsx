@@ -113,8 +113,8 @@ function getSanitizedHtmlOrUndefined(
 function getBlogNumericIdFromUrl(idUrl: string): string | undefined {
   const match = idUrl.match(/\/blogs\/(\d+)(?:[/?#]|$)/);
   return match?.[1];
-}  
-  
+}
+
 function ProductionTitles({ productionTitles }: { productionTitles: string[] }) {
   const { t } = useTranslation();
 
