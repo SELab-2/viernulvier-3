@@ -11,6 +11,14 @@ vi.mock("~/features/archive/services/hallService", () => ({
   getHallByUrl: vi.fn(),
 }));
 
+vi.mock("~/features/blogs/services/blogService", () => ({
+  getBlogsForProduction: vi.fn(),
+}));
+
+vi.mock("~/features/archive/services/productionService", () => ({
+  getProductionByUrl: vi.fn(),
+}));
+
 vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
   ProductionPageMediaGallery: ({ title }: { title: string }) => (
     <div data-testid="production-media-gallery">Mock gallery for {title}</div>
@@ -19,6 +27,8 @@ vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
 
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
+import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
@@ -109,6 +119,15 @@ const baseProductionOneInfo: Production = {
 describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(getBlogsForProduction).mockResolvedValue([]);
+    vi.mocked(getProductionByUrl).mockResolvedValue({
+      id_url: "",
+      event_id_urls: [],
+      production_infos: [
+        { language: "en", title: "Mock Production", production_id_url: "" },
+      ],
+      tags: [],
+    });
   });
 
   it("renders title, tags and gallery for the active language", async () => {
@@ -198,5 +217,69 @@ describe("ProductionPage", () => {
 
     // Quick check for more button
     expect(screen.getAllByText("I18N_Production_EventMore").length).toBe(2);
+  });
+
+  it("renders linked blogs section when blogs are available", async () => {
+    const getBlogsForProductionMock = vi.mocked(getBlogsForProduction);
+    const mockBlogs = [
+      {
+        id_url: "http://localhost/api/v1/archive/blogs/1",
+        production_id_urls: [baseProduction.id_url],
+        blog_contents: [
+          {
+            blog_id_url: "http://localhost/api/v1/archive/blogs/1",
+            language: "en",
+            title: "Blog Title 1",
+            content: "Blog content 1",
+          },
+        ],
+      },
+      {
+        id_url: "http://localhost/api/v1/archive/blogs/2",
+        production_id_urls: [baseProduction.id_url],
+        blog_contents: [
+          {
+            blog_id_url: "http://localhost/api/v1/archive/blogs/2",
+            language: "en",
+            title: "Blog Title 2",
+            content: "Blog content 2",
+          },
+        ],
+      },
+    ];
+
+    getBlogsForProductionMock.mockResolvedValueOnce(mockBlogs);
+
+    renderPage(baseProduction, "en");
+
+    // Check that the blogs are loaded and rendered
+    expect(await screen.findByText("Blog Title 1")).toBeInTheDocument();
+    expect(screen.getByText("Blog Title 2")).toBeInTheDocument();
+  });
+
+  it("does not render linked blogs section when no blogs are available", async () => {
+    const getBlogsForProductionMock = vi.mocked(getBlogsForProduction);
+    getBlogsForProductionMock.mockResolvedValueOnce([]);
+
+    renderPage(baseProduction, "en");
+
+    // The blogs section should not be rendered if there are no blogs
+    // i18n key for "I18N_ProductionPage_LinkedBlogs" should not appear
+    expect(
+      screen.queryByText("I18N_ProductionPage_LinkedBlogs")
+    ).not.toBeInTheDocument();
+  });
+
+  it("handles blog loading error gracefully", async () => {
+    const getBlogsForProductionMock = vi.mocked(getBlogsForProduction);
+    getBlogsForProductionMock.mockRejectedValueOnce(new Error("Failed to load blogs"));
+
+    renderPage(baseProduction, "en");
+
+    // Page should still render without blogs
+    expect(screen.getByRole("heading", { name: "English Title" })).toBeInTheDocument();
+    expect(
+      screen.queryByText("I18N_ProductionPage_LinkedBlogs")
+    ).not.toBeInTheDocument();
   });
 });
