@@ -117,19 +117,43 @@
   color: var(--archive-ink);
 }
 
-.prose ul { list-style-type: disc; }
-.prose ul ul { list-style-type: circle; }
-.prose ul ul ul { list-style-type: square; }
-.prose ul ul ul ul { list-style-type: disc; }
-.prose ul ul ul ul ul { list-style-type: circle; }
-.prose ul ul ul ul ul ul { list-style-type: square; }
+.prose ul {
+  list-style-type: disc;
+}
+.prose ul ul {
+  list-style-type: circle;
+}
+.prose ul ul ul {
+  list-style-type: square;
+}
+.prose ul ul ul ul {
+  list-style-type: disc;
+}
+.prose ul ul ul ul ul {
+  list-style-type: circle;
+}
+.prose ul ul ul ul ul ul {
+  list-style-type: square;
+}
 
-.prose ol { list-style-type: decimal; }
-.prose ol ol { list-style-type: lower-alpha; }
-.prose ol ol ol { list-style-type: lower-roman; }
-.prose ol ol ol ol { list-style-type: decimal; }
-.prose ol ol ol ol ol { list-style-type: lower-alpha; }
-.prose ol ol ol ol ol ol { list-style-type: lower-roman; }
+.prose ol {
+  list-style-type: decimal;
+}
+.prose ol ol {
+  list-style-type: lower-alpha;
+}
+.prose ol ol ol {
+  list-style-type: lower-roman;
+}
+.prose ol ol ol ol {
+  list-style-type: decimal;
+}
+.prose ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}
+.prose ol ol ol ol ol ol {
+  list-style-type: lower-roman;
+}
 
 html,
 body {
