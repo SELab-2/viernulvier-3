@@ -19,4 +19,8 @@ export default defineConfig({
     prettierConfig,
     reactHooks.configs.flat.recommended,
   ],
+
+  rules: {
+    eqeqeq: ["error", "always"],
+  },
 });
