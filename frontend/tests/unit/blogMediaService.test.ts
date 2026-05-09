@@ -8,7 +8,10 @@ import {
   uploadMediaForBlog,
   deleteMediaForBlog,
 } from "~/features/blogs/services/mediaService";
-import type { MediaResponse, MediaListResponse } from "~/features/blogs/types/mediaTypes";
+import type {
+  MediaResponse,
+  MediaListResponse,
+} from "~/features/blogs/types/mediaTypes";
 import type { IdPaginationResponse } from "~/features/archive/types/paginationTypes";
 
 describe("blog mediaService", () => {
@@ -44,15 +47,17 @@ describe("blog mediaService", () => {
 
   describe("getMediaForBlog", () => {
     it("returns media list for a blog", async () => {
-      const pagination: IdPaginationResponse = { has_more: false, total_count: 2, next_cursor: undefined };
+      const pagination: IdPaginationResponse = {
+        has_more: false,
+        total_count: 2,
+        next_cursor: undefined,
+      };
       const mockMediaList: MediaListResponse = {
         media: [mockMedia1, mockMedia2],
         pagination,
       };
 
-      mockAdapter
-        .onGet("/api/v1/archive/blogs/1/media/")
-        .reply(200, mockMediaList);
+      mockAdapter.onGet("/api/v1/archive/blogs/1/media/").reply(200, mockMediaList);
 
       const result = await getMediaForBlog(1);
 
@@ -66,9 +71,7 @@ describe("blog mediaService", () => {
         pagination: { has_more: false, total_count: 0 },
       };
 
-      mockAdapter
-        .onGet("/api/v1/archive/blogs/1/media/")
-        .reply(200, mockMediaList);
+      mockAdapter.onGet("/api/v1/archive/blogs/1/media/").reply(200, mockMediaList);
 
       const result = await getMediaForBlog(1);
 
@@ -84,9 +87,7 @@ describe("blog mediaService", () => {
 
   describe("uploadMediaForBlog", () => {
     it("uploads a file and returns the created media item", async () => {
-      mockAdapter
-        .onPost("/api/v1/archive/blogs/1/media/")
-        .reply(201, mockMedia1);
+      mockAdapter.onPost("/api/v1/archive/blogs/1/media/").reply(201, mockMedia1);
 
       const file = new File(["dummy content"], "poster.jpg", {
         type: "image/jpeg",
