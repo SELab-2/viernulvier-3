@@ -26,7 +26,10 @@ type DeleteInfoButtonProps = {
   language: string;
 };
 
-export default function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps) {
+export default function DeleteInfoButton({
+  production_id_url,
+  language,
+}: DeleteInfoButtonProps) {
   const { t } = useTranslation();
   const shared_css = `
     shadow-lg
