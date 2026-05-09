@@ -83,20 +83,9 @@ def sync_one_production(production_id: int):
 
 
 if __name__ == "__main__":
-    # import sys
-    #
-    # if len(sys.argv) == 2:
-    #     sync_one_production(int(sys.argv[1]))
-    # else:
-    #     sync_all()
+    import sys
 
-    from datetime import datetime
-    import json
-
-    with VNV_Wrapper() as wrapper:
-        fetcher = HallFetcher(wrapper)
-        items = fetcher.get_new_items_after(datetime(2000, 1, 1))
-
-        print(f"Fetched all {len(items)} locations")
-        for item in items:
-            print(json.dumps(item, indent=1))
+    if len(sys.argv) == 2:
+        sync_one_production(int(sys.argv[1]))
+    else:
+        sync_all()
