@@ -125,7 +125,7 @@ function EventCardSummary({
         </p>
       </div>
 
-      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
+      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition select-none group-open:rotate-180">
         {t("productionPage.eventMore")}
       </span>
     </summary>
