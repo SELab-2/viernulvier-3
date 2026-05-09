@@ -6,11 +6,9 @@ import DOMPurify from "dompurify";
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
-import type {
-  Production,
-  ProductionInfo,
-} from "~/features/archive/types/productionTypes";
+import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
+import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -25,10 +23,6 @@ function getSanitizedHtml(value: string | null | undefined): string | undefined 
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
   return DOMPurify.sanitize(trimmed);
-}
-
-function stripImages(html: string): string {
-  return html.replace(/<img[^>]*\/?>/gi, "");
 }
 
 function BackToBlogsLink() {
@@ -74,40 +68,16 @@ function BlogContentSection({ contentHtml }: BlogContentSectionProps) {
     <div
       id="blog-content"
       className="prose prose-archive max-w-none opacity-90"
-      dangerouslySetInnerHTML={{ __html: stripImages(contentHtml) }}
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
   );
-}
-
-function getProductionInfoByLanguage(
-  productionInfos: ProductionInfo[],
-  language: string
-): ProductionInfo {
-  const normalizedLanguage = language.toLowerCase();
-  const baseLanguage = normalizedLanguage.split("-")[0]; // maybe later we have en-Us and en-GB
-
-  const preferredLanguages = Array.from(
-    new Set([normalizedLanguage, baseLanguage, "nl", "en"])
-  );
-
-  for (const preferred of preferredLanguages) {
-    const languageMatch = productionInfos.find(
-      (info) => info.language.toLowerCase() === preferred
-    );
-
-    if (languageMatch) {
-      return languageMatch;
-    }
-  }
-
-  return productionInfos[0];
 }
 
 type ProductionLinkCardProps = {
   production: Production;
 };
 
-export default function ProductionLinkCard({ production }: ProductionLinkCardProps) {
+function ProductionLinkCard({ production }: ProductionLinkCardProps) {
   const { lang } = useParams();
   const navigate = useNavigate();
   const lp = useLocalizedPath();

@@ -83,19 +83,6 @@ const baseBlogEmptyContent: Blog = {
   ],
 };
 
-const baseBlogWithImages: Blog = {
-  id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
-  blog_contents: [
-    {
-      language: "nl",
-      title: "Blog Met Afbeeldingen",
-      content: '<p>Tekst</p><img src="foto.jpg" alt="foto" /><p>Meer tekst</p>',
-      blog_id_url: "http://localhost/api/v1/blogs/1",
-    },
-  ],
-};
-
 describe("BlogContentPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -141,16 +128,6 @@ describe("BlogContentPage", () => {
       screen.getByRole("heading", { name: "Blog Zonder Inhoud" })
     ).toBeInTheDocument();
     expect(screen.getByText("I18N_Blog_Fallback")).toBeInTheDocument();
-  });
-
-  it("strips images from rendered blog content", () => {
-    renderPage(baseBlogWithImages, "nl");
-
-    const blogContent = document.getElementById("blog-content");
-    expect(blogContent).not.toBeNull();
-    expect(blogContent?.innerHTML).not.toContain("<img");
-    expect(blogContent?.innerHTML).toContain("Tekst");
-    expect(blogContent?.innerHTML).toContain("Meer tekst");
   });
 
   it("renders a back-to-blogs link", () => {
