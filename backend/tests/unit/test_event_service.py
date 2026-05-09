@@ -38,7 +38,7 @@ def hall(db_session):
 
 @pytest.fixture
 def hall2(db_session):
-    hall = Hall(name="Hall B", address="Street B")
+    hall = Hall(address="Street B", names=[HallName(language="en", name="Hall B")])
     db_session.add(hall)
     db_session.commit()
     return hall
@@ -213,7 +213,9 @@ def test_update_event_hall(db_session, event: Event, hall2: Hall):
     # Assert event hall is now hall 2
     assert updated.hall is not None
     assert updated.hall.id_url == update_data.hall_id_url
-    assert updated.hall.name == hall2.name
+    assert len(updated.hall.names) == len(hall2.names)
+    assert updated.hall.names[0].language == hall2.names[0].language
+    assert updated.hall.names[0].name == hall2.names[0].name
     assert updated.hall.address == hall2.address
 
 
