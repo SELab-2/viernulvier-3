@@ -146,8 +146,10 @@ describe("ProductionPage", () => {
 
   it("shows message that there is no information in this language", async () => {
     renderPage({ ...baseProductionOneInfo }, "en");
-    const elements = await screen.findAllByText("I18N_ProductionInfo_NotAvailable");
-    expect(elements).toHaveLength(2);
+    const elements = await screen.findAllByText(
+      "I18N_Production_Fallback_UnknownProduction"
+    );
+    expect(elements).toHaveLength(1);
     // Other information should still be visisble.
     expect(screen.getByText("Opera")).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
