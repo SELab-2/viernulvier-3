@@ -106,8 +106,15 @@
   --archive-logo-filter: none;
 }
 
-.prose * {
-  color: inherit;
+.prose {
+  --tw-prose-body: var(--archive-ink);
+  --tw-prose-headings: var(--archive-ink);
+  --tw-prose-bold: var(--archive-ink);
+  --tw-prose-links: var(--archive-ink);
+  --tw-prose-lists: var(--archive-ink);
+  --tw-prose-counters: var(--archive-ink);
+  --tw-prose-bullets: var(--archive-ink);
+  color: var(--archive-ink);
 }
 
 .prose ul { list-style-type: disc; }
