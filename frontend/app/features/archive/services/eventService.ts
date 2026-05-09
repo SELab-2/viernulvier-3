@@ -3,9 +3,17 @@ import {
   getFromArchive,
   postToArchive,
   patchToArchive,
+  patchByUrl,
   deleteFromArchive,
 } from "~/shared/services/sharedService";
-import type { Event, EventCreate, EventUpdate, Price } from "../types/eventTypes";
+import type {
+  Event,
+  EventCreate,
+  EventUpdate,
+  Price,
+  PriceCreate,
+  PriceUpdate,
+} from "../types/eventTypes";
 
 const ENDPOINT = "/events";
 
@@ -42,4 +50,33 @@ export async function getEventPrice(eventId: number, priceId: number): Promise<P
 
 export async function getPriceByUrl(priceUrl: string): Promise<Price> {
   return getByUrl<Price>(priceUrl);
+}
+
+export async function createPrice(
+  eventId: number,
+  priceData: PriceCreate
+): Promise<Price> {
+  return postToArchive<Price>(`${ENDPOINT}/${eventId}/prices`, priceData);
+}
+
+export async function updatePrice(
+  eventId: number,
+  priceId: number,
+  priceData: PriceUpdate
+): Promise<Price> {
+  return patchToArchive<Price>(
+    `${ENDPOINT}/${eventId}/prices/${priceId}`,
+    priceData
+  );
+}
+
+export async function updatePriceByUrl(
+  priceUrl: string,
+  priceData: PriceUpdate
+): Promise<Price> {
+  return patchByUrl<Price>(priceUrl, priceData);
+}
+
+export async function deletePrice(eventId: number, priceId: number): Promise<void> {
+  return deleteFromArchive(`${ENDPOINT}/${eventId}/prices/${priceId}`);
 }
