@@ -288,7 +288,13 @@
       "title": "Roles",
       "loading": "Loading roles",
       "fields": {
-        "name": "Role name"
+        "name": "Role name",
+        "permissions": "Permissions"
+      },
+      "form": {
+        "permissionsHint": "Select the permissions that should be granted as soon as this role is created.",
+        "permissionsLoading": "Loading available permissions.",
+        "permissionsEmptyHint": "No permissions are available right now."
       },
       "actions": {
         "add": "Add role",
@@ -299,6 +305,7 @@
       },
       "messages": {
         "loadFailed": "We could not load roles right now.",
+        "permissionsLoadFailed": "We could not load available permissions right now.",
         "createFailed": "We could not create the role right now.",
         "deleteFailed": "We could not delete the role right now.",
         "nameRequired": "A role name is required."
@@ -306,7 +313,7 @@
       "dialogs": {
         "create": {
           "title": "Add role",
-          "description": "Create a new role. Permissions can be assigned after creation."
+          "description": "Create a new role and assign its permissions immediately."
         },
         "delete": {
           "title": "Delete role",
