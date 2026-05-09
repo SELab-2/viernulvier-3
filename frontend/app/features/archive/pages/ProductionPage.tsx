@@ -803,6 +803,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
+      <title>{`${title} | VIERNULVIER`}</title>
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         {productionInfo !== null ? (
