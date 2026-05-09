@@ -123,7 +123,7 @@ def test_update_hall(client: TestClient, db_session: Session):
         json={
             "names": [
                 {"language": "en", "name": "Updated Hall"},
-                {"language": "nl", "name": "Nederlandse Hall"}
+                {"language": "nl", "name": "Nederlandse Hall"},
             ],
             "address": "Updated Street",
         },
