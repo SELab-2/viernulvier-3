@@ -54,7 +54,7 @@ export default function HistoryPage() {
     return () => {
       isActive = false;
     };
-  }, [i18n.resolvedLanguage, t]);
+  }, [i18n.resolvedLanguage]);
 
   async function handleUpdate(payload: {
     entryYear: number;
