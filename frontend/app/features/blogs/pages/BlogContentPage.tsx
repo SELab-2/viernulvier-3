@@ -9,6 +9,7 @@ import { getProductionByUrl } from "~/features/archive/services/productionServic
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
+import { Divider } from "@mui/material";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -45,10 +46,7 @@ type BlogHeaderProps = {
 
 function BlogHeader({ title }: BlogHeaderProps) {
   return (
-    <section
-      id="blog-header"
-      className="bg-archive-surface-strong rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] px-8 py-10 md:px-14 md:py-14"
-    >
+    <section id="blog-header">
       <h1
         id="blog-title"
         className="text-archive-ink font-serif text-5xl leading-[1.08] md:text-7xl"
@@ -193,6 +191,8 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         <BackToBlogsLink />
 
         <BlogHeader title={title} />
+
+        <Divider />
 
         <section id="blog-body" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
