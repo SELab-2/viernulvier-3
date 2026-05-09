@@ -1,7 +1,14 @@
 from sqlalchemy.orm import Session
 from src.models.production import Production
 from src.models import Event, Hall, EventPrice
-from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
+from src.schemas.event import (
+    EventResponse,
+    EventCreate,
+    EventUpdate,
+    PriceResponse,
+    PriceCreate,
+    PriceUpdate,
+)
 from src.schemas.hall import HallResponse
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
@@ -206,3 +213,85 @@ def get_event_price(
         created_at=price.created_at,
         updated_at=price.updated_at,
     )
+
+
+def build_price_response(
+    db: Session, event_id: int, price: EventPrice, base_url: str
+) -> PriceResponse:
+    return PriceResponse(
+        id_url=f"{base_url}/events/{event_id}/prices/{price.id}",
+        amount=float(price.amount) if price.amount else None,
+        available=price.available,
+        expires_at=price.expires_at,
+        created_at=price.created_at,
+        updated_at=price.updated_at,
+    )
+
+
+def create_price(
+    db: Session, event_id: int, price_in: PriceCreate, base_url: str
+) -> PriceResponse:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    db_price = EventPrice(
+        event_id=event_id,
+        amount=price_in.amount,
+        available=price_in.available,
+        expires_at=price_in.expires_at,
+    )
+
+    db.add(db_price)
+    db.commit()
+    db.refresh(db_price)
+
+    return build_price_response(db, event_id, db_price, base_url)
+
+
+def update_price(
+    db: Session,
+    event_id: int,
+    price_id: int,
+    price_in: PriceUpdate,
+    base_url: str,
+) -> PriceResponse:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    price = (
+        db.query(EventPrice)
+        .filter(EventPrice.id == price_id, EventPrice.event_id == event_id)
+        .first()
+    )
+    if not price:
+        raise NotFoundError("Price", price_id)
+
+    update_dict = price_in.model_dump(exclude_unset=True)
+
+    for field, value in update_dict.items():
+        setattr(price, field, value)
+
+    db.commit()
+    db.refresh(price)
+
+    return build_price_response(db, event_id, price, base_url)
+
+
+def delete_price(db: Session, event_id: int, price_id: int) -> bool:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    price = (
+        db.query(EventPrice)
+        .filter(EventPrice.id == price_id, EventPrice.event_id == event_id)
+        .first()
+    )
+    if not price:
+        raise NotFoundError("Price", price_id)
+
+    db.delete(price)
+    db.commit()
+    return True
