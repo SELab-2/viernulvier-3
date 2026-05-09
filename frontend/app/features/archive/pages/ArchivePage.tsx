@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import { Outlet } from "react-router";
 
@@ -23,12 +24,14 @@ function buildProductionFilters({
   debouncedDateFrom,
   debouncedDateTo,
   selectedTags,
+  selectedProductionGroups,
   selectedArtists,
 }: {
   debouncedSearch: string;
   debouncedDateFrom: string;
   debouncedDateTo: string;
   selectedTags: Tag[];
+  selectedProductionGroups: ProductionGroup[];
   selectedArtists: string[];
 }) {
   return {
@@ -38,6 +41,10 @@ function buildProductionFilters({
     tag_ids:
       selectedTags.length > 0
         ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
+        : undefined,
+    group_ids:
+      selectedProductionGroups.length > 0
+        ? selectedProductionGroups.map((group) => group.id_url.split("/").pop()!)
         : undefined,
     artists: selectedArtists.length > 0 ? selectedArtists : undefined,
   };
@@ -55,6 +62,9 @@ export default function ArchivePage() {
   const [dateFrom, debouncedDateFrom, setDateFrom] = useDebouncedState("");
   const [dateTo, debouncedDateTo, setDateTo] = useDebouncedState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [selectedProductionGroups, setSelectedProductionGroups] = useState<
+    ProductionGroup[]
+  >([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
 
@@ -65,9 +75,17 @@ export default function ArchivePage() {
         debouncedDateFrom,
         debouncedDateTo,
         selectedTags,
+        selectedProductionGroups,
         selectedArtists,
       }),
-    [debouncedSearch, debouncedDateFrom, debouncedDateTo, selectedTags, selectedArtists]
+    [
+      debouncedSearch,
+      debouncedDateFrom,
+      debouncedDateTo,
+      selectedTags,
+      selectedProductionGroups,
+      selectedArtists,
+    ]
   );
 
   // Re-fetch whenever any filter changes
@@ -110,6 +128,8 @@ export default function ArchivePage() {
           setDateFrom={setDateFrom}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
+          selectedProductionGroups={selectedProductionGroups}
+          setSelectedProductionGroups={setSelectedProductionGroups}
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
