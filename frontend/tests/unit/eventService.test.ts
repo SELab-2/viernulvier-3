@@ -10,12 +10,18 @@ import {
   deleteEvent,
   getEventPrices,
   getEventPrice,
+  createPrice,
+  updatePrice,
+  updatePriceByUrl,
+  deletePrice,
 } from "~/features/archive/services/eventService";
 import type {
   Event,
   EventCreate,
   EventUpdate,
   Price,
+  PriceCreate,
+  PriceUpdate,
 } from "~/features/archive/types/eventTypes";
 
 describe("eventService", () => {
@@ -207,6 +213,152 @@ describe("eventService", () => {
       mockAdapter.onGet("/api/v1/archive/events/1/prices/999").reply(404);
 
       await expect(getEventPrice(1, 999)).rejects.toThrow();
+    });
+  });
+
+  describe("createPrice", () => {
+    it("creates a price for an event and returns it", async () => {
+      const priceData: PriceCreate = { amount: 15.0, available: 100 };
+
+      const mockResponse: Price = {
+        id_url: "http://localhost/api/v1/archive/events/1/prices/1",
+        amount: 15.0,
+        available: 100,
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-20T10:00:00",
+      };
+
+      mockAdapter.onPost("/api/v1/archive/events/1/prices").reply(201, mockResponse);
+
+      const result = await createPrice(1, priceData);
+
+      expect(result).toEqual(mockResponse);
+      expect(result.amount).toBe(15.0);
+      expect(result.available).toBe(100);
+    });
+
+    it("creates a price with only amount", async () => {
+      const priceData: PriceCreate = { amount: 20.0 };
+
+      const mockResponse: Price = {
+        id_url: "http://localhost/api/v1/archive/events/1/prices/2",
+        amount: 20.0,
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-20T10:00:00",
+      };
+
+      mockAdapter.onPost("/api/v1/archive/events/1/prices").reply(201, mockResponse);
+
+      const result = await createPrice(1, priceData);
+
+      expect(result.amount).toBe(20.0);
+      expect(result.available).toBeUndefined();
+    });
+
+    it("throws when create price request fails", async () => {
+      const priceData: PriceCreate = { amount: 10.0 };
+
+      mockAdapter.onPost("/api/v1/archive/events/999/prices").reply(404);
+
+      await expect(createPrice(999, priceData)).rejects.toThrow();
+    });
+  });
+
+  describe("updatePrice", () => {
+    it("updates a price by event and price id", async () => {
+      const priceData: PriceUpdate = { amount: 25.0, available: 75 };
+
+      const mockResponse: Price = {
+        id_url: "http://localhost/api/v1/archive/events/1/prices/1",
+        amount: 25.0,
+        available: 75,
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-21T10:00:00",
+      };
+
+      mockAdapter
+        .onPatch("/api/v1/archive/events/1/prices/1")
+        .reply(200, mockResponse);
+
+      const result = await updatePrice(1, 1, priceData);
+
+      expect(result).toEqual(mockResponse);
+      expect(result.amount).toBe(25.0);
+      expect(result.available).toBe(75);
+    });
+
+    it("updates a price partially", async () => {
+      const priceData: PriceUpdate = { amount: 30.0 };
+
+      const mockResponse: Price = {
+        id_url: "http://localhost/api/v1/archive/events/1/prices/1",
+        amount: 30.0,
+        available: 50,
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-21T10:00:00",
+      };
+
+      mockAdapter
+        .onPatch("/api/v1/archive/events/1/prices/1")
+        .reply(200, mockResponse);
+
+      const result = await updatePrice(1, 1, priceData);
+
+      expect(result.amount).toBe(30.0);
+      expect(result.available).toBe(50);
+    });
+
+    it("throws when update price request fails", async () => {
+      const priceData: PriceUpdate = { amount: 20.0 };
+
+      mockAdapter.onPatch("/api/v1/archive/events/1/prices/999").reply(404);
+
+      await expect(updatePrice(1, 999, priceData)).rejects.toThrow();
+    });
+  });
+
+  describe("updatePriceByUrl", () => {
+    it("updates a price by full url", async () => {
+      const priceUrl = "http://localhost/api/v1/archive/events/1/prices/1";
+      const priceData: PriceUpdate = { amount: 35.0 };
+
+      const mockResponse: Price = {
+        id_url: priceUrl,
+        amount: 35.0,
+        available: 50,
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-21T10:00:00",
+      };
+
+      mockAdapter.onPatch("/api/v1/archive/events/1/prices/1").reply(200, mockResponse);
+
+      const result = await updatePriceByUrl(priceUrl, priceData);
+
+      expect(result).toEqual(mockResponse);
+      expect(result.amount).toBe(35.0);
+    });
+
+    it("throws when update by url fails", async () => {
+      const priceUrl = "http://localhost/api/v1/archive/events/1/prices/999";
+      const priceData: PriceUpdate = { amount: 20.0 };
+
+      mockAdapter.onPatch("/api/v1/archive/events/1/prices/999").reply(404);
+
+      await expect(updatePriceByUrl(priceUrl, priceData)).rejects.toThrow();
+    });
+  });
+
+  describe("deletePrice", () => {
+    it("deletes a price successfully", async () => {
+      mockAdapter.onDelete("/api/v1/archive/events/1/prices/1").reply(204);
+
+      await expect(deletePrice(1, 1)).resolves.toBeUndefined();
+    });
+
+    it("throws when delete price request fails", async () => {
+      mockAdapter.onDelete("/api/v1/archive/events/1/prices/999").reply(404);
+
+      await expect(deletePrice(1, 999)).rejects.toThrow();
     });
   });
 });
