@@ -39,9 +39,6 @@ async def get_blogs(
     return get_blogs_paginated(db, base_url, cursor=cursor, limit=limit)
 
 
-
-
-
 @router.get(
     "/{blog_id}",
     response_model=BlogResponse,
