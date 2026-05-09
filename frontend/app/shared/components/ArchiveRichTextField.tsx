@@ -170,7 +170,7 @@ export function ArchiveRichTextField({
   }, [canEdit]);
 
   return (
-    <Box sx={toSxArray(sx)}>
+    <Box sx={toSxArray(sx)} onClick={() => quillRef.current?.focus()}>
       <div ref={containerRef} />
     </Box>
   );
