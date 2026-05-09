@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   Alert,
   Button,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -79,12 +80,14 @@ function UserMutationAlert({ message }: { message: string | null }) {
 function CreateUserDialog({
   open,
   isSubmitting,
+  availableRoles,
   errorMessage,
   onClose,
   onSubmit,
 }: {
   open: boolean;
   isSubmitting: boolean;
+  availableRoles: IRole[];
   errorMessage: string | null;
   onClose: () => void;
   onSubmit: (payload: IUserCreateRequest) => Promise<void>;
@@ -92,6 +95,7 @@ function CreateUserDialog({
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const trimmedUsername = username.trim();
@@ -99,7 +103,16 @@ function CreateUserDialog({
   function resetForm() {
     setUsername("");
     setPassword("");
+    setSelectedRoles([]);
     setValidationError(null);
+  }
+
+  function toggleRole(roleName: string) {
+    setSelectedRoles((currentRoles) =>
+      currentRoles.includes(roleName)
+        ? currentRoles.filter((currentRole) => currentRole !== roleName)
+        : [...currentRoles, roleName]
+    );
   }
 
   function handleClose() {
@@ -121,7 +134,11 @@ function CreateUserDialog({
     }
 
     setValidationError(null);
-    await onSubmit({ username: trimmedUsername, password });
+    await onSubmit({
+      username: trimmedUsername,
+      password,
+      roles: selectedRoles,
+    });
   }
 
   return (
@@ -184,6 +201,41 @@ function CreateUserDialog({
               }
             }}
           />
+
+          <div>
+            <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
+              {t("users.fields.roles")}
+            </div>
+            <p className="mt-2 text-sm leading-relaxed opacity-65">
+              {availableRoles.length > 0
+                ? t("users.form.rolesHint")
+                : t("users.form.rolesEmptyHint")}
+            </p>
+
+            {availableRoles.length > 0 ? (
+              <div className="mt-4 grid gap-2">
+                {availableRoles.map((role) => {
+                  const isSelected = selectedRoles.includes(role.name);
+
+                  return (
+                    <label
+                      key={role.id}
+                      className="flex cursor-pointer items-center gap-3 rounded-[1rem] px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => toggleRole(role.name)}
+                        sx={roleCheckboxSx}
+                      />
+                      <span className="text-sm font-medium text-[color:var(--archive-ink)]">
+                        {role.name}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
         </form>
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
@@ -869,8 +921,10 @@ export default function UserManagementPage() {
       </section>
 
       <CreateUserDialog
+        key={isCreateDialogOpen ? "create-user-open" : "create-user-closed"}
         open={isCreateDialogOpen}
         isSubmitting={isCreatingUser}
+        availableRoles={roles}
         errorMessage={isCreateDialogOpen ? createMutationError : null}
         onClose={closeCreateDialog}
         onSubmit={handleCreateUser}
@@ -974,6 +1028,14 @@ const dialogActionsSx = {
 const helperTextSx = {
   marginTop: "0.55rem",
   lineHeight: 1.45,
+};
+
+const roleCheckboxSx = {
+  "color": "rgba(196, 164, 132, 0.7)",
+  "padding": 0,
+  "&.Mui-checked": {
+    color: "var(--archive-accent)",
+  },
 };
 
 const dialogPaperSx = {

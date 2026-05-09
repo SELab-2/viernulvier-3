@@ -22,6 +22,7 @@ export interface IUser {
 export interface IUserCreateRequest {
   username: string;
   password: string;
+  roles?: string[];
 }
 
 export interface IRoleResponse {

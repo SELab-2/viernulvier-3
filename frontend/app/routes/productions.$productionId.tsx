@@ -42,6 +42,13 @@ export default function ProductionDetailRoute() {
     let isCancelled = false;
 
     const loadProduction = async () => {
+      if (decodedProductionId.trim().length === 0) {
+        setProduction(null);
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setHasError(false);
 
@@ -76,13 +83,6 @@ export default function ProductionDetailRoute() {
         }
       }
     };
-
-    if (decodedProductionId.trim().length === 0) {
-      setProduction(null);
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
 
     void loadProduction();
 

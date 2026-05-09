@@ -59,6 +59,7 @@
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"
     },
@@ -67,6 +68,7 @@
     "backToCollection": "Terug naar de collectie",
     "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
@@ -187,6 +189,10 @@
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
 
@@ -229,7 +235,9 @@
       "permissions": "Permissies"
     },
     "form": {
-      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt."
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
     },
     "actions": {
       "retry": "Opnieuw proberen",
@@ -258,7 +266,7 @@
     "dialogs": {
       "create": {
         "title": "Gebruiker toevoegen",
-        "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+        "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
       },
       "delete": {
         "title": "Gebruiker verwijderen",
@@ -326,6 +334,7 @@
     "buttons": {
       "explore": "Ontdek de Collectie",
       "history": "Onze Geschiedenis"
-    }
+    },
+    "quote": "Less is soms more, maar soms ook niet"
   }
 }

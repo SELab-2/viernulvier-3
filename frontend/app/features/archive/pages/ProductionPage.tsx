@@ -8,6 +8,7 @@ import type {
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { Blog } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
@@ -16,6 +17,9 @@ import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGal
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { getMediaForProduction } from "~/features/archive/services/mediaService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
+import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 
 interface ProductionPageProps {
@@ -546,10 +550,11 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     language
   );
 
-  const [mediaImageUrlsByProductionId] = useState<Record<string, string[]>>({});
+  const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
+  const [linkedBlogs, setLinkedBlogs] = useState<Blog[]>([]);
 
   // States for editing the production info shown
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -582,6 +587,19 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     return isInfoModified(originalInfo, draftInfo);
   }, [originalInfo, draftInfo, isEditing]);
 
+  useEffect(() => {
+    const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
+    const productionNumericId = match ? Number(match[1]) : undefined;
+    if (!productionNumericId) return;
+
+    getMediaForProduction(productionNumericId, { limit: 1 })
+      .then((response) => {
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setFirstImageUrl(first.url);
+      })
+      .catch(() => {});
+  }, [production.id_url]);
+
   // Prevent moving away from page when edit is modified (browser aways)
   // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
@@ -611,8 +629,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrl =
-    mediaImageUrlsByProductionId[production.id_url]?.[0] ?? fallbackImageUrl;
+  const imageUrl = firstImageUrl ?? fallbackImageUrl;
   const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
@@ -713,8 +730,33 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
+  // Load linked blogs for this production
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadLinkedBlogs = async () => {
+      try {
+        const blogs = await getBlogsForProduction(production.id_url);
+        if (!isCancelled) {
+          setLinkedBlogs(blogs ?? []);
+        }
+      } catch {
+        if (!isCancelled) {
+          setLinkedBlogs([]);
+        }
+      }
+    };
+
+    void loadLinkedBlogs();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [production.id_url]);
+
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
+      <title>{`${title} | VIERNULVIER`}</title>
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader
@@ -751,6 +793,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
               <Events event_objects={eventObjects} />
             </section>
+
+            {linkedBlogs.length > 0 && (
+              <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">
+                <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+                  {t("productionPage.linkedBlogs")}
+                </h2>
+
+                <BlogCardList
+                  blogs={linkedBlogs}
+                  prefferedLanguage={language}
+                  compactCards
+                />
+              </section>
+            )}
           </article>
         </section>
 
