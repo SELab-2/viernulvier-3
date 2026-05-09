@@ -853,9 +853,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 onPricesChanged={(eventId, updatedPrices) => {
                   setEventsWithDetails((prev) =>
                     prev.map((e) =>
-                      e.id_url === eventId
-                        ? { ...e, resolvedPrices: updatedPrices }
-                        : e
+                      e.id_url === eventId ? { ...e, resolvedPrices: updatedPrices } : e
                     )
                   );
                 }}

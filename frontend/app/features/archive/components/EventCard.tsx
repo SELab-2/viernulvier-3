@@ -1,9 +1,18 @@
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 
-import type { Event, Price, PriceCreate, PriceUpdate } from "~/features/archive/types/eventTypes";
+import type {
+  Event,
+  Price,
+  PriceCreate,
+  PriceUpdate,
+} from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
-import { updatePriceByUrl, deletePrice, createPrice } from "~/features/archive/services/eventService";
+import {
+  updatePriceByUrl,
+  deletePrice,
+  createPrice,
+} from "~/features/archive/services/eventService";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
@@ -57,28 +66,6 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
 
   const trimmedValue = value.trim();
   return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
-
-function formatPrices(prices: Price[], language: string, fallback: string): string {
-  if (prices.length === 0) {
-    return fallback;
-  }
-
-  const formatted = prices
-    .map((price) =>
-      typeof price.amount === "number"
-        ? new Intl.NumberFormat(language, {
-            style: "currency",
-            currency: "EUR",
-          }).format(price.amount)
-        : undefined
-    )
-    .filter(
-      (amount): amount is string => typeof amount === "string" && amount.length > 0
-    )
-    .join(", ");
-
-  return formatted || fallback;
 }
 
 type EventCardDetailProps = {
@@ -148,25 +135,45 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [draftAmount, setDraftAmount] = useState<string>(
-    price.amount != null ? String(price.amount) : ""
+    price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
   );
   const [draftAvailable, setDraftAvailable] = useState<string>(
-    price.available != null ? String(price.available) : ""
+    price.available !== null && price.available !== undefined
+      ? String(price.available)
+      : ""
   );
 
   const isModified =
-    (draftAmount !== (price.amount != null ? String(price.amount) : "")) ||
-    (draftAvailable !== (price.available != null ? String(price.available) : ""));
+    draftAmount !==
+      (price.amount !== null && price.amount !== undefined
+        ? String(price.amount)
+        : "") ||
+    draftAvailable !==
+      (price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : "");
 
   function startEditing() {
-    setDraftAmount(price.amount != null ? String(price.amount) : "");
-    setDraftAvailable(price.available != null ? String(price.available) : "");
+    setDraftAmount(
+      price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
+    );
+    setDraftAvailable(
+      price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : ""
+    );
     setIsEditing(true);
   }
 
   function cancelEditing() {
-    setDraftAmount(price.amount != null ? String(price.amount) : "");
-    setDraftAvailable(price.available != null ? String(price.available) : "");
+    setDraftAmount(
+      price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
+    );
+    setDraftAvailable(
+      price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : ""
+    );
     setIsEditing(false);
   }
 
@@ -210,7 +217,7 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
     return (
       <div className="bg-archive-control flex flex-col gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] p-3">
         <div className="flex items-center gap-2">
-          <label className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55 min-w-[60px]">
+          <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
             {t("productionPage.price.amountLabel")}
           </label>
           <input
@@ -223,7 +230,7 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55 min-w-[60px]">
+          <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
             {t("productionPage.price.availableLabel")}
           </label>
           <input
@@ -237,7 +244,7 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
         <div className="flex gap-2 pt-1">
           <button
             onClick={cancelEditing}
-            className="rounded bg-gray-300 px-3 py-1 text-xs font-semibold text-archive-ink transition hover:bg-gray-400"
+            className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
           >
             {t("productionPage.edit.cancel")}
           </button>
@@ -260,13 +267,13 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
           {t("productionPage.priceLabel")}
         </dt>
         <dd className="mt-1 font-medium opacity-95">
-          {price.amount != null
+          {price.amount !== null && price.amount !== undefined
             ? new Intl.NumberFormat(undefined, {
                 style: "currency",
                 currency: "EUR",
               }).format(price.amount)
             : t("productionPage.noPrice")}
-          {price.available != null && (
+          {price.available !== null && price.available !== undefined && (
             <span className="ml-2 text-xs opacity-60">
               ({price.available} {t("productionPage.price.available")})
             </span>
@@ -285,7 +292,7 @@ function PriceRow({ price, eventId, onUpdate, onDelete }: PriceRowProps) {
       <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
         <button
           onClick={handleDelete}
-          className="shrink-0 text-[0.62rem] tracking-[0.12em] uppercase text-red-400 opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
+          className="shrink-0 text-[0.62rem] tracking-[0.12em] text-red-400 uppercase opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
           aria-label={t("productionPage.price.deleteLabel")}
         >
           {t("productionPage.price.deleteLabel")}
@@ -333,7 +340,7 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
       className="bg-archive-control flex flex-col gap-2 rounded-lg border border-dashed border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] p-3"
     >
       <div className="flex items-center gap-2">
-        <label className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55 min-w-[60px]">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
           {t("productionPage.price.amountLabel")}
         </label>
         <input
@@ -346,7 +353,7 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
         />
       </div>
       <div className="flex items-center gap-2">
-        <label className="text-[0.6rem] tracking-[0.16em] uppercase opacity-55 min-w-[60px]">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
           {t("productionPage.price.availableLabel")}
         </label>
         <input
@@ -361,7 +368,7 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
         <button
           type="button"
           onClick={onCancel}
-          className="rounded bg-gray-300 px-3 py-1 text-xs font-semibold text-archive-ink transition hover:bg-gray-400"
+          className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
         >
           {t("productionPage.edit.cancel")}
         </button>
@@ -383,7 +390,7 @@ type EventCardProps = {
 };
 
 export function EventCard({ event, onPricesChanged }: EventCardProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [prices, setPrices] = useState<Price[]>(event.resolvedPrices);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
 
@@ -399,12 +406,8 @@ export function EventCard({ event, onPricesChanged }: EventCardProps) {
   const eventId = match ? Number(match[1]) : undefined;
 
   function handlePriceUpdate(_priceUrl: string, updated: Price) {
-    setPrices((prev) =>
-      prev.map((p) => (p.id_url === updated.id_url ? updated : p))
-    );
-    const updatedList = prices.map((p) =>
-      p.id_url === updated.id_url ? updated : p
-    );
+    setPrices((prev) => prev.map((p) => (p.id_url === updated.id_url ? updated : p)));
+    const updatedList = prices.map((p) => (p.id_url === updated.id_url ? updated : p));
     onPricesChanged?.(event.id_url, updatedList);
   }
 
@@ -434,7 +437,7 @@ export function EventCard({ event, onPricesChanged }: EventCardProps) {
         />
 
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
-          <div className="grid gap-3 text-sm sm:grid-cols-2 items-start">
+          <div className="grid items-start gap-3 text-sm sm:grid-cols-2">
             <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
             {hasPrices ? (
               <div className="flex flex-col gap-2">
@@ -482,7 +485,7 @@ export function EventCard({ event, onPricesChanged }: EventCardProps) {
                     <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
                       <button
                         onClick={() => setIsAddingPrice(true)}
-                        className="shrink-0 text-[0.62rem] tracking-[0.14em] uppercase text-archive-accent opacity-70 transition hover:opacity-100"
+                        className="text-archive-accent shrink-0 text-[0.62rem] tracking-[0.14em] uppercase opacity-70 transition hover:opacity-100"
                       >
                         + {t("productionPage.price.addLabel")}
                       </button>

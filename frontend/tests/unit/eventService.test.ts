@@ -276,9 +276,7 @@ describe("eventService", () => {
         updated_at: "2026-03-21T10:00:00",
       };
 
-      mockAdapter
-        .onPatch("/api/v1/archive/events/1/prices/1")
-        .reply(200, mockResponse);
+      mockAdapter.onPatch("/api/v1/archive/events/1/prices/1").reply(200, mockResponse);
 
       const result = await updatePrice(1, 1, priceData);
 
@@ -298,9 +296,7 @@ describe("eventService", () => {
         updated_at: "2026-03-21T10:00:00",
       };
 
-      mockAdapter
-        .onPatch("/api/v1/archive/events/1/prices/1")
-        .reply(200, mockResponse);
+      mockAdapter.onPatch("/api/v1/archive/events/1/prices/1").reply(200, mockResponse);
 
       const result = await updatePrice(1, 1, priceData);
 

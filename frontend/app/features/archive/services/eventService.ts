@@ -64,10 +64,7 @@ export async function updatePrice(
   priceId: number,
   priceData: PriceUpdate
 ): Promise<Price> {
-  return patchToArchive<Price>(
-    `${ENDPOINT}/${eventId}/prices/${priceId}`,
-    priceData
-  );
+  return patchToArchive<Price>(`${ENDPOINT}/${eventId}/prices/${priceId}`, priceData);
 }
 
 export async function updatePriceByUrl(
