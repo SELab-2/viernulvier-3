@@ -49,7 +49,7 @@ export default function HistoryPage() {
       }
     }
 
-    fetchHistoryEntries();
+    void fetchHistoryEntries();
 
     return () => {
       isActive = false;

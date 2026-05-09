@@ -1,4 +1,5 @@
 {
+  "loading": "Loading...",
   "nav": {
     "home": "Home",
     "archive": "Archive",
@@ -83,7 +84,10 @@
       "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",
-      "artist": "Artist"
+      "artist": "Artist",
+      "description": "Description",
+      "teaser": "Teaser",
+      "info": "Info"
     },
     "delete": {
       "delete": "Delete",
@@ -230,7 +234,9 @@
       "permissions": "Permissions"
     },
     "form": {
-      "passwordCreateHint": "New users need a password before the account can be created."
+      "passwordCreateHint": "New users need a password before the account can be created.",
+      "rolesHint": "Choose any roles that should be assigned as soon as the account is created.",
+      "rolesEmptyHint": "No roles exist yet. Create a role first if this account needs one immediately."
     },
     "actions": {
       "retry": "Retry",
@@ -259,7 +265,7 @@
     "dialogs": {
       "create": {
         "title": "Add user",
-        "description": "Create a basic account with a username and password. Roles can be assigned later."
+        "description": "Create an account with a username, password, and any initial roles."
       },
       "delete": {
         "title": "Delete user",
