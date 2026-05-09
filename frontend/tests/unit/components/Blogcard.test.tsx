@@ -5,14 +5,22 @@ import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
 import * as productionService from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock("react-i18next", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-i18next")>();
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
 
 vi.mock("~/features/archive/services/productionService", () => ({
   getProductionByUrl: vi.fn(),
+}));
+
+vi.mock("~/features/blogs/services/mediaService", () => ({
+  getMediaForBlog: vi.fn().mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
 }));
 
 const mockBlogContentEN: BlogContent = {
