@@ -14,13 +14,15 @@ import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventS
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
-import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
+
+import DeleteInfoButton from "../components/DeleteInfoButton";
+import EditButton from "../components/EditButton";
+import ProductionHeader from "../components/ProductionHeader";
 
 interface ProductionPageProps {
   production: Production;
@@ -92,13 +94,6 @@ function getTagNamesByLanguage(production: Production, language: string): string
       return defaultMatch?.name ?? tag.names[0]?.name;
     })
     .filter((name): name is string => typeof name === "string" && name.length > 0);
-}
-
-function isFieldModified(
-  original: string | undefined,
-  draft: string | undefined
-): boolean {
-  return (original ?? "") !== (draft ?? "");
 }
 
 function isInfoModified(
@@ -178,24 +173,6 @@ function useUnsavedChangesBlocker(when: boolean) {
   }, [blocker]);
 }
 
-async function handleInfoDelete(
-  production_id_url: string,
-  language: string,
-  confirmeMessage: string,
-  errorMessage: string
-) {
-  const confirmed = window.confirm(confirmeMessage);
-  if (!confirmed) return;
-  try {
-    await updateProductionByUrl(production_id_url, {
-      remove_languages: [language],
-    });
-    window.location.reload();
-  } catch {
-    window.alert(errorMessage);
-  }
-}
-
 function BackToCollectionLink() {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -207,159 +184,6 @@ function BackToCollectionLink() {
     >
       {t("productionPage.backToCollection")}
     </Link>
-  );
-}
-
-type SimpleEditableFieldProps = {
-  label: string;
-  value: string;
-  isEditing: boolean;
-  onChange: (value: string) => void;
-  renderView: (value: string) => React.ReactNode;
-  isModified: boolean;
-};
-// <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-// </Protected>
-function SimpleEditableField({
-  label,
-  value,
-  isEditing,
-  onChange,
-  renderView,
-  isModified,
-}: SimpleEditableFieldProps) {
-  const normal_view = <>{renderView(value)}</>;
-  const { t } = useTranslation();
-
-  if (isEditing) {
-    return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
-        <div
-          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-2 backdrop-blur-md transition md:p-4 ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
-        >
-          <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-              {label}
-            </h3>
-
-            {isModified && (
-              <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
-                {t("productionPage.edit.modified")}
-              </span>
-            )}
-          </div>
-
-          {/* Input */}
-          <input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none`}
-          />
-        </div>
-      </Protected>
-    );
-  }
-
-  return normal_view;
-}
-
-type ProductionHeaderProps = {
-  production_info: ProductionInfo | null;
-  image_url: string;
-  isEditing: boolean;
-  originalInfo: ProductionInfo | null;
-  draftInfo: ProductionInfo | null;
-  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-};
-
-/* ProductionHeader contains main image, supertitle, title and artist */
-function ProductionHeader({
-  production_info,
-  image_url,
-  isEditing,
-  originalInfo,
-  draftInfo,
-  setDraftInfo,
-}: ProductionHeaderProps) {
-  const { t } = useTranslation();
-
-  return (
-    <section
-      id="production-header"
-      className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
-    >
-      <img
-        src={image_url}
-        alt={production_info?.title}
-        className="h-[280px] w-full object-cover object-center md:h-[360px]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-4 left-7 md:right-12 md:bottom-10 md:left-12">
-        <SimpleEditableField
-          label={t("productionPage.edit.supertitle")}
-          value={draftInfo?.supertitle ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.supertitle, draftInfo?.supertitle)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              // Overwrite supertitle
-              if (prev) return { ...prev, supertitle: newValue };
-              // !prev => prev ~= null => simple not initialised yet
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <p
-              id="supertitle"
-              className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.archive"))}
-            </p>
-          )}
-        />
-        <SimpleEditableField
-          label={t("productionPage.edit.title")}
-          value={draftInfo?.title ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.title, draftInfo?.title)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              // Overwrite title
-              if (prev) return { ...prev, title: newValue };
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <h1
-              id="title"
-              className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
-            </h1>
-          )}
-        />
-        <SimpleEditableField
-          label={t("productionPage.edit.artist")}
-          value={draftInfo?.artist ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.artist, draftInfo?.artist)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              if (prev) return { ...prev, artist: newValue };
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <p
-              id="artist"
-              className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
-            </p>
-          )}
-        />
-      </div>
-    </section>
   );
 }
 
@@ -423,121 +247,6 @@ function Events({ event_objects }: EventsProps) {
       </div>
     );
   }
-}
-
-const Spinner = () => (
-  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-);
-
-type EditButtonProps = {
-  action: string;
-  isEditing: boolean;
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  originalInfo: ProductionInfo | null;
-  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-  enable_save: boolean;
-  is_saving: boolean;
-  _handleSave: () => Promise<void>;
-};
-
-function EditButton({
-  action,
-  isEditing,
-  setIsEditing,
-  originalInfo,
-  setDraftInfo,
-  enable_save,
-  is_saving,
-  _handleSave,
-}: EditButtonProps) {
-  const { t } = useTranslation();
-  const shared_css = `
-	shadow-lg
-	hover:bg-archive-control-hover
-	rounded-full
-	cursor-pointer
-	transition-colors
-	duration-150
-	text-archive-ink
-	inline-flex
-	px-6 py-3
-	font-semibold text-white
-  `;
-  return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-      {!isEditing ? (
-        <button
-          id="edit-production-button"
-          onClick={() => setIsEditing(true)}
-          className={`${shared_css} bg-archive-accent`}
-        >
-          {action}
-        </button>
-      ) : (
-        <div id="edit-actions" className="flex gap-3">
-          <button
-            id="cancel-edit-production-button"
-            onClick={() => {
-              // Copy (not by reference)
-              setDraftInfo(originalInfo ? { ...originalInfo } : null);
-              setIsEditing(false);
-            }}
-            className={`${shared_css} bg-gray-300`}
-          >
-            {t("productionPage.edit.cancel")}
-          </button>
-
-          <button
-            id="save-edit-production-button"
-            onClick={_handleSave}
-            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
-            disabled={!enable_save || is_saving}
-          >
-            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
-          </button>
-        </div>
-      )}
-    </Protected>
-  );
-}
-
-type DeleteInfoButtonProps = {
-  production_id_url: string;
-  language: string;
-};
-
-function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps) {
-  const { t } = useTranslation();
-  const shared_css = `
-    shadow-lg
-    hover:bg-archive-control-hover
-    rounded-full
-    cursor-pointer
-    transition-colors
-    duration-150
-    text-archive-ink
-    inline-flex
-    px-6 py-3
-    font-semibold text-white
-    `;
-  return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-      <button
-        id="delete-production-button"
-        onClick={() =>
-          handleInfoDelete(
-            production_id_url,
-            language,
-            t("productionPage.delete.confirm"),
-            t("productionPage.delete.error")
-          )
-        }
-        className={`${shared_css} bg-archive-accent`}
-      >
-        {t("productionPage.delete.delete")}
-      </button>
-    </Protected>
-  );
 }
 
 export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
