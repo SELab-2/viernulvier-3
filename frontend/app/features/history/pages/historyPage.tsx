@@ -49,12 +49,12 @@ export default function HistoryPage() {
       }
     }
 
-    fetchHistoryEntries();
+    void fetchHistoryEntries();
 
     return () => {
       isActive = false;
     };
-  }, [i18n.resolvedLanguage]);
+  }, [i18n.resolvedLanguage, t]);
 
   async function handleUpdate(payload: {
     entryYear: number;
