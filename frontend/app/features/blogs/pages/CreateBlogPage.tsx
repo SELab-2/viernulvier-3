@@ -2,10 +2,9 @@ import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
 import SearchIcon from "@mui/icons-material/Search";
-import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined";
+import PermMediaOutlinedIcon from "@mui/icons-material/PermMediaOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import IconButton from "@mui/material/IconButton";
@@ -20,23 +19,28 @@ function BackToArchiveLink() {
       to={lp("/archive")}
       className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
     >
-      {t("createBlogPage.backToArchive")}
+      {t("blogs.createBlogPage.backToBlogs")}
     </Link>
   );
 }
 
-function ImageUploadWidget() {
+type MediaPreview = { src: string; isVideo: boolean };
+
+function MediaUploadWidget() {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<MediaPreview[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
-    const urls = Array.from(files)
-      .filter((f) => f.type.startsWith("image/"))
-      .map((f) => URL.createObjectURL(f));
-    setPreviews((prev) => [...prev, ...urls]);
+    const newPreviews = Array.from(files)
+      .filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"))
+      .map((f) => ({
+        src: URL.createObjectURL(f),
+        isVideo: f.type.startsWith("video/"),
+      }));
+    setPreviews((prev) => [...prev, ...newPreviews]);
   }
 
   function removePreview(index: number) {
@@ -47,7 +51,7 @@ function ImageUploadWidget() {
     <div className="mt-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-          {t("createBlogPage.images")}
+          {t("blogs.createBlogPage.media.title")}
         </h3>
       </div>
 
@@ -68,23 +72,23 @@ function ImageUploadWidget() {
             : "border-archive-ink/15 dark:border-archive-paper/15 hover:border-archive-accent/60 bg-archive-ink/3 dark:bg-archive-paper/3"}
         `}
       >
-        <InsertPhotoOutlinedIcon
+        <PermMediaOutlinedIcon
           className="text-archive-ink/40 dark:text-archive-paper/40"
           style={{ fontSize: 36 }}
         />
         <p className="text-archive-ink/60 dark:text-archive-paper/60 text-center text-sm leading-snug">
-          {t("createBlogPage.dropImages")}{" "}
+          {t("blogs.createBlogPage.media.dropMedia")}{" "}
           <span className="text-archive-accent font-semibold underline">
-            {t("createBlogPage.browse")}
+            {t("blogs.createBlogPage.media.browse")}
           </span>
         </p>
         <p className="text-archive-ink/35 dark:text-archive-paper/35 text-xs">
-		  {t("createBlogPage.acceptedImageFormats")}
+          {t("blogs.createBlogPage.media.acceptedFileFormats")}
         </p>
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
@@ -93,14 +97,23 @@ function ImageUploadWidget() {
 
       {previews.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-          {previews.map((src, i) => (
-            <div key={i} className="relative aspect-square overflow-hidden rounded-xl">
-              <img
-                src={src}
-                alt=""
-                className="h-full w-full object-cover transition hover:scale-105"
-              />
-              <Tooltip title={t("createBlogPage.remove")}>
+          {previews.map((item, i) => (
+            <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-black">
+              {item.isVideo ? (
+                <video
+                  src={item.src}
+                  className="h-full w-full object-cover"
+                  muted
+                  preload="metadata"
+                />
+              ) : (
+                <img
+                  src={item.src}
+                  alt=""
+                  className="h-full w-full object-cover transition hover:scale-105"
+                />
+              )}
+              <Tooltip title={t("blogs.createBlogPage.remove")}>
                 <IconButton
                   size="small"
                   onClick={(e) => { e.stopPropagation(); removePreview(i); }}
@@ -125,7 +138,7 @@ function SeriesSearchBar() {
     <div className="mt-2">
       <div className="mb-2">
         <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-          {t("createBlogPage.tags")}
+          {t("blogs.createBlogPage.series.title")}
         </h3>
       </div>
 
@@ -138,7 +151,7 @@ function SeriesSearchBar() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("createBlogPage.searchTags")}
+          placeholder={t("blogs.createBlogPage.series.searchSeries")}
           className={`
             bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10
             focus:ring-archive-accent/40 focus:border-archive-accent
@@ -171,10 +184,15 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 export function CreateBlogPage() {
   const { t } = useTranslation();
   const [isSaving, setIsSaving] = useState(false);
+  const [title, setTitle] = useState("");
   const [contentHtml, setContentHtml] = useState("");
   const [isEditing, setIsEditing] = useState(true);
 
+  const isTitleEmpty = title.trim() === "";
+  const canSave = !isTitleEmpty && !isSaving;
+
   function handleSave() {
+    if (!canSave) return;
     setIsSaving(true);
     setTimeout(() => setIsSaving(false), 1500);
   }
@@ -189,32 +207,40 @@ export function CreateBlogPage() {
       )}
 
       <main className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-6 pt-10 pb-24 md:px-12">
-
         <BackToArchiveLink />
 
         <div className="mb-2">
-          <p className="text-[0.68rem] tracking-[0.24em] uppercase opacity-50">
-            {t("createBlogPage.new")}
-          </p>
           <h1 className="font-serif text-3xl font-light tracking-tight md:text-4xl">
-            {t("createBlogPage.heading")}
+            {t("blogs.createBlogPage.heading")}
           </h1>
         </div>
 
         <SectionCard>
           <h3 className="text-archive-ink/70 dark:text-archive-paper/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
-            {t("createBlogPage.title")}
+            {t("blogs.createBlogPage.title.title")}
+            <span className="ml-1 text-red-500" aria-hidden="true">*</span>
           </h3>
-          <ArchiveTextField label={t("createBlogPage.titlePlaceholder")} />
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t("blogs.createBlogPage.title.placeholder")}
+            className={`
+              bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10
+              focus:ring-archive-accent/40 focus:border-archive-accent
+              w-full rounded-lg border px-3 py-2 text-sm
+              focus:ring-4 focus:outline-none transition
+            `}
+          />
         </SectionCard>
 
         <SectionCard>
           <h3 className="text-archive-ink/70 dark:text-archive-paper/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
-            {t("createBlogPage.content")}
+            {t("blogs.createBlogPage.content.title")}
           </h3>
           <ComplexEditableField
             id="content"
-            field="content"
+            field={t("blogs.createBlogPage.content.field")}
             html={contentHtml}
             isEditing={isEditing}
             onStartEdit={() => setIsEditing(true)}
@@ -223,13 +249,12 @@ export function CreateBlogPage() {
               setIsEditing(false);
             }}
             onCancel={() => setIsEditing(false)}
-			fallback={<p className="opacity-75">{t("createBlogPage.fallback")}</p>}
             canEdit={true}
           />
         </SectionCard>
 
         <SectionCard>
-          <ImageUploadWidget />
+          <MediaUploadWidget />
         </SectionCard>
 
         <SectionCard>
@@ -238,22 +263,24 @@ export function CreateBlogPage() {
       </main>
 
       <div className="fixed right-6 bottom-6 z-50">
-        <Tooltip title={t("createBlogPage.save", "Save post")}>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className={`
-              bg-archive-accent text-archive-paper
-              flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold
-              shadow-lg transition hover:opacity-90 active:scale-95
-              disabled:opacity-50 disabled:cursor-not-allowed
-            `}
-          >
-            <SaveOutlinedIcon style={{ fontSize: 18 }} />
-            {isSaving
-              ? t("createBlogPage.saving", "Saving…")
-              : t("createBlogPage.save", "Save post")}
-          </button>
+        <Tooltip title={isTitleEmpty ? t("blogs.createBlogPage.save.saveDisabledReason") : ""}>
+          <span>
+            <button
+              onClick={handleSave}
+              disabled={!canSave}
+              className={`
+                bg-archive-accent text-archive-paper
+                flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold
+                shadow-lg transition hover:opacity-90 active:scale-95
+                disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
+              `}
+            >
+              <SaveOutlinedIcon style={{ fontSize: 18 }} />
+              {isSaving
+                ? t("blogs.createBlogPage.save.saving")
+                : t("blogs.createBlogPage.save.save")}
+            </button>
+          </span>
         </Tooltip>
       </div>
     </div>
@@ -267,13 +294,13 @@ export function CreateBlogAccessDenied() {
     <section className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
       <div className="border-archive-border bg-archive-surface rounded-[2rem] border p-8 shadow-[0_20px_70px_rgba(45,40,37,0.05)]">
         <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-          {t("blogs.accessDenied.eyebrow")}
+          {t("blogs.createBlogPage.accessDenied.eyebrow")}
         </p>
         <h1 className="mt-3 font-serif text-4xl italic md:text-5xl">
-          {t("blogs.accessDenied.title")}
+          {t("blogs.createBlogPage.accessDenied.title")}
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed opacity-70">
-          {t("blogs.accessDenied.description")}
+          {t("blogs.createBlogPage.accessDenied.description")}
         </p>
       </div>
     </section>
