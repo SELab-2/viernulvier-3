@@ -1,4 +1,5 @@
 {
+  "loading": "Laden...",
   "nav": {
     "home": "Home",
     "archive": "Archief",
@@ -91,7 +92,10 @@
       "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",
-      "artist": "Artiest"
+      "artist": "Artiest",
+      "description": "Beschrijving",
+      "teaser": "Teaser",
+      "info": "Info"
     },
     "delete": {
       "delete": "Verwijder",

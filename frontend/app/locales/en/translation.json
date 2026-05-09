@@ -1,4 +1,5 @@
 {
+  "loading": "Loading...",
   "nav": {
     "home": "Home",
     "archive": "Archive",
@@ -93,7 +94,10 @@
       "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",
-      "artist": "Artist"
+      "artist": "Artist",
+      "description": "Description",
+      "teaser": "Teaser",
+      "info": "Info"
     },
     "delete": {
       "delete": "Delete",

@@ -79,7 +79,7 @@ function MonthDisplay({
   return (
     <div>
       {/* Sticky month */}
-      {month != -1 ? (
+      {month !== -1 ? (
         <div className="bg-archive-paper/80 sticky top-20 z-30 mb-3 flex min-h-14 items-center gap-3 overflow-visible backdrop-blur-[14px]">
           <div className="upper text-[14px] font-bold tracking-[0.28em] uppercase opacity-25">
             {month === -1 ? t("Unknown") : getLongMonthName(month, language)}

@@ -17,6 +17,7 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
+import { ProductionInfoSection } from "../components/ProductionInfoSection";
 
 interface ProductionPageProps {
   production: Production;
@@ -217,7 +218,7 @@ type SimpleEditableFieldProps = {
 };
 // <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
 // </Protected>
-export function SimpleEditableField({
+function SimpleEditableField({
   label,
   value,
   isEditing,
@@ -591,65 +592,6 @@ function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps
   );
 }
 
-type ProductionInfoSectionProps = {
-  prodinfo_available: boolean;
-  tagline: string;
-  teaserHtml: string | undefined;
-  descriptionHtml: string | undefined;
-  infoHtml: string | undefined;
-};
-
-function ProductionInfoSection({
-  prodinfo_available,
-  tagline,
-  teaserHtml,
-  descriptionHtml,
-  infoHtml,
-}: ProductionInfoSectionProps) {
-  const { t } = useTranslation();
-
-  if (!prodinfo_available) {
-    return (
-      <p id="no-prodinfo" className="opacity-75">
-        {t("productionPage.infoNotAvailable")}
-      </p>
-    );
-  }
-  return (
-    <>
-      {tagline && <p id="tagline">{tagline}</p>}
-
-      {teaserHtml && (
-        <div
-          id="teaser"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: teaserHtml }}
-        />
-      )}
-
-      {descriptionHtml && (
-        <div
-          id="description"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-        />
-      )}
-
-      {infoHtml ? (
-        <div
-          id="info"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: infoHtml }}
-        />
-      ) : (
-        <p id="info" className="opacity-75">
-          {t("productionPage.fallback.noInfo")}
-        </p>
-      )}
-    </>
-  );
-}
-
 export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
   const { lang } = useParams();
@@ -722,9 +664,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     t("productionPage.fallback.unknownProduction")
   );
   const tagline = getTextOrDefault(productionInfo?.tagline, "");
-  const teaserHtml = getSanitizedHtmlOrUndefined(productionInfo?.teaser);
-  const descriptionHtml = getSanitizedHtmlOrUndefined(productionInfo?.description);
-  const infoHtml = getSanitizedHtmlOrUndefined(productionInfo?.info);
+  const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
   const fallbackImageUrl =
@@ -858,6 +800,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}
+              isEditing={isEditing}
+              onSave={(field, html) => {
+                const isEmpty = html === "<p><br></p>" || html === "";
+                setDraftInfo((prev) =>
+                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                );
+              }}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
