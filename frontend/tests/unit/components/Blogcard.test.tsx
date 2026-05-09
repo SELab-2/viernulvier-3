@@ -20,7 +20,9 @@ vi.mock("~/features/archive/services/productionService", () => ({
 }));
 
 vi.mock("~/features/blogs/services/mediaService", () => ({
-  getMediaForBlog: vi.fn().mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
+  getMediaForBlog: vi
+    .fn()
+    .mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
 }));
 
 const mockBlogContentEN: BlogContent = {
