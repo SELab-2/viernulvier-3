@@ -60,6 +60,7 @@
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"
     },
@@ -68,6 +69,7 @@
     "backToCollection": "Terug naar de collectie",
     "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
@@ -190,6 +192,10 @@
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
 

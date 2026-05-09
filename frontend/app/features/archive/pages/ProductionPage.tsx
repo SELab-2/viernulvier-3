@@ -8,6 +8,7 @@ import type {
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { Blog } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
@@ -17,6 +18,8 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
+import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 
 interface ProductionPageProps {
@@ -606,6 +609,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
+  const [linkedBlogs, setLinkedBlogs] = useState<Blog[]>([]);
 
   // States for editing the production info shown
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -773,6 +777,30 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
+  // Load linked blogs for this production
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadLinkedBlogs = async () => {
+      try {
+        const blogs = await getBlogsForProduction(production.id_url);
+        if (!isCancelled) {
+          setLinkedBlogs(blogs ?? []);
+        }
+      } catch {
+        if (!isCancelled) {
+          setLinkedBlogs([]);
+        }
+      }
+    };
+
+    void loadLinkedBlogs();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [production.id_url]);
+
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
@@ -816,6 +844,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
               <Events event_objects={eventObjects} />
             </section>
+
+            {linkedBlogs.length > 0 && (
+              <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">
+                <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+                  {t("productionPage.linkedBlogs")}
+                </h2>
+
+                <BlogCardList
+                  blogs={linkedBlogs}
+                  prefferedLanguage={language}
+                  compactCards
+                />
+              </section>
+            )}
           </article>
         </section>
 
