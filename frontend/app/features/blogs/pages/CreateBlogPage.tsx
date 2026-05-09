@@ -56,7 +56,10 @@ function MediaUploadWidget() {
       </div>
 
       <div
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={(e) => {
           e.preventDefault();
@@ -64,13 +67,11 @@ function MediaUploadWidget() {
           handleFiles(e.dataTransfer.files);
         }}
         onClick={() => fileInputRef.current?.click()}
-        className={`
-          flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed
-          px-6 py-8 transition
-          ${isDragging
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 transition ${
+          isDragging
             ? "border-archive-accent bg-archive-accent/10"
-            : "border-archive-ink/15 dark:border-archive-paper/15 hover:border-archive-accent/60 bg-archive-ink/3 dark:bg-archive-paper/3"}
-        `}
+            : "border-archive-ink/15 dark:border-archive-paper/15 hover:border-archive-accent/60 bg-archive-ink/3 dark:bg-archive-paper/3"
+        } `}
       >
         <PermMediaOutlinedIcon
           className="text-archive-ink/40 dark:text-archive-paper/40"
@@ -98,7 +99,10 @@ function MediaUploadWidget() {
       {previews.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
           {previews.map((item, i) => (
-            <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-black">
+            <div
+              key={i}
+              className="relative aspect-square overflow-hidden rounded-xl bg-black"
+            >
               {item.isVideo ? (
                 <video
                   src={item.src}
@@ -116,8 +120,11 @@ function MediaUploadWidget() {
               <Tooltip title={t("blogs.createBlogPage.remove")}>
                 <IconButton
                   size="small"
-                  onClick={(e) => { e.stopPropagation(); removePreview(i); }}
-                  className="!absolute !right-1 !top-1 !bg-black/50 !text-white hover:!bg-black/70"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removePreview(i);
+                  }}
+                  className="!absolute !top-1 !right-1 !bg-black/50 !text-white hover:!bg-black/70"
                 >
                   <CloseIcon style={{ fontSize: 14 }} />
                 </IconButton>
@@ -152,12 +159,7 @@ function SeriesSearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("blogs.createBlogPage.series.searchSeries")}
-          className={`
-            bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10
-            focus:ring-archive-accent/40 focus:border-archive-accent
-            w-full rounded-lg border py-2 pl-9 pr-4 text-sm
-            focus:ring-4 focus:outline-none transition
-          `}
+          className={`bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition focus:ring-4 focus:outline-none`}
         />
         {query && (
           <IconButton
@@ -175,7 +177,7 @@ function SeriesSearchBar() {
 
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-archive-ink/5 rounded-2xl border border-archive-ink/5 p-4 backdrop-blur-md transition md:p-6">
+    <div className="bg-archive-ink/5 border-archive-ink/5 rounded-2xl border p-4 backdrop-blur-md transition md:p-6">
       {children}
     </div>
   );
@@ -189,7 +191,13 @@ export function CreateBlogPage() {
   const [isEditing, setIsEditing] = useState(true);
 
   const isTitleEmpty = title.trim() === "";
-  const canSave = !isTitleEmpty && !isSaving;
+  const canSave = !isTitleEmpty && !isEditing && !isSaving;
+
+  const saveTooltip = isTitleEmpty
+    ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
+    : isEditing
+      ? t("blogs.createBlogPage.save.saveDisabledReasonEditing")
+      : "";
 
   function handleSave() {
     if (!canSave) return;
@@ -218,19 +226,16 @@ export function CreateBlogPage() {
         <SectionCard>
           <h3 className="text-archive-ink/70 dark:text-archive-paper/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
             {t("blogs.createBlogPage.title.title")}
-            <span className="ml-1 text-red-500" aria-hidden="true">*</span>
+            <span className="ml-1 text-red-500" aria-hidden="true">
+              *
+            </span>
           </h3>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t("blogs.createBlogPage.title.placeholder")}
-            className={`
-              bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10
-              focus:ring-archive-accent/40 focus:border-archive-accent
-              w-full rounded-lg border px-3 py-2 text-sm
-              focus:ring-4 focus:outline-none transition
-            `}
+            className={`bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm transition focus:ring-4 focus:outline-none`}
           />
         </SectionCard>
 
@@ -263,17 +268,12 @@ export function CreateBlogPage() {
       </main>
 
       <div className="fixed right-6 bottom-6 z-50">
-        <Tooltip title={isTitleEmpty ? t("blogs.createBlogPage.save.saveDisabledReason") : ""}>
+        <Tooltip title={saveTooltip}>
           <span>
             <button
               onClick={handleSave}
               disabled={!canSave}
-              className={`
-                bg-archive-accent text-archive-paper
-                flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold
-                shadow-lg transition hover:opacity-90 active:scale-95
-                disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
-              `}
+              className={`bg-archive-accent text-archive-paper flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none`}
             >
               <SaveOutlinedIcon style={{ fontSize: 18 }} />
               {isSaving

@@ -20,12 +20,12 @@ export default function BlogPage() {
   }, []);
 
   const openCreateBlogPage = () => {
-	 navigate(lp("/blogs/create"));
+    navigate(lp("/blogs/create"));
   };
 
   return (
     <div>
-      <CreateBlogButton onClick={openCreateBlogPage}/>
+      <CreateBlogButton onClick={openCreateBlogPage} />
       <BlogCardList blogs={blogs} />
     </div>
   );
