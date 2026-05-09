@@ -38,10 +38,13 @@ const archiveRichTextFieldSx: SxProps<Theme> = {
     fontSize: "0.875rem",
     color: "var(--archive-ink)",
     minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-editor": {
     padding: "0.75rem",
+    minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-toolbar button": {
