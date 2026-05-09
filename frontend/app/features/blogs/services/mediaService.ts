@@ -1,10 +1,6 @@
 import type { IdPaginationRequest } from "~/features/archive/types/paginationTypes";
 import { createApiClient } from "~/shared/services/apiClient";
-import {
-  deleteFromArchive,
-  getFromArchive,
-  postToArchive,
-} from "~/shared/services/sharedService";
+import { deleteFromArchive } from "~/shared/services/sharedService";
 import type { MediaListResponse, MediaResponse } from "../types/mediaTypes";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
