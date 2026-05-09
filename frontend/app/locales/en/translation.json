@@ -98,6 +98,18 @@
     },
     "add": {
       "add": "Add production info"
+    },
+    "price": {
+      "edit": "Edit",
+      "deleteLabel": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this price?",
+      "deleteError": "Could not delete the price.",
+      "saveError": "Could not save the price.",
+      "createError": "Could not create the price.",
+      "addLabel": "Add price",
+      "amountLabel": "Amount",
+      "availableLabel": "Available",
+      "available": "available"
     }
   },
 

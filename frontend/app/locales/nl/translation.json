@@ -96,6 +96,18 @@
     },
     "add": {
       "add": "Voeg productie-informatie toe"
+    },
+    "price": {
+      "edit": "Bewerk",
+      "deleteLabel": "Verwijder",
+      "deleteConfirm": "Weet je zeker dat je deze prijs wilt verwijderen?",
+      "deleteError": "Kon de prijs niet verwijderen.",
+      "saveError": "Kon de prijs niet opslaan.",
+      "createError": "Kon de prijs niet aanmaken.",
+      "addLabel": "Prijs toevoegen",
+      "amountLabel": "Bedrag",
+      "availableLabel": "Beschikbaar",
+      "available": "beschikbaar"
     }
   },
 

@@ -426,8 +426,9 @@ function Tags({ performer_type, tags }: TagsProps) {
 
 type EventsProps = {
   event_objects: EventWithResolvedRelations[];
+  onPricesChanged: (eventId: string, prices: Price[]) => void;
 };
-function Events({ event_objects }: EventsProps) {
+function Events({ event_objects, onPricesChanged }: EventsProps) {
   const { t } = useTranslation();
 
   if (event_objects.length > 0) {
@@ -435,7 +436,11 @@ function Events({ event_objects }: EventsProps) {
       <div id="events-listing">
         <ul className="mt-6 space-y-2.5">
           {event_objects.map((event) => (
-            <EventCard event={event} key={event.id_url} />
+            <EventCard
+              event={event}
+              key={event.id_url}
+              onPricesChanged={onPricesChanged}
+            />
           ))}
         </ul>
       </div>
@@ -843,7 +848,18 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 {t("productionPage.archiveSchema")}
               </h2>
 
-              <Events event_objects={eventObjects} />
+              <Events
+                event_objects={eventObjects}
+                onPricesChanged={(eventId, updatedPrices) => {
+                  setEventsWithDetails((prev) =>
+                    prev.map((e) =>
+                      e.id_url === eventId
+                        ? { ...e, resolvedPrices: updatedPrices }
+                        : e
+                    )
+                  );
+                }}
+              />
             </section>
 
             {linkedBlogs.length > 0 && (
