@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
+import { getMediaForBlog } from "../services/mediaService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import DOMPurify from "dompurify";
@@ -113,6 +114,7 @@ interface BlogCardProps {
 
 export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
 
   const { t } = useTranslation();
   const { lang } = useParams();
@@ -122,7 +124,6 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
 
   const title = blog_content.title;
   const content = blog_content.content;
-  const imageUrl = DEFAULT_IMAGE;
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);
 
@@ -133,6 +134,22 @@ export function BlogCard({ blog, preferredLanguage, className }: BlogCardProps) 
     }
     fetchProductionTitles();
   }, [blog, language]);
+
+  useEffect(() => {
+    async function fetchBlogImage() {
+      const blogId = Number(blog.id_url.split("/").pop());
+      if (!blogId) return;
+      try {
+        const response = await getMediaForBlog(blogId, { limit: 1 }, language);
+        if (response.media.length > 0) {
+          setImageUrl(response.media[0].url);
+        }
+      } catch {
+        // keep default image on error
+      }
+    }
+    fetchBlogImage();
+  }, [blog.id_url, language]);
 
   return (
     <Card
