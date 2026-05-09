@@ -383,8 +383,10 @@ export function BlogCardList({
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
+        display: "grid",
+        gridTemplateColumns: compactCards
+          ? { xs: "1fr", md: "1fr 1fr" }
+          : "1fr",
         gap: compactCards ? 1 : 2.5,
         width: "100%",
       }}
