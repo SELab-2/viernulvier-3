@@ -10,7 +10,7 @@ import type {
   Production,
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
-import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGellery";
+import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],

@@ -10,7 +10,7 @@ vi.mock("~/features/archive/services/productionService", () => ({
   getProductionByUrl: vi.fn(),
 }));
 
-vi.mock("~/features/blogs/components/BlogPageMediaGellery", () => ({
+vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
   BlogPageMediaGallery: ({ title }: { title: string }) => (
     <div data-testid="blog-media-gallery">Mock gallery for {title}</div>
   ),
