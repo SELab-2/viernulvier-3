@@ -313,7 +313,7 @@ function test_cmd() {
 		case "$mode" in
 			normal)
 				# Run in (subshell) so that the 'cd' does not persist
-				(run cd backend && run pytest)
+				(run cd backend && run pytest -n 10)
 				;;
 			coverage)
 				(
