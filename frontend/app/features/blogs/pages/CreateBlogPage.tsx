@@ -4,7 +4,6 @@ import { Link } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
-
 import SearchIcon from "@mui/icons-material/Search";
 import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,7 +20,7 @@ function BackToArchiveLink() {
       to={lp("/archive")}
       className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
     >
-      ← {t("createBlogPage.backToArchive", "Back to collection")}
+      {t("createBlogPage.backToArchive")}
     </Link>
   );
 }
@@ -48,7 +47,7 @@ function ImageUploadWidget() {
     <div className="mt-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-          {t("createBlogPage.images", "Images")}
+          {t("createBlogPage.images")}
         </h3>
       </div>
 
@@ -74,13 +73,13 @@ function ImageUploadWidget() {
           style={{ fontSize: 36 }}
         />
         <p className="text-archive-ink/60 dark:text-archive-paper/60 text-center text-sm leading-snug">
-          {t("createBlogPage.dropImages", "Drag & drop images here, or")}{" "}
+          {t("createBlogPage.dropImages")}{" "}
           <span className="text-archive-accent font-semibold underline">
-            {t("createBlogPage.browse", "browse")}
+            {t("createBlogPage.browse")}
           </span>
         </p>
         <p className="text-archive-ink/35 dark:text-archive-paper/35 text-xs">
-          PNG, JPG, WEBP — max 10 MB each
+		  {t("createBlogPage.acceptedImageFormats")}
         </p>
         <input
           ref={fileInputRef}
@@ -101,7 +100,7 @@ function ImageUploadWidget() {
                 alt=""
                 className="h-full w-full object-cover transition hover:scale-105"
               />
-              <Tooltip title={t("createBlogPage.remove", "Remove")}>
+              <Tooltip title={t("createBlogPage.remove")}>
                 <IconButton
                   size="small"
                   onClick={(e) => { e.stopPropagation(); removePreview(i); }}
@@ -126,7 +125,7 @@ function SeriesSearchBar() {
     <div className="mt-2">
       <div className="mb-2">
         <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-          {t("createBlogPage.tags", "Tags")}
+          {t("createBlogPage.tags")}
         </h3>
       </div>
 
@@ -139,7 +138,7 @@ function SeriesSearchBar() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("createBlogPage.searchTags", "Search tags…")}
+          placeholder={t("createBlogPage.searchTags")}
           className={`
             bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10
             focus:ring-archive-accent/40 focus:border-archive-accent
@@ -163,7 +162,7 @@ function SeriesSearchBar() {
 
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-archive-ink/50 dark:bg-archive-ink-dark/60 rounded-2xl border border-archive-ink/5 dark:border-archive-paper/5 p-4 backdrop-blur-md transition md:p-6">
+    <div className="bg-archive-ink/5 rounded-2xl border border-archive-ink/5 p-4 backdrop-blur-md transition md:p-6">
       {children}
     </div>
   );
@@ -173,7 +172,7 @@ export function CreateBlogPage() {
   const { t } = useTranslation();
   const [isSaving, setIsSaving] = useState(false);
   const [contentHtml, setContentHtml] = useState("");
-  const [isEditingContent, setIsEditingContent] = useState(true);
+  const [isEditing, setIsEditing] = useState(true);
 
   function handleSave() {
     setIsSaving(true);
@@ -217,14 +216,15 @@ export function CreateBlogPage() {
             id="content"
             field="content"
             html={contentHtml}
-            isEditing={isEditingContent}
-            canEdit={true}
-            onStartEdit={() => setIsEditingContent(true)}
-            onSave={(html: string) => {
+            isEditing={isEditing}
+            onStartEdit={() => setIsEditing(true)}
+            onSave={(html) => {
               setContentHtml(html);
-              setIsEditingContent(false);
+              setIsEditing(false);
             }}
-            onCancel={() => setIsEditingContent(false)}
+            onCancel={() => setIsEditing(false)}
+			fallback={<p className="opacity-75">{t("createBlogPage.fallback")}</p>}
+            canEdit={true}
           />
         </SectionCard>
 
