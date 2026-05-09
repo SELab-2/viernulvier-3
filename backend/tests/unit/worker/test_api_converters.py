@@ -62,11 +62,11 @@ def test_api_prod_to_model_prod():
 
     # Two info's, one per language
     assert len(prod_infos) == 2
-    assert any(prod_info.language == Languages.NEDERLANDS for prod_info in prod_infos)
+    assert any(prod_info.language == Languages.DUTCH for prod_info in prod_infos)
     assert any(prod_info.language == Languages.ENGLISH for prod_info in prod_infos)
 
     # Extract the info's to more easily test them
-    info_nl = [pi for pi in prod_infos if pi.language == Languages.NEDERLANDS][0]
+    info_nl = [pi for pi in prod_infos if pi.language == Languages.DUTCH][0]
     info_en = [pi for pi in prod_infos if pi.language == Languages.ENGLISH][0]
 
     # Production_id should point to our DB productions, but those are not set
@@ -74,13 +74,13 @@ def test_api_prod_to_model_prod():
     assert info_nl.production_id is None
     assert info_en.production_id is None
 
-    assert info_nl.title == test_input["title"][Languages.NEDERLANDS]
-    assert info_nl.supertitle == test_input["supertitle"][Languages.NEDERLANDS]
-    assert info_nl.artist == test_input["artist"][Languages.NEDERLANDS]
+    assert info_nl.title == test_input["title"][Languages.DUTCH]
+    assert info_nl.supertitle == test_input["supertitle"][Languages.DUTCH]
+    assert info_nl.artist == test_input["artist"][Languages.DUTCH]
     assert info_nl.tagline is None
     assert info_nl.teaser is None
-    assert info_nl.description == test_input["description"][Languages.NEDERLANDS]
-    assert info_nl.info == test_input["info"][Languages.NEDERLANDS]
+    assert info_nl.description == test_input["description"][Languages.DUTCH]
+    assert info_nl.info == test_input["info"][Languages.DUTCH]
 
     assert info_en.title == test_input["title"][Languages.ENGLISH]
     assert info_en.supertitle is None
@@ -144,7 +144,7 @@ def test_api_event_to_model_event():
     assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
     assert event.ends_at == datetime.fromisoformat(test_input["ends_at"])
-    assert event.order_url == test_input["external_order_url"][Languages.NEDERLANDS]
+    assert event.order_url == test_input["external_order_url"][Languages.DUTCH]
 
     assert prod_id == 4129
 
@@ -239,7 +239,7 @@ def test_api_genre_to_model_tag():
     assert tag.viernulvier_id == 100
     assert len(tag_names) == 2
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
+    tagname_nl = [tn for tn in tag_names if tn.language == Languages.DUTCH][0]
     tagname_en = [tn for tn in tag_names if tn.language == Languages.ENGLISH][0]
 
     assert tagname_nl.name == "Met voeltoer"
@@ -265,7 +265,7 @@ def test_api_genre_to_model_tag_fallback():
     assert tag.viernulvier_id == 1
     assert len(tag_names) == 1
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
+    tagname_nl = [tn for tn in tag_names if tn.language == Languages.DUTCH][0]
 
     assert tagname_nl.name == "cabaret"
 

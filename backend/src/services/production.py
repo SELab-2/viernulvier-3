@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
 from src.api.exceptions import NotFoundError, ValidationError
-from src.models import Event, ProdInfo, Production, Tag
-from src.schemas.pagination import Pagination
+from src.models import Event, ProdInfo, Production, ProductionGroup, Tag
+from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
@@ -115,13 +115,14 @@ type ProductionSortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
-# A list of tags can be given as a paramter to filter.
+# Lists of tags and production groups can be given as filters.
 def get_productions_paginated(
     db: Session,
     base_url: str,
     cursor: str | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
+    groups: list[int] | None = None,
     artists: list[str] | None = None,
     production_name: str | None = None,
     earliest_at: datetime | None = None,
@@ -158,6 +159,17 @@ def get_productions_paginated(
             db.query(Production.id)
             .join(Production.tags)
             .filter(Tag.id.in_(tags))
+            .distinct()
+            .subquery()
+        )
+        base_query = base_query.filter(Production.id.in_(select(subq)))
+
+    # Production groups filter
+    if groups:
+        subq = (
+            db.query(Production.id)
+            .join(Production.groups)
+            .filter(ProductionGroup.id.in_(groups))
             .distinct()
             .subquery()
         )
@@ -228,7 +240,7 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=Pagination(
+        pagination=JsonPagination(
             next_cursor=next_cursor,
             has_more=has_more,
             total_count=total_count,
@@ -379,11 +391,17 @@ def update_production_by_id(
                 setattr(production_info, field, value)
 
     if production_in.remove_languages:
-        for lang in production_in.remove_languages:
-            db.query(ProdInfo).filter(
-                ProdInfo.production_id == production_id,
-                ProdInfo.language == lang,
-            ).delete()
+        prod_infos = (
+            db.query(ProdInfo).filter(ProdInfo.production_id == production_id).all()
+        )
+        if len(prod_infos) <= len(production_in.remove_languages):
+            raise Exception(
+                "Cannot remove all languages. At least one language must remain."
+            )
+
+        for prod_info in prod_infos:
+            if prod_info.language in production_in.remove_languages:
+                db.delete(prod_info)
 
     db.commit()
     # Refreshes the whole production with eager loading (simplest).

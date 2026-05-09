@@ -1,8 +1,10 @@
 {
+  "loading": "Laden...",
   "nav": {
     "home": "Home",
     "archive": "Archief",
     "history": "Geschiedenis",
+    "blogs": "Blogs",
     "users": "Gebruikers"
   },
   "footer": {
@@ -49,6 +51,7 @@
     }
   },
   "productionPage": {
+    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
       "unknownProduction": "Onbekende productie",
       "archive": "Archief",
@@ -57,13 +60,16 @@
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"
     },
     "headerBrandAria": "VIERNULVIER Archief",
     "archiveLabel": "Archief",
     "backToCollection": "Terug naar de collectie",
+    "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
@@ -78,7 +84,18 @@
       "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",
-      "artist": "Artiest"
+      "artist": "Artiest",
+      "description": "Beschrijving",
+      "teaser": "Teaser",
+      "info": "Info"
+    },
+    "delete": {
+      "delete": "Verwijder",
+      "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "error": "Error: Elke productie heeft info in minstens één taal."
+    },
+    "add": {
+      "add": "Voeg productie-informatie toe"
     }
   },
 
@@ -100,6 +117,40 @@
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "loading": "Geschiedenis wordt geladen",
+    "errorTitle": "Geschiedenis kon niet worden geladen",
+    "error": "De geschiedenis-tijdlijn kon niet worden opgehaald van de server.",
+    "messages": {
+      "createFailed": "Aanmaken mislukt: {{error}}",
+      "updateFailed": "Opslaan mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je deze entry wilt verwijderen?"
+    },
+    "edit": {
+      "edit": "Pas aan",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "saving": "Opslaan...",
+      "delete": "Verwijder",
+      "create": "Aanmaken",
+      "Submit": "Indienen"
+    },
+    "empty": {
+      "title": "Geen geschiedenisitems gevonden",
+      "description": "Er is nog geen geschiedenis-data beschikbaar..."
+    },
+    "form": {
+      "labels": {
+        "year": "Jaar",
+        "title": "Titel",
+        "content": "Inhoud"
+      },
+      "placeholders": {
+        "year": "bijv. 2024",
+        "title": "Geef een korte titel voor dit moment",
+        "content": "Vertel het verhaal van dit moment in de geschiedenis"
+      }
+    },
     "entries": [
       {
         "title": "1910: De bouw van 'Feestlokaal Vooruit'",
@@ -136,6 +187,18 @@
     ]
   },
 
+  "blogs": {
+    "card": {
+      "other_prods": "andere producties",
+      "no_prods": "Geen gelinkte producties gevonden voor deze blog",
+      "details": "Details"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
+    }
+  },
+
   "auth": {
     "actions": {
       "login": "Aanmelden",
@@ -160,7 +223,7 @@
   },
 
   "users": {
-    "eyebrow": "Beheer",
+    "sectionLabel": "Beheer",
     "title": "Gebruikersbeheer",
     "description": "Bekijk accounts en voer eenvoudige accountwijzigingen uit zonder het overzicht te verlaten.",
     "loading": "Gebruikers worden geladen",
@@ -175,7 +238,9 @@
       "permissions": "Permissies"
     },
     "form": {
-      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt."
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
     },
     "actions": {
       "retry": "Opnieuw proberen",
@@ -204,7 +269,7 @@
     "dialogs": {
       "create": {
         "title": "Gebruiker toevoegen",
-        "description": "Maak een basisaccount aan met een gebruikersnaam en wachtwoord. Rollen kunnen later worden toegewezen."
+        "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
       },
       "delete": {
         "title": "Gebruiker verwijderen",
@@ -222,9 +287,48 @@
       "userLabel": "Gebruiker #{{id}}"
     },
     "accessDenied": {
-      "eyebrow": "Beperkt gebied",
+      "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot gebruikersbeheer",
       "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
+    },
+    "roles": {
+      "sectionLabel": "Toegangsbeheer",
+      "title": "Rollen",
+      "loading": "Rollen worden geladen",
+      "fields": {
+        "name": "Rolnaam"
+      },
+      "actions": {
+        "add": "Rol toevoegen",
+        "create": "Rol aanmaken",
+        "creating": "Rol wordt aangemaakt",
+        "delete": "Rol verwijderen",
+        "deleting": "Rol wordt verwijderd"
+      },
+      "messages": {
+        "loadFailed": "De rollen konden nu niet geladen worden.",
+        "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "deleteFailed": "De rol kon nu niet verwijderd worden.",
+        "nameRequired": "Een rolnaam is verplicht."
+      },
+      "dialogs": {
+        "create": {
+          "title": "Rol toevoegen",
+          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+        },
+        "delete": {
+          "title": "Rol verwijderen",
+          "description": "De rol {{roleName}} verwijderen? Dit is alleen mogelijk als er geen gebruikers aan deze rol gekoppeld zijn."
+        }
+      },
+      "empty": {
+        "title": "Geen rollen gevonden",
+        "description": "Zodra rollen zijn aangemaakt, verschijnen ze hier met hun toegewezen permissies.",
+        "permissions": "Geen permissies toegewezen"
+      },
+      "card": {
+        "label": "Rol"
+      }
     }
   },
   "notFound": {
@@ -233,6 +337,7 @@
     "buttons": {
       "explore": "Ontdek de Collectie",
       "history": "Onze Geschiedenis"
-    }
+    },
+    "quote": "Less is soms more, maar soms ook niet"
   }
 }

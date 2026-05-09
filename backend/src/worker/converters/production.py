@@ -77,7 +77,7 @@ def csv_prod_to_model_prod(csv_prod: dict, tag_map: dict) -> Production:
     """
 
     prod_info = ProdInfo(
-        language=Languages.NEDERLANDS,
+        language=Languages.DUTCH,
         title=csv_prod[0],
         supertitle=csv_prod[1],
         description=(csv_prod[2] + "\n" + csv_prod[3]),

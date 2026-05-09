@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { i18n_key: "nav.home", path: "/" },
   { i18n_key: "nav.archive", path: "/archive" },
   { i18n_key: "nav.history", path: "/history" },
+  { i18n_key: "nav.blogs", path: "/blogs" },
   {
     i18n_key: "nav.users",
     path: "/users",
@@ -54,7 +55,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 const authActionClassName =
-  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden lg:flex";
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden xl:flex";
 
 type NavLinksProps = { onNavigate?: () => void };
 
@@ -152,7 +153,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 lg:hidden"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 xl:hidden"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -173,13 +174,13 @@ function Navbar(): JSX.Element {
     >
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase xl:flex">
           <NavLinks />
         </ul>
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden lg:flex" />
+          <NavbarAuthControls className="hidden xl:flex" />
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
@@ -189,7 +190,7 @@ function Navbar(): JSX.Element {
           <div
             data-testid="mobile-menu"
             id="mobile-menu"
-            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t lg:hidden"
+            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t xl:hidden"
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />

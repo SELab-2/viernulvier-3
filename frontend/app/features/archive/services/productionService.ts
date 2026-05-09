@@ -13,12 +13,12 @@ import type {
   ProductionUpdate,
 } from "../types/productionTypes";
 import { createApiClient } from "~/shared/services/apiClient";
-import type { PaginationRequest } from "../types/paginationTypes";
+import type { JsonPaginationRequest } from "../types/paginationTypes";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getProductionsPaginated(
-  params?: PaginationRequest & {
+  params?: JsonPaginationRequest & {
     tag_ids?: string[];
     artists?: string[];
     production_name?: string;
