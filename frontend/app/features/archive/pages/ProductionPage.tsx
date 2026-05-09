@@ -8,6 +8,7 @@ import type {
   ProductionInfo,
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { Blog } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
@@ -17,6 +18,9 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
+import { BlogCardList } from "~/features/blogs/components/BlogCard";
+import { ProductionInfoSection } from "../components/ProductionInfoSection";
 
 interface ProductionPageProps {
   production: Production;
@@ -217,7 +221,7 @@ type SimpleEditableFieldProps = {
 };
 // <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
 // </Protected>
-export function SimpleEditableField({
+function SimpleEditableField({
   label,
   value,
   isEditing,
@@ -591,65 +595,6 @@ function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps
   );
 }
 
-type ProductionInfoSectionProps = {
-  prodinfo_available: boolean;
-  tagline: string;
-  teaserHtml: string | undefined;
-  descriptionHtml: string | undefined;
-  infoHtml: string | undefined;
-};
-
-function ProductionInfoSection({
-  prodinfo_available,
-  tagline,
-  teaserHtml,
-  descriptionHtml,
-  infoHtml,
-}: ProductionInfoSectionProps) {
-  const { t } = useTranslation();
-
-  if (!prodinfo_available) {
-    return (
-      <p id="no-prodinfo" className="opacity-75">
-        {t("productionPage.infoNotAvailable")}
-      </p>
-    );
-  }
-  return (
-    <>
-      {tagline && <p id="tagline">{tagline}</p>}
-
-      {teaserHtml && (
-        <div
-          id="teaser"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: teaserHtml }}
-        />
-      )}
-
-      {descriptionHtml && (
-        <div
-          id="description"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-        />
-      )}
-
-      {infoHtml ? (
-        <div
-          id="info"
-          className="opacity-90"
-          dangerouslySetInnerHTML={{ __html: infoHtml }}
-        />
-      ) : (
-        <p id="info" className="opacity-75">
-          {t("productionPage.fallback.noInfo")}
-        </p>
-      )}
-    </>
-  );
-}
-
 export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
   const { lang } = useParams();
@@ -664,6 +609,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [eventsWithDetails, setEventsWithDetails] = useState<
     EventWithResolvedRelations[]
   >([]);
+  const [linkedBlogs, setLinkedBlogs] = useState<Blog[]>([]);
 
   // States for editing the production info shown
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -722,9 +668,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     t("productionPage.fallback.unknownProduction")
   );
   const tagline = getTextOrDefault(productionInfo?.tagline, "");
-  const teaserHtml = getSanitizedHtmlOrUndefined(productionInfo?.teaser);
-  const descriptionHtml = getSanitizedHtmlOrUndefined(productionInfo?.description);
-  const infoHtml = getSanitizedHtmlOrUndefined(productionInfo?.info);
+  const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
   const fallbackImageUrl =
@@ -831,6 +777,30 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
+  // Load linked blogs for this production
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadLinkedBlogs = async () => {
+      try {
+        const blogs = await getBlogsForProduction(production.id_url);
+        if (!isCancelled) {
+          setLinkedBlogs(blogs ?? []);
+        }
+      } catch {
+        if (!isCancelled) {
+          setLinkedBlogs([]);
+        }
+      }
+    };
+
+    void loadLinkedBlogs();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [production.id_url]);
+
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
@@ -858,6 +828,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}
+              isEditing={isEditing}
+              onSave={(field, html) => {
+                const isEmpty = html === "<p><br></p>" || html === "";
+                setDraftInfo((prev) =>
+                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                );
+              }}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
@@ -867,6 +844,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
               <Events event_objects={eventObjects} />
             </section>
+
+            {linkedBlogs.length > 0 && (
+              <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">
+                <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+                  {t("productionPage.linkedBlogs")}
+                </h2>
+
+                <BlogCardList
+                  blogs={linkedBlogs}
+                  prefferedLanguage={language}
+                  compactCards
+                />
+              </section>
+            )}
           </article>
         </section>
 

@@ -50,3 +50,21 @@ export async function updateBlog(blogId: number, blogData: BlogUpdate): Promise<
 export async function deleteBlog(blogId: number): Promise<void> {
   return deleteFromArchive(`/blogs/${blogId}`);
 }
+
+export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
+  try {
+    const productionId = productionUrl.split("/").pop();
+    if (!productionId) {
+      return [];
+    }
+
+    const apiClient = createApiClient();
+    const response = await apiClient.get<BlogList>(
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
+    );
+
+    return response.data.blogs;
+  } catch {
+    return [];
+  }
+}
