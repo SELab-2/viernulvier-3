@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterSidebar from "~/features/archive/components/FilterSidebar";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
 
 vi.mock("~/i18n", () => ({
@@ -17,7 +18,12 @@ vi.mock("~/features/archive/services/tagService", () => ({
   getTagByName: vi.fn(),
 }));
 
+vi.mock("~/features/archive/services/productionGroupService", () => ({
+  getAllProductionGroups: vi.fn(),
+}));
+
 import { getArtists } from "~/features/archive/services/artistService";
+import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 
 const makeTag = (id: string, nl: string, en: string): Tag => ({
@@ -34,6 +40,21 @@ const TAGS: Tag[] = [
   makeTag("foo/3", "Concert", "Concert"),
 ];
 
+const PRODUCTION_GROUPS: ProductionGroup[] = [
+  {
+    id_url: "foo/groups/1",
+    title: "Vooruit Klassiek",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
+  {
+    id_url: "foo/groups/2",
+    title: "Club Wintercircus",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
+];
+
 const defaultProps = () => ({
   show: true,
   searchQuery: "",
@@ -44,6 +65,8 @@ const defaultProps = () => ({
   setDateTo: vi.fn(),
   selectedTags: [] as Tag[],
   setSelectedTags: vi.fn(),
+  selectedProductionGroups: [] as ProductionGroup[],
+  setSelectedProductionGroups: vi.fn(),
   selectedArtists: [] as string[],
   setSelectedArtists: vi.fn(),
 });
@@ -58,6 +81,9 @@ beforeEach(() => {
       ? Promise.resolve(tag)
       : Promise.reject(new Error(`Tag "${name}" not found`));
   });
+  (getAllProductionGroups as ReturnType<typeof vi.fn>).mockResolvedValue(
+    PRODUCTION_GROUPS
+  );
   (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue([
     "Alice",
     "Bob",
@@ -171,6 +197,27 @@ describe("FilterSidebar – artists filter", () => {
   });
 });
 
+describe("FilterSidebar – production groups filter", () => {
+  it("shows production group search dropdown when query matches", async () => {
+    render(<FilterSidebar {...defaultProps()} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "winter");
+    expect(screen.getByText("Club Wintercircus")).toBeInTheDocument();
+  });
+
+  it("selecting a production group calls setSelectedProductionGroups", async () => {
+    const props = defaultProps();
+    render(<FilterSidebar {...props} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "vooruit");
+    fireEvent.mouseDown(screen.getByText("Vooruit Klassiek"));
+    expect(props.setSelectedProductionGroups).toHaveBeenCalled();
+    expect(input).toHaveValue("");
+  });
+});
+
 describe("FilterSidebar – data fetching edge cases", () => {
   it("skips rejected popular tag promises and keeps successful ones", async () => {
     (getTagByName as ReturnType<typeof vi.fn>).mockImplementation((name: string) => {
@@ -192,6 +239,7 @@ describe("FilterSidebar – reset filters button", () => {
       dateFrom: "2024-01-01",
       dateTo: "2024-12-31",
       selectedTags: [TAGS[0]],
+      selectedProductionGroups: [PRODUCTION_GROUPS[0]],
       selectedArtists: ["Alice"],
     };
 
@@ -203,6 +251,7 @@ describe("FilterSidebar – reset filters button", () => {
     expect(props.setDateFrom).toHaveBeenCalledWith("");
     expect(props.setDateTo).toHaveBeenCalledWith("");
     expect(props.setSelectedTags).toHaveBeenCalledWith([]);
+    expect(props.setSelectedProductionGroups).toHaveBeenCalledWith([]);
     expect(props.setSelectedArtists).toHaveBeenCalledWith([]);
   });
 });
