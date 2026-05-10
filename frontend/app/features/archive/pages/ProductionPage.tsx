@@ -524,11 +524,13 @@ function EditEvents({
   setDraftEvents,
   setDeletedEvents,
   halls,
+  isNewEvents = false,
 }: {
   draftEvents: EventWithResolvedRelations[];
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   halls: Hall[];
+  isNewEvents?: boolean;
 }) {
   return (
     <ul className="mt-6 space-y-2.5">
@@ -550,6 +552,7 @@ function EditEvents({
               setDeletedEvents((prev) => [...prev, event]);
             }
           }}
+          canDeleteWithoutPerms={isNewEvents}
         />
       ))}
     </ul>
@@ -1063,6 +1066,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                     draftEvents={newEvents}
                     setDraftEvents={setNewEvents}
                     halls={allHalls}
+                    isNewEvents={true}
                   />
                   <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
                     <NewEventButton

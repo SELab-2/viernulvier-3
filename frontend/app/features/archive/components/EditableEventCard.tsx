@@ -33,11 +33,13 @@ export default function EditableEventCard({
   halls,
   onChange,
   onDelete,
+  canDeleteWithoutPerms = false,
 }: {
   event: EventWithResolvedRelations;
   halls: Hall[];
   onChange: (updated: EventWithResolvedRelations) => void;
   onDelete: () => void;
+  canDeleteWithoutPerms?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -118,7 +120,9 @@ export default function EditableEventCard({
           </div>
         </div>
       </div>
-      <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+      <Protected
+        permissions={!canDeleteWithoutPerms ? [ARCHIVE_PERMISSIONS.delete] : undefined}
+      >
         <button
           onClick={onDelete}
           className="text-red-500 hover:text-red-700"
