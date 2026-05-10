@@ -92,7 +92,7 @@ export default function ComplexEditableField({
     } else {
       onDirtyChange?.(false);
     }
-  }, [isEditing, html]);
+  }, [isEditing, html, onDirtyChange]);
 
   if (isEditing) {
     return (

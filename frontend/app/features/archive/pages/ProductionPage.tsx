@@ -1,6 +1,6 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -161,15 +161,19 @@ async function handleInfoSave(
 
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
+  const blockerRef = useRef(blocker);
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
-      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+    blockerRef.current = blocker;
+  });
 
+  useEffect(() => {
+    if (blockerRef.current.state === "blocked") {
+      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
       if (confirmLeave) {
-        blocker.proceed();
+        blockerRef.current.proceed();
       } else {
-        blocker.reset();
+        blockerRef.current.reset();
       }
     }
   }, [blocker.state]);
@@ -498,7 +502,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
               }}
-              onQuillDirtyChange={setIsQuillDirty}
+              onQuillDirtyChange={useCallback((isDirty: boolean) => setIsQuillDirty(isDirty), [])}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
