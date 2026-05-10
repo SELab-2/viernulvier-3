@@ -76,6 +76,32 @@ def test_get_blogs_paginated(db_session, many_blogs):
     assert result.pagination.next_cursor is None
 
 
+# Filter on title (half of the blogs have different name)
+def test_get_blogs_by_title(db_session, many_blogs):
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="other")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+    # Case does not affect the results
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="OTHER")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+    # Partial matches are allowed
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="oth")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+
 # Get blog by id (no/invalid language specified): check if correct blog is returned with all correct content and events.
 # Invalid language results in all content, could be changed if desired.
 def test_get_blog_by_id_no_language(db_session, blogs_limited):

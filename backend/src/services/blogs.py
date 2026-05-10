@@ -1,4 +1,4 @@
-from sqlalchemy import func, asc, desc
+from sqlalchemy import asc, desc
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
 from src.models import Blog, BlogContent
@@ -87,6 +87,8 @@ def get_blogs_paginated(
         )
         query = query.filter(Blog.id.in_(select(subq)))
 
+    total_count = query.count()
+
     if cursor is not None:
         if is_asc:
             query = query.filter(Blog.id > cursor)
@@ -97,8 +99,6 @@ def get_blogs_paginated(
 
     has_more = len(items) > limit
     items = items[:limit]
-
-    total_count = db.query(func.count(Blog.id)).scalar()
 
     return BlogListResponse(
         blogs=[build_blog_response(db, blog, base_url, language) for blog in items],
