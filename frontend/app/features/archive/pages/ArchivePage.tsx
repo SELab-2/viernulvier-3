@@ -8,7 +8,6 @@ import {
   ArchiveSortOrder,
   ProductionTimeline,
 } from "~/features/archive/components/ProductionTimeline";
-import { Divider } from "@mui/material";
 import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { Button, Divider } from "@mui/material";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
