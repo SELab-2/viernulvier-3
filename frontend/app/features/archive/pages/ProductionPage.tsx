@@ -323,7 +323,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   }, [isEditing, isModified]);
 
   // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning);
+  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning.current);
 
   const title = getTextOrDefault(
     productionInfo?.title,
