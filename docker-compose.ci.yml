@@ -18,7 +18,7 @@ services:
       cache_from:
         - type=gha
       cache_to:
-        - type=gha,mode=max
+        - type=gha,scope=frontend,mode=max
     expose:
       - "3000"
     env_file: .env
@@ -33,7 +33,7 @@ services:
       cache_from:
         - type=gha
       cache_to:
-        - type=gha,mode=max
+        - type=gha,scope=backend,mode=max
     expose:
       - "8000"
     env_file: .env

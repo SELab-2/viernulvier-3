@@ -84,6 +84,7 @@ jobs:
         run: |
           echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
           echo "COMPOSE_DOCKER_CLI_BUILD=1" >> $GITHUB_ENV
+          docker buildx inspect --bootstrap
 
       - name: Create .env file
         run: |
