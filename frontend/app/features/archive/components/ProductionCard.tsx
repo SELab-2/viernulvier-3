@@ -53,7 +53,7 @@ interface ProductionCardProps {
   className?: string;
 }
 
-function getProductionInfoByLanguage(
+export function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
   language: string
 ): ProductionInfo {

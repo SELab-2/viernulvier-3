@@ -11,10 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 import DOMPurify from "dompurify";
 
 const DEFAULT_IMAGE =
@@ -109,6 +110,11 @@ function getSanitizedHtmlOrUndefined(
   return DOMPurify.sanitize(trimmedValue);
 }
 
+function getBlogNumericIdFromUrl(idUrl: string): string | undefined {
+  const match = idUrl.match(/\/blogs\/(\d+)(?:[/?#]|$)/);
+  return match?.[1];
+}
+
 function ProductionTitles({ productionTitles }: { productionTitles: string[] }) {
   const { t } = useTranslation();
 
@@ -173,6 +179,9 @@ export function BlogCard({
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
+
   const { lang } = useParams();
   const language = preferredLanguage ?? lang!;
 
@@ -192,8 +201,19 @@ export function BlogCard({
     fetchProductionTitles();
   }, [blog, language]);
 
+  const blogId = getBlogNumericIdFromUrl(blog.id_url);
+
+  const handleOpenDetails = () => {
+    if (!blogId) {
+      return;
+    }
+
+    navigate(lp(`/blogs/${blogId}`));
+  };
+
   return (
     <Card
+      onClick={handleOpenDetails}
       role="button"
       tabIndex={0}
       aria-label={`Open details for ${title}`}

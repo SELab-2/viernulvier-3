@@ -33,7 +33,7 @@ describe("hallService", () => {
         { id_url: "2", name: "Hall B", address: "Street 2" },
       ];
 
-      mockAdapter.onGet("/api/v1/archive/halls").reply(200, mockHalls);
+      mockAdapter.onGet("/api/v1/archive/halls/").reply(200, mockHalls);
 
       const result = await getAllHalls();
 
@@ -42,7 +42,7 @@ describe("hallService", () => {
     });
 
     it("throws when get request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/halls").reply(500);
+      mockAdapter.onGet("/api/v1/archive/halls/").reply(500);
 
       await expect(getAllHalls()).rejects.toThrow();
     });
@@ -56,7 +56,7 @@ describe("hallService", () => {
         address: "Street 1",
       };
 
-      mockAdapter.onGet("/api/v1/archive/halls/1").reply(200, mockHall);
+      mockAdapter.onGet("/api/v1/archive/halls/1/").reply(200, mockHall);
 
       const result = await getHall(1);
 
@@ -66,7 +66,7 @@ describe("hallService", () => {
     });
 
     it("throws when hall is not found", async () => {
-      mockAdapter.onGet("/api/v1/archive/halls/999").reply(404);
+      mockAdapter.onGet("/api/v1/archive/halls/999/").reply(404);
 
       await expect(getHall(999)).rejects.toThrow();
     });
@@ -78,7 +78,7 @@ describe("hallService", () => {
         { id_url: "1", name: "Hall A", address: "Street 1" },
         { id_url: "2", name: "Hall B", address: "Street 2" },
       ];
-      mockAdapter.onGet("/api/v1/archive/halls").reply(200, mockHalls);
+      mockAdapter.onGet("/api/v1/archive/halls/").reply(200, mockHalls);
 
       const result = await getHallByName("hall A");
       expect(result).toEqual(mockHalls[0]);
@@ -97,7 +97,7 @@ describe("hallService", () => {
         ...hallData,
       };
 
-      mockAdapter.onPost("/api/v1/archive/halls").reply(201, mockResponse);
+      mockAdapter.onPost("/api/v1/archive/halls/").reply(201, mockResponse);
 
       const result = await createHall(hallData);
 
@@ -112,7 +112,7 @@ describe("hallService", () => {
         address: "New Street 1",
       };
 
-      mockAdapter.onPost("/api/v1/archive/halls").reply(400);
+      mockAdapter.onPost("/api/v1/archive/halls/").reply(400);
 
       await expect(createHall(hallData)).rejects.toThrow();
     });
@@ -131,7 +131,7 @@ describe("hallService", () => {
         address: "Updated Street 1",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/halls/1").reply(200, mockResponse);
+      mockAdapter.onPatch("/api/v1/archive/halls/1/").reply(200, mockResponse);
 
       const result = await updateHall(1, hallData);
 
@@ -146,7 +146,7 @@ describe("hallService", () => {
         address: "Updated Street 1",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/halls/1").reply(400);
+      mockAdapter.onPatch("/api/v1/archive/halls/1/").reply(400);
 
       await expect(updateHall(1, hallData)).rejects.toThrow();
     });
@@ -154,13 +154,13 @@ describe("hallService", () => {
 
   describe("deleteHall", () => {
     it("deletes a hall successfully", async () => {
-      mockAdapter.onDelete("/api/v1/archive/halls/1").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/halls/1/").reply(204);
 
       await expect(deleteHall(1)).resolves.toBeUndefined();
     });
 
     it("throws when delete request fails", async () => {
-      mockAdapter.onDelete("/api/v1/archive/halls/1").reply(404);
+      mockAdapter.onDelete("/api/v1/archive/halls/1/").reply(404);
 
       await expect(deleteHall(1)).rejects.toThrow();
     });

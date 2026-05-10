@@ -230,6 +230,12 @@
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }
     },
+    "contentPage": {
+      "backToBlogs": "Back to blogs",
+      "linkedProductions": "Linked productions:",
+      "fallback": "No translation available",
+      "media": "Linked media:"
+    },
     "detail": {
       "title": "Blog",
       "comingSoon": "This blog page is coming soon."

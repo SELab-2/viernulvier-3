@@ -228,6 +228,12 @@
         "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
       }
     },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:"
+    },
     "detail": {
       "title": "Blog",
       "comingSoon": "Deze blogpagina komt binnenkort."
