@@ -14,9 +14,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
+import { getProductionsForBlog } from "../services/blogService";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -74,21 +74,19 @@ async function getProductionTitlesByLanguage(
   blog: Blog,
   language: string
 ): Promise<string[]> {
-  if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
+  if (!blog.production_group_id_url || blog.production_group_id_url === "") {
     return [];
   }
 
-  const titles = await Promise.all(
-    blog.production_id_urls.map(async (prod_id_url) => {
-      const prod = await getProductionByUrl(prod_id_url);
+  const productions = await getProductionsForBlog(blog);
 
+  const titles = productions.map((prod) => {
       const languageMatch = prod.production_infos.find(
         (prod_info) => prod_info.language === language
       );
 
       return languageMatch?.title ?? prod.production_infos[0]?.title;
-    })
-  );
+  })
 
   return titles.filter(
     (title): title is string => typeof title === "string" && title.length > 0

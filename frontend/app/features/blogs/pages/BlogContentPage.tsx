@@ -10,6 +10,7 @@ import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
+import { getProductionsForBlog } from "../services/blogService";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -163,21 +164,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     let cancelled = false;
 
     async function loadProductions() {
-      if (blog.production_id_urls.length === 0) return;
+      if (!blog.production_group_id_url || blog.production_group_id_url === "") return;
 
-      const settled = await Promise.all(
-        blog.production_id_urls.map(async (url) => {
-          try {
-            return await getProductionByUrl(url);
-          } catch {
-            return null;
-          }
-        })
-      );
+      const settled = await getProductionsForBlog(blog);
 
-      if (!cancelled) {
-        setLinkedProductions(settled.filter((p): p is Production => p !== null));
-      }
+	  setLinkedProductions(settled.filter((p): p is Production => p !== null));
     }
 
     void loadProductions();
@@ -185,7 +176,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [blog.production_id_urls]);
+  }, [blog.production_group_id_url]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
