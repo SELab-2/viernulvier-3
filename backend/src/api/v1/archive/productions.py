@@ -8,6 +8,8 @@ from src.schemas.production import (
     ProductionResponse,
     ProductionUpdate,
 )
+from src.schemas.blogs import BlogListResponse
+from src.services.blogs import get_blogs_by_production_id
 from src.services.production import (
     ProductionSortOrder,
     create_production,
@@ -153,3 +155,19 @@ async def delete_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
     delete_production_by_id(db, production_id)
+
+
+@router.get(
+    "/{production_id}/blogs/",
+    response_model=BlogListResponse,
+    summary="Get blogs by production id",
+    description="Get all blogs linked to a specific production",
+)
+async def get_blogs_by_production(
+    production_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    language: str | None = Depends(get_accepted_language),
+) -> BlogListResponse:
+    base_url = get_base_url(str(request.url), 3)
+    return get_blogs_by_production_id(db, production_id, base_url, language)

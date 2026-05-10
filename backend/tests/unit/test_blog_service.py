@@ -3,6 +3,7 @@ from src.models.blogs import Blog
 from src.services.blogs import (
     get_blog_by_id,
     get_blogs_paginated,
+    get_blogs_by_production_id,
     create_blog,
     update_blog_by_id,
     delete_blog_by_id,
@@ -204,6 +205,41 @@ def test_update_blog_content_delete(db_session, blogs_limited):
     # Check updated in database
     blog_response = get_blog_by_id(db_session, blogs_limited[1].id, BASE_URL)
     assert len(blog_response.blog_contents) == 1
+
+
+# Get blogs by production id: blogs linked to a specific production.
+def test_get_blogs_by_production_id(db_session, blogs_limited):
+    # blog1 is linked to prod1, blog2 is linked to prod1 and prod2.
+    result = get_blogs_by_production_id(db_session, 1, BASE_URL)
+    assert len(result.blogs) == 2
+    assert result.pagination.total_count == 2
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+
+
+# Get blogs by production id filtered by language.
+def test_get_blogs_by_production_id_with_language(db_session, blogs_limited):
+    result = get_blogs_by_production_id(
+        db_session, 1, BASE_URL, language=Languages.ENGLISH
+    )
+    assert len(result.blogs) == 2
+    for blog in result.blogs:
+        assert len(blog.blog_contents) == 1
+        assert blog.blog_contents[0].language == Languages.ENGLISH
+
+
+# Get blogs by production id that has only one linked blog.
+def test_get_blogs_by_production_id_single_match(db_session, blogs_limited):
+    result = get_blogs_by_production_id(db_session, 2, BASE_URL)
+    assert len(result.blogs) == 1
+    assert result.pagination.total_count == 1
+
+
+# Get blogs by a non-existent production id returns empty list.
+def test_get_blogs_by_production_id_no_match(db_session, blogs_limited):
+    result = get_blogs_by_production_id(db_session, 999, BASE_URL)
+    assert len(result.blogs) == 0
+    assert result.pagination.total_count == 0
 
 
 # Delete a existing blog.

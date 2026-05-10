@@ -1,4 +1,5 @@
 {
+  "loading": "Loading...",
   "nav": {
     "home": "Home",
     "archive": "Archive",
@@ -34,6 +35,16 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "selection": {
+      "enter": "Select productions",
+      "exit": "Done selecting",
+      "select_all": "Select all visible",
+      "clear": "Clear selection",
+      "selected_singular": "selected production",
+      "selected_plural": "selected productions",
+      "select": "Select",
+      "selected": "Selected"
+    },
     "show_more": "Show more",
     "sortBy": "Sort by",
     "sortOrder": {
@@ -51,15 +62,15 @@
   },
 
   "productionPage": {
-    "infoNotAvailable": "Information in this language is not available.",
     "fallback": {
-      "unknownProduction": "Unknown production",
+      "unknownProduction": "Information in this language is not available.",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
       "noTeaser": "No teaser available for this production.",
       "noDescription": "No additional description is available for this production.",
       "noInfo": "No extra information is available for this production.",
       "noEvents": "No events recorded for this production.",
+      "noLinkedBlogs": "No blogs linked to this production.",
       "dateUnknown": "Date unknown",
       "locationUnknown": "Location unknown"
     },
@@ -68,6 +79,7 @@
     "backToCollection": "Back to the collection",
     "eventMore": "More",
     "archiveSchema": "Archive schema",
+    "linkedBlogs": "Linked blogs",
     "dateLabel": "Date",
     "startDateLabel": "Start date",
     "endDateLabel": "End date",
@@ -80,21 +92,22 @@
     "visualEvidence": "Photos",
 
     "edit": {
+      "add": "Add info",
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
       "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",
-      "artist": "Artist"
+      "artist": "Artist",
+      "description": "Description",
+      "teaser": "Teaser",
+      "info": "Info"
     },
     "delete": {
       "delete": "Delete",
       "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
       "error": "Error: Each production should have info in at least one language."
-    },
-    "add": {
-      "add": "Add production info"
     }
   },
 
@@ -191,6 +204,16 @@
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
+    },
+    "contentPage": {
+      "backToBlogs": "Back to blogs",
+      "linkedProductions": "Linked productions:",
+      "fallback": "No translation available",
+      "media": "Linked media:"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "This blog page is coming soon."
     }
   },
 
@@ -233,7 +256,9 @@
       "permissions": "Permissions"
     },
     "form": {
-      "passwordCreateHint": "New users need a password before the account can be created."
+      "passwordCreateHint": "New users need a password before the account can be created.",
+      "rolesHint": "Choose any roles that should be assigned as soon as the account is created.",
+      "rolesEmptyHint": "No roles exist yet. Create a role first if this account needs one immediately."
     },
     "actions": {
       "retry": "Retry",
@@ -262,7 +287,7 @@
     "dialogs": {
       "create": {
         "title": "Add user",
-        "description": "Create a basic account with a username and password. Roles can be assigned later."
+        "description": "Create an account with a username, password, and any initial roles."
       },
       "delete": {
         "title": "Delete user",
@@ -289,7 +314,13 @@
       "title": "Roles",
       "loading": "Loading roles",
       "fields": {
-        "name": "Role name"
+        "name": "Role name",
+        "permissions": "Permissions"
+      },
+      "form": {
+        "permissionsHint": "Select the permissions that should be granted as soon as this role is created.",
+        "permissionsLoading": "Loading available permissions.",
+        "permissionsEmptyHint": "No permissions are available right now."
       },
       "actions": {
         "add": "Add role",
@@ -300,6 +331,7 @@
       },
       "messages": {
         "loadFailed": "We could not load roles right now.",
+        "permissionsLoadFailed": "We could not load available permissions right now.",
         "createFailed": "We could not create the role right now.",
         "deleteFailed": "We could not delete the role right now.",
         "nameRequired": "A role name is required."
@@ -307,7 +339,7 @@
       "dialogs": {
         "create": {
           "title": "Add role",
-          "description": "Create a new role. Permissions can be assigned after creation."
+          "description": "Create a new role and assign its permissions immediately."
         },
         "delete": {
           "title": "Delete role",
@@ -330,6 +362,7 @@
     "buttons": {
       "explore": "Explore the Collection",
       "history": "Our History"
-    }
+    },
+    "quote": "Minder is sometimes meer, but sometimes not"
   }
 }
