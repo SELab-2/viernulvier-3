@@ -162,6 +162,7 @@ async function handleInfoSave(
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
   const blockerRef = useRef(blocker);
+  const { t } = useTranslation();
 
   useEffect(() => {
     blockerRef.current = blocker;
@@ -169,7 +170,7 @@ function useUnsavedChangesBlocker(when: boolean) {
 
   useEffect(() => {
     if (blockerRef.current.state === "blocked") {
-      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+      const confirmLeave = window.confirm(t("notSaveChanges"));
       if (confirmLeave) {
         blockerRef.current.proceed();
       } else {

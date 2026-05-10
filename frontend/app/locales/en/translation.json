@@ -1,4 +1,5 @@
 {
+  "notSaveChanges": "You have unsaved changes. Leave anyway?",
   "loading": "Loading...",
   "nav": {
     "home": "Home",
