@@ -3,8 +3,8 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
-from src.models.production import Production
 from src.models.hall import Hall
+from src.models.production import Production
 from src.worker.converters.event import api_event_to_model_event
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,6 @@ def store_new_events(db_session: Session, events: list[dict]):
 
             event.production_id = internal_prod_id
 
-            # TODO: test this code
             if viernulvier_hall_id:
                 internal_hall_id = hall_map.get(viernulvier_hall_id)
                 if not internal_hall_id:
