@@ -137,8 +137,9 @@ function getProductionStartLabel(
 function getVenues(production: Production): string[] | undefined {
   if (!production.events?.length) return;
 
+  // TODO: fix this to use actual I18N
   const halls = production.events
-    .map((e) => e.hall?.name)
+    .map((e) => e.hall?.names[0].name)
     .filter((name): name is string => !!name);
 
   if (halls.length === 0) return;
