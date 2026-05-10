@@ -139,7 +139,7 @@ def test_api_event_to_model_event():
         },
     }
 
-    event, prod_id = api_event_to_model_event(test_input)
+    event, prod_id, hall_id = api_event_to_model_event(test_input)
 
     assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
@@ -147,6 +147,7 @@ def test_api_event_to_model_event():
     assert event.order_url == test_input["external_order_url"][Languages.DUTCH]
 
     assert prod_id == 4129
+    assert hall_id == 18
 
     assert event.id is None
     assert event.production_id is None
@@ -159,22 +160,24 @@ def test_api_event_to_model_event():
 def test_api_event_to_none():
     test_input1 = {"@id": "/api/v1/events/6464"}
 
-    event, prod_id = api_event_to_model_event(test_input1)
+    event, prod_id, hall_id = api_event_to_model_event(test_input1)
 
     assert event is not None
     assert event.viernulvier_id == 6464
     assert prod_id is None
+    assert hall_id is None
 
     test_input2 = {
         "@id": "/api/v1/events/6464",
         "production": {},
     }
 
-    event, prod_id = api_event_to_model_event(test_input2)
+    event, prod_id, hall_id = api_event_to_model_event(test_input2)
 
     assert event is not None
     assert event.viernulvier_id == 6464
     assert prod_id is None
+    assert hall_id is None
 
 
 # Test normal test case from the actual API
