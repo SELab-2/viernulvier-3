@@ -150,7 +150,7 @@ export default function ArchivePage() {
           {/* Production list header */}
           <div className="mb-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="center-items flex flex-wrap items-center gap-3 font-sans md:gap-4">
-              <p className="text-sm font-medium tracking-[0.02em] text-archive-ink/60 md:text-base">
+              <p className="text-archive-ink/60 text-sm font-medium tracking-[0.02em] md:text-base">
                 {/* Result count */}
                 {total_count}{" "}
                 {total_count === 1 ? t("archive.result") : t("archive.results")}
