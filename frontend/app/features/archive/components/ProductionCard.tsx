@@ -57,7 +57,7 @@ interface ProductionCardProps {
   onToggleSelected?: (productionId: string) => void;
 }
 
-function getProductionInfoByLanguage(
+export function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
   language: string
 ): ProductionInfo {

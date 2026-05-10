@@ -130,7 +130,7 @@ describe("getByUrl", () => {
   });
 
   it("returns response data", async () => {
-    mockAdapter.onGet("/test").reply(200, { foo: "bar" });
+    mockAdapter.onGet("/test/").reply(200, { foo: "bar" });
 
     const result = await getByUrl("/test");
     expect(result).toEqual({ foo: "bar" });
