@@ -313,7 +313,12 @@ function test_cmd() {
 		case "$mode" in
 			normal)
 				# Run in (subshell) so that the 'cd' does not persist
-				(run cd backend && run pytest -n 10)
+				if pip list | grep pytest-xdist >/dev/null 2>&1; then
+					(run cd backend && run pytest -n auto)
+				else
+					(run cd backend && run pytest)
+					echo "Install pytest-xdist for parallel testing"
+				fi
 				;;
 			coverage)
 				(
