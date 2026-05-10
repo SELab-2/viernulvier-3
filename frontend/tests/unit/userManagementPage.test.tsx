@@ -48,6 +48,7 @@ vi.mock("~/features/auth", () => ({
 }));
 
 import UserManagementPage from "~/features/users/pages/UserManagementPage";
+import * as permissionManagementServiceModule from "~/features/users/services/permissionManagementService";
 import * as userManagementServiceModule from "~/features/users/services/userManagementService";
 import * as roleManagementServiceModule from "~/features/users/services/roleManagementService";
 import type { IRole, IUser } from "~/features/users/users.types";
@@ -101,6 +102,9 @@ describe("UserManagementPage", () => {
     // Default: roles load successfully with an empty list so existing
     // user-focused tests are not affected by the roles section.
     vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+    vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue(
+      []
+    );
   });
 
   it("renders the empty state when no users are returned", async () => {
@@ -583,10 +587,14 @@ describe("UserManagementPage", () => {
 
     it("creates a role from the add dialog and appends it to the list", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue([
+        "users:read",
+        "archive:create",
+      ]);
       vi.spyOn(roleManagementServiceModule, "createRole").mockResolvedValue({
         id: 10,
         name: "moderator",
-        permissions: [],
+        permissions: ["users:read", "archive:create"],
       });
 
       const user = userEvent.setup();
@@ -601,16 +609,35 @@ describe("UserManagementPage", () => {
         await screen.findByLabelText("users.roles.fields.name"),
         "moderator"
       );
+      await user.click(screen.getByRole("checkbox", { name: "users:read" }));
+      await user.click(screen.getByRole("checkbox", { name: "archive:create" }));
       await user.click(
         screen.getByRole("button", { name: "users.roles.actions.create" })
       );
 
       expect(roleManagementServiceModule.createRole).toHaveBeenCalledWith({
         name: "moderator",
+        permissions: ["users:read", "archive:create"],
       });
 
       await screen.findByText("moderator");
       expect(screen.queryByText("users.roles.empty.title")).toBeNull();
+    });
+
+    it("shows a permissions load error inside the create role dialog", async () => {
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Permissions fetch failed" } },
+      } as AxiosError);
+
+      const user = userEvent.setup();
+      render(<UserManagementPage />);
+
+      await screen.findByText("users.roles.empty.title");
+      await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
+
+      expect(await screen.findByText("Permissions fetch failed")).toBeInTheDocument();
     });
 
     it("removes the role from the list after confirming deletion", async () => {

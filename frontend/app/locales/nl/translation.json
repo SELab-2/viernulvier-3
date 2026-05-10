@@ -302,7 +302,13 @@
       "title": "Rollen",
       "loading": "Rollen worden geladen",
       "fields": {
-        "name": "Rolnaam"
+        "name": "Rolnaam",
+        "permissions": "Permissies"
+      },
+      "form": {
+        "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsLoading": "Beschikbare permissies worden geladen.",
+        "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
@@ -313,6 +319,7 @@
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
+        "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
@@ -320,7 +327,7 @@
       "dialogs": {
         "create": {
           "title": "Rol toevoegen",
-          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+          "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
         },
         "delete": {
           "title": "Rol verwijderen",
