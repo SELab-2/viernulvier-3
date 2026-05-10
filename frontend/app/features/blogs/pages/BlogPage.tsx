@@ -78,8 +78,16 @@ export default function BlogPage() {
       </div>
 
       <Divider className="bg-archive-ink/5" />
-
-      <BlogCardList blogs={blogs} />
+      {blogs && blogs.length > 0 ? (
+        <BlogCardList blogs={blogs} />
+      ) : (
+        <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+          <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+            {t("blogs.noResults.header")}
+          </p>
+          <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
+        </div>
+      )}
 
       {blogList?.pagination.has_more && (
         <ShowMoreButton

@@ -193,6 +193,10 @@
     "searchPlaceholder": "Search blogs...",
     "title": "Blogs",
     "showMore": "Show more",
+    "noResults": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less keywords"
+    },
     "card": {
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",

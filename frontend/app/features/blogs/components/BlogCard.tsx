@@ -44,7 +44,7 @@ function colorWithOpacity(color: string, opacity: number): string {
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
-  language: string
+  language: string = "en"
 ): BlogContent | null {
   if (blogContents.length === 0) {
     return null;
