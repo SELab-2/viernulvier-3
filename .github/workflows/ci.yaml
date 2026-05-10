@@ -117,8 +117,8 @@ jobs:
       - name: Export Images
         run: |
           docker save \
-            viernulvier-frontend:latest \
-            viernulvier-backend:latest \
+            viernulvier-frontend:ci \
+            viernulvier-backend:ci \
             -o docker-images.tar
 
       - name: Upload Images
