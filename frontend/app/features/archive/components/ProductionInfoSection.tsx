@@ -9,6 +9,7 @@ type ProductionInfoSectionProps = {
   infoHtml: string | undefined;
   isEditing: boolean;
   onSave: (field: string, html: string) => void;
+  onQuillDirtyChange: (isDirty: boolean) => void;
 };
 
 export function ProductionInfoSection({
@@ -18,6 +19,7 @@ export function ProductionInfoSection({
   infoHtml,
   isEditing: globalIsEditing,
   onSave,
+  onQuillDirtyChange,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
@@ -47,6 +49,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -61,6 +64,7 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -73,6 +77,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
+        onDirtyChange={onQuillDirtyChange}
       />
     </>
   );

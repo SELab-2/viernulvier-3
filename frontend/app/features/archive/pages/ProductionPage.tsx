@@ -172,7 +172,7 @@ function useUnsavedChangesBlocker(when: boolean) {
         blocker.reset();
       }
     }
-  }, [blocker]);
+  }, [blocker.state]);
 }
 
 function BackToCollectionLink() {
@@ -316,18 +316,19 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
   const [skipWarning, setSkipWarning] = useState(false);
+  const [isQuillDirty, setIsQuillDirty] = useState(false);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (skipUnloadWarning.current) return; // skip bij reload na save
-      if (isEditing && isModified) e.preventDefault();
+      if (skipUnloadWarning.current) return;
+      if (isEditing && (isModified || isQuillDirty)) e.preventDefault();
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isEditing, isModified]);
+  }, [isEditing, isModified, isQuillDirty]);
 
   // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified && !skipWarning);
+  useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -497,6 +498,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
               }}
+              onQuillDirtyChange={setIsQuillDirty}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">

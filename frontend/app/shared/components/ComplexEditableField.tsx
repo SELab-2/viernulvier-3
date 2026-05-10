@@ -46,6 +46,7 @@ type ComplexEditableFieldProps = {
   onSave: (html: string) => void;
   onCancel: () => void;
   canEdit: boolean;
+  onDirtyChange?: (isDirty: boolean) => void;
 };
 
 export default function ComplexEditableField({
@@ -58,9 +59,12 @@ export default function ComplexEditableField({
   onSave,
   onCancel,
   canEdit,
+  onDirtyChange,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
+  const [originalDelta, setOriginalDelta] = useState<Delta | null>(null);
+
   const shared_css = `
     shadow-lg
     hover:bg-archive-control-hover
@@ -76,9 +80,17 @@ export default function ComplexEditableField({
 
   useEffect(() => {
     if (isEditing && html) {
-      htmlToDelta(html).then(setDelta);
+      htmlToDelta(html).then((d) => {
+        setDelta(d);
+        setOriginalDelta(d);
+      });
     } else if (isEditing) {
-      setTimeout(() => setDelta(null), 0);
+      setTimeout(() => {
+        setDelta(null);
+        setOriginalDelta(null);
+      }, 0);
+    } else {
+      onDirtyChange?.(false);
     }
   }, [isEditing, html]);
 
@@ -89,7 +101,11 @@ export default function ComplexEditableField({
           <ArchiveRichTextFieldWrapper
             label={field}
             value={delta}
-            onChange={setDelta}
+            onChange={(newDelta) => {
+              setDelta(newDelta);
+              const dirty = JSON.stringify(newDelta) !== JSON.stringify(originalDelta);
+              onDirtyChange?.(dirty);
+            }}
             canEdit={canEdit}
           />
           <div className="mt-2 flex gap-2">
