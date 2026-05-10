@@ -13,6 +13,7 @@ vi.mock("~/features/archive/services/hallService", () => ({
 
 vi.mock("~/features/blogs/services/blogService", () => ({
   getBlogsForProduction: vi.fn(),
+  getProductionsForBlog: vi.fn(),
 }));
 
 vi.mock("~/features/archive/services/productionService", () => ({
@@ -27,7 +28,10 @@ vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
 
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import { getBlogsForProduction } from "~/features/blogs/services/blogService";
+import {
+  getBlogsForProduction,
+  getProductionsForBlog,
+} from "~/features/blogs/services/blogService";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
@@ -120,6 +124,7 @@ describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.mocked(getBlogsForProduction).mockResolvedValue([]);
+    vi.mocked(getProductionsForBlog).mockResolvedValue([]);
     vi.mocked(getProductionByUrl).mockResolvedValue({
       id_url: "",
       event_id_urls: [],
