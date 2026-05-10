@@ -1,0 +1,14 @@
+pub mod archive;
+pub mod artists;
+pub mod auth;
+pub mod blog;
+pub mod event;
+pub mod hall;
+pub mod history;
+pub mod language;
+pub mod media;
+pub mod production;
+pub mod production_group;
+pub mod statistics;
+pub mod status;
+pub mod tag;
