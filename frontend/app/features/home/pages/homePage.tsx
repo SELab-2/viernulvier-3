@@ -23,7 +23,7 @@ export default function HomePage() {
         <p className="mb-10 text-lg leading-relaxed font-light opacity-70 md:mb-16 md:text-2xl">
           {t("home.description")}
         </p>
-        <div className="border-archive-ink/5 mb-16 mx-auto grid max-w-sm grid-cols-2 items-center gap-y-10 border-y py-10 opacity-80 sm:max-w-none sm:flex sm:flex-wrap sm:justify-center sm:gap-x-16">
+        <div className="border-archive-ink/5 mx-auto mb-16 grid max-w-sm grid-cols-2 items-center gap-y-10 border-y py-10 opacity-80 sm:flex sm:max-w-none sm:flex-wrap sm:justify-center sm:gap-x-16">
           <HomeStatistic count={productionsCount} label={t("home.stats.productions")} />
           <HomeStatistic count={eventsCount} label={t("home.stats.events")} />
           <HomeStatistic count={artistsCount} label={t("home.stats.artists")} />
