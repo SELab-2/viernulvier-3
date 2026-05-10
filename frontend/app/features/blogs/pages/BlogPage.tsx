@@ -94,6 +94,7 @@ export default function BlogPage() {
           blogList={blogList}
           setBlogList={setBlogList}
           sortOrder={sortOrder}
+		  blog_name={debouncedSearch}
         />
       )}
     </div>
