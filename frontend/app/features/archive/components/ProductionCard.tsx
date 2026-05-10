@@ -518,11 +518,9 @@ export function ProductionCard({
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="flex-end">
-          <Link
+          <div
             className="production-card-text"
-            component="span"
-            underline="none"
-            sx={{
+            style={{
               color: colorWithOpacity(CARD_COLORS.accent, 0.98),
               fontWeight: "var(--weight-archive-bold)",
               textTransform: "uppercase",
@@ -535,7 +533,7 @@ export function ProductionCard({
             }}
           >
             Details <ArrowRightAlt />
-          </Link>
+          </div>
         </Stack>
       </CardContent>
     </Card>
