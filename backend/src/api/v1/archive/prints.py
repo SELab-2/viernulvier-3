@@ -47,7 +47,9 @@ async def get_prints(
     request: Request,
     cursor: int | None = Query(None),
     limit: int = Query(PRINT_DEFAULT_PAGE_SIZE, ge=1),
-    print_type: str | None = Query(None, description="Filter by type, e.g. poster, timetable, programme"),
+    print_type: str | None = Query(
+        None, description="Filter by type, e.g. poster, timetable, programme"
+    ),
     db: Session = Depends(get_db),
 ) -> PrintListResponse:
     base_url = get_base_url(str(request.url), 2)
@@ -78,8 +80,12 @@ async def get_print(
 async def post_print(
     request: Request,
     file: UploadFile = File(...),
-    label: str | None = Query(None, description="Human-readable label, e.g. 'Affiche seizoen 2023-24'"),
-    print_type: str | None = Query(None, description="Type of print: poster, timetable, programme, other"),
+    label: str | None = Query(
+        None, description="Human-readable label, e.g. 'Affiche seizoen 2023-24'"
+    ),
+    print_type: str | None = Query(
+        None, description="Type of print: poster, timetable, programme, other"
+    ),
     db: Session = Depends(get_db),
     minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),

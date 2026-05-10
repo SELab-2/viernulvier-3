@@ -83,6 +83,7 @@ def print_items(db_session: Session) -> list[Print]:
 # POST /prints/
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize(
     "content_type", ["image/jpeg", "image/png", "image/webp", "application/pdf"]
 )
@@ -108,9 +109,7 @@ def test_upload_print_success(
     assert "uploaded_at" in data
 
 
-def test_upload_print_optional_fields_absent(
-    client: TestClient, db_session: Session
-):
+def test_upload_print_optional_fields_absent(client: TestClient, db_session: Session):
     headers = create_user_and_login(
         client, db_session, "upload_user2", [Permissions.ARCHIVE_CREATE]
     )
@@ -151,6 +150,7 @@ def test_upload_print_no_permission(client: TestClient, db_session: Session):
 # ---------------------------------------------------------------------------
 # GET /prints/
 # ---------------------------------------------------------------------------
+
 
 def test_list_prints_empty(client: TestClient):
     response = client.get(f"{BASE_URL}/")
@@ -211,6 +211,7 @@ def test_list_prints_invalid_limit(client: TestClient):
 # GET /prints/{id}
 # ---------------------------------------------------------------------------
 
+
 def test_get_print(client: TestClient, print_item):
     response = client.get(f"{BASE_URL}/{print_item.id}")
     assert response.status_code == 200
@@ -234,6 +235,7 @@ def test_get_print_not_found(client: TestClient):
 # ---------------------------------------------------------------------------
 # DELETE /prints/{id}
 # ---------------------------------------------------------------------------
+
 
 def test_delete_print_success(client: TestClient, db_session: Session, print_item):
     headers = create_user_and_login(
