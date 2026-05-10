@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from src.models import Blog, BlogContent
-from src.models.production import Production
+from src.models.production_group import ProductionGroup
 from src.schemas.pagination import Pagination
 from src.api.dependencies.language import get_accepted_language
 from src.schemas.blogs import (
@@ -45,21 +45,14 @@ def build_blog_response(
         build_blog_content_response(blog_content, base_url)
         for blog_content in blog_contents
     ]
+
+    prod_group_id_url = blog.production_group_id if blog.production_group_id else ""
+
     return BlogResponse(
         id_url=f"{base_url}/blogs/{blog.id}",
+        production_group_id_url=prod_group_id_url,
         blog_contents=blog_contents,
-        production_id_urls=get_productions_for_blog(db, blog.id, base_url),
     )
-
-
-def get_productions_for_blog(db: Session, blog_id: int, base_url: str) -> list[str]:
-    blog = db.get(Blog, blog_id)
-    if not blog:
-        return []
-
-    return [
-        f"{base_url}/productions/{production.id}" for production in blog.productions
-    ]
 
 
 def get_blogs_paginated(
@@ -90,27 +83,36 @@ def get_blogs_paginated(
     )
 
 
-def get_blogs_by_production_id(
+def get_blogs_by_production_group_id(
     db: Session,
-    production_id: int,
+    production_group_id: int,
     base_url: str,
     language: str | None = None,
+    cursor: str | None = None,
+    limit: int = 20,
 ) -> BlogListResponse:
     # Get all blogs that have this production
     blogs = (
         db.query(Blog)
-        .join(Blog.productions)
-        .filter(Production.id == production_id)
-        .all()
+        .join(Blog.production_group)
+        .filter(ProductionGroup.id == production_group_id)
     )
 
-    total_count = len(blogs)
+    total_count = blogs.count()
+
+    if cursor is not None:
+        blogs = blogs.filter(Blog.id > cursor)
+
+    items = blogs.order_by(Blog.id.asc()).limit(limit + 1).all()
+
+    has_more = len(items) > limit
+    items = items[:limit]
 
     return BlogListResponse(
-        blogs=[build_blog_response(db, blog, base_url, language) for blog in blogs],
+        blogs=[build_blog_response(db, blog, base_url, language) for blog in items],
         pagination=Pagination(
-            next_cursor=None,
-            has_more=False,
+            next_cursor=items[-1].id if has_more else None,
+            has_more=has_more,
             total_count=total_count,
         ),
     )
@@ -143,21 +145,20 @@ def create_blog(db: Session, blog_in: BlogCreate, base_url: str) -> BlogResponse
     if lang is None:
         raise ValidationError(f"Language '{blog_content_in.language}' not supported.")
 
-    production_id_urls = blog_in.production_id_urls or []
-    production_ids = [
-        int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls
-    ]
+    production_group_id_url = blog_in.production_group_id_url
 
-    existing_productions = (
-        db.query(Production).filter(Production.id.in_(production_ids)).all()
-    )
-    existing_prod_ids = {p.id for p in existing_productions}
-    missing_prod_ids = set(production_ids) - existing_prod_ids
-    if missing_prod_ids:
-        raise ValidationError(f"Productions do not exist: {missing_prod_ids}")
+    if production_group_id_url is not None:
+        production_group_id = production_group_id_url.rstrip("/").split("/")[-1]
+        production_group = db.query(ProductionGroup).filter(ProductionGroup.id == production_group_id)
+    else:
+        production_group = None
+        production_group_id = None
+
+    if production_group is None and production_group_id_url is not None:
+        raise NotFoundError("Production group", production_group_id)
 
     db_blog = Blog(
-        productions=existing_productions,
+        production_group=production_group,
     )
 
     db.add(db_blog)
@@ -178,20 +179,17 @@ def update_blog_by_id(
     if not blog:
         raise NotFoundError("Blog", blog_id)
 
-    if blog_in.production_id_urls is not None:
-        production_id_urls = blog_in.production_id_urls or []
-        production_ids = [
-            int(prod_url.rstrip("/").split("/")[-1]) for prod_url in production_id_urls
-        ]
+    if blog_in.production_group_id_url is not None:
+        production_group_id_url = blog_in.production_id_urls
+        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
 
-        existing_productions = (
-            db.query(Production).filter(Production.id.in_(production_ids)).all()
+        production_group = (
+            db.query(ProductionGroup).filter(ProductionGroup.id == production_group_id).first()
         )
-        existing_prod_ids = {p.id for p in existing_productions}
-        missing_prod_ids = set(production_ids) - existing_prod_ids
-        if missing_prod_ids:
-            raise ValidationError(f"Productions do not exist: {missing_prod_ids}")
-        blog.productions = existing_productions
+
+        if production_group is None:
+            raise NotFoundError("production group", production_group_id)
+        blog.production_group = production_group
 
     if blog_in.blog_contents:
         for blog_content_in in blog_in.blog_contents:
