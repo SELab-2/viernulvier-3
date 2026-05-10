@@ -1,4 +1,5 @@
-from sqlalchemy import func
+from sqlalchemy import func, asc, desc
+from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
 from src.models import Blog, BlogContent
 from src.models.production import Production
@@ -13,6 +14,7 @@ from src.schemas.blogs import (
     BlogUpdate,
 )
 from src.api.exceptions import NotFoundError, ValidationError
+from src.services.production import SortOrder
 
 
 def build_blog_content_response(
@@ -68,12 +70,30 @@ def get_blogs_paginated(
     language: str | None = None,
     cursor: str | None = None,
     limit: int = 20,
+    blog_name: str | None = None,
+    sort_order: SortOrder = "Descending",
 ) -> BlogListResponse:
-    query = db.query(Blog)
-    if cursor is not None:
-        query = query.filter(Blog.id > cursor)
+    is_asc = sort_order == "Ascending"
+    order_func = asc if is_asc else desc
 
-    items = query.order_by(Blog.id.asc()).limit(limit + 1).all()
+    query = db.query(Blog)
+
+    if blog_name:
+        subq = (
+            db.query(BlogContent.blog_id)
+            .filter(BlogContent.title.ilike(f"%{blog_name}%"))
+            .distinct()
+            .subquery()
+        )
+        query = query.filter(Blog.id.in_(select(subq)))
+
+    if cursor is not None:
+        if is_asc:
+            query = query.filter(Blog.id > cursor)
+        else:
+            query = query.filter(Blog.id < cursor)
+
+    items = query.order_by(order_func(Blog.id)).limit(limit + 1).all()
 
     has_more = len(items) > limit
     items = items[:limit]
