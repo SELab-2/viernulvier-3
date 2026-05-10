@@ -46,4 +46,5 @@ __all__ = [
     "Blog",
     "BlogContent",
     "production_dates",
+    "Print",
 ]
