@@ -508,7 +508,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
               }}
-              onQuillDirtyChange={useCallback((isDirty: boolean) => setIsQuillDirty(isDirty), [])}
+              onQuillDirtyChange={useCallback(
+                (isDirty: boolean) => setIsQuillDirty(isDirty),
+                []
+              )}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
