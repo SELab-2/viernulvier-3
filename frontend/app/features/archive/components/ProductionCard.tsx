@@ -1,12 +1,12 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
 import Check from "@mui/icons-material/Check";
+import { Link } from "react-router";
 import {
   Box,
   Card,
   CardContent,
   CardMedia,
   Chip,
-  Link,
   Divider,
   Stack,
   Typography,
@@ -191,6 +191,7 @@ export function ProductionCard({
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
+  if (!productionId) return undefined;
 
   const handleToggleSelected = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -213,28 +214,11 @@ export function ProductionCard({
 
   const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
 
-  const handleOpenDetails = () => {
-    if (!productionId) {
-      return;
-    }
-
-    navigate(lp(`/archive/productions/${productionId}`));
-  };
-
   return (
     <Card
-      onClick={handleOpenDetails}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleOpenDetails();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
       className={className}
       sx={{
+        "position": "relative",
         "height": "100%",
         "display": "flex",
         "flexDirection": "column",
@@ -270,8 +254,12 @@ export function ProductionCard({
           color: "var(--color-archive-paper) !important",
         },
       }}
-      elevation={0}
     >
+      <Link
+        to={lp(`/archive/productions/${productionId}`)}
+        aria-label={`Open details for ${title}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      />
       <Box sx={{ position: "relative", overflow: "hidden" }}>
         <CardMedia
           className="production-card-image"
