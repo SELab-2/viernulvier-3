@@ -24,13 +24,20 @@ import { Protected, useAuthSession } from "~/features/auth";
 const PRODUCTION_GROUP_QUERY_PARAM = "group";
 
 function toProductionGroupQueryValue(title: string): string {
-  return title
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  return (
+    title
+      // Split accented characters into their base letter and combining marks.
+      .normalize("NFKD")
+      // Drop the combining marks so query values stay ASCII-only.
+      .replace(/[\u0300-\u036f]/g, "")
+      // Make matching case-insensitive and remove accidental surrounding spaces.
+      .toLowerCase()
+      .trim()
+      // Turn whitespace and punctuation into a single URL-friendly separator.
+      .replace(/[^a-z0-9]+/g, "-")
+      // Clean up separators that may have landed at the edges.
+      .replace(/(^-|-$)/g, "")
+  );
 }
 
 function getRequestedProductionGroupFilters(searchParams: URLSearchParams): string[] {
