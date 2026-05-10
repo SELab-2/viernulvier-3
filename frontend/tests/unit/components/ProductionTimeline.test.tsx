@@ -2,9 +2,7 @@ import { screen, within, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { mockProductions } from "tests/mocks/productions.mock";
 import { describe, it, expect } from "vitest";
-import {
-  ProductionTimeline,
-} from "~/features/archive/components/ProductionTimeline";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { SortOrderEnum } from "~/shared/components/SortOrderSelection";
 

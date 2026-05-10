@@ -4,7 +4,10 @@ import { BlogCardList } from "../components/BlogCard";
 import { getBlogsPaginated } from "../services/blogService";
 import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
-import { SortOrderEnum, SortOrderSelection } from "~/shared/components/SortOrderSelection";
+import {
+  SortOrderEnum,
+  SortOrderSelection,
+} from "~/shared/components/SortOrderSelection";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { useDebouncedState } from "~/features/archive/utils/debouncedState";
 import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
@@ -35,11 +38,7 @@ function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t("blogs.searchPlaceholder")}
-        className="
-          border-archive-ink/15 text-archive-ink placeholder:text-archive-ink/40
-          focus:border-archive-ink/40 w-full rounded-lg border bg-transparent
-          py-2 pr-4 pl-9 text-sm outline-none transition
-        "
+        className="border-archive-ink/15 text-archive-ink placeholder:text-archive-ink/40 focus:border-archive-ink/40 w-full rounded-lg border bg-transparent py-2 pr-4 pl-9 text-sm transition outline-none"
       />
     </div>
   );

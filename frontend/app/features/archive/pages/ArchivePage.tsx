@@ -3,9 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Tag } from "~/features/archive/types/tagTypes";
 import { Outlet } from "react-router";
 
-import {
-  ProductionTimeline,
-} from "~/features/archive/components/ProductionTimeline";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import { Divider } from "@mui/material";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
@@ -14,7 +12,10 @@ import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
 import { useDebouncedState } from "../utils/debouncedState";
-import { SortOrderEnum, SortOrderSelection } from "~/shared/components/SortOrderSelection";
+import {
+  SortOrderEnum,
+  SortOrderSelection,
+} from "~/shared/components/SortOrderSelection";
 import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 
 function buildProductionFilters({
@@ -45,9 +46,7 @@ function buildProductionFilters({
 export default function ArchivePage() {
   const { t, i18n } = useTranslation();
 
-  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(
-    SortOrderEnum.NewestFirst
-  );
+  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");

@@ -39,7 +39,14 @@ async def get_blogs(
     sort_order: SortOrder = Query("Descending"),
 ) -> BlogListResponse:
     base_url = get_base_url(str(request.url))
-    return get_blogs_paginated(db, base_url, cursor=cursor, limit=limit, blog_name=blog_name, sort_order=sort_order)
+    return get_blogs_paginated(
+        db,
+        base_url,
+        cursor=cursor,
+        limit=limit,
+        blog_name=blog_name,
+        sort_order=sort_order,
+    )
 
 
 @router.get(

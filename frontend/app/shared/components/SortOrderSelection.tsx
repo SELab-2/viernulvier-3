@@ -5,7 +5,6 @@ export enum SortOrderEnum {
   OldestFirst = "OldestFirst",
 }
 
-
 export function SortOrderSelection({
   sortOrder,
   setSortOrder,
