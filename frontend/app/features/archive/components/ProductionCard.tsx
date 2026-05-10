@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
@@ -162,7 +162,6 @@ export function ProductionCard({
   onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
   const { lang } = useParams();
   if (!preferredLanguage) preferredLanguage = lang || "nl";
@@ -191,7 +190,7 @@ export function ProductionCard({
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
-  if (!productionId) return undefined;
+  if (!productionId) return null;
 
   const handleToggleSelected = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -526,7 +525,6 @@ export function ProductionCard({
               textTransform: "uppercase",
               letterSpacing: "var(--tracking-archive-label)",
               fontSize: "var(--text-archive-meta)",
-              cursor: "pointer",
               display: "flex",
               alignItems: "center",
               gap: 0.5,
