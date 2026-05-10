@@ -16,7 +16,7 @@ function BackToArchiveLink() {
   const lp = useLocalizedPath();
   return (
     <Link
-      to={lp("/archive")}
+      to={lp("/blogs")}
       className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
     >
       {t("blogs.createBlogPage.backToBlogs")}
