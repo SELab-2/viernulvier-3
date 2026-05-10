@@ -51,7 +51,7 @@ describe("tagService", () => {
 
   describe("getAllTags", () => {
     it("returns a list of tags on success", async () => {
-      mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
+      mockAdapter.onGet("/api/v1/archive/tags/").reply(200, [mockTag1, mockTag2]);
 
       const result = await getAllTags();
       expect(result).toEqual([mockTag1, mockTag2]);
@@ -60,7 +60,7 @@ describe("tagService", () => {
 
   describe("getTagById", () => {
     it("returns a tag object on success", async () => {
-      mockAdapter.onGet("/api/v1/archive/tags/1").reply(200, mockTag1);
+      mockAdapter.onGet("/api/v1/archive/tags/1/").reply(200, mockTag1);
 
       const result = await getTagById(1);
       expect(result).toEqual(mockTag1);
@@ -69,14 +69,14 @@ describe("tagService", () => {
 
   describe("getTagByName", () => {
     it("returns a tag object on success (nl)", async () => {
-      mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
+      mockAdapter.onGet("/api/v1/archive/tags/").reply(200, [mockTag1, mockTag2]);
 
       const result = await getTagByName("tag naam");
       expect(result).toEqual(mockTag1);
     });
 
     it("returns a tag object on success (en)", async () => {
-      mockAdapter.onGet("/api/v1/archive/tags").reply(200, [mockTag1, mockTag2]);
+      mockAdapter.onGet("/api/v1/archive/tags/").reply(200, [mockTag1, mockTag2]);
 
       const result = await getTagByName("tag name");
       expect(result).toEqual(mockTag1);
@@ -86,7 +86,7 @@ describe("tagService", () => {
   describe("createTag", () => {
     it("creates a tag object and returns it on success", async () => {
       // Upon calling post, return the request with an added id field
-      mockAdapter.onPost("/api/v1/archive/tags").reply((config) => {
+      mockAdapter.onPost("/api/v1/archive/tags/").reply((config) => {
         const data = {
           id_url: mockTag1.id_url,
           ...JSON.parse(config.data),
@@ -101,7 +101,7 @@ describe("tagService", () => {
 
   describe("editTag", () => {
     it("edits a tag by id and returns the updated object", async () => {
-      mockAdapter.onPatch("/api/v1/archive/tags/1").reply((config) => {
+      mockAdapter.onPatch("/api/v1/archive/tags/1/").reply((config) => {
         const data = {
           id_url: "http://localhost/api/v1/archive/tags/1",
           ...JSON.parse(config.data),
@@ -116,7 +116,7 @@ describe("tagService", () => {
 
   describe("deleteTag", () => {
     it("deletes a tag", async () => {
-      mockAdapter.onDelete("/api/v1/archive/tags/1").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/tags/1/").reply(204);
       await deleteTag(1);
     });
   });
