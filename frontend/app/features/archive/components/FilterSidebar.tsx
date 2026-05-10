@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getArtists } from "~/features/archive/services/artistService";
-import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
@@ -232,31 +231,34 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
 };
 
 interface ProductionGroupCardProps {
+  productionGroups: ProductionGroup[];
   selectedProductionGroups: ProductionGroup[];
-  setSelectedProductionGroups: React.Dispatch<React.SetStateAction<ProductionGroup[]>>;
+  setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
 }
 
 const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
+  productionGroups,
   selectedProductionGroups,
   setSelectedProductionGroups,
 }) => {
-  const [productionGroups, setProductionGroups] = useState<ProductionGroup[]>([]);
   const [groupQuery, setGroupQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
   const { t } = useTranslation();
 
   const toggleProductionGroup = (productionGroup: ProductionGroup) => {
-    setSelectedProductionGroups((prev) =>
-      prev.includes(productionGroup)
-        ? prev.filter((group) => group !== productionGroup)
-        : [...prev, productionGroup]
+    const isSelected = selectedProductionGroups.some(
+      (selectedGroup) => selectedGroup.id_url === productionGroup.id_url
+    );
+
+    setSelectedProductionGroups(
+      isSelected
+        ? selectedProductionGroups.filter(
+            (selectedGroup) => selectedGroup.id_url !== productionGroup.id_url
+          )
+        : [...selectedProductionGroups, productionGroup]
     );
   };
-
-  useEffect(() => {
-    getAllProductionGroups().then(setProductionGroups).catch(console.error);
-  }, []);
 
   const filteredProductionGroups =
     groupQuery.trim().length > 0
@@ -446,8 +448,9 @@ interface FilterSidebarProps {
   setDateTo: React.Dispatch<React.SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  productionGroups: ProductionGroup[];
   selectedProductionGroups: ProductionGroup[];
-  setSelectedProductionGroups: React.Dispatch<React.SetStateAction<ProductionGroup[]>>;
+  setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -462,6 +465,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setDateTo,
   selectedTags,
   setSelectedTags,
+  productionGroups,
   selectedProductionGroups,
   setSelectedProductionGroups,
   selectedArtists,
@@ -510,6 +514,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       />
       <FilterTagCard selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
       <FilterProductionGroupCard
+        productionGroups={productionGroups}
         selectedProductionGroups={selectedProductionGroups}
         setSelectedProductionGroups={setSelectedProductionGroups}
       />

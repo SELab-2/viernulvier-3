@@ -65,6 +65,7 @@ const defaultProps = () => ({
   setDateTo: vi.fn(),
   selectedTags: [] as Tag[],
   setSelectedTags: vi.fn(),
+  productionGroups: PRODUCTION_GROUPS,
   selectedProductionGroups: [] as ProductionGroup[],
   setSelectedProductionGroups: vi.fn(),
   selectedArtists: [] as string[],
