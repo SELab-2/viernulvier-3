@@ -76,6 +76,8 @@
     "placeLabel": "Venue",
     "priceLabel": "Price",
     "noPrice": "No price available",
+    "address": "Address",
+    "addressUnknown": "Address unknown",
 
     "visualEvidence": "Photos",
 

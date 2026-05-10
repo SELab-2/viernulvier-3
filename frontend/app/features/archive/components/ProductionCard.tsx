@@ -138,6 +138,8 @@ function getVenues(production: Production): string[] | undefined {
   if (!production.events?.length) return;
 
   // TODO: fix this to use actual I18N
+  // NOTE: this actually never reaches because `production.events` is
+  //       currently always undefined
   const halls = production.events
     .map((e) => e.hall?.names[0].name)
     .filter((name): name is string => !!name);

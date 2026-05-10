@@ -131,7 +131,6 @@ export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
 
   const getLocalizedHallName = (hall?: Hall): string => {
-    console.log(`In getLocalizedHallName with hall: ${hall}`);
     const lang = i18n.language.startsWith("nl") ? "nl" : "en";
     const fallback = lang === "nl" ? "en" : "nl";
     return (
@@ -167,6 +166,14 @@ export function EventCard({ event }: EventCardProps) {
             <EventCardDetail
               label={t("productionPage.priceLabel")}
               value={eventPrice}
+            />
+            <EventCardDetail
+              label={t("productionPage.address")}
+              value={
+                event.hall?.address ??
+                event.resolvedHall?.address ??
+                t("productionPage.addressUnknown")
+              }
             />
           </div>
         </div>
