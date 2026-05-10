@@ -9,7 +9,9 @@ from src.database import Base
 class Blog(Base):
     __tablename__ = "blogs"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    production_group_id = Column(Integer, ForeignKey("production_groups.id"), nullable=True)
+    production_group_id = Column(
+        Integer, ForeignKey("production_groups.id"), nullable=True
+    )
 
     media = relationship("Media", back_populates="blog")
     contents = relationship("BlogContent", back_populates="blog")

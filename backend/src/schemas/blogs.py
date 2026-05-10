@@ -35,7 +35,7 @@ class BlogContentCreate(StrictModel):
 # The model for creating a blog
 class BlogCreate(StrictModel):
     blog_content: BlogContentCreate
-    production_group_id_urls: Optional[str] = None
+    production_group_id_url: Optional[str] = None
 
 
 # The model for updating content of a blog in a specific language
