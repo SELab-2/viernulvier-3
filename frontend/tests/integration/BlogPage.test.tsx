@@ -133,7 +133,7 @@ describe("BlogPage", () => {
       expectEveryBlogVisible([mockBlogs[0]]);
 
       expect(blogService.getBlogsPaginated).toHaveBeenNthCalledWith(1, {
-        blog_name: undefined,
+        blog_name: "",
         sort_order: "Descending",
       });
 
@@ -144,7 +144,7 @@ describe("BlogPage", () => {
 
       expect(blogService.getBlogsPaginated).toHaveBeenCalledWith({
         cursor: "test_cursor",
-        blog_name: undefined,
+        blog_name: "",
         sort_order: "Descending",
       });
     });

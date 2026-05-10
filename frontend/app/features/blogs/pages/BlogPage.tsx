@@ -54,7 +54,7 @@ export default function BlogPage() {
   useEffect(() => {
     async function fetchBlogs() {
       const result = await getBlogsPaginated({
-        blog_name: debouncedSearch || undefined,
+        blog_name: debouncedSearch || "",
         sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
       });
       setBlogList(result);
