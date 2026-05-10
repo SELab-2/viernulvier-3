@@ -4,6 +4,7 @@ import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
 import * as productionService from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { MemoryRouter } from "react-router";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -70,7 +71,11 @@ const mockProductionEN: Production = {
 };
 
 function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
-  return render(<BlogCard blog={mockBlog} preferredLanguage="en" {...props} />);
+  return render(
+    <MemoryRouter>
+      <BlogCard blog={mockBlog} preferredLanguage="en" {...props} />
+    </MemoryRouter>
+  );
 }
 
 describe("BlogCard", () => {
@@ -199,7 +204,9 @@ describe("BlogCardList", () => {
     render(
       <div>
         {[mockBlog, blog2].map((blog) => (
-          <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
+          <MemoryRouter>
+            <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
+          </MemoryRouter>
         ))}
       </div>
     );

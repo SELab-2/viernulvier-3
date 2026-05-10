@@ -193,6 +193,12 @@
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
     },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:"
+    },
     "detail": {
       "title": "Blog",
       "comingSoon": "Deze blogpagina komt binnenkort."

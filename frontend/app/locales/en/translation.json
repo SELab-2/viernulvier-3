@@ -195,6 +195,12 @@
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
     },
+    "contentPage": {
+      "backToBlogs": "Back to blogs",
+      "linkedProductions": "Linked productions:",
+      "fallback": "No translation available",
+      "media": "Linked media:"
+    },
     "detail": {
       "title": "Blog",
       "comingSoon": "This blog page is coming soon."
