@@ -180,7 +180,7 @@ describe("Archive", () => {
       await user.click(screen.getByText("archive.show_more"));
 
       // After clicking show more
-      expectEveryProductionVisible(mockProductions.slice(1));
+      await waitFor(() => expectEveryProductionVisible(mockProductions.slice(1)));
 
       expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
         cursor: "test_cursor",

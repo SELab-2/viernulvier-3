@@ -204,8 +204,8 @@ describe("BlogCardList", () => {
     render(
       <div>
         {[mockBlog, blog2].map((blog) => (
-          <MemoryRouter>
-            <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
+          <MemoryRouter key={blog.id_url}>
+            <BlogCard blog={blog} preferredLanguage="en" />
           </MemoryRouter>
         ))}
       </div>
