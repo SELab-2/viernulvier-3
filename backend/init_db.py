@@ -87,7 +87,9 @@ def seed_db():
                     sync_state = SyncState(
                         resource=resource_type,
                         sync_type=sync_type,
-                        last_timestamp=start_sync_date,
+                        last_timestamp=start_sync_date
+                        if resource_type != ResourceType.HALLS
+                        else datetime.fromisocalendar(2000, 1, 1),
                     )
                     db.add(sync_state)
                     db.commit()
