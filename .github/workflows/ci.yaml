@@ -68,16 +68,13 @@ jobs:
         run: npx react-router typegen && npx tsc
         working-directory: frontend
 
-  smoke-test:
-    name: Docker Smoke Test (${{ matrix.target }})
+  build-docker-images:
+    name: Build Docker Images
     needs:
       - lint-backend
       - lint-frontend
-    runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        target: [frontend, backend]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
@@ -85,6 +82,14 @@ jobs:
 
       - name: Clean workspace
         run: git clean -fdx
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Enable BuildKit
+        run: |
+          echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
+          echo "COMPOSE_DOCKER_CLI_BUILD=1" >> $GITHUB_ENV
 
       - name: Create .env file
         run: |
@@ -105,24 +110,127 @@ jobs:
           MINIO_ENDPOINT=minio:9000
           MINIO_BUCKET=media
           EOF
-      - name: Set project name
-        run: echo "PROJECT_NAME=viernulvier-ci-${{ matrix.target }}" >> $GITHUB_ENV
 
-      - name: Build Docker Environment
-        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME up -d --build --wait
+      - name: Build Docker Images
+        run: docker compose -f docker-compose.ci.yml build
+
+      - name: Export Images
+        run: |
+          docker save \
+            viernulvier-frontend:latest \
+            viernulvier-backend:latest \
+            -o docker-images.tar
+
+      - name: Upload Images
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: docker-images.tar
+
+  frontend-smoke-test:
+    name: Frontend Smoke Test
+
+    needs:
+      - build-docker-images
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+
+      - name: Load Images
+        run: docker load -i docker-images.tar
+
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          POSTGRES_USER=viernulvier
+          POSTGRES_PASSWORD=archief_test_password
+          POSTGRES_DB=viernulvier_archief
+          DATABASE_HOST=database
+          DATABASE_PORT=5432
+          JWT_SECRET_KEY=viernulvier_test_secret_2026_longer_for_ci_testing
+          JWT_ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=30
+          REFRESH_TOKEN_EXPIRE_MINUTES=43200
+          VIERNULVIER_KEY=viernulvier_test_api_key
+          VITE_API_BASE_URL=http://localhost/
+          MINIO_ROOT_USER=minioadmin
+          MINIO_ROOT_PASSWORD=minioadmin
+          MINIO_ENDPOINT=minio:9000
+          MINIO_BUCKET=media
+          EOF
+
+      - name: Start Environment
+        run: docker compose -f docker-compose.ci.yml up -d --wait
 
       - name: Run Frontend Tests
-        if: matrix.target == 'frontend'
-        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME run --rm frontend npm run test
-
-      - name: Run Backend Tests
-        if: matrix.target == 'backend'
-        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME exec -T backend pytest tests/
+        run: docker compose -f docker-compose.ci.yml run --rm frontend npm run test
 
       - name: Dump Docker Logs
         if: failure()
-        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME logs
+        run: docker compose -f docker-compose.ci.yml logs
 
-      - name: Shut Down Docker Environment
+      - name: Shut Down Environment
         if: always()
-        run: docker compose -f docker-compose.ci.yml --project-name $PROJECT_NAME down -v
+        run: docker compose -f docker-compose.ci.yml down -v
+
+  backend-smoke-test:
+    name: Backend Smoke Test
+
+    needs:
+      - build-docker-images
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+
+      - name: Load Images
+        run: docker load -i docker-images.tar
+
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          POSTGRES_USER=viernulvier
+          POSTGRES_PASSWORD=archief_test_password
+          POSTGRES_DB=viernulvier_archief
+          DATABASE_HOST=database
+          DATABASE_PORT=5432
+          JWT_SECRET_KEY=viernulvier_test_secret_2026_longer_for_ci_testing
+          JWT_ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=30
+          REFRESH_TOKEN_EXPIRE_MINUTES=43200
+          VIERNULVIER_KEY=viernulvier_test_api_key
+          VITE_API_BASE_URL=http://localhost/
+          MINIO_ROOT_USER=minioadmin
+          MINIO_ROOT_PASSWORD=minioadmin
+          MINIO_ENDPOINT=minio:9000
+          MINIO_BUCKET=media
+          EOF
+
+      - name: Start Environment
+        run: docker compose -f docker-compose.ci.yml up -d --wait
+
+      - name: Run Backend Tests
+        run: docker compose -f docker-compose.ci.yml exec -T backend pytest tests/
+
+      - name: Dump Docker Logs
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs
+
+      - name: Shut Down Environment
+        if: always()
+        run: docker compose -f docker-compose.ci.yml down -v
