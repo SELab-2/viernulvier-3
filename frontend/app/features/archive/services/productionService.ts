@@ -30,7 +30,7 @@ export async function getProductionsPaginated(
 ): Promise<ProductionList> {
   const apiClient = createApiClient();
 
-  const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions`, {
+  const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions/`, {
     params: {
       ...params,
       tag_ids: params?.tag_ids?.join(","),

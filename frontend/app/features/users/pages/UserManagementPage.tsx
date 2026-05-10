@@ -18,6 +18,7 @@ import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 import { UserCard } from "../components/UserCard";
 import { RoleCard } from "../components/RoleCard";
 import { USER_PERMISSIONS } from "../users.constants";
+import { listPermissions } from "../services/permissionManagementService";
 import { createUser, deleteUser, listUsers } from "../services/userManagementService";
 import { createRole, deleteRole, listRoles } from "../services/roleManagementService";
 import type {
@@ -322,25 +323,43 @@ function DeleteUserDialog({
 function CreateRoleDialog({
   open,
   isSubmitting,
+  availablePermissions,
+  isLoadingPermissions,
+  permissionsErrorMessage,
   errorMessage,
   onClose,
   onSubmit,
 }: {
   open: boolean;
   isSubmitting: boolean;
+  availablePermissions: string[];
+  isLoadingPermissions: boolean;
+  permissionsErrorMessage: string | null;
   errorMessage: string | null;
   onClose: () => void;
   onSubmit: (payload: IRoleCreateRequest) => Promise<void>;
 }) {
   const { t } = useTranslation();
   const [name, setName] = useState("");
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const trimmedName = name.trim();
 
   function resetForm() {
     setName("");
+    setSelectedPermissions([]);
     setValidationError(null);
+  }
+
+  function togglePermission(permissionName: string) {
+    setSelectedPermissions((currentPermissions) =>
+      currentPermissions.includes(permissionName)
+        ? currentPermissions.filter(
+            (currentPermission) => currentPermission !== permissionName
+          )
+        : [...currentPermissions, permissionName]
+    );
   }
 
   function handleClose() {
@@ -357,7 +376,10 @@ function CreateRoleDialog({
     }
 
     setValidationError(null);
-    await onSubmit({ name: trimmedName });
+    await onSubmit({
+      name: trimmedName,
+      permissions: selectedPermissions,
+    });
   }
 
   return (
@@ -398,6 +420,49 @@ function CreateRoleDialog({
               }
             }}
           />
+
+          <div>
+            <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
+              {t("users.roles.fields.permissions")}
+            </div>
+            <p
+              className={`mt-2 text-sm leading-relaxed ${
+                permissionsErrorMessage ? "text-[color:#a04238]" : "opacity-65"
+              }`}
+            >
+              {permissionsErrorMessage
+                ? permissionsErrorMessage
+                : isLoadingPermissions
+                  ? t("users.roles.form.permissionsLoading")
+                  : availablePermissions.length > 0
+                    ? t("users.roles.form.permissionsHint")
+                    : t("users.roles.form.permissionsEmptyHint")}
+            </p>
+
+            {availablePermissions.length > 0 ? (
+              <div className="mt-4 grid gap-2">
+                {availablePermissions.map((permission) => {
+                  const isSelected = selectedPermissions.includes(permission);
+
+                  return (
+                    <label
+                      key={permission}
+                      className="flex cursor-pointer items-center gap-3 rounded-[1rem] px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => togglePermission(permission)}
+                        sx={roleCheckboxSx}
+                      />
+                      <span className="text-sm font-medium text-[color:var(--archive-ink)]">
+                        {permission}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
         </form>
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
@@ -525,6 +590,9 @@ export default function UserManagementPage() {
   const [deleteRoleError, setDeleteRoleError] = useState<string | null>(null);
   const [isDeletingRole, setIsDeletingRole] = useState(false);
   const [roleIdToDelete, setRoleIdToDelete] = useState<number | null>(null);
+  const [availablePermissions, setAvailablePermissions] = useState<string[]>([]);
+  const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
+  const [permissionsError, setPermissionsError] = useState<string | null>(null);
 
   const userToDelete =
     userIdToDelete === null
@@ -603,6 +671,45 @@ export default function UserManagementPage() {
     }
 
     void loadRoles();
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [reloadToken, t]);
+
+  useEffect(() => {
+    let isDisposed = false;
+
+    async function loadPermissions() {
+      setIsLoadingPermissions(true);
+      setPermissionsError(null);
+
+      try {
+        const fetchedPermissions = await listPermissions();
+
+        if (isDisposed) {
+          return;
+        }
+
+        setAvailablePermissions(
+          [...fetchedPermissions].sort((left, right) => left.localeCompare(right))
+        );
+      } catch (error) {
+        if (isDisposed) {
+          return;
+        }
+
+        setPermissionsError(
+          getApiErrorMessage(error, t("users.roles.messages.permissionsLoadFailed"))
+        );
+      } finally {
+        if (!isDisposed) {
+          setIsLoadingPermissions(false);
+        }
+      }
+    }
+
+    void loadPermissions();
 
     return () => {
       isDisposed = true;
@@ -950,6 +1057,9 @@ export default function UserManagementPage() {
         <CreateRoleDialog
           open={true}
           isSubmitting={isCreatingRole}
+          availablePermissions={availablePermissions}
+          isLoadingPermissions={isLoadingPermissions}
+          permissionsErrorMessage={permissionsError}
           errorMessage={createRoleError}
           onClose={closeCreateRoleDialog}
           onSubmit={handleCreateRole}

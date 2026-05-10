@@ -1,9 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
+import ComplexEditableField from "~/shared/components/ComplexEditableField";
 
 type ProductionInfoSectionProps = {
-  prodinfo_available: boolean;
   tagline: string;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
@@ -13,7 +12,6 @@ type ProductionInfoSectionProps = {
 };
 
 export function ProductionInfoSection({
-  prodinfo_available,
   tagline,
   teaserHtml,
   descriptionHtml,
@@ -29,14 +27,6 @@ export function ProductionInfoSection({
       setTimeout(() => setEditing(null), 0);
     }
   }, [globalIsEditing]);
-
-  if (!prodinfo_available) {
-    return (
-      <p id="no-prodinfo" className="opacity-75">
-        {t("productionPage.infoNotAvailable")}
-      </p>
-    );
-  }
 
   function handleSave(field: string, html: string) {
     onSave(field, html);

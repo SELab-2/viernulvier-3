@@ -25,7 +25,7 @@ describe("artistService", () => {
 
   describe("getArtists", () => {
     it("returns the nl list when lang_code is 'nl'", async () => {
-      mockAdapter.onGet("/api/v1/archive/artists").reply(200, MOCK_RESPONSE);
+      mockAdapter.onGet("/api/v1/archive/artists/").reply(200, MOCK_RESPONSE);
 
       const result = await getArtists("nl");
 
@@ -33,7 +33,7 @@ describe("artistService", () => {
     });
 
     it("returns the en list when lang_code is 'en'", async () => {
-      mockAdapter.onGet("/api/v1/archive/artists").reply(200, MOCK_RESPONSE);
+      mockAdapter.onGet("/api/v1/archive/artists/").reply(200, MOCK_RESPONSE);
 
       const result = await getArtists("en");
 
@@ -41,7 +41,7 @@ describe("artistService", () => {
     });
 
     it("throws when the request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/artists").reply(500);
+      mockAdapter.onGet("/api/v1/archive/artists/").reply(500);
 
       await expect(getArtists("nl")).rejects.toThrow();
     });
