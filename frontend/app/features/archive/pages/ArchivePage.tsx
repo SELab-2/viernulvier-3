@@ -149,8 +149,8 @@ export default function ArchivePage() {
         <div className="w-full">
           {/* Production list header */}
           <div className="mb-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="center-items flex flex-wrap items-center gap-4">
-              <p className="italic opacity-60 md:text-lg">
+            <div className="center-items flex flex-wrap items-center gap-3 font-sans md:gap-4">
+              <p className="text-sm font-medium tracking-[0.02em] text-archive-ink/60 md:text-base">
                 {/* Result count */}
                 {total_count}{" "}
                 {total_count === 1 ? t("archive.result") : t("archive.results")}
@@ -165,6 +165,7 @@ export default function ArchivePage() {
                   sx={{
                     "color": "var(--color-archive-ink)",
                     "opacity": 0.55,
+                    "fontFamily": "var(--font-sans)",
                     "textTransform": "uppercase",
                     "letterSpacing": "0.08em",
                     "fontSize": "0.72rem",
@@ -181,9 +182,9 @@ export default function ArchivePage() {
           </div>
 
           {selectedProductionIds.length > 0 ? (
-            <div className="border-archive-accent/20 bg-archive-surface/60 mb-4 flex flex-col gap-3 rounded-2xl border px-5 py-3.5 backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
-              <p className="text-archive-ink font-serif text-xl tracking-tight">
-                <span className="text-archive-accent font-bold">
+            <div className="border-archive-accent/20 bg-archive-surface/60 mb-4 flex flex-col gap-3 rounded-2xl border px-5 py-3.5 font-sans backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
+              <p className="text-archive-ink text-lg font-medium tracking-[0.01em] md:text-xl">
+                <span className="text-archive-accent font-semibold">
                   {selectedProductionIds.length}
                 </span>{" "}
                 {selectedProductionIds.length === 1
@@ -200,9 +201,11 @@ export default function ArchivePage() {
                   sx={{
                     "borderColor": "var(--color-archive-accent)",
                     "color": "var(--color-archive-accent)",
+                    "fontFamily": "var(--font-sans)",
                     "textTransform": "uppercase",
                     "letterSpacing": "0.08em",
                     "fontSize": "0.72rem",
+                    "fontWeight": 600,
                     "&:hover": {
                       borderColor: "var(--color-archive-accent)",
                       backgroundColor:

@@ -6,12 +6,14 @@ export function CreateProductionButton({ onClick }: { onClick?: () => void }) {
   const { t } = useTranslation();
   return (
     <Protected permissions={["archive:create"]}>
-      <div
-        className="bg-archive-accent/90 hover:bg-archive-accent flex cursor-pointer items-center justify-between rounded-lg px-2 py-1"
+      <button
+        type="button"
+        className="bg-archive-accent/90 hover:bg-archive-accent text-archive-paper inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 font-sans text-sm font-medium tracking-[0.02em] transition-colors"
         onClick={onClick}
       >
-        <Add /> <p>{t("archive.create_production")}</p>
-      </div>
+        <Add sx={{ fontSize: 18 }} />
+        <span>{t("archive.create_production")}</span>
+      </button>
     </Protected>
   );
 }
