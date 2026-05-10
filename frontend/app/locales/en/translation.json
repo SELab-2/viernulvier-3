@@ -190,6 +190,9 @@
   },
 
   "blogs": {
+	"searchPlaceholder": "Search blogs...",
+	"title": "Blogs",
+	"showMore": "Show more",
     "card": {
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",

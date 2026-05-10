@@ -188,6 +188,9 @@
   },
 
   "blogs": {
+	"searchPlaceholder": "Zoek naar blogs...",
+	"title": "Blogs",
+	"showMore": "Toon meer",
     "card": {
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",

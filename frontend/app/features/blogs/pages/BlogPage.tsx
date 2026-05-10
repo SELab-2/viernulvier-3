@@ -34,7 +34,7 @@ function SearchBar({
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={t("blogs.search.placeholder")}
+        placeholder={t("blogs.searchPlaceholder")}
         className="
           border-archive-ink/15 text-archive-ink placeholder:text-archive-ink/40
           focus:border-archive-ink/40 w-full rounded-lg border bg-transparent
@@ -73,7 +73,6 @@ export default function BlogPage() {
         </h1>
       </div>
 
-      {/* Search + sort toolbar */}
       <div className="mb-4 flex flex-row items-center justify-between gap-3">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
         <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
