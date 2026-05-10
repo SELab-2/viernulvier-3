@@ -121,7 +121,8 @@ async function handleInfoSave(
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
-  skipUnloadWarning: React.MutableRefObject<boolean>
+  skipUnloadWarning: React.RefObject<boolean>,
+  setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   if (!draftInfo) return;
 
@@ -148,6 +149,7 @@ async function handleInfoSave(
     setIsEditing(false);
     if (!originalInfo) {
       skipUnloadWarning.current = true;
+      setSkipWarning(true);
       window.location.reload();
     }
   } catch (err) {
@@ -284,7 +286,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setIsEditing,
       setIsSaving,
       language,
-      skipUnloadWarning
+      skipUnloadWarning,
+      setSkipWarning
     );
 
   // State when editing, keeps track if something has changed
@@ -312,6 +315,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   // Prevent moving away from page when edit is modified (browser aways)
   // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
+  const [skipWarning, setSkipWarning] = useState(false);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -323,7 +327,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   }, [isEditing, isModified]);
 
   // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning.current);
+  useUnsavedChangesBlocker(isEditing && isModified && !skipWarning);
 
   const title = getTextOrDefault(
     productionInfo?.title,
