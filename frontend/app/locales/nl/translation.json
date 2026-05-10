@@ -51,9 +51,8 @@
     }
   },
   "productionPage": {
-    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
-      "unknownProduction": "Onbekende productie",
+      "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
       "noTeaser": "Geen teaser beschikbaar voor deze productie.",
@@ -78,6 +77,7 @@
     "visualEvidence": "Foto's",
 
     "edit": {
+      "add": "Voeg info toe",
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
@@ -93,9 +93,6 @@
       "delete": "Verwijder",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
-    },
-    "add": {
-      "add": "Voeg productie-informatie toe"
     }
   },
 
