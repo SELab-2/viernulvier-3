@@ -50,7 +50,7 @@ function MediaUploadWidget() {
   return (
     <div className="mt-2">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
+        <h3 className="text-archive-ink/70 text-xs font-bold tracking-[0.2em] uppercase">
           {t("blogs.createBlogPage.media.title")}
         </h3>
       </div>
@@ -70,20 +70,20 @@ function MediaUploadWidget() {
         className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 transition ${
           isDragging
             ? "border-archive-accent bg-archive-accent/10"
-            : "border-archive-ink/15 dark:border-archive-paper/15 hover:border-archive-accent/60 bg-archive-ink/3 dark:bg-archive-paper/3"
+            : "border-archive-ink/15 hover:border-archive-accent/60 bg-archive-ink/3"
         } `}
       >
         <PermMediaOutlinedIcon
-          className="text-archive-ink/40 dark:text-archive-paper/40"
+          className="text-archive-ink/40"
           style={{ fontSize: 36 }}
         />
-        <p className="text-archive-ink/60 dark:text-archive-paper/60 text-center text-sm leading-snug">
+        <p className="text-archive-ink/60 text-center text-sm leading-snug">
           {t("blogs.createBlogPage.media.dropMedia")}{" "}
           <span className="text-archive-accent font-semibold underline">
             {t("blogs.createBlogPage.media.browse")}
           </span>
         </p>
-        <p className="text-archive-ink/35 dark:text-archive-paper/35 text-xs">
+        <p className="text-archive-ink/35 text-xs">
           {t("blogs.createBlogPage.media.acceptedFileFormats")}
         </p>
         <input
@@ -144,14 +144,14 @@ function SeriesSearchBar() {
   return (
     <div className="mt-2">
       <div className="mb-2">
-        <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
+        <h3 className="text-archive-ink/70 text-xs font-bold tracking-[0.2em] uppercase">
           {t("blogs.createBlogPage.series.title")}
         </h3>
       </div>
 
       <div className="relative flex items-center">
         <SearchIcon
-          className="text-archive-ink/40 dark:text-archive-paper/40 absolute left-3"
+          className="text-archive-ink/40 absolute left-3"
           style={{ fontSize: 18 }}
         />
         <input
@@ -159,7 +159,7 @@ function SeriesSearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("blogs.createBlogPage.series.searchSeries")}
-          className={`bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition focus:ring-4 focus:outline-none`}
+          className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition focus:ring-4 focus:outline-none`}
         />
         {query && (
           <IconButton
@@ -224,7 +224,7 @@ export function CreateBlogPage() {
         </div>
 
         <SectionCard>
-          <h3 className="text-archive-ink/70 dark:text-archive-paper/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
+          <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
             {t("blogs.createBlogPage.title.title")}
             <span className="ml-1 text-red-500" aria-hidden="true">
               *
@@ -235,12 +235,12 @@ export function CreateBlogPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t("blogs.createBlogPage.title.placeholder")}
-            className={`bg-archive-paper border-archive-ink/10 dark:bg-archive-ink/5 dark:border-archive-paper/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm transition focus:ring-4 focus:outline-none`}
+            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm transition focus:ring-4 focus:outline-none`}
           />
         </SectionCard>
 
         <SectionCard>
-          <h3 className="text-archive-ink/70 dark:text-archive-paper/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
+          <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
             {t("blogs.createBlogPage.content.title")}
           </h3>
           <ComplexEditableField
