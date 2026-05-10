@@ -1,4 +1,5 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import Check from "@mui/icons-material/Check";
 import {
   Box,
   Card,
@@ -51,6 +52,9 @@ interface ProductionCardProps {
   production: Production;
   preferredLanguage?: string;
   className?: string;
+  isSelectable?: boolean;
+  selected?: boolean;
+  onToggleSelected?: (productionId: string) => void;
 }
 
 export function getProductionInfoByLanguage(
@@ -175,6 +179,9 @@ export function ProductionCard({
   production,
   preferredLanguage = "nl",
   className,
+  isSelectable = false,
+  selected = false,
+  onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -206,6 +213,10 @@ export function ProductionCard({
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
 
+  const handleToggleSelected = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    onToggleSelected?.(production.id_url);
+  };
   const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -253,12 +264,17 @@ export function ProductionCard({
         "cursor": "pointer",
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         "color": CARD_COLORS.textPrimary,
-        "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
+        "border": selected
+          ? `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.56)}`
+          : `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
         "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
           boxShadow: `0 16px 36px ${colorWithOpacity(CARD_COLORS.ink, 0.1)}`,
         },
+        "boxShadow": selected
+          ? `0 0 0 2px ${colorWithOpacity(CARD_COLORS.accent, 0.22)}`
+          : undefined,
         "&:hover .production-card-image": {
           transform: `translateY(${CARD_MOTION.imageTranslateYOnHover}) scale(${CARD_MOTION.imageScaleOnHover})`,
         },
@@ -292,22 +308,83 @@ export function ProductionCard({
           }}
         />
 
+        {isSelectable ? (
+          <Box
+            component="span"
+            role="checkbox"
+            aria-checked={selected}
+            aria-label={`${selected ? t("archive.selection.selected") : t("archive.selection.select")} ${title}`}
+            tabIndex={-1}
+            onClick={(e) => handleToggleSelected(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleToggleSelected(e);
+              }
+            }}
+            sx={{
+              "position": "absolute",
+              "top": 10,
+              "right": 10,
+              "zIndex": 2,
+              "width": 26,
+              "height": 26,
+              "borderRadius": "50%",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center",
+              "cursor": "pointer",
+              "transition": "all 200ms ease",
+              "backgroundColor": selected
+                ? "var(--color-archive-accent)"
+                : colorWithOpacity("var(--color-archive-paper)", 0.82),
+              "border": selected
+                ? "none"
+                : `1.5px solid ${colorWithOpacity("var(--color-archive-accent)", 0.45)}`,
+              "backdropFilter": "blur(6px)",
+              "&:hover": {
+                backgroundColor: selected
+                  ? "var(--color-archive-accent)"
+                  : colorWithOpacity("var(--color-archive-accent)", 0.18),
+                border: `1.5px solid var(--color-archive-accent)`,
+              },
+            }}
+          >
+            {selected && (
+              <Check
+                sx={{
+                  fontSize: 14,
+                  color: "var(--color-archive-paper)",
+                  display: "block",
+                }}
+              />
+            )}
+          </Box>
+        ) : null}
+
         {supertitle ? (
           <Chip
             className="production-card-text production-card-supertitle"
             label={supertitle.toUpperCase()}
             size="small"
             sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              height: 28,
-              borderRadius: 999,
-              backgroundColor: "var(--color-archive-ink)",
-              color: "var(--color-archive-paper)",
-              fontWeight: "var(--weight-archive-bold)",
-              letterSpacing: "var(--tracking-archive-label)",
-              border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "position": "absolute",
+              "top": 12,
+              "left": 12,
+              "maxWidth": isSelectable ? "calc(100% - 52px)" : "calc(100% - 24px)",
+              "height": 28,
+              "borderRadius": 999,
+              "backgroundColor": "var(--color-archive-ink)",
+              "color": "var(--color-archive-paper)",
+              "fontWeight": "var(--weight-archive-bold)",
+              "letterSpacing": "var(--tracking-archive-label)",
+              "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "overflow": "hidden",
+              "& .MuiChip-label": {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
             }}
           />
         ) : null}
@@ -472,6 +549,9 @@ export function ProductionCard({
               letterSpacing: "var(--tracking-archive-label)",
               fontSize: "var(--text-archive-meta)",
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
             }}
           >
             Details <ArrowRightAlt />
