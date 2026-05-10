@@ -15,6 +15,10 @@ services:
     build:
       context: ./frontend
       target: test-env
+      cache_from:
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     expose:
       - "3000"
     env_file: .env
@@ -26,6 +30,10 @@ services:
     build:
       context: ./backend
       target: test
+      cache_from:
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     expose:
       - "8000"
     env_file: .env
