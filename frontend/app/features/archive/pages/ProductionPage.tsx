@@ -168,9 +168,14 @@ function useUnsavedChangesBlocker(when: boolean) {
     blockerRef.current = blocker;
   });
 
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+
   useEffect(() => {
     if (blockerRef.current.state === "blocked") {
-      const confirmLeave = window.confirm(t("notSaveChanges"));
+      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
       if (confirmLeave) {
         blockerRef.current.proceed();
       } else {
