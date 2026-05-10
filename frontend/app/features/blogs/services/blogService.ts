@@ -73,23 +73,25 @@ export async function getBlogsForProduction(productionUrl: string): Promise<Blog
 // Volgende interface (en eventueel ook de functie) zijn tijdelijke functies tot
 // reeksen officieel in de frontend zitten
 interface ProductionGroup {
-	id_url: string
-	production_id_urls: string[]
+  id_url: string;
+  production_id_urls: string[];
 }
 
 export async function getProductionsForBlog(blog: Blog): Promise<Production[]> {
-	try {
-		const productionGroupIdUrl = blog.production_group_id_url
-		const apiClient = createApiClient();
-		const response = await apiClient.get<ProductionGroup>(productionGroupIdUrl);
-		const productionIdUrls = response.data.production_id_urls
+  try {
+    const productionGroupIdUrl = blog.production_group_id_url;
+    const apiClient = createApiClient();
+    const response = await apiClient.get<ProductionGroup>(productionGroupIdUrl);
+    const productionIdUrls = response.data.production_id_urls;
 
-		const productions = await Promise.all(
-			productionIdUrls.map((url) => apiClient.get<Production>(url).then((res) => res.data))
-		);
+    const productions = await Promise.all(
+      productionIdUrls.map((url) =>
+        apiClient.get<Production>(url).then((res) => res.data)
+      )
+    );
 
-		return productions
-	} catch {
-		return []
-	}
+    return productions;
+  } catch {
+    return [];
+  }
 }

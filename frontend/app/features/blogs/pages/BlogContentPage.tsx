@@ -5,7 +5,6 @@ import DOMPurify from "dompurify";
 
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
@@ -162,21 +161,24 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadProductions() {
-      if (!blog.production_group_id_url || blog.production_group_id_url === "") return;
-
-      const settled = await getProductionsForBlog(blog);
-
-	  setLinkedProductions(settled.filter((p): p is Production => p !== null));
+      if (!blog.production_group_id_url) return;
+      try {
+        const productions = await getProductionsForBlog(blog);
+        if (!cancelled) {
+          setLinkedProductions(productions.filter((p): p is Production => p !== null));
+        }
+      } catch {
+        if (!cancelled) {
+          setLinkedProductions([]);
+        }
+      }
     }
-
     void loadProductions();
-
     return () => {
       cancelled = true;
     };
-  }, [blog.production_group_id_url]);
+  }, [blog]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">

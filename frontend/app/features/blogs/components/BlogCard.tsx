@@ -81,12 +81,12 @@ async function getProductionTitlesByLanguage(
   const productions = await getProductionsForBlog(blog);
 
   const titles = productions.map((prod) => {
-      const languageMatch = prod.production_infos.find(
-        (prod_info) => prod_info.language === language
-      );
+    const languageMatch = prod.production_infos.find(
+      (prod_info) => prod_info.language === language
+    );
 
-      return languageMatch?.title ?? prod.production_infos[0]?.title;
-  })
+    return languageMatch?.title ?? prod.production_infos[0]?.title;
+  });
 
   return titles.filter(
     (title): title is string => typeof title === "string" && title.length > 0
