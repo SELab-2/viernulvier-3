@@ -41,11 +41,11 @@ export default function EditableEventCard({
 }) {
   const { t } = useTranslation();
 
-  const [hallName, setHallname] = useState<string>(event.hall?.name ?? "");
+  const [hallName, setHallname] = useState<string | undefined>(event.hall?.name);
   const [hallDropdownActive, setHallDropdownActive] = useState<boolean>(false);
 
   const filteredHalls = halls.filter((hall) =>
-    hall.name.toLowerCase().includes(hallName.toLowerCase())
+    hall.name.toLowerCase().includes(hallName?.toLowerCase() ?? "")
   );
 
   const isInvalid =

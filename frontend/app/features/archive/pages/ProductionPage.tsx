@@ -196,7 +196,7 @@ async function handleInfoSave(
     for (const event of newEvents) {
       const created = await createEvent({
         production_id_url,
-        hall_id_url: event.hall?.id_url ?? "",
+        hall_id_url: event.hall?.id_url,
         starts_at: event.starts_at,
         ends_at: event.ends_at,
         order_url: event.order_url,

@@ -71,7 +71,11 @@ def get_hall_by_id(db: Session, hall_id: int) -> Hall:
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
     try:
         production_id = extract_id(event_in.production_id_url)
-        hall_id = extract_id(event_in.hall_id_url)
+        hall_id = (
+            extract_id(event_in.hall_id_url)
+            if event_in.hall_id_url is not None
+            else None
+        )
     except ValueError:
         raise ValidationError("Invalid production_id_url or hall_id_url format")
 
@@ -79,9 +83,11 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
     if not db_production:
         raise NotFoundError("Production", production_id)
 
-    db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
-    if not db_hall:
-        raise NotFoundError("Hall", hall_id)
+    db_hall = None
+    if hall_id is not None:
+        db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
+        if not db_hall:
+            raise NotFoundError("Hall", hall_id)
 
     if event_in.starts_at is not None and event_in.ends_at is not None:
         if event_in.ends_at <= event_in.starts_at:
