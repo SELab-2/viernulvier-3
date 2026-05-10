@@ -630,7 +630,12 @@ describe("UserManagementPage", () => {
       await user.click(
         await screen.findByRole("button", { name: "users.roles.actions.add" })
       );
-      setFieldValue("users.roles.fields.name", "moderator");
+      await user.type(
+        await screen.findByLabelText("users.roles.fields.name"),
+        "moderator"
+      );
+      await user.click(screen.getByRole("checkbox", { name: "users:read" }));
+      await user.click(screen.getByRole("checkbox", { name: "archive:create" }));
       await user.click(
         screen.getByRole("button", { name: "users.roles.actions.create" })
       );
