@@ -51,9 +51,8 @@
     }
   },
   "productionPage": {
-    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
-      "unknownProduction": "Onbekende productie",
+      "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
       "noTeaser": "Geen teaser beschikbaar voor deze productie.",
@@ -81,6 +80,7 @@
     "visualEvidence": "Foto's",
 
     "edit": {
+      "add": "Voeg info toe",
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
@@ -96,9 +96,6 @@
       "delete": "Verwijder",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
-    },
-    "add": {
-      "add": "Voeg productie-informatie toe"
     }
   },
 
@@ -195,6 +192,12 @@
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
+    },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:"
     },
     "detail": {
       "title": "Blog",
@@ -299,7 +302,13 @@
       "title": "Rollen",
       "loading": "Rollen worden geladen",
       "fields": {
-        "name": "Rolnaam"
+        "name": "Rolnaam",
+        "permissions": "Permissies"
+      },
+      "form": {
+        "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsLoading": "Beschikbare permissies worden geladen.",
+        "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
@@ -310,6 +319,7 @@
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
+        "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
@@ -317,7 +327,7 @@
       "dialogs": {
         "create": {
           "title": "Rol toevoegen",
-          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+          "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
         },
         "delete": {
           "title": "Rol verwijderen",
