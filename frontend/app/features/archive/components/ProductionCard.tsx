@@ -190,7 +190,6 @@ export function ProductionCard({
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
-  if (!productionId) return null;
 
   const handleToggleSelected = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -210,6 +209,8 @@ export function ProductionCard({
         // keep default
       });
   }, [productionId]);
+
+  if (!productionId) return null;
 
   const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
 
