@@ -10,7 +10,7 @@ class Hall(Base):
     __tablename__ = "halls"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    viernulvier_id = Column(Integer, unique=True, autoincrement=False)
+    viernulvier_id = Column(Integer, unique=True, autoincrement=False, nullable=True)
 
     address = Column(String, nullable=True)
 
