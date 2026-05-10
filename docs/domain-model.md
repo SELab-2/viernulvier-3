@@ -107,13 +107,9 @@ Table media {
   uploaded_at datetime
 }
 
-Table prod_blogs {
-  prod_id int [pk, ref: - productions.id]
-  blog_id int [pk, ref: - blogs.id]
-}
-
 Table blogs {
   id int [pk]
+  production_group_id int [ref: > production_groups.id]
 }
 
 Table blog_content {
