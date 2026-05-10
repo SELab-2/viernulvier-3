@@ -1,16 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { ArchiveSortOrder } from "./ProductionTimeline";
+
+export enum SortOrderEnum {
+  NewestFirst = "NewestFirst",
+  OldestFirst = "OldestFirst",
+}
+
 
 export function SortOrderSelection({
   sortOrder,
   setSortOrder,
 }: {
-  sortOrder: ArchiveSortOrder;
-  setSortOrder: React.Dispatch<React.SetStateAction<ArchiveSortOrder>>;
+  sortOrder: SortOrderEnum;
+  setSortOrder: React.Dispatch<React.SetStateAction<SortOrderEnum>>;
 }) {
   const { t } = useTranslation();
   const handleChangeSortOrder = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(event.target.value as ArchiveSortOrder);
+    setSortOrder(event.target.value as SortOrderEnum);
   };
 
   return (
@@ -25,10 +30,10 @@ export function SortOrderSelection({
         value={sortOrder}
         onChange={handleChangeSortOrder}
       >
-        <option value={ArchiveSortOrder.NewestFirst}>
+        <option value={SortOrderEnum.NewestFirst}>
           {t("archive.sortOrder.newest")}
         </option>
-        <option value={ArchiveSortOrder.OldestFirst}>
+        <option value={SortOrderEnum.OldestFirst}>
           {t("archive.sortOrder.oldest")}
         </option>
       </select>
