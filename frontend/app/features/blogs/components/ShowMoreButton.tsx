@@ -20,8 +20,8 @@ export function ShowMoreButton({
   async function onClick() {
     const next_blogs = await getBlogsPaginated({
       cursor: blogList.pagination.next_cursor,
-      // sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
-      // blog_name: blog_name,
+      sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
+      blog_name: blog_name,
     });
 
     setBlogList({

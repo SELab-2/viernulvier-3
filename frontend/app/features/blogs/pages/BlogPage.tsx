@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
 import { SortOrderEnum, SortOrderSelection } from "~/shared/components/SortOrderSelection";
 import { ShowMoreButton } from "../components/ShowMoreButton";
+import { useDebouncedState } from "~/features/archive/utils/debouncedState";
+import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 
 function SearchBar({
   value,
@@ -15,7 +17,6 @@ function SearchBar({
   onChange: (v: string) => void;
 }) {
   const { t } = useTranslation();
-
   return (
     <div className="relative flex-1">
       <svg
@@ -33,7 +34,7 @@ function SearchBar({
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={t("blogs.search.placeholder", "Search blogs…")}
+        placeholder={t("blogs.search.placeholder")}
         className="
           border-archive-ink/15 text-archive-ink placeholder:text-archive-ink/40
           focus:border-archive-ink/40 w-full rounded-lg border bg-transparent
@@ -48,18 +49,19 @@ export default function BlogPage() {
   const { t } = useTranslation();
 
   const [blogList, setBlogList] = useState<BlogList | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(
-    SortOrderEnum.NewestFirst
-  );
+  const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
+  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
   useEffect(() => {
     async function fetchBlogs() {
-      const result = await getBlogsPaginated();
+      const result = await getBlogsPaginated({
+        blog_name: debouncedSearch || undefined,
+        sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
+      });
       setBlogList(result);
     }
     fetchBlogs();
-  }, []);
+  }, [debouncedSearch, sortOrder]);
 
   const blogs = blogList?.blogs ?? [];
 
@@ -67,7 +69,7 @@ export default function BlogPage() {
     <div className="mx-6 md:mx-10">
       <div className="mb-10 md:mb-16">
         <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
-          {t("blogs.title", "Blogs")}
+          {t("blogs.title")}
         </h1>
       </div>
 
@@ -82,7 +84,11 @@ export default function BlogPage() {
       <BlogCardList blogs={blogs} />
 
       {blogList?.pagination.has_more && (
-        <ShowMoreButton blogList={blogList} setBlogList={setBlogList} sortOrder={SortOrderEnum.NewestFirst} />
+        <ShowMoreButton
+          blogList={blogList}
+          setBlogList={setBlogList}
+          sortOrder={sortOrder}
+        />
       )}
     </div>
   );

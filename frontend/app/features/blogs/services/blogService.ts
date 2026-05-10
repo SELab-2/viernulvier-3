@@ -13,7 +13,10 @@ import {
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getBlogsPaginated(
-  params?: JsonPaginationRequest
+  params?: JsonPaginationRequest & {
+	  blog_name?: string;
+	  sort_order?: string;
+  }
 ): Promise<BlogList> {
   const apiClient = createApiClient();
 
