@@ -305,6 +305,7 @@ export function ProductionCard({
               "position": "absolute",
               "top": 10,
               "right": 10,
+              "zIndex": 2,
               "width": 26,
               "height": 26,
               "borderRadius": "50%",
@@ -346,16 +347,23 @@ export function ProductionCard({
             label={supertitle.toUpperCase()}
             size="small"
             sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              height: 28,
-              borderRadius: 999,
-              backgroundColor: "var(--color-archive-ink)",
-              color: "var(--color-archive-paper)",
-              fontWeight: "var(--weight-archive-bold)",
-              letterSpacing: "var(--tracking-archive-label)",
-              border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "position": "absolute",
+              "top": 12,
+              "left": 12,
+              "maxWidth": isSelectable ? "calc(100% - 52px)" : "calc(100% - 24px)",
+              "height": 28,
+              "borderRadius": 999,
+              "backgroundColor": "var(--color-archive-ink)",
+              "color": "var(--color-archive-paper)",
+              "fontWeight": "var(--weight-archive-bold)",
+              "letterSpacing": "var(--tracking-archive-label)",
+              "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "overflow": "hidden",
+              "& .MuiChip-label": {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
             }}
           />
         ) : null}
