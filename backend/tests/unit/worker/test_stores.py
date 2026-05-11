@@ -351,7 +351,9 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     # Test that duplicates won't be stored
     newest = store_new_eventprices(db_session, [eventprices[0]])
     assert newest is None
-    assert len(stored_eventprices) == len(db_session.scalars(select(EventPrice.id)).all())
+    assert len(stored_eventprices) == len(
+        db_session.scalars(select(EventPrice.id)).all()
+    )
 
 
 def test_store_new_genres_as_tags(db_session):
