@@ -1,4 +1,5 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import { Link } from "react-router";
 import {
   Box,
   Card,
@@ -6,17 +7,16 @@ import {
   CardMedia,
   Chip,
   Divider,
-  Link,
   Stack,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
+import { getProductionsForBlog } from "../services/blogService";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -74,21 +74,19 @@ async function getProductionTitlesByLanguage(
   blog: Blog,
   language: string
 ): Promise<string[]> {
-  if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
+  if (!blog.production_group_id_url || blog.production_group_id_url === "") {
     return [];
   }
 
-  const titles = await Promise.all(
-    blog.production_id_urls.map(async (prod_id_url) => {
-      const prod = await getProductionByUrl(prod_id_url);
+  const productions = await getProductionsForBlog(blog);
 
-      const languageMatch = prod.production_infos.find(
-        (prod_info) => prod_info.language === language
-      );
+  const titles = productions.map((prod) => {
+    const languageMatch = prod.production_infos.find(
+      (prod_info) => prod_info.language === language
+    );
 
-      return languageMatch?.title ?? prod.production_infos[0]?.title;
-    })
-  );
+    return languageMatch?.title ?? prod.production_infos[0]?.title;
+  });
 
   return titles.filter(
     (title): title is string => typeof title === "string" && title.length > 0
@@ -179,7 +177,6 @@ export function BlogCard({
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
 
   const { lang } = useParams();
@@ -202,23 +199,14 @@ export function BlogCard({
   }, [blog, language]);
 
   const blogId = getBlogNumericIdFromUrl(blog.id_url);
-
-  const handleOpenDetails = () => {
-    if (!blogId) {
-      return;
-    }
-
-    navigate(lp(`/blogs/${blogId}`));
-  };
+  if (!blogId) return null;
 
   return (
     <Card
-      onClick={handleOpenDetails}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
+      id={`blog-card-${blogId}`}
       className={className}
       sx={{
+        "position": "relative",
         "width": "100%",
         "height": compact
           ? { xs: "100px", sm: "110px", md: "120px" }
@@ -256,6 +244,11 @@ export function BlogCard({
       }}
       elevation={0}
     >
+      <Link
+        to={lp(`/blogs/${blogId}`)}
+        aria-label={`Open details for ${title}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      />
       <Box
         sx={{
           position: "relative",
@@ -362,25 +355,22 @@ export function BlogCard({
             >
               <ProductionTitles productionTitles={productionTitles} />
 
-              <Link
+              <div
                 className="blog-card-text"
-                component="span"
-                underline="none"
-                sx={{
-                  display: "flex",
+                style={{
                   alignItems: "center",
-                  gap: 0.25,
                   color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-                  fontWeight: "var(--weight-archive-bold)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-archive-label)",
-                  fontSize: "var(--text-archive-meta)",
-                  cursor: "pointer",
+                  display: "flex",
                   flexShrink: 0,
+                  fontSize: "var(--text-archive-meta)",
+                  fontWeight: "var(--weight-archive-bold)",
+                  gap: 0.25,
+                  letterSpacing: "var(--tracking-archive-label)",
+                  textTransform: "uppercase",
                 }}
               >
                 {t("blogs.card.details")} <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
-              </Link>
+              </div>
             </Stack>
           </>
         )}

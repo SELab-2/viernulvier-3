@@ -11,6 +11,9 @@ import {
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { useDebouncedState } from "~/features/archive/utils/debouncedState";
 import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
+import { CreateBlogButton } from "../components/CreateBlogButton";
+import { useNavigate } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
 function SearchBar({
   value,
@@ -45,16 +48,18 @@ function SearchBar({
 }
 
 export default function BlogPage() {
-  const { t } = useTranslation();
-
   const [blogList, setBlogList] = useState<BlogList | null>(null);
   const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
   const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
+
   useEffect(() => {
     async function fetchBlogs() {
       const result = await getBlogsPaginated({
-        blog_name: debouncedSearch || "",
+        blog_name: debouncedSearch || undefined,
         sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
       });
       setBlogList(result);
@@ -63,6 +68,10 @@ export default function BlogPage() {
   }, [debouncedSearch, sortOrder]);
 
   const blogs = blogList?.blogs ?? [];
+
+  const openCreateBlogPage = () => {
+    navigate(lp("/blogs/create"));
+  };
 
   return (
     <div className="mx-6 md:mx-10">
@@ -73,6 +82,7 @@ export default function BlogPage() {
       </div>
 
       <div className="mb-4 flex flex-row items-center justify-between gap-3">
+	    <CreateBlogButton onClick={openCreateBlogPage} />
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
         <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
       </div>
@@ -94,7 +104,7 @@ export default function BlogPage() {
           blogList={blogList}
           setBlogList={setBlogList}
           sortOrder={sortOrder}
-          blog_name={debouncedSearch}
+          blog_name={debouncedSearch || undefined}
         />
       )}
     </div>

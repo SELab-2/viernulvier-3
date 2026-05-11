@@ -3,6 +3,7 @@ import logging
 from src.database import SESSION_LOCAL
 from src.models.sync_state import ResourceType
 from src.worker.fetchers.event import EventFetcher
+from src.worker.fetchers.halls import HallFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 SYNC_ORDER: list[tuple[ResourceType, PagedFetcher]] = [
     (ResourceType.GENRES, GenreFetcher),
     (ResourceType.PRODUCTION, ProductionFetcher),
+    (ResourceType.HALLS, HallFetcher),
     (ResourceType.EVENT, EventFetcher),
     (ResourceType.EVENT_PRICES, EventPriceFetcher),
 ]

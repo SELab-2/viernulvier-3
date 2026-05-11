@@ -84,6 +84,9 @@
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
+    "address": "Adres",
+    "addressUnknown": "Adres onbekend",
+
     "visualEvidence": "Foto's",
 
     "edit": {
@@ -206,6 +209,41 @@
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
+    },
+    "create_blog": "Nieuwe blog",
+    "createBlogPage": {
+      "backToBlogs": "Terug naar blogs",
+      "heading": "Maak een nieuwe blog aan",
+      "remove": "Verwijder",
+      "save": {
+        "save": "Opslaan",
+        "saving": "Aan het opslaan",
+        "saveDisabledReasonTitle": "Titel is verplicht",
+        "saveDisabledReasonEditing": "Inhoud is nog niet opgeslagen"
+      },
+      "title": {
+        "title": "Titel",
+        "placeholder": "Titel van de blog (verplicht)"
+      },
+      "content": {
+        "title": "Inhoud",
+        "field": "Bewerk de inhoud verder"
+      },
+      "media": {
+        "title": "Media",
+        "dropMedia": "Sleep afbeeldingen en/of video's hier of",
+        "browse": "klik om te uploaden",
+        "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
+      },
+      "series": {
+        "title": "Verbonden reeks",
+        "searchSeries": "Zoek naar reeksen"
+      },
+      "accessDenied": {
+        "eyebrow": "Beperkt gebied",
+        "title": "Je hebt geen toegang tot blogcreatie",
+        "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
+      }
     },
     "contentPage": {
       "backToBlogs": "Terug naar blogs",
