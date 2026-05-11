@@ -45,7 +45,7 @@
     "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
-        "title": "Onbekende productie",
+        "title": "Onbekende productie titel",
         "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
