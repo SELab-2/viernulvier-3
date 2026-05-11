@@ -18,14 +18,14 @@ export function SortOrderSelection({
   };
 
   return (
-    <div className="flex items-center justify-between space-x-2 md:justify-end">
-      <div className="text-[12px] font-bold tracking-widest opacity-40">
+    <div className="flex items-center justify-between gap-2 font-sans md:justify-end">
+      <div className="text-[0.7rem] font-semibold tracking-[0.18em] uppercase opacity-45">
         {t("archive.sortBy")}:
       </div>
 
       <select
         aria-label="sort-order"
-        className="hover:text-archive-accent *:bg-archive-paper cursor-pointer border-none text-sm font-medium italic transition-colors duration-100 focus:ring-0"
+        className="*:bg-archive-paper hover:text-archive-accent cursor-pointer border-none bg-transparent text-sm font-medium tracking-[0.02em] transition-colors duration-100 focus:ring-0"
         value={sortOrder}
         onChange={handleChangeSortOrder}
       >
