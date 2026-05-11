@@ -2,10 +2,13 @@ import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { useTranslation } from "react-i18next";
 import type { Hall } from "../types/hallTypes";
 import type { EventWithResolvedRelations } from "./EventCard";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { useParams } from "react-router";
+import { useDebouncedState } from "../utils/debouncedState";
+
+const invalidClass = "border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]";
 
 function getHallNameForLang(hall: Hall, lang?: string): string {
   return hall.names.find((n) => n.language === lang)?.name ?? hall.names[0]?.name ?? "";
@@ -54,32 +57,69 @@ export default function EditableEventCard({
   const { lang } = useParams();
   const language = preferredLanguage ?? lang;
 
-  const [hallName, setHallname] = useState<string | undefined>(
-    event.hall ? getHallNameForLang(event.hall, lang) : undefined
+  const [hallName, debouncedHallName, setHallname] = useDebouncedState<string>(
+    event.hall ? getHallNameForLang(event.hall, language) : ""
   );
   const [hallDropdownActive, setHallDropdownActive] = useState<boolean>(false);
 
-  const filteredHalls = halls.filter((hall) =>
-    getHallNameForLang(hall, lang)
-      .toLowerCase()
-      .includes(hallName?.toLowerCase() ?? "")
+  const filteredHalls = useMemo(
+    () =>
+      halls.filter((hall) =>
+        getHallNameForLang(hall, language)
+          .toLowerCase()
+          .includes(debouncedHallName.toLowerCase())
+      ),
+    [halls, language, debouncedHallName]
+  );
+  const matchingHall = halls.find(
+    (hall) =>
+      getHallNameForLang(hall, language).trim().toLowerCase() ===
+      debouncedHallName.trim().toLowerCase()
   );
 
-  const isInvalid =
+  const isValidHall = debouncedHallName.trim() === "" || matchingHall !== undefined;
+
+  // When typing input check if input matches hall
+  useEffect(() => {
+    const normalizedInput = debouncedHallName.trim();
+    let nextHall: Hall | undefined;
+
+    if (normalizedInput) {
+      nextHall = matchingHall;
+    }
+
+    const currentHallId = event.hall?.id_url;
+    const nextHallId = nextHall?.id_url;
+
+    // Prevent unnecessary updates
+    if (currentHallId === nextHallId) {
+      return;
+    }
+
+    onChange({
+      ...event,
+      hall: nextHall,
+      resolvedHall: nextHall,
+    });
+  }, [debouncedHallName, matchingHall, event, onChange]);
+
+  const isInvalidDate =
     event.starts_at &&
     event.ends_at &&
     new Date(event.starts_at) >= new Date(event.ends_at);
 
+  const dateTimeStyle = `border-archive-accent/95 w-full rounded-md border px-2 py-1 text-sm font-semibold opacity-95 md:text-base ${isInvalidDate && invalidClass}`;
+
   return (
     <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_auto]">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr]">
         {/* Start at Input */}
         <div>
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.startDateLabel")}
           </p>
           <input
-            className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
+            className={dateTimeStyle}
             type="datetime-local"
             aria-label={`${t("productionPage.startDateLabel")} input`}
             value={event.starts_at ?? ""}
@@ -94,7 +134,7 @@ export default function EditableEventCard({
             {t("productionPage.endDateLabel")}
           </p>
           <input
-            className={`text-sm font-semibold opacity-95 md:text-base ${isInvalid ? "border-2 border-red-500" : ""}`}
+            className={dateTimeStyle}
             type="datetime-local"
             aria-label={`${t("productionPage.endDateLabel")} input`}
             value={event.ends_at ?? ""}
@@ -110,7 +150,11 @@ export default function EditableEventCard({
           </p>
           <div className="relative">
             <input
-              className="border-archive-accent/95 bg-archive-control/20 w-full rounded-md border px-3 py-1 text-sm font-semibold opacity-95 focus:border-blue-500 focus:outline-none md:text-base"
+              className={`bg-archive-control/20 w-full rounded-md border px-3 py-1 text-sm font-semibold opacity-95 transition-colors focus:outline-none md:text-base ${
+                isValidHall
+                  ? "border-archive-accent/95 focus:border-blue-500"
+                  : invalidClass
+              }`}
               placeholder={t("productionPage.placeLabel")}
               value={hallName}
               onFocus={() => setHallDropdownActive(true)}
@@ -125,7 +169,7 @@ export default function EditableEventCard({
                 halls={filteredHalls}
                 lang={language}
                 onSelect={(hall) => {
-                  setHallname(getHallNameForLang(hall, lang));
+                  setHallname(getHallNameForLang(hall, language));
                   setHallDropdownActive(false);
 
                   onChange({
