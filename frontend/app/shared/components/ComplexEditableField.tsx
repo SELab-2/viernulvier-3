@@ -132,7 +132,7 @@ export default function ComplexEditableField({
   return (
     <div
       id={id}
-      className={`rounded opacity-90 ${canEdit ? "className=flex hover:outline-archive-accent !cursor-pointer items-center gap-2 hover:outline hover:outline-1" : "!cursor-default"}`}
+      className={`flex-1 rounded opacity-90 min-w-0 w-full overflow-x-hidden ${canEdit ? "flex flex-col hover:outline-archive-accent !cursor-pointer hover:outline hover:outline-1" : "cursor-default"}`}
       onClick={onStartEdit}
     >
       {canEdit ? (
@@ -143,7 +143,10 @@ export default function ComplexEditableField({
       ) : null}
 
       {html ? (
-        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+        <div
+          className="prose max-w-none min-w-0 whitespace-normal break-words overflow-wrap-anywhere"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       ) : (
         fallback
       )}

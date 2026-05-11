@@ -325,17 +325,26 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   // Prevent moving away from page when edit is modified (browser aways)
   // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
+  const isEditingRef = useRef(false);
+  const isModifiedRef = useRef(false);
+  const isQuillDirtyRef = useRef(false);
   const [skipWarning, setSkipWarning] = useState(false);
   const [isQuillDirty, setIsQuillDirty] = useState(false);
 
+  isEditingRef.current = isEditing;
+  isModifiedRef.current = isModified;
+  isQuillDirtyRef.current = isQuillDirty;
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (skipUnloadWarning.current) return;
-      if (isEditing && (isModified || isQuillDirty)) e.preventDefault();
+      if (isEditingRef.current && (isModifiedRef.current || isQuillDirtyRef.current)) {
+        e.preventDefault();
+      }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isEditing, isModified, isQuillDirty]);
+  }, []);
+
 
   // And the same but for React links
   useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
@@ -495,7 +504,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
-          <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+          <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
               tagline={tagline}
               teaserHtml={teaserHtml}

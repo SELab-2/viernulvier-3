@@ -36,7 +36,7 @@ export function ProductionInfoSection({
   }
 
   return (
-    <>
+    <div className="flex min-w-0 flex-col gap-6">
       {tagline && <p id="tagline">{tagline}</p>}
 
       <ComplexEditableField
@@ -79,6 +79,6 @@ export function ProductionInfoSection({
         canEdit={globalIsEditing}
         onDirtyChange={onQuillDirtyChange}
       />
-    </>
+    </div>
   );
 }
