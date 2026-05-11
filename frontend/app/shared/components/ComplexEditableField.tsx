@@ -3,7 +3,6 @@ import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
 import { deltaToHtml, htmlToDelta } from "~/archive-rich-text.client";
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 import { FiEdit2 } from "react-icons/fi";
 
 const ArchiveRichTextFieldLazy = lazy(() =>
@@ -46,6 +45,7 @@ type ComplexEditableFieldProps = {
   onSave: (html: string) => void;
   onCancel: () => void;
   canEdit: boolean;
+  permissions: string[];
 };
 
 export default function ComplexEditableField({
@@ -58,6 +58,7 @@ export default function ComplexEditableField({
   onSave,
   onCancel,
   canEdit,
+  permissions,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
@@ -84,7 +85,7 @@ export default function ComplexEditableField({
 
   if (isEditing) {
     return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+      <Protected permissions={permissions}>
         <div id={id}>
           <ArchiveRichTextFieldWrapper
             label={field}

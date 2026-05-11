@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 type ProductionInfoSectionProps = {
   tagline: string;
@@ -47,6 +48,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
       />
 
       <ComplexEditableField
@@ -61,6 +63,7 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
       />
 
       <ComplexEditableField
@@ -73,6 +76,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
       />
     </>
   );
