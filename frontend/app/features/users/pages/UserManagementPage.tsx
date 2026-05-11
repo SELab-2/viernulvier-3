@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import axios from "axios";
 import {
   Alert,
@@ -56,7 +56,7 @@ function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
 
 function SummaryCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="border-archive-border bg-archive-surface rounded-[1.5rem] border p-5 backdrop-blur-sm">
+    <div className="border-archive-border bg-archive-surface rounded-3xl border p-5 backdrop-blur-sm">
       <div className="font-serif text-4xl italic">{value}</div>
       <div className="mt-2 text-[0.68rem] font-bold tracking-[0.24em] uppercase opacity-45">
         {label}
@@ -189,7 +189,7 @@ function CreateRoleDialog({
     onClose();
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!trimmedName) {
@@ -909,26 +909,32 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <UserFormDialog
-        mode="create"
-        open={isCreateDialogOpen}
-        isSubmitting={isCreatingUser}
-        availableRoles={roles}
-        errorMessage={isCreateDialogOpen ? createMutationError : null}
-        onClose={closeCreateDialog}
-        onSubmit={handleCreateUser}
-      />
+      {isCreateDialogOpen ? (
+        <UserFormDialog
+          key="create-user-dialog"
+          mode="create"
+          open={true}
+          isSubmitting={isCreatingUser}
+          availableRoles={roles}
+          errorMessage={createMutationError}
+          onClose={closeCreateDialog}
+          onSubmit={handleCreateUser}
+        />
+      ) : null}
 
-      <UserFormDialog
-        mode="edit"
-        open={Boolean(userToEdit)}
-        user={userToEdit}
-        isSubmitting={isEditingUser}
-        availableRoles={roles}
-        errorMessage={userToEdit ? editMutationError : null}
-        onClose={closeEditDialog}
-        onSubmit={handleEditUser}
-      />
+      {userToEdit ? (
+        <UserFormDialog
+          key={userToEdit.id}
+          mode="edit"
+          open={true}
+          user={userToEdit}
+          isSubmitting={isEditingUser}
+          availableRoles={roles}
+          errorMessage={editMutationError}
+          onClose={closeEditDialog}
+          onSubmit={handleEditUser}
+        />
+      ) : null}
 
       <DeleteUserDialog
         user={userToDelete}
@@ -1026,11 +1032,6 @@ const dialogActionsSx = {
   pb: 3,
   gap: 1.5,
   borderTop: "1px solid var(--archive-border)",
-};
-
-const helperTextSx = {
-  marginTop: "0.55rem",
-  lineHeight: 1.45,
 };
 
 const roleCheckboxSx = {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import {
   Alert,
   Button,
@@ -52,33 +52,25 @@ function getInitialState(user: IUser | null | undefined): UserFormState {
   return {
     username: user?.username ?? "",
     password: "",
-    selectedRoles: user?.roles ?? [],
+    selectedRoles: [...(user?.roles ?? [])],
   };
 }
 
 export function UserFormDialog(props: UserFormDialogProps) {
   const { open, isSubmitting, availableRoles, errorMessage, onClose, mode } = props;
   const { t } = useTranslation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   const initialUser = props.mode === "edit" ? props.user : null;
-  const initialState = useMemo(() => getInitialState(initialUser), [initialUser]);
+  const initialState = getInitialState(initialUser);
+  const [username, setUsername] = useState(() => initialState.username);
+  const [password, setPassword] = useState(() => initialState.password);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(
+    () => initialState.selectedRoles
+  );
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const trimmedUsername = username.trim();
   const formId = `user-form-dialog-${mode}`;
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setUsername(initialState.username);
-    setPassword("");
-    setSelectedRoles(initialState.selectedRoles);
-    setValidationError(null);
-  }, [initialState, open]);
 
   function toggleRole(roleName: string) {
     setSelectedRoles((currentRoles) =>
@@ -96,7 +88,7 @@ export function UserFormDialog(props: UserFormDialogProps) {
     onClose();
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!trimmedUsername) {
@@ -155,7 +147,7 @@ export function UserFormDialog(props: UserFormDialogProps) {
           : t("users.dialogs.edit.title")}
       </DialogTitle>
       <DialogContent sx={dialogContentSx}>
-        <p className="mb-5 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
+        <p className="mb-5 text-sm leading-relaxed text-(--archive-ink) opacity-70">
           {mode === "create"
             ? t("users.dialogs.create.description")
             : t("users.dialogs.edit.description")}
@@ -219,14 +211,14 @@ export function UserFormDialog(props: UserFormDialogProps) {
                   return (
                     <label
                       key={role.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-[1rem] px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
+                      className="flex cursor-pointer items-center gap-3 rounded-2xl px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
                     >
                       <Checkbox
                         checked={isSelected}
                         onChange={() => toggleRole(role.name)}
                         sx={roleCheckboxSx}
                       />
-                      <span className="text-sm font-medium text-[color:var(--archive-ink)]">
+                      <span className="text-sm font-medium text-(--archive-ink)">
                         {role.name}
                       </span>
                     </label>
