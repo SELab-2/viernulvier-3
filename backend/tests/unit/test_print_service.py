@@ -32,9 +32,11 @@ def _make_print(
 # build_print_response
 # ---------------------------------------------------------------------------
 
+
 class TestBuildPrintResponse:
     def test_url_uses_host(self):
         from src.services.print_service import build_print_response
+
         p = _make_print(object_key="prints/xyz.pdf")
         result = build_print_response(p, BASE_URL)
 
@@ -43,6 +45,7 @@ class TestBuildPrintResponse:
 
     def test_id_url(self):
         from src.services.print_service import build_print_response
+
         p = _make_print(id=42)
         result = build_print_response(p, BASE_URL)
 
@@ -50,6 +53,7 @@ class TestBuildPrintResponse:
 
     def test_all_fields_present(self):
         from src.services.print_service import build_print_response
+
         p = _make_print(
             id=1,
             title="Affiche",
@@ -66,6 +70,7 @@ class TestBuildPrintResponse:
 
     def test_optional_fields_none(self):
         from src.services.print_service import build_print_response
+
         p = _make_print(title=None, description=None, print_type=None)
         result = build_print_response(p, BASE_URL)
 
@@ -77,6 +82,7 @@ class TestBuildPrintResponse:
 # ---------------------------------------------------------------------------
 # get_print_by_id
 # ---------------------------------------------------------------------------
+
 
 class TestGetPrintById:
     def test_returns_response(self):
@@ -102,6 +108,7 @@ class TestGetPrintById:
 # ---------------------------------------------------------------------------
 # list_prints
 # ---------------------------------------------------------------------------
+
 
 class TestListPrints:
     def _db_with_items(self, items: list[Print], total: int):
@@ -189,6 +196,7 @@ class TestListPrints:
 # ---------------------------------------------------------------------------
 # upload_print
 # ---------------------------------------------------------------------------
+
 
 class TestUploadPrint:
     def _make_db(self):
@@ -329,6 +337,7 @@ class TestUploadPrint:
 # ---------------------------------------------------------------------------
 # delete_print
 # ---------------------------------------------------------------------------
+
 
 class TestDeletePrint:
     def test_deletes_from_minio_and_db(self):
