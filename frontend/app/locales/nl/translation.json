@@ -84,6 +84,9 @@
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
+    "address": "Adres",
+    "addressUnknown": "Adres onbekend",
+
     "visualEvidence": "Foto's",
 
     "edit": {

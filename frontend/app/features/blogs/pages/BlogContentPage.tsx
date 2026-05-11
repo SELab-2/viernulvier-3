@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
@@ -78,7 +78,6 @@ type ProductionLinkCardProps = {
 function ProductionLinkCard({ production }: ProductionLinkCardProps) {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
 
   const primaryInfo = getProductionInfoByLanguage(
@@ -90,22 +89,18 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
   const artist = primaryInfo?.artist ?? "";
 
   const id = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/)?.[1];
-
-  const handleOpenDetails = () => {
-    if (!id) return;
-    navigate(lp(`/archive/productions/${id}`));
-  };
+  if (!id) return null;
 
   return (
-    <div
-      onClick={handleOpenDetails}
+    <Link
+      to={lp(`/archive/productions/${id}`)}
       className="p3 bg-archive-ink/5 bg-archive-ink-dark/5 border-archive-ink/5 border-archive-ink-dark/5 h-[60px] cursor-pointer rounded-lg border shadow-sm"
     >
       <div className="h-full rounded-lg p-3 transition">
         <h3 className="truncate text-sm font-semibold">{title}</h3>
         <p className="truncate text-xs">{artist}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
