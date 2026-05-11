@@ -50,7 +50,8 @@ def print_item(db_session: Session) -> Print:
     p = Print(
         object_key="prints/fixture.pdf",
         content_type="application/pdf",
-        label="Fixture poster",
+        title="Fixture poster",
+        description="A fixture poster for testing",
         print_type="poster",
         uploaded_at=datetime.now(timezone.utc),
     )
@@ -67,7 +68,8 @@ def print_items(db_session: Session) -> list[Print]:
         p = Print(
             object_key=f"prints/fixture-{i}.pdf",
             content_type="application/pdf",
-            label=f"Poster {i}",
+            title=f"Poster {i}",
+            description=f"Description for poster {i}",
             print_type="poster" if i % 2 == 0 else "timetable",
             uploaded_at=datetime.now(timezone.utc),
         )
@@ -83,7 +85,6 @@ def print_items(db_session: Session) -> list[Print]:
 # POST /prints/
 # ---------------------------------------------------------------------------
 
-
 @pytest.mark.parametrize(
     "content_type", ["image/jpeg", "image/png", "image/webp", "application/pdf"]
 )
@@ -94,14 +95,15 @@ def test_upload_print_success(
         client, db_session, "upload_user", [Permissions.ARCHIVE_CREATE]
     )
     response = client.post(
-        f"{BASE_URL}/?label=Affiche&print_type=poster",
+        f"{BASE_URL}/?title=Affiche&description=Seizoen+2024&print_type=poster",
         files={"file": ("test.pdf", io.BytesIO(b"fake data"), content_type)},
         headers=headers,
     )
     assert response.status_code == 201
     data = response.json()
     assert data["content_type"] == content_type
-    assert data["label"] == "Affiche"
+    assert data["title"] == "Affiche"
+    assert data["description"] == "Seizoen 2024"
     assert data["print_type"] == "poster"
     assert "id" in data
     assert "url" in data
@@ -109,7 +111,9 @@ def test_upload_print_success(
     assert "uploaded_at" in data
 
 
-def test_upload_print_optional_fields_absent(client: TestClient, db_session: Session):
+def test_upload_print_optional_fields_absent(
+    client: TestClient, db_session: Session
+):
     headers = create_user_and_login(
         client, db_session, "upload_user2", [Permissions.ARCHIVE_CREATE]
     )
@@ -120,7 +124,8 @@ def test_upload_print_optional_fields_absent(client: TestClient, db_session: Ses
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["label"] is None
+    assert data["title"] is None
+    assert data["description"] is None
     assert data["print_type"] is None
 
 
@@ -151,7 +156,6 @@ def test_upload_print_no_permission(client: TestClient, db_session: Session):
 # GET /prints/
 # ---------------------------------------------------------------------------
 
-
 def test_list_prints_empty(client: TestClient):
     response = client.get(f"{BASE_URL}/")
     assert response.status_code == 200
@@ -179,8 +183,7 @@ def test_list_prints(client: TestClient, print_items):
 def test_list_prints_filter_by_type(client: TestClient, print_items):
     response = client.get(f"{BASE_URL}/?print_type=timetable")
     assert response.status_code == 200
-    data = response.json()
-    assert all(p["print_type"] == "timetable" for p in data["prints"])
+    assert all(p["print_type"] == "timetable" for p in response.json()["prints"])
 
 
 def test_list_prints_pagination(client: TestClient, print_items):
@@ -211,13 +214,13 @@ def test_list_prints_invalid_limit(client: TestClient):
 # GET /prints/{id}
 # ---------------------------------------------------------------------------
 
-
 def test_get_print(client: TestClient, print_item):
     response = client.get(f"{BASE_URL}/{print_item.id}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == print_item.id
-    assert data["label"] == "Fixture poster"
+    assert data["title"] == "Fixture poster"
+    assert data["description"] == "A fixture poster for testing"
     assert data["print_type"] == "poster"
     assert data["content_type"] == "application/pdf"
     assert "url" in data
@@ -236,15 +239,12 @@ def test_get_print_not_found(client: TestClient):
 # DELETE /prints/{id}
 # ---------------------------------------------------------------------------
 
-
 def test_delete_print_success(client: TestClient, db_session: Session, print_item):
     headers = create_user_and_login(
         client, db_session, "delete_user", [Permissions.ARCHIVE_DELETE]
     )
     response = client.delete(f"{BASE_URL}/{print_item.id}", headers=headers)
     assert response.status_code == 204
-
-    # Confirm gone
     assert client.get(f"{BASE_URL}/{print_item.id}").status_code == 404
 
 
