@@ -12,7 +12,7 @@ from src.api.exceptions import NotFoundError
 from src.config import settings
 from src.models.print import Print
 from src.schemas.pagination import IdPagination
-from src.schemas.print import PrintListResponse, PrintResponse
+from src.schemas.print import PrintListResponse, PrintResponse, PrintType
 
 PRINT_DEFAULT_PAGE_SIZE = 20
 PRINT_MAX_PAGE_SIZE = 100
@@ -44,14 +44,14 @@ def list_prints(
     base_url: str,
     cursor: int | None = None,
     limit: int = PRINT_DEFAULT_PAGE_SIZE,
-    print_type: str | None = None,
+    print_type: PrintType | None = None,
 ) -> PrintListResponse:
     limit = min(limit, PRINT_MAX_PAGE_SIZE)
 
     query = db.query(Print)
 
     if print_type is not None:
-        query = query.filter(Print.print_type == print_type)
+        query = query.filter(Print.print_type == print_type.value)
 
     if cursor is not None:
         query = query.filter(Print.id > cursor)
@@ -63,7 +63,7 @@ def list_prints(
 
     count_query = db.query(func.count(Print.id))
     if print_type is not None:
-        count_query = count_query.filter(Print.print_type == print_type)
+        count_query = count_query.filter(Print.print_type == print_type.value)
     total_count = count_query.scalar()
 
     return PrintListResponse(
@@ -85,7 +85,7 @@ def upload_print(
     base_url: str,
     title: str | None = None,
     description: str | None = None,
-    print_type: str | None = None,
+    print_type: PrintType | None = None,
 ) -> PrintResponse:
     ext = os.path.splitext(filename)[1].lower()
     object_key = f"{uuid.uuid4()}{ext}"
@@ -103,7 +103,7 @@ def upload_print(
         content_type=content_type,
         title=title,
         description=description,
-        print_type=print_type,
+        print_type=print_type.value if print_type is not None else None,
     )
     db.add(print_obj)
     db.commit()
