@@ -21,6 +21,15 @@ from src.api.exceptions import ValidationError
 
 import pytest
 
+
+class DummyMinioClient:
+    def __init__(self):
+        self.remove_calls = []
+
+    def remove_object(self, bucket, object_key):
+        self.remove_calls.append((bucket, object_key))
+
+
 BASE_URL = "http://test"
 
 
@@ -247,7 +256,7 @@ def test_delete_blog(db_session, blogs_limited):
     result = get_blogs_paginated(db_session, BASE_URL)
     assert len(result.blogs) == 2
 
-    success = delete_blog_by_id(db_session, blogs_limited[0].id)
+    success = delete_blog_by_id(db_session, blogs_limited[0].id, DummyMinioClient())
     assert success
 
     result = get_blogs_paginated(db_session, BASE_URL)

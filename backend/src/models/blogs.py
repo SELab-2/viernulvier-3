@@ -24,7 +24,7 @@ class Blog(Base):
 class BlogContent(Base):
     __tablename__ = "blog_content"
 
-    blog_id = Column(Integer, ForeignKey("blogs.id"), primary_key=True)
+    blog_id = Column(Integer, ForeignKey("blogs.id", ondelete="CASCADE"), primary_key=True)
     language = Column(String, primary_key=True)
     title = Column(String)
     content = Column(String)

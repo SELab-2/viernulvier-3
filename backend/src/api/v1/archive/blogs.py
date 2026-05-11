@@ -1,3 +1,4 @@
+from minio import Minio
 from sqlalchemy.orm import Session
 from src.api.dependencies.language import get_accepted_language
 from src.database import get_db
@@ -19,6 +20,7 @@ from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
 from src.services.archive import get_base_url
+from src.services.media import get_minio_client
 
 router = APIRouter()
 
@@ -101,6 +103,7 @@ async def patch_blog(
 async def delete_blog(
     blog_id: int,
     db: Session = Depends(get_db),
+    minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.BLOG_DELETE])),
 ):
-    delete_blog_by_id(db, blog_id)
+    delete_blog_by_id(db, blog_id, minio)

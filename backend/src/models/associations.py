@@ -26,8 +26,18 @@ prod_groups = Table(
 prod_blogs = Table(
     "prod_blogs",
     Base.metadata,
-    Column("blog_id", Integer, ForeignKey("blogs.id"), primary_key=True),
-    Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
+    Column(
+        "blog_id",
+        Integer,
+        ForeignKey("blogs.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "prod_id",
+        Integer,
+        ForeignKey("productions.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 user_roles = Table(

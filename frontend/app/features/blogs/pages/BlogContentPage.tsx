@@ -8,6 +8,7 @@ import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
+import { DeleteBlogButton } from "~/features/blogs/components/DeleteBlogButton";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
 
@@ -150,6 +151,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   const language = preferredLanguage ?? lang!;
   const blogContent = getBlogContentByLanguage(blog.blog_contents, language);
+  const blogNumericId = blog.id_url.match(/\/blogs\/(\d+)(?:[/?#]|$)/)?.[1];
 
   const title = blogContent?.title.trim() || t("blogs.contentPage.fallback");
   const contentHtml = getSanitizedHtml(blogContent?.content);
@@ -205,6 +207,10 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
         <LinkedProductions productions={linkedProductions} />
       </main>
+
+      <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+        {blogNumericId && <DeleteBlogButton blogId={Number(blogNumericId)} />}
+      </div>
     </div>
   );
 }

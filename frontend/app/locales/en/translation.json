@@ -243,7 +243,13 @@
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
       "fallback": "No translation available",
-      "media": "Linked media:"
+      "media": "Linked media:",
+      "delete": {
+        "delete": "Delete blog",
+        "deleting": "Deleting...",
+        "confirm": "Are you sure you want to delete this blog? This action cannot be undone.",
+        "error": "Failed to delete the blog. Please try again."
+      }
     },
     "detail": {
       "title": "Blog",
