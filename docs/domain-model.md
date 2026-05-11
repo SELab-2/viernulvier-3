@@ -92,9 +92,16 @@ Table event_prices {
 
 Table halls {
   id int [pk]
+  viernulvier_id int
   address varchar
   name varchar
 
+}
+
+Table hallnames {
+  hall_id int [pk, ref: > halls.id]
+  language varchar [pk]
+  name varchar
 }
 
 Table media {
