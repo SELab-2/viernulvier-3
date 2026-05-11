@@ -38,21 +38,7 @@ export function DeleteBlogButton({ blogId }: DeleteBlogButtonProps) {
         id="delete-blog-button"
         onClick={handleDelete}
         disabled={isDeleting}
-        className="
-          shadow-lg
-          hover:bg-archive-control-hover
-          rounded-full
-          cursor-pointer
-          transition-colors
-          duration-150
-          text-archive-ink
-          inline-flex
-          px-6 py-3
-          font-semibold text-white
-          bg-archive-accent
-          disabled:opacity-50
-          disabled:cursor-not-allowed
-        "
+        className="hover:bg-archive-control-hover text-archive-ink bg-archive-accent inline-flex cursor-pointer rounded-full px-6 py-3 font-semibold text-white shadow-lg transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isDeleting
           ? t("blogs.contentPage.delete.deleting")

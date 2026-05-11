@@ -13,15 +13,17 @@ vi.mock("~/shared/hooks/useLocalizedPath", () => ({
 }));
 
 vi.mock("~/features/auth", async () => {
-  const { Protected } = await vi.importActual<typeof import("~/features/auth/components/Protected")>(
-    "~/features/auth/components/Protected"
-  );
+  const { Protected } = await vi.importActual<
+    typeof import("~/features/auth/components/Protected")
+  >("~/features/auth/components/Protected");
   return { Protected };
 });
 
 vi.mock("~/features/auth/context/AuthSessionContext", async () => {
   return {
-    AuthSessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    AuthSessionProvider: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
     useAuthSession: () => ({
       isAuthenticated: true,
       isLoading: false,
@@ -107,9 +109,10 @@ describe("DeleteBlogButton", () => {
   it("disables the button while deleting", async () => {
     let resolveDelete!: () => void;
     mockDeleteBlog.mockImplementation(
-      () => new Promise<void>((resolve) => {
-        resolveDelete = resolve;
-      })
+      () =>
+        new Promise<void>((resolve) => {
+          resolveDelete = resolve;
+        })
     );
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
