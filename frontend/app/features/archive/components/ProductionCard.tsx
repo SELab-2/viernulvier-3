@@ -254,6 +254,7 @@ export function ProductionCard({
           color: "var(--color-archive-paper) !important",
         },
       }}
+      elevation={0}
     >
       <Link
         to={lp(`/archive/productions/${productionId}`)}
@@ -521,14 +522,14 @@ export function ProductionCard({
           <div
             className="production-card-text"
             style={{
-              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-              fontWeight: "var(--weight-archive-bold)",
-              textTransform: "uppercase",
-              letterSpacing: "var(--tracking-archive-label)",
-              fontSize: "var(--text-archive-meta)",
-              display: "flex",
               alignItems: "center",
+              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
+              display: "flex",
+              fontSize: "var(--text-archive-meta)",
+              fontWeight: "var(--weight-archive-bold)",
               gap: 0.5,
+              letterSpacing: "var(--tracking-archive-label)",
+              textTransform: "uppercase",
             }}
           >
             Details <ArrowRightAlt />
