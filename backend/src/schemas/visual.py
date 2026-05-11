@@ -11,6 +11,7 @@ class VisualType(str, Enum):
     TIMETABLE = "timetable"
     PROGRAMME = "programme"
     VIDEO = "video"
+    PICTURE = "picture"
     OTHER = "other"
 
 
