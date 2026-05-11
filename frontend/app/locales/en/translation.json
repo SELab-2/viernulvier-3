@@ -1,4 +1,5 @@
 {
+  "notSaveChanges": "You have unsaved changes. Leave anyway?",
   "loading": "Loading...",
   "nav": {
     "home": "Home",
@@ -54,7 +55,7 @@
     "unknownDate": "Unknown date",
     "card": {
       "defaults": {
-        "title": "Unknown production",
+        "title": "Unknown production title",
         "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
