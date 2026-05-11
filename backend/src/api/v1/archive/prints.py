@@ -52,7 +52,7 @@ async def get_prints(
     ),
     db: Session = Depends(get_db),
 ) -> PrintListResponse:
-    base_url = get_base_url(str(request.url), 2)
+    base_url = get_base_url(str(request.url), 1)
     return list_prints(db, base_url, cursor, limit, print_type)
 
 
@@ -66,7 +66,7 @@ async def get_print(
     request: Request,
     db: Session = Depends(get_db),
 ) -> PrintResponse:
-    base_url = get_base_url(str(request.url), 3)
+    base_url = get_base_url(str(request.url), 2)
     return get_print_by_id(db, print_id, base_url)
 
 
@@ -98,7 +98,7 @@ async def post_print(
             ),
         )
     data = await file.read()
-    base_url = get_base_url(str(request.url), 2)
+    base_url = get_base_url(str(request.url), 1)
     return upload_print(
         db=db,
         filename=file.filename or "upload",

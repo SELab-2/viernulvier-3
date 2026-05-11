@@ -7,7 +7,6 @@ from src.schemas.pagination import IdPagination
 
 
 class PrintResponse(BaseModel):
-    id: int
     url: str
     id_url: str
     content_type: str

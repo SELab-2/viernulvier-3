@@ -22,9 +22,8 @@ def build_print_response(print_obj: Print, base_url: str) -> PrintResponse:
     parsed = urlparse(base_url)
     host_url = f"{parsed.scheme}://{parsed.netloc}"
     return PrintResponse(
-        id=print_obj.id,
         id_url=f"{base_url}/prints/{print_obj.id}",
-        url=f"{host_url}/media/{print_obj.object_key}",
+        url=f"{host_url}/prints/{print_obj.object_key}",
         content_type=print_obj.content_type,
         title=print_obj.title,
         description=print_obj.description,
@@ -89,7 +88,7 @@ def upload_print(
     print_type: str | None = None,
 ) -> PrintResponse:
     ext = os.path.splitext(filename)[1].lower()
-    object_key = f"prints/{uuid.uuid4()}{ext}"
+    object_key = f"{uuid.uuid4()}{ext}"
 
     minio_client.put_object(
         settings.MINIO_PRINTS_BUCKET,
