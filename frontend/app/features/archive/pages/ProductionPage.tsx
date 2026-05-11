@@ -322,8 +322,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       .catch(() => {});
   }, [production.id_url]);
 
-  // Prevent moving away from page when edit is modified (browser aways)
-  // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
   const isEditingRef = useRef(false);
   const isModifiedRef = useRef(false);
@@ -331,9 +329,12 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [skipWarning, setSkipWarning] = useState(false);
   const [isQuillDirty, setIsQuillDirty] = useState(false);
 
-  isEditingRef.current = isEditing;
-  isModifiedRef.current = isModified;
-  isQuillDirtyRef.current = isQuillDirty;
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+    isModifiedRef.current = isModified;
+    isQuillDirtyRef.current = isQuillDirty;
+  }, [isEditing, isModified, isQuillDirty]);
+
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (skipUnloadWarning.current) return;
@@ -345,7 +346,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
-  // And the same but for React links
   useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
 
   const title = getTextOrDefault(
