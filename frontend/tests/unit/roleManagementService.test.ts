@@ -59,17 +59,25 @@ describe("roleManagementService", () => {
     mockAdapter.onPost("/api/v1/auth/roles").reply(201, {
       id_url: "http://localhost/api/v1/auth/roles/7",
       name: "moderator",
-      permissions: [],
+      permissions: ["users:read", "archive:create"],
     });
 
-    await expect(createRole({ name: "moderator" })).resolves.toEqual({
+    await expect(
+      createRole({
+        name: "moderator",
+        permissions: ["users:read", "archive:create"],
+      })
+    ).resolves.toEqual({
       id: 7,
       name: "moderator",
-      permissions: [],
+      permissions: ["users:read", "archive:create"],
     });
 
     expect(mockAdapter.history.post[0].data).toBe(
-      JSON.stringify({ name: "moderator" })
+      JSON.stringify({
+        name: "moderator",
+        permissions: ["users:read", "archive:create"],
+      })
     );
   });
 
