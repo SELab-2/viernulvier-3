@@ -14,6 +14,7 @@ import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { BLOG_PERMISSIONS } from "../blog.constants";
 import BlogEditButton from "../components/BlogEditButton";
 import { updateBlogByUrl } from "../services/blogService";
+import ComplexEditableField from "~/shared/components/ComplexEditableField";
 
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
@@ -39,7 +40,7 @@ function getBlogContentByLanguage(
   return languageMatch ?? null;
 }
 
-function getSanitizedHtml(value: string | null | undefined): string | undefined {
+function getSanitizedHtmlOrUndefined(value: string | null | undefined): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
@@ -116,16 +117,33 @@ function BlogHeader({ isEditing, originalContent, draftContent, setDraftContent 
 }
 
 type BlogContentSectionProps = {
-  contentHtml: string;
+  contentHtml: string | undefined;
+  globalIsEditing: boolean;
+  handleSave: (html: string) => void;
 };
 
-function BlogContentSection({ contentHtml }: BlogContentSectionProps) {
+function BlogContentSection({ contentHtml, globalIsEditing, handleSave }: BlogContentSectionProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(true);
+  const { t } = useTranslation();
+  function _handleSave(html: string) {
+	  handleSave(html);
+	  setIsEditing(false);
+  }
   return (
-    <div
-      id="blog-content"
-      className="prose prose-archive max-w-none opacity-90"
-      dangerouslySetInnerHTML={{ __html: contentHtml }}
-    />
+	<>
+      <ComplexEditableField
+        id="blog-content"
+        field={t("productionPage.edit.teaser")}
+        html={contentHtml}
+        isEditing={globalIsEditing && isEditing}
+        onStartEdit={() => setIsEditing(true)}
+        onSave={(html) => _handleSave(html)}
+        onCancel={() => setIsEditing(false)}
+        fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
+        canEdit={globalIsEditing}
+        permissions={[BLOG_PERMISSIONS.update]}
+      />
+	</>
   );
 }
 
@@ -279,7 +297,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     );
 
   const title = blogContent?.title.trim() || t("blogs.contentPage.fallback");
-  const contentHtml = getSanitizedHtml(blogContent?.content);
+  const contentHtml = getSanitizedHtmlOrUndefined(draftContent?.content);
 
   const isModified = useMemo(() => {
     if (originalContent === null) {
@@ -345,11 +363,15 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
         <section id="blog-body" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            {contentHtml ? (
-              <BlogContentSection contentHtml={contentHtml} />
-            ) : (
-              <p className="opacity-75">{t("blogs.contentPage.fallback")}</p>
-            )}
+		    <BlogContentSection
+		      contentHtml={contentHtml}
+		      globalIsEditing={isEditing}
+		      handleSave={(html) => {
+                setDraftContent((prev) =>
+                  prev ? { ...prev, content: html } : prev
+                );
+			  }}
+			/>
           </article>
         </section>
 
