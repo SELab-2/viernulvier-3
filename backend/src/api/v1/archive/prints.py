@@ -15,7 +15,7 @@ from src.api.dependencies import RequirePermissions
 from src.api.exceptions import NotFoundError
 from src.database import get_db
 from src.models.user import User
-from src.schemas.print import PrintListResponse, PrintResponse
+from src.schemas.print import PrintListResponse, PrintResponse, PrintType
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.media import get_minio_client
@@ -38,6 +38,16 @@ router = APIRouter()
 
 
 @router.get(
+    "/types",
+    response_model=list[str],
+    summary="List all valid print types",
+    description="Returns the list of accepted print_type values.",
+)
+async def get_print_types() -> list[str]:
+    return [t.value for t in PrintType]
+
+
+@router.get(
     "/",
     response_model=PrintListResponse,
     summary="List all prints",
@@ -47,7 +57,7 @@ async def get_prints(
     request: Request,
     cursor: int | None = Query(None),
     limit: int = Query(PRINT_DEFAULT_PAGE_SIZE, ge=1),
-    print_type: str | None = Query(
+    print_type: PrintType | None = Query(
         None, description="Filter by type, e.g. poster, timetable, programme"
     ),
     db: Session = Depends(get_db),
@@ -82,7 +92,7 @@ async def post_print(
     file: UploadFile = File(...),
     title: str | None = Query(None),
     description: str | None = Query(None),
-    print_type: str | None = Query(
+    print_type: PrintType | None = Query(
         None, description="Category of print: poster, timetable, programme, other"
     ),
     db: Session = Depends(get_db),
