@@ -3,12 +3,13 @@ from datetime import datetime
 
 from sqlalchemy import select
 from src.models.event import Event, EventPrice
+from src.models.hall import Hall, HallName
 from src.models.production import ProdInfo, Production
 from src.models.tag import Tag, TagName
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
-from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.genre import store_new_genres
+from src.worker.sync.store.production import store_new_productions
 
 
 # Test storing a list of productions from the API into our database
@@ -152,9 +153,10 @@ def test_store_new_events_with_orphans(db_session, caplog):
     db_session.commit()
 
     # Assert that only one event was stored
-    stored_events = db_session.execute(select(Event)).scalars().all()
+    stored_events: list[Event] = db_session.execute(select(Event)).scalars().all()
     assert len(stored_events) == 1
     assert stored_events[0].viernulvier_id == 6169
+    assert stored_events[0].hall_id is None
 
     # newest timestamp should be from the last created valid event
     assert newest == datetime.fromisoformat("2021-08-16T14:36:53+00:00")
@@ -179,6 +181,73 @@ def test_store_new_events_with_orphans(db_session, caplog):
     assert "does not exist" in orphaned_warning_2
 
     assert "Skipped 3 events" in total_orphans_warning
+
+
+def test_store_new_events_hall(db_session, caplog):
+    # Add a dummy production and hall to the DB so that an event can be stored
+    prod = Production(viernulvier_id=4129)
+    hall = Hall(viernulvier_id=123, names=[HallName(language="en", name="Hallie")])
+    db_session.add_all([prod, hall])
+    db_session.commit()
+
+    event = {
+        "@id": "/api/v1/events/6169",
+        "created_at": "2021-08-16T14:36:53+00:00",
+        "updated_at": "2025-09-16T07:33:34+00:00",
+        "starts_at": "2021-11-26T19:00:00+00:00",
+        "ends_at": "2021-11-26T20:00:00+00:00",
+        "hall": "/api/v1/halls/123",
+        "production": {
+            "@type": "StandardProduction",
+            "@id": "/api/v1/productions/4129",
+        },
+    }
+    store_new_events(db_session, [event])
+    db_session.commit()
+
+    stored_events: list[Event] = db_session.execute(select(Event)).scalars().all()
+    assert len(stored_events) == 1
+
+    hall = (
+        db_session.execute(select(Hall).where(Hall.viernulvier_id == 123))
+        .scalars()
+        .all()
+    )
+    assert len(hall) == 1
+    assert stored_events[0].hall_id == hall[0].id
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 0
+
+
+def test_store_new_events_unknown_hall(db_session, caplog):
+    # Add a dummy production to the DB so that an event can be stored
+    prod = Production(viernulvier_id=4129)
+    db_session.add(prod)
+    db_session.commit()
+
+    event = {
+        "@id": "/api/v1/events/6169",
+        "created_at": "2021-08-16T14:36:53+00:00",
+        "updated_at": "2025-09-16T07:33:34+00:00",
+        "starts_at": "2021-11-26T19:00:00+00:00",
+        "ends_at": "2021-11-26T20:00:00+00:00",
+        "hall": "/api/v1/halls/123",
+        "production": {
+            "@type": "StandardProduction",
+            "@id": "/api/v1/productions/4129",
+        },
+    }
+    store_new_events(db_session, [event])
+    db_session.commit()
+
+    stored_events: list[Event] = db_session.execute(select(Event)).scalars().all()
+    assert len(stored_events) == 1
+    assert stored_events[0].hall_id is None
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert "but this hall does not exist" in warnings[0]
 
 
 # Quick sanity check that we get None when no event was received

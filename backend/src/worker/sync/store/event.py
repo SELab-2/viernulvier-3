@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
+from src.models.hall import Hall
 from src.models.production import Production
 from src.worker.converters.event import api_event_to_model_event
 
@@ -20,11 +21,19 @@ def store_new_events(db_session: Session, events: list[dict]):
         for (prod_id, prod_viernulvier_id) in existing_productions
     }
 
+    existing_halls = db_session.execute(select(Hall.id, Hall.viernulvier_id))
+    hall_map: dict[int, int] = {
+        hall_viernulvier_id: hall_id
+        for (hall_id, hall_viernulvier_id) in existing_halls
+    }
+
     orphans = 0
 
     for json_event in events:
         try:
-            event, viernulvier_prod_id = api_event_to_model_event(json_event)
+            event, viernulvier_prod_id, viernulvier_hall_id = api_event_to_model_event(
+                json_event
+            )
 
             # Check if the event is tied to a valid production, else we would get a
             # ForeignKey violation
@@ -49,6 +58,17 @@ def store_new_events(db_session: Session, events: list[dict]):
 
             event.production_id = internal_prod_id
 
+            if viernulvier_hall_id:
+                internal_hall_id = hall_map.get(viernulvier_hall_id)
+                if not internal_hall_id:
+                    logger.warning(
+                        f"Event (id={event.viernulvier_id}) references hall with "
+                        f"id={viernulvier_hall_id}, but this hall does not exist "
+                        "in the database. Not storing the hall for this event."
+                    )
+                else:
+                    event.hall_id = internal_hall_id
+
             # Valid production id, so store this event
             db_session.merge(event)
 
@@ -59,7 +79,7 @@ def store_new_events(db_session: Session, events: list[dict]):
                     newest_timestamp = created_at_str
 
         except Exception as e:
-            logger.warn(f"Error storing event ({json_event}):\n{e}")
+            logger.warning(f"Error storing event ({json_event}):\n{e}")
 
     if orphans > 2:
         logger.warning(f"Skipped {orphans} events due to no valid production_id")
