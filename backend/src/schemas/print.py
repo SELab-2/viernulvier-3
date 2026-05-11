@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from src.schemas.base_schema import StrictModel
 
 from src.schemas.pagination import IdPagination
 
 
-class PrintResponse(BaseModel):
+class PrintResponse(StrictModel):
     url: str
     id_url: str
     content_type: str
@@ -18,6 +18,6 @@ class PrintResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class PrintListResponse(BaseModel):
+class PrintListResponse(StrictModel):
     prints: list[PrintResponse]
     pagination: IdPagination
