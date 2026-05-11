@@ -150,7 +150,9 @@ export function UserFormDialog(props: UserFormDialogProps) {
       }}
     >
       <DialogTitle sx={dialogTitleSx}>
-        {mode === "create" ? t("users.dialogs.create.title") : t("users.dialogs.edit.title")}
+        {mode === "create"
+          ? t("users.dialogs.create.title")
+          : t("users.dialogs.edit.title")}
       </DialogTitle>
       <DialogContent sx={dialogContentSx}>
         <p className="mb-5 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
@@ -242,7 +244,9 @@ export function UserFormDialog(props: UserFormDialogProps) {
         <Button
           type="submit"
           form={formId}
-          disabled={isSubmitting || !trimmedUsername || (mode === "create" && !password)}
+          disabled={
+            isSubmitting || !trimmedUsername || (mode === "create" && !password)
+          }
           sx={primaryButtonSx}
         >
           {isSubmitting ? (
@@ -264,11 +268,11 @@ export function UserFormDialog(props: UserFormDialogProps) {
 }
 
 const bannerSx = {
-  mt: 4,
-  fontFamily: "var(--font-sans)",
-  fontSize: "0.875rem",
-  borderColor: "rgba(196, 164, 132, 0.4)",
-  color: "var(--archive-ink)",
+  "mt": 4,
+  "fontFamily": "var(--font-sans)",
+  "fontSize": "0.875rem",
+  "borderColor": "rgba(196, 164, 132, 0.4)",
+  "color": "var(--archive-ink)",
   "& .MuiAlert-icon": { color: "var(--archive-accent)" },
 };
 
@@ -287,9 +291,9 @@ const secondaryButtonSx = {
 
 const primaryButtonSx = {
   ...secondaryButtonSx,
-  color: "#f6f0e8",
-  borderColor: "transparent",
-  backgroundColor: "var(--archive-accent)",
+  "color": "#f6f0e8",
+  "borderColor": "transparent",
+  "backgroundColor": "var(--archive-accent)",
   "&:hover": {
     backgroundColor: "#92653e",
   },
@@ -326,8 +330,8 @@ const helperTextSx = {
 };
 
 const roleCheckboxSx = {
-  color: "rgba(196, 164, 132, 0.7)",
-  padding: 0,
+  "color": "rgba(196, 164, 132, 0.7)",
+  "padding": 0,
   "&.Mui-checked": {
     color: "var(--archive-accent)",
   },

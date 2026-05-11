@@ -350,8 +350,12 @@ describe("UserManagementPage", () => {
       })
     );
 
-    const usernameInput = screen.getByLabelText("users.fields.username") as HTMLInputElement;
-    const passwordInput = screen.getByLabelText("users.fields.password") as HTMLInputElement;
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
     expect(usernameInput.value).toBe("curator");
     expect(passwordInput.value).toBe("");
 
