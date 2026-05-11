@@ -104,7 +104,7 @@ jobs:
           MINIO_ROOT_PASSWORD=minioadmin
           MINIO_ENDPOINT=minio:9000
           MINIO_BUCKET=media
-          MINIO_PRINTS_BUCKET=prints          
+          MINIO_VISUALS_BUCKET=visuals          
           EOF
       - name: Set project name
         run: echo "PROJECT_NAME=viernulvier-ci-${{ matrix.target }}" >> $GITHUB_ENV

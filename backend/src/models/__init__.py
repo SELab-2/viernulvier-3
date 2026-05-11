@@ -21,7 +21,7 @@ from src.models.role import Role
 from src.models.tag import Tag, TagName
 from src.models.user import User
 from src.models.media import Media
-from src.models.print import Print
+from src.models.visual import Visual
 import src.models.listeners.production_dates as production_dates
 
 __all__ = [
@@ -47,5 +47,5 @@ __all__ = [
     "Blog",
     "BlogContent",
     "production_dates",
-    "Print",
+    "Visual",
 ]

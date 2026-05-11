@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 
     buckets = [
         settings.MINIO_BUCKET,
-        settings.MINIO_PRINTS_BUCKET,
+        settings.MINIO_VISUALS_BUCKET,
     ]
 
     for bucket in buckets:
