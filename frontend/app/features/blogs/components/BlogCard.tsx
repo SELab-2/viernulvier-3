@@ -1,4 +1,5 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import { Link } from "react-router";
 import {
   Box,
   Card,
@@ -6,12 +7,11 @@ import {
   CardMedia,
   Chip,
   Divider,
-  Link,
   Stack,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Blog, BlogContent } from "../types/blogTypes";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
@@ -179,7 +179,6 @@ export function BlogCard({
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
 
   const { lang } = useParams();
@@ -202,23 +201,13 @@ export function BlogCard({
   }, [blog, language]);
 
   const blogId = getBlogNumericIdFromUrl(blog.id_url);
-
-  const handleOpenDetails = () => {
-    if (!blogId) {
-      return;
-    }
-
-    navigate(lp(`/blogs/${blogId}`));
-  };
+  if (!blogId) return null;
 
   return (
     <Card
-      onClick={handleOpenDetails}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
       className={className}
       sx={{
+        "position": "relative",
         "width": "100%",
         "height": compact
           ? { xs: "100px", sm: "110px", md: "120px" }
@@ -256,6 +245,11 @@ export function BlogCard({
       }}
       elevation={0}
     >
+      <Link
+        to={lp(`/blogs/${blogId}`)}
+        aria-label={`Open details for ${title}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      />
       <Box
         sx={{
           position: "relative",
@@ -362,25 +356,22 @@ export function BlogCard({
             >
               <ProductionTitles productionTitles={productionTitles} />
 
-              <Link
+              <div
                 className="blog-card-text"
-                component="span"
-                underline="none"
-                sx={{
-                  display: "flex",
+                style={{
                   alignItems: "center",
-                  gap: 0.25,
                   color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-                  fontWeight: "var(--weight-archive-bold)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-archive-label)",
-                  fontSize: "var(--text-archive-meta)",
-                  cursor: "pointer",
+                  display: "flex",
                   flexShrink: 0,
+                  fontSize: "var(--text-archive-meta)",
+                  fontWeight: "var(--weight-archive-bold)",
+                  gap: 0.25,
+                  letterSpacing: "var(--tracking-archive-label)",
+                  textTransform: "uppercase",
                 }}
               >
                 {t("blogs.card.details")} <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
-              </Link>
+              </div>
             </Stack>
           </>
         )}
