@@ -5,11 +5,11 @@ import DOMPurify from "dompurify";
 
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
+import { getProductionsForBlog } from "../services/blogService";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { BLOG_PERMISSIONS } from "../blog.constants";
 import BlogEditButton from "../components/BlogEditButton";
@@ -258,7 +258,7 @@ async function handleContentSave(
           content: draftContent.content,
         },
       ],
-      production_id_urls: blog.production_id_urls,
+      production_group_id_url: blog.production_group_id_url,
     });
 
     // sync local "source of truth"
@@ -336,31 +336,24 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadProductions() {
-      if (blog.production_id_urls.length === 0) return;
-
-      const settled = await Promise.all(
-        blog.production_id_urls.map(async (url) => {
-          try {
-            return await getProductionByUrl(url);
-          } catch {
-            return null;
-          }
-        })
-      );
-
-      if (!cancelled) {
-        setLinkedProductions(settled.filter((p): p is Production => p !== null));
+      if (!blog.production_group_id_url) return;
+      try {
+        const productions = await getProductionsForBlog(blog);
+        if (!cancelled) {
+          setLinkedProductions(productions.filter((p): p is Production => p !== null));
+        }
+      } catch {
+        if (!cancelled) {
+          setLinkedProductions([]);
+        }
       }
     }
-
     void loadProductions();
-
     return () => {
       cancelled = true;
     };
-  }, [blog.production_id_urls]);
+  }, [blog]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">

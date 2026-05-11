@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { BlogContentPage } from "~/features/blogs/pages/BlogContentPage";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
+import { getProductionsForBlog } from "~/features/blogs/services/blogService";
 
-vi.mock("~/features/archive/services/productionService", () => ({
-  getProductionByUrl: vi.fn(),
+vi.mock("~/features/blogs/services/blogService", () => ({
+  getProductionsForBlog: vi.fn(),
 }));
 
 vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
@@ -45,7 +45,7 @@ function renderPage(blog: Blog, preferredLanguage: string = "nl") {
 
 const baseBlog: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -64,7 +64,7 @@ const baseBlog: Blog = {
 
 const baseBlogOneLanguage: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -77,7 +77,7 @@ const baseBlogOneLanguage: Blog = {
 
 const baseBlogEmptyContent: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -153,9 +153,8 @@ describe("BlogContentPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("loads and renders linked productions", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
+  it("loads and renders linked productions via production group", async () => {
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
     const mockProduction: Production = {
       id_url: "http://localhost/api/v1/archive/productions/1",
       performer_type: "Opera",
@@ -172,17 +171,14 @@ describe("BlogContentPage", () => {
       event_id_urls: [],
       tags: [],
     };
-
-    getProductionByUrlMock.mockResolvedValue(mockProduction);
-
+    getProductionsForBlogMock.mockResolvedValue([mockProduction]);
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: ["http://localhost/api/v1/archive/productions/1"],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
       },
       "nl"
     );
-
     expect(
       await screen.findByRole("heading", { name: "Gekoppelde Productie" })
     ).toBeInTheDocument();
@@ -194,56 +190,64 @@ describe("BlogContentPage", () => {
   });
 
   it("handles a failed production fetch gracefully and omits it from the list", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
-    getProductionByUrlMock.mockRejectedValue(new Error("Network error"));
-
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
+    getProductionsForBlogMock.mockRejectedValue(new Error("Network error"));
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: ["http://localhost/api/v1/archive/productions/99"],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/99",
       },
       "nl"
     );
-
     await screen.findByTestId("blog-media-gallery");
-
     expect(
       screen.queryByRole("region", { name: "Linked productions" })
     ).not.toBeInTheDocument();
   });
 
   it("renders multiple linked productions", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
-    getProductionByUrlMock.mockImplementation(async (url: string) => ({
-      id_url: url,
-      performer_type: "Ballet",
-      production_infos: [
-        {
-          production_id_url: url,
-          language: "nl",
-          title: url.endsWith("/2") ? "Productie Twee" : "Productie Één",
-          supertitle: "Collectie",
-          artist: url.endsWith("/2") ? "Artiest Twee" : "Artiest Één",
-          tagline: "Een tagline",
-        },
-      ],
-      event_id_urls: [],
-      tags: [],
-    }));
-
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
+    getProductionsForBlogMock.mockResolvedValue([
+      {
+        id_url: "http://localhost/api/v1/archive/productions/1",
+        performer_type: "Ballet",
+        production_infos: [
+          {
+            production_id_url: "http://localhost/api/v1/archive/productions/1",
+            language: "nl",
+            title: "Productie Één",
+            supertitle: "Collectie",
+            artist: "Artiest Één",
+            tagline: "Een tagline",
+          },
+        ],
+        event_id_urls: [],
+        tags: [],
+      },
+      {
+        id_url: "http://localhost/api/v1/archive/productions/2",
+        performer_type: "Ballet",
+        production_infos: [
+          {
+            production_id_url: "http://localhost/api/v1/archive/productions/2",
+            language: "nl",
+            title: "Productie Twee",
+            supertitle: "Collectie",
+            artist: "Artiest Twee",
+            tagline: "Een tagline",
+          },
+        ],
+        event_id_urls: [],
+        tags: [],
+      },
+    ]);
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: [
-          "http://localhost/api/v1/archive/productions/1",
-          "http://localhost/api/v1/archive/productions/2",
-        ],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
       },
       "nl"
     );
-
     expect(await screen.findByText("Productie Één")).toBeInTheDocument();
     expect(await screen.findByText("Productie Twee")).toBeInTheDocument();
     expect(screen.getByText("Artiest Één")).toBeInTheDocument();

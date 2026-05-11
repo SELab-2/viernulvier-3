@@ -46,6 +46,7 @@ type ComplexEditableFieldProps = {
   onCancel: () => void;
   canEdit: boolean;
   permissions: string[];
+  onDirtyChange?: (isDirty: boolean) => void;
 };
 
 export default function ComplexEditableField({
@@ -59,9 +60,12 @@ export default function ComplexEditableField({
   onCancel,
   canEdit,
   permissions,
+  onDirtyChange,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
+  const [originalDelta, setOriginalDelta] = useState<Delta | null>(null);
+
   const shared_css = `
     shadow-lg
     hover:bg-archive-control-hover
@@ -77,11 +81,19 @@ export default function ComplexEditableField({
 
   useEffect(() => {
     if (isEditing && html) {
-      htmlToDelta(html).then(setDelta);
+      htmlToDelta(html).then((d) => {
+        setDelta(d);
+        setOriginalDelta(d);
+      });
     } else if (isEditing) {
-      setTimeout(() => setDelta(null), 0);
+      setTimeout(() => {
+        setDelta(null);
+        setOriginalDelta(null);
+      }, 0);
+    } else {
+      onDirtyChange?.(false);
     }
-  }, [isEditing, html]);
+  }, [isEditing, html, onDirtyChange]);
 
   if (isEditing) {
     return (
@@ -90,7 +102,11 @@ export default function ComplexEditableField({
           <ArchiveRichTextFieldWrapper
             label={field}
             value={delta}
-            onChange={setDelta}
+            onChange={(newDelta) => {
+              setDelta(newDelta);
+              const dirty = JSON.stringify(newDelta) !== JSON.stringify(originalDelta);
+              onDirtyChange?.(dirty);
+            }}
             canEdit={canEdit}
           />
           <div className="mt-2 flex gap-2">
@@ -117,7 +133,7 @@ export default function ComplexEditableField({
   return (
     <div
       id={id}
-      className={`rounded opacity-90 ${canEdit ? "className=flex hover:outline-archive-accent !cursor-pointer items-center gap-2 hover:outline hover:outline-1" : "!cursor-default"}`}
+      className={`w-full min-w-0 flex-1 overflow-x-hidden rounded opacity-90 ${canEdit ? "hover:outline-archive-accent flex !cursor-pointer flex-col hover:outline hover:outline-1" : "cursor-default"}`}
       onClick={onStartEdit}
     >
       {canEdit ? (
@@ -128,7 +144,10 @@ export default function ComplexEditableField({
       ) : null}
 
       {html ? (
-        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+        <div
+          className="prose overflow-wrap-anywhere max-w-none min-w-0 break-words whitespace-normal"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       ) : (
         fallback
       )}

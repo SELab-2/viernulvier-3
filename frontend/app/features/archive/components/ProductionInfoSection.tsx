@@ -10,6 +10,7 @@ type ProductionInfoSectionProps = {
   infoHtml: string | undefined;
   isEditing: boolean;
   onSave: (field: string, html: string) => void;
+  onQuillDirtyChange: (isDirty: boolean) => void;
 };
 
 export function ProductionInfoSection({
@@ -19,6 +20,7 @@ export function ProductionInfoSection({
   infoHtml,
   isEditing: globalIsEditing,
   onSave,
+  onQuillDirtyChange,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export function ProductionInfoSection({
   }
 
   return (
-    <>
+    <div className="flex min-w-0 flex-col gap-6">
       {tagline && <p id="tagline">{tagline}</p>}
 
       <ComplexEditableField
@@ -49,6 +51,7 @@ export function ProductionInfoSection({
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
         permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -64,6 +67,7 @@ export function ProductionInfoSection({
         }
         canEdit={globalIsEditing}
         permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -77,7 +81,8 @@ export function ProductionInfoSection({
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
         permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
-    </>
+    </div>
   );
 }

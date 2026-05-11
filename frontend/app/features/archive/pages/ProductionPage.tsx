@@ -1,6 +1,6 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -121,7 +121,8 @@ async function handleInfoSave(
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
-  skipUnloadWarning: React.MutableRefObject<boolean>
+  skipUnloadWarning: React.RefObject<boolean>,
+  setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   if (!draftInfo) return;
 
@@ -148,6 +149,7 @@ async function handleInfoSave(
     setIsEditing(false);
     if (!originalInfo) {
       skipUnloadWarning.current = true;
+      setSkipWarning(true);
       window.location.reload();
     }
   } catch (err) {
@@ -159,18 +161,28 @@ async function handleInfoSave(
 
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
+  const blockerRef = useRef(blocker);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
-      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+    blockerRef.current = blocker;
+  });
 
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+
+  useEffect(() => {
+    if (blockerRef.current.state === "blocked") {
+      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
       if (confirmLeave) {
-        blocker.proceed();
+        blockerRef.current.proceed();
       } else {
-        blocker.reset();
+        blockerRef.current.reset();
       }
     }
-  }, [blocker]);
+  }, [blocker.state]);
 }
 
 function BackToCollectionLink() {
@@ -284,7 +296,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setIsEditing,
       setIsSaving,
       language,
-      skipUnloadWarning
+      skipUnloadWarning,
+      setSkipWarning
     );
 
   // State when editing, keeps track if something has changed
@@ -309,21 +322,31 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       .catch(() => {});
   }, [production.id_url]);
 
-  // Prevent moving away from page when edit is modified (browser aways)
-  // Browser does not show warning when saving.
   const skipUnloadWarning = useRef(false);
+  const isEditingRef = useRef(false);
+  const isModifiedRef = useRef(false);
+  const isQuillDirtyRef = useRef(false);
+  const [skipWarning, setSkipWarning] = useState(false);
+  const [isQuillDirty, setIsQuillDirty] = useState(false);
+
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+    isModifiedRef.current = isModified;
+    isQuillDirtyRef.current = isQuillDirty;
+  }, [isEditing, isModified, isQuillDirty]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (skipUnloadWarning.current) return; // skip bij reload na save
-      if (isEditing && isModified) e.preventDefault();
+      if (skipUnloadWarning.current) return;
+      if (isEditingRef.current && (isModifiedRef.current || isQuillDirtyRef.current)) {
+        e.preventDefault();
+      }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isEditing, isModified]);
+  }, []);
 
-  // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning);
+  useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -480,7 +503,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
-          <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+          <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
               tagline={tagline}
               teaserHtml={teaserHtml}
@@ -493,6 +516,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
               }}
+              onQuillDirtyChange={useCallback(
+                (isDirty: boolean) => setIsQuillDirty(isDirty),
+                []
+              )}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
