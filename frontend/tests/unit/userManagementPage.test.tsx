@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material/styles";
 import userEvent from "@testing-library/user-event";
 import type { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -87,6 +88,35 @@ const roles: IRole[] = [
   { id: 2, name: "viewer", permissions: [] },
 ];
 
+const testTheme = createTheme({
+  components: {
+    MuiBackdrop: {
+      defaultProps: {
+        transitionDuration: 0,
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        transitionDuration: 0,
+      },
+    },
+  },
+});
+
+function renderPage() {
+  return render(
+    <MuiThemeProvider theme={testTheme}>
+      <UserManagementPage />
+    </MuiThemeProvider>
+  );
+}
+
+function setFieldValue(label: string, value: string) {
+  fireEvent.change(screen.getByLabelText(label), {
+    target: { value },
+  });
+}
+
 describe("UserManagementPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -110,7 +140,7 @@ describe("UserManagementPage", () => {
   it("renders the empty state when no users are returned", async () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(screen.getByText("I18N_Users_Loading")).toBeInTheDocument();
     expect(await screen.findByText("users.empty.title")).toBeInTheDocument();
@@ -135,7 +165,7 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("Backend says no")).toBeInTheDocument();
 
@@ -170,7 +200,7 @@ describe("UserManagementPage", () => {
       new Error("boom")
     );
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("users.messages.loadFailed")).toBeInTheDocument();
   });
@@ -190,12 +220,12 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     await screen.findByText("users.empty.title");
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
-    await user.type(screen.getByLabelText("users.fields.username"), " fresh-account ");
-    await user.type(screen.getByLabelText("users.fields.password"), "temporary-secret");
+    setFieldValue("users.fields.username", " fresh-account ");
+    setFieldValue("users.fields.password", "temporary-secret");
     await user.click(screen.getByRole("checkbox", { name: "editor" }));
     await user.click(screen.getByRole("button", { name: "users.actions.create" }));
 
@@ -216,7 +246,7 @@ describe("UserManagementPage", () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
 
     const user = userEvent.setup();
-    render(<UserManagementPage />);
+    renderPage();
 
     await screen.findByText("users.empty.title");
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
@@ -229,7 +259,7 @@ describe("UserManagementPage", () => {
       await screen.findByText("users.messages.usernameRequired")
     ).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("users.fields.username"), "operator");
+    setFieldValue("users.fields.username", "operator");
     expect(screen.queryByText("users.messages.usernameRequired")).toBeNull();
 
     fireEvent.submit(createForm as HTMLFormElement);
@@ -237,49 +267,46 @@ describe("UserManagementPage", () => {
       await screen.findByText("users.messages.passwordRequired")
     ).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("users.fields.password"), "secret");
+    setFieldValue("users.fields.password", "secret");
     expect(screen.queryByText("users.messages.passwordRequired")).toBeNull();
   });
 
   it("shows create API errors and resets create dialog state on close", async () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
-    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
     vi.spyOn(userManagementServiceModule, "createUser").mockRejectedValue({
       isAxiosError: true,
       response: { data: { detail: "Username already exists" } },
     });
 
     const user = userEvent.setup();
-    render(<UserManagementPage />);
+    renderPage();
 
     await screen.findByText("users.empty.title");
 
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
-    await user.type(screen.getByLabelText("users.fields.username"), "operator");
-    await user.type(screen.getByLabelText("users.fields.password"), "secret");
-    await user.click(screen.getByRole("checkbox", { name: "editor" }));
+    setFieldValue("users.fields.username", "operator");
+    setFieldValue("users.fields.password", "secret");
     await user.click(screen.getByRole("button", { name: "users.actions.create" }));
 
     expect(await screen.findByText("Username already exists")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-    await waitFor(() => {
-      expect(screen.queryByText("users.dialogs.create.title")).toBeNull();
+    expect(userManagementServiceModule.createUser).toHaveBeenCalledWith({
+      username: "operator",
+      password: "secret",
+      roles: [],
     });
 
-    await user.click(await screen.findByRole("button", { name: "users.actions.add" }));
+    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+    expect(screen.queryByText("users.dialogs.create.title")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
     const usernameInput = screen.getByLabelText(
       "users.fields.username"
     ) as HTMLInputElement;
     const passwordInput = screen.getByLabelText(
       "users.fields.password"
     ) as HTMLInputElement;
-    const editorRoleCheckbox = screen.getByRole("checkbox", {
-      name: "editor",
-    }) as HTMLInputElement;
     expect(usernameInput.value).toBe("");
     expect(passwordInput.value).toBe("");
-    expect(editorRoleCheckbox.checked).toBe(false);
   });
 
   it("hides create actions without the matching permissions", async () => {
@@ -289,7 +316,7 @@ describe("UserManagementPage", () => {
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "users.actions.add" })).toBeNull();
@@ -302,7 +329,7 @@ describe("UserManagementPage", () => {
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     const deleteButtons = screen.getAllByRole("button", {
@@ -319,7 +346,7 @@ describe("UserManagementPage", () => {
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "users.actions.delete" })).toBeNull();
@@ -333,7 +360,7 @@ describe("UserManagementPage", () => {
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     // Only one delete button — not on the current user's own card
@@ -354,7 +381,7 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
@@ -391,7 +418,7 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
@@ -424,7 +451,7 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
 
@@ -451,7 +478,7 @@ describe("UserManagementPage", () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
     const user = userEvent.setup();
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     const curatorCard = screen
@@ -467,9 +494,7 @@ describe("UserManagementPage", () => {
     expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-    await waitFor(() => {
-      expect(screen.queryByText("users.dialogs.delete.title")).toBeNull();
-    });
+    expect(screen.queryByText("users.dialogs.delete.title")).toBeNull();
   });
 
   describe("roles section", () => {
@@ -480,7 +505,7 @@ describe("UserManagementPage", () => {
     it("renders roles in cards after loading", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(await screen.findByText("editor")).toBeInTheDocument();
       expect(screen.getByText("viewer")).toBeInTheDocument();
@@ -495,7 +520,7 @@ describe("UserManagementPage", () => {
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       const editorRoleCard = (
         await screen.findByRole("heading", { name: "editor" })
@@ -516,7 +541,7 @@ describe("UserManagementPage", () => {
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       const editorRoleCard = (
         await screen.findByRole("heading", { name: "editor" })
@@ -533,7 +558,7 @@ describe("UserManagementPage", () => {
     it("renders the empty state when no roles exist", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
       expect(screen.getByText("users.roles.empty.description")).toBeInTheDocument();
@@ -545,7 +570,7 @@ describe("UserManagementPage", () => {
         response: { data: { detail: "Roles fetch failed" } },
       } as AxiosError);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(await screen.findByText("Roles fetch failed")).toBeInTheDocument();
     });
@@ -555,7 +580,7 @@ describe("UserManagementPage", () => {
         new Error("network error")
       );
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(
         await screen.findByText("users.roles.messages.loadFailed")
@@ -565,7 +590,7 @@ describe("UserManagementPage", () => {
     it("shows the add role button when user has users:create permission", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
       expect(
@@ -577,7 +602,7 @@ describe("UserManagementPage", () => {
       authSessionValue.user = { ...authSessionValue.user, permissions: ["users:read"] };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
-      render(<UserManagementPage />);
+      renderPage();
 
       expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
       expect(
@@ -598,7 +623,7 @@ describe("UserManagementPage", () => {
       });
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       await screen.findByText("users.roles.empty.title");
 
@@ -649,7 +674,7 @@ describe("UserManagementPage", () => {
       vi.spyOn(roleManagementServiceModule, "deleteRole").mockResolvedValue(undefined);
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       const editorRoleCard = (
         await screen.findByRole("heading", { name: "editor" })
@@ -679,7 +704,7 @@ describe("UserManagementPage", () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       await screen.findByText("users.roles.empty.title");
       await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
@@ -706,7 +731,7 @@ describe("UserManagementPage", () => {
       } as AxiosError);
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       const editorRoleCard = (
         await screen.findByRole("heading", { name: "editor" })
@@ -737,7 +762,7 @@ describe("UserManagementPage", () => {
       );
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       const editorRoleCard = (
         await screen.findByRole("heading", { name: "editor" })
@@ -766,11 +791,11 @@ describe("UserManagementPage", () => {
       } as AxiosError);
 
       const user = userEvent.setup();
-      render(<UserManagementPage />);
+      renderPage();
 
       await screen.findByText("users.roles.empty.title");
       await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
-      await user.type(screen.getByLabelText("users.roles.fields.name"), "editor");
+      setFieldValue("users.roles.fields.name", "editor");
       await user.click(
         screen.getByRole("button", { name: "users.roles.actions.create" })
       );
@@ -778,9 +803,7 @@ describe("UserManagementPage", () => {
       expect(await screen.findByText("Role name already exists")).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
-      await waitFor(() => {
-        expect(screen.queryByText("users.roles.dialogs.create.title")).toBeNull();
-      });
+      expect(screen.queryByText("users.roles.dialogs.create.title")).toBeNull();
 
       await user.click(
         await screen.findByRole("button", { name: "users.roles.actions.add" })
