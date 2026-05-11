@@ -205,6 +205,7 @@ export function BlogCard({
 
   return (
     <Card
+      id={`blog-card-${blogId}`}
       className={className}
       sx={{
         "position": "relative",
