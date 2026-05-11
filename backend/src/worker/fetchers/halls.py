@@ -43,7 +43,7 @@ class HallFetcher(PagedFetcher):
     def resolve_location(self, location: dict) -> dict:
         path = location["@id"].removeprefix("/api/v1/")
         resolved_location = self.vnv_wrapper.GET(path, {})
-        self.logger.debug(f"Resolved location '{path}' to:\n{resolved_location}")
+        self.logger.debug(f"Resolved location '{path}'")
         return resolved_location
 
     def resolve_locations(self, locations: list[dict]) -> list[dict]:
