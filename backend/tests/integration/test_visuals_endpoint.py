@@ -133,7 +133,7 @@ def test_upload_visual_unsupported_type(client: TestClient, db_session: Session)
     )
     response = client.post(
         f"{BASE_URL}/",
-        files={"file": ("bad.mp4", io.BytesIO(b"fake data"), "video/mp4")},
+        files={"file": ("bad.mkv", io.BytesIO(b"fake data"), "video/mkv")},
         headers=headers,
     )
     assert response.status_code == 415
