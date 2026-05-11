@@ -380,7 +380,10 @@ def test_store_new_genres_as_tags(db_session):
     assert newest == datetime.fromisoformat("2023-03-31T08:44:07+00:00")
 
 
-def test_store_production_with_tags(db_session):
+def test_store_production_with_tags(db_session, caplog):
+    # Capture warnings, for unexisting tags
+    caplog.set_level(logging.WARNING)
+
     # Simple genres to test only the appending
     genres = [
         {
@@ -403,7 +406,7 @@ def test_store_production_with_tags(db_session):
             "created_at": "2022-11-22T11:02:27+00:00",
             "updated_at": "2022-11-30T08:59:20+00:00",
             "title": {"nl": "Poplife - NYE", "en": "Poplife - NYE"},
-            "genres": ["api/v1/genres/10"],
+            "genres": ["api/v1/genres/10", "api/v1/genres/42"],
         },
         {
             "@id": "/api/v1/productions/5610",
@@ -432,6 +435,11 @@ def test_store_production_with_tags(db_session):
     assert stored_prods[0].tags[0].id == stored_prods[1].tags[0].id
     assert stored_prods[0].tags[0].id == stored_tags[0].id
     assert stored_prods[1].tags[1].id == stored_tags[1].id
+
+    # Check the log messages for the not-existing tags
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Genre (id=42) does not exist in ")
 
 
 def test_store_halls(db_session):
