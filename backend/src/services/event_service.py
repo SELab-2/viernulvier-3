@@ -24,7 +24,7 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
 
     hall_id_url = f"{base_url}/halls/{event.hall_id}" if hall else None
     hall = (
-        HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
+        HallResponse(id_url=hall_id_url, names=hall.names, address=hall.address)
         if hall
         else None
     )
@@ -59,13 +59,6 @@ def delete_event_by_id(db: Session, event_id: int) -> bool:
     db.delete(event)
     db.commit()
     return True
-
-
-def get_hall_by_id(db: Session, hall_id: int) -> Hall:
-    hall = db.query(Hall).filter(Hall.id == hall_id).first()
-    if not hall:
-        raise NotFoundError("Hall", hall_id)
-    return hall
 
 
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
@@ -130,22 +123,6 @@ def update_event(
             raise NotFoundError("Hall", hall_id)
 
         update_dict["hall_id"] = hall_id
-
-    # production_id update
-    if "production_id_url" in update_dict:
-        try:
-            production_id = extract_id(update_dict["production_id_url"])
-        except ValueError:
-            raise ValidationError("Invalid production_id_url format")
-
-        db_production = (
-            db.query(Production).filter(Production.id == production_id).first()
-        )
-
-        if not db_production:
-            raise NotFoundError("Production", production_id)
-
-        update_dict["production_id"] = production_id
 
     # starts_at / ends_at validation
     starts_at = update_dict.get("starts_at", event.starts_at)

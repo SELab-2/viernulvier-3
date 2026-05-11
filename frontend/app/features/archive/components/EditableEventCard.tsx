@@ -5,12 +5,19 @@ import type { EventWithResolvedRelations } from "./EventCard";
 import { useState } from "react";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { useParams } from "react-router";
+
+function getHallNameForLang(hall: Hall, lang?: string): string {
+  return hall.names.find((n) => n.language === lang)?.name ?? hall.names[0]?.name ?? "";
+}
 
 function HallDropdown({
   halls,
+  lang,
   onSelect,
 }: {
   halls: Hall[];
+  lang?: string;
   onSelect: (hall: Hall) => void;
 }) {
   return (
@@ -21,7 +28,7 @@ function HallDropdown({
           className="hover:bg-archive-accent/95 cursor-pointer px-2 py-1 hover:text-black"
           onMouseDown={() => onSelect(hall)}
         >
-          {hall.name}
+          {getHallNameForLang(hall, lang)}
         </li>
       ))}
     </ul>
@@ -31,23 +38,31 @@ function HallDropdown({
 export default function EditableEventCard({
   event,
   halls,
+  preferredLanguage,
   onChange,
   onDelete,
   canDeleteWithoutPerms = false,
 }: {
   event: EventWithResolvedRelations;
   halls: Hall[];
+  preferredLanguage?: string;
   onChange: (updated: EventWithResolvedRelations) => void;
   onDelete: () => void;
   canDeleteWithoutPerms?: boolean;
 }) {
   const { t } = useTranslation();
+  const { lang } = useParams();
+  const language = preferredLanguage ?? lang;
 
-  const [hallName, setHallname] = useState<string | undefined>(event.hall?.name);
+  const [hallName, setHallname] = useState<string | undefined>(
+    event.hall ? getHallNameForLang(event.hall, lang) : undefined
+  );
   const [hallDropdownActive, setHallDropdownActive] = useState<boolean>(false);
 
   const filteredHalls = halls.filter((hall) =>
-    hall.name.toLowerCase().includes(hallName?.toLowerCase() ?? "")
+    getHallNameForLang(hall, lang)
+      .toLowerCase()
+      .includes(hallName?.toLowerCase() ?? "")
   );
 
   const isInvalid =
@@ -58,6 +73,7 @@ export default function EditableEventCard({
   return (
     <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_auto]">
+        {/* Start at Input */}
         <div>
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.startDateLabel")}
@@ -72,6 +88,7 @@ export default function EditableEventCard({
           />
         </div>
 
+        {/* Ends at Input*/}
         <div>
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.endDateLabel")}
@@ -86,6 +103,7 @@ export default function EditableEventCard({
           />
         </div>
 
+        {/* Venue Input */}
         <div>
           <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
             {t("productionPage.placeLabel")}
@@ -105,8 +123,9 @@ export default function EditableEventCard({
             {hallDropdownActive && filteredHalls.length > 0 && (
               <HallDropdown
                 halls={filteredHalls}
+                lang={language}
                 onSelect={(hall) => {
-                  setHallname(hall.name);
+                  setHallname(getHallNameForLang(hall, lang));
                   setHallDropdownActive(false);
 
                   onChange({

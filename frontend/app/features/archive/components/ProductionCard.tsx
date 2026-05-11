@@ -1,18 +1,18 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
 import Check from "@mui/icons-material/Check";
+import { Link } from "react-router";
 import {
   Box,
   Card,
   CardContent,
   CardMedia,
   Chip,
-  Link,
   Divider,
   Stack,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
@@ -138,20 +138,42 @@ function getProductionStartLabel(
   }
 }
 
-function getVenues(production: Production): string[] | undefined {
-  if (!production.events?.length) return;
-
-  const halls = production.events
-    .map((e) => e.hall?.name)
-    .filter((name): name is string => !!name);
-
-  if (halls.length === 0) return;
-
-  // Remove duplicates
-  const uniqueHalls = Array.from(new Set(halls));
-
-  return uniqueHalls;
-}
+// NOTE: This function currently does not work because the underlying data
+//       never sends an actual list of events, it's undefined.
+//       See https://github.com/SELab-2/viernulvier-3/issues/404
+//
+// function getVenues(production: Production): string[] | undefined {
+//   if (!production.events?.length) return;
+//
+//   // TODO: fix this to use actual I18N
+//   // NOTE: this actually never reaches because `production.events` is
+//   //       currently always undefined
+//   const halls = production.events
+//     .map((e) => e.hall?.names[0].name)
+//     .filter((name): name is string => !!name);
+//
+//   if (halls.length === 0) return;
+//
+//   // Remove duplicates
+//   const uniqueHalls = Array.from(new Set(halls));
+//
+//   return uniqueHalls;
+// }
+//
+// The code that was used to display it:
+//   const venues = getVenues(production);
+//   <Typography
+//     className="production-card-text"
+//     sx={{
+//   	color: colorWithOpacity(CARD_COLORS.accent, 0.92),
+//   	fontSize: "var(--text-archive-meta)",
+//   	letterSpacing: "var(--tracking-archive-label)",
+//   	textTransform: "uppercase",
+//     }}
+//   >
+//     {venues &&
+//   	venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
+//   </Typography>
 
 export function ProductionCard({
   production,
@@ -162,7 +184,6 @@ export function ProductionCard({
   onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
   const { lang } = useParams();
   if (!preferredLanguage) preferredLanguage = lang || "nl";
@@ -187,7 +208,6 @@ export function ProductionCard({
     defaultCardValues.dateLabel
   );
   const dateParts = dateLabel.split(" - ");
-  const venues = getVenues(production);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
@@ -211,30 +231,15 @@ export function ProductionCard({
       });
   }, [productionId]);
 
+  if (!productionId) return null;
+
   const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
-
-  const handleOpenDetails = () => {
-    if (!productionId) {
-      return;
-    }
-
-    navigate(lp(`/archive/productions/${productionId}`));
-  };
 
   return (
     <Card
-      onClick={handleOpenDetails}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleOpenDetails();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
       className={className}
       sx={{
+        "position": "relative",
         "height": "100%",
         "display": "flex",
         "flexDirection": "column",
@@ -272,6 +277,11 @@ export function ProductionCard({
       }}
       elevation={0}
     >
+      <Link
+        to={lp(`/archive/productions/${productionId}`)}
+        aria-label={`Open details for ${title}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      />
       <Box sx={{ position: "relative", overflow: "hidden" }}>
         <CardMedia
           className="production-card-image"
@@ -411,19 +421,6 @@ export function ProductionCard({
                 </>
               )}
             </Typography>
-
-            <Typography
-              className="production-card-text"
-              sx={{
-                color: colorWithOpacity(CARD_COLORS.accent, 0.92),
-                fontSize: "var(--text-archive-meta)",
-                letterSpacing: "var(--tracking-archive-label)",
-                textTransform: "uppercase",
-              }}
-            >
-              {venues &&
-                venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
-            </Typography>
           </Stack>
 
           <Box
@@ -530,24 +527,21 @@ export function ProductionCard({
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="flex-end">
-          <Link
+          <div
             className="production-card-text"
-            component="span"
-            underline="none"
-            sx={{
-              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-              fontWeight: "var(--weight-archive-bold)",
-              textTransform: "uppercase",
-              letterSpacing: "var(--tracking-archive-label)",
-              fontSize: "var(--text-archive-meta)",
-              cursor: "pointer",
-              display: "flex",
+            style={{
               alignItems: "center",
+              color: colorWithOpacity(CARD_COLORS.accent, 0.98),
+              display: "flex",
+              fontSize: "var(--text-archive-meta)",
+              fontWeight: "var(--weight-archive-bold)",
               gap: 0.5,
+              letterSpacing: "var(--tracking-archive-label)",
+              textTransform: "uppercase",
             }}
           >
             Details <ArrowRightAlt />
-          </Link>
+          </div>
         </Stack>
       </CardContent>
     </Card>

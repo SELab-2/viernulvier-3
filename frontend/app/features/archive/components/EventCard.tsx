@@ -45,15 +45,6 @@ function formatEventDateTimeRange(
   };
 }
 
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
-
 function formatPrices(prices: Price[], language: string, fallback: string): string {
   if (prices.length === 0) {
     return fallback;
@@ -138,13 +129,20 @@ type EventCardProps = {
 export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
 
+  const getLocalizedHallName = (hall?: Hall): string => {
+    const lang = i18n.language.startsWith("nl") ? "nl" : "en";
+    const fallback = lang === "nl" ? "en" : "nl";
+    return (
+      hall?.names.find((tn) => tn.language === lang)?.name ??
+      hall?.names.find((tn) => tn.language === fallback)?.name ??
+      t("productionPage.fallback.locationUnknown")
+    );
+  };
+
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
   const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
   const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
-  const eventLocation = getTextOrDefault(
-    event.resolvedHall?.name ?? event.hall?.name,
-    t("productionPage.fallback.locationUnknown")
-  );
+  const eventLocation = getLocalizedHallName(event.resolvedHall ?? event.hall);
   const eventPrice = formatPrices(
     event.resolvedPrices,
     i18n.language,
@@ -167,6 +165,14 @@ export function EventCard({ event }: EventCardProps) {
             <EventCardDetail
               label={t("productionPage.priceLabel")}
               value={eventPrice}
+            />
+            <EventCardDetail
+              label={t("productionPage.address")}
+              value={
+                event.hall?.address ??
+                event.resolvedHall?.address ??
+                t("productionPage.addressUnknown")
+              }
             />
           </div>
         </div>

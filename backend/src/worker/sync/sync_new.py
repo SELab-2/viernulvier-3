@@ -7,8 +7,9 @@ from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.sync.db_sync import get_last_sync, update_sync_state
 from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
-from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.genre import store_new_genres
+from src.worker.sync.store.production import store_new_productions
+from src.worker.sync.store.hall import store_new_halls
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ STORE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
     ResourceType.EVENT: store_new_events,
     ResourceType.EVENT_PRICES: store_new_eventprices,
     ResourceType.GENRES: store_new_genres,
+    ResourceType.HALLS: store_new_halls,
 }
 
 

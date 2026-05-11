@@ -1,7 +1,7 @@
 import csv
 import logging
 
-from src.models.hall import Hall
+from src.models.hall import Hall, HallName
 from src.models.tag import Tag, TagName
 from src.services.language import Languages
 from src.worker.converters.production import csv_prod_to_model_prod
@@ -25,8 +25,18 @@ logger.info("Loading production csv")
 # Productions
 with open(prod_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
-    # Skip header
-    next(reader)
+    # Check and skip header
+    first_row = next(reader)
+    assert first_row == [
+        "Titel",
+        "Ondertitel",
+        "Description1",
+        "Description2",
+        "Genre",
+        "ID",
+        "Planning ID",
+    ]
+
     for row in reader:
         # Sla alle entries met onnuttige data over
         if len(row) == 7 and row[5] != "" and row[0] != "":
@@ -36,8 +46,10 @@ logger.info("Loading event csv")
 # Events
 with open(event_file, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
-    # Skip header
-    next(reader)
+    # Check and skip header
+    first_row = next(reader)
+    assert first_row == ["Starttime", "Endtime", "Hall", "Production"]
+
     for row in reader:
         # Sla alle entries met onbestaande producties over
         if row[3] in producties:
@@ -49,11 +61,11 @@ with open(event_file, newline="", encoding="utf-8") as f:
 db = SESSION_LOCAL()
 logger.info("Connection with database created")
 
-# Get all halls
-hall_models = db.query(Hall).all()
-hall_map = {}
-for hall in hall_models:
-    hall_map[hall.name] = hall.id
+# Get all hallnames
+hall_names: list[HallName] = db.query(HallName).all()
+hall_map: dict[str, HallName.hall_id] = {}
+for hall in hall_names:
+    hall_map[hall.name] = hall.hall_id
 
 # Get all tagnames
 tag_name_models = db.query(TagName).all()
@@ -69,7 +81,7 @@ try:
         genres = set(productie[4].split(","))
         for genre in genres:
             if genre not in tag_map:
-                logger.info(f"tag '{genre}' no found, adding it")
+                logger.info(f"tag '{genre}' not found, adding it")
                 tag_model = Tag()
                 db.add(tag_model)
                 db.flush()
@@ -92,7 +104,7 @@ try:
                     hall_id = hall_map[event[2]]
                 else:
                     logger.info(f"hall '{event[2]}' not found, adding it")
-                    hall_model = Hall(name=event[2])
+                    hall_model = Hall(names=[HallName(language="nl", name=event[2])])
                     db.add(hall_model)
                     db.flush()
                     hall_count += 1
