@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from src.models.print import Print
 from src.api.exceptions import NotFoundError
+from src.schemas.print import PrintType
 
 
 BASE_URL = "http://testserver/api/v1/archive"
@@ -15,7 +16,7 @@ def _make_print(
     content_type: str = "application/pdf",
     title: str | None = "Test poster",
     description: str | None = "A test description",
-    print_type: str | None = "poster",
+    print_type: PrintType | None = PrintType.POSTER,
 ) -> Print:
     p = Print()
     p.id = id
@@ -58,7 +59,7 @@ class TestBuildPrintResponse:
             id=1,
             title="Affiche",
             description="Seizoen 2024",
-            print_type="poster",
+            print_type=PrintType.POSTER,
         )
         result = build_print_response(p, BASE_URL)
 
@@ -222,7 +223,7 @@ class TestUploadPrint:
             base_url=BASE_URL,
             title="Affiche",
             description="Seizoen 2024",
-            print_type="poster",
+            print_type=PrintType.POSTER,
         )
 
         minio.put_object.assert_called_once()
