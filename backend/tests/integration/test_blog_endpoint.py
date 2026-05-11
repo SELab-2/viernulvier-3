@@ -323,9 +323,7 @@ def test_delete_blog_removes_media(
     response = client.delete(f"{BASE_BLOG_URL}/{blog_id}", headers=headers)
     assert response.status_code == 204
 
-    media_count_after = (
-        db_session.query(Media).filter(Media.blog_id == blog_id).count()
-    )
+    media_count_after = db_session.query(Media).filter(Media.blog_id == blog_id).count()
     assert media_count_after == 0
 
 

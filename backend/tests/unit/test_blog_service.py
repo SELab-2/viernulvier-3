@@ -271,7 +271,9 @@ def test_delete_blog_not_found(db_session):
 
 
 # Delete a blog removes associated media from the database and S3.
-def test_delete_blog_removes_media(db_session, media_items_for_blog, blog_with_no_media):
+def test_delete_blog_removes_media(
+    db_session, media_items_for_blog, blog_with_no_media
+):
     minio_client = DummyMinioClient()
     blog_id = blog_with_no_media.id
 
@@ -283,9 +285,7 @@ def test_delete_blog_removes_media(db_session, media_items_for_blog, blog_with_n
     success = delete_blog_by_id(db_session, blog_id, minio_client)
     assert success
 
-    media_count_after = (
-        db_session.query(Media).filter(Media.blog_id == blog_id).count()
-    )
+    media_count_after = db_session.query(Media).filter(Media.blog_id == blog_id).count()
     assert media_count_after == 0
 
     assert len(minio_client.remove_calls) == 3
