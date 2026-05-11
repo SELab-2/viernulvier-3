@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def store_new_eventprices(db_session: Session, eventprices: list[dict]):
     newest_timestamp = None
 
-    existing_vnv_ids = set(db_session.execute(select(EventPrice.viernulvier_id)))
+    existing_vnv_ids = set(db_session.scalars(select(EventPrice.viernulvier_id)))
 
     existing_events = db_session.execute(select(Event.id, Event.viernulvier_id))
     event_map: dict[int, int] = {
@@ -30,8 +30,7 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
 
             if eventprice.viernulvier_id in existing_vnv_ids:
                 continue
-            else:
-                existing_vnv_ids.add(eventprice.viernulvier_id)
+            existing_vnv_ids.add(eventprice.viernulvier_id)
 
             # Check if the eventprice is tied to a valid event, else we would get a
             # ForeignKey violation

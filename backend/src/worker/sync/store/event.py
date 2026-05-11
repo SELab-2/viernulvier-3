@@ -28,7 +28,7 @@ def store_new_events(db_session: Session, events: list[dict]):
         for (hall_id, hall_viernulvier_id) in existing_halls
     }
 
-    existing_vnv_ids = set(db_session.execute(select(Event.viernulvier_id)))
+    existing_vnv_ids = set(db_session.scalars(select(Event.viernulvier_id)))
 
     orphans = 0
 
@@ -40,8 +40,7 @@ def store_new_events(db_session: Session, events: list[dict]):
 
             if event.viernulvier_id in existing_vnv_ids:
                 continue
-            else:
-                existing_vnv_ids.add(event.viernulvier_id)
+            existing_vnv_ids.add(event.viernulvier_id)
 
             # Check if the event is tied to a valid production, else we would get a
             # ForeignKey violation

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def store_new_productions(db_session: Session, productions: list[dict]):
     newest_timestamp = None
 
-    existing_vnv_ids = set(db_session.execute(select(Production.viernulvier_id)))
+    existing_vnv_ids = set(db_session.scalars(select(Production.viernulvier_id)))
 
     existing_tags = db_session.execute(select(Tag))
     tag_map: dict[int, Tag] = {tag.viernulvier_id: tag for (tag,) in existing_tags}
@@ -26,8 +26,7 @@ def store_new_productions(db_session: Session, productions: list[dict]):
 
             if prod.viernulvier_id in existing_vnv_ids:
                 continue
-            else:
-                existing_vnv_ids.add(prod.viernulvier_id)
+            existing_vnv_ids.add(prod.viernulvier_id)
 
             tags = []
             for tag in vnv_tag_ids:

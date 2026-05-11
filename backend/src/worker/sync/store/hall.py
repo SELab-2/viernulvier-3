@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def store_new_halls(db_session: Session, json_locations: list[dict]):
     newest_timestamp = None
 
-    existing_vnv_ids = set(db_session.execute(select(Hall.viernulvier_id)))
+    existing_vnv_ids = set(db_session.scalars(select(Hall.viernulvier_id)))
 
     for json_location in json_locations:
         try:

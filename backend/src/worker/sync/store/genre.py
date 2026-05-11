@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def store_new_genres(db_session: Session, genres: list[dict]):
     newest_timestamp = None
 
-    existing_vnv_ids = set(db_session.execute(select(Tag.viernulvier_id)))
+    existing_vnv_ids = set(db_session.scalars(select(Tag.viernulvier_id)))
 
     for json_genre in genres:
         try:
@@ -20,8 +20,7 @@ def store_new_genres(db_session: Session, genres: list[dict]):
 
             if tag.viernulvier_id in existing_vnv_ids:
                 continue
-            else:
-                existing_vnv_ids.add(tag.viernulvier_id)
+            existing_vnv_ids.add(tag.viernulvier_id)
 
             db_session.add(tag)
 
