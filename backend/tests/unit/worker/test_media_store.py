@@ -2,15 +2,16 @@
 Tests for src/worker/sync/store/media.py
 """
 
+import logging
 from unittest.mock import MagicMock, patch
+
 from src.config import settings
 from src.worker.sync.store.media import (
-    _pick_crop_url,
     _download_image,
-    sync_media_for_production,
+    _pick_crop_url,
     sync_all_media,
+    sync_media_for_production,
 )
-
 
 # --- _pick_crop_url ---
 
@@ -71,6 +72,17 @@ def test_download_image_network_error_returns_none():
 # --- sync_media_for_production ---
 
 
+def test_sync_media_for_production_early_exit(db_session, caplog):
+    caplog.set_level(logging.INFO)
+    sync_media_for_production(db_session, 0, {"items": []})
+    # Checking the logs can check that early exit happens, as logging is the
+    # first thing to happen
+    assert len([r.message for r in caplog.records if r.levelno == logging.INFO]) == 0
+
+    sync_media_for_production(db_session, 0, {})
+    assert len([r.message for r in caplog.records if r.levelno == logging.INFO]) == 0
+
+
 def make_item(vnv_id: int, filename: str = "photo.jpg") -> dict:
     return {
         "@id": f"/api/v1/media/items/{vnv_id}",
@@ -83,8 +95,8 @@ def make_item(vnv_id: int, filename: str = "photo.jpg") -> dict:
 
 
 def test_sync_media_skips_already_synced(db_session):
-    from src.models.production import Production
     from src.models.media import Media
+    from src.models.production import Production
 
     # Create required Production first
     prod = Production(id=1)
@@ -138,8 +150,8 @@ def test_sync_media_skips_on_download_failure(db_session):
 
 
 def test_sync_media_stores_image_and_metadata(db_session):
-    from src.models.production import Production
     from src.models.media import Media
+    from src.models.production import Production
 
     prod = Production(id=5)
     db_session.add(prod)
@@ -178,8 +190,8 @@ def test_sync_media_stores_image_and_metadata(db_session):
 
 
 def test_sync_media_skips_on_minio_error(db_session):
-    from src.models.media import Media
     from minio.error import S3Error
+    from src.models.media import Media
 
     gallery = {"items": [make_item(55)]}
 
@@ -226,8 +238,8 @@ def test_sync_all_media_fetches_for_prods_without_media(db_session):
 
 
 def test_sync_all_media_skips_prods_with_existing_media(db_session):
-    from src.models.production import Production
     from src.models.media import Media
+    from src.models.production import Production
 
     prod = Production(viernulvier_id=300)
     db_session.add(prod)
@@ -264,3 +276,21 @@ def test_sync_all_media_handles_missing_gallery(db_session):
     from src.models.media import Media
 
     assert db_session.query(Media).count() == 0
+
+
+def test_sync_all_media_rerolls_and_logs_error(db_session, caplog):
+    caplog.set_level(logging.ERROR)
+    from src.models.production import Production
+
+    prod = Production(viernulvier_id=400)
+    db_session.add(prod)
+    db_session.commit()
+
+    mock_wrapper = MagicMock()
+    mock_wrapper.GET.side_effect = ConnectionError()
+
+    sync_all_media(db_session, mock_wrapper)
+
+    errors = [r.message for r in caplog.records if r.levelno == logging.ERROR]
+    assert len(errors) == 1
+    assert errors[0].startswith("Failed to sync media for production vnv_id=400: ")
