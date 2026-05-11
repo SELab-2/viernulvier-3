@@ -16,6 +16,14 @@ vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
   ),
 }));
 
+vi.mock("~/features/blogs/components/DeleteBlogButton", () => ({
+  DeleteBlogButton: ({ blogId }: { blogId: number }) => (
+    <button data-testid="delete-blog-button" data-blog-id={blogId}>
+      Mock Delete
+    </button>
+  ),
+}));
+
 vi.mock("dompurify", () => ({
   default: {
     sanitize: (html: string) => html,
@@ -243,5 +251,25 @@ describe("BlogContentPage", () => {
     expect(await screen.findByText("Productie Twee")).toBeInTheDocument();
     expect(screen.getByText("Artiest Één")).toBeInTheDocument();
     expect(screen.getByText("Artiest Twee")).toBeInTheDocument();
+  });
+
+  it("renders the delete blog button when blog has a valid numeric id", async () => {
+    renderPage(baseBlog, "nl");
+
+    expect(screen.getByTestId("delete-blog-button")).toBeInTheDocument();
+    expect(screen.getByTestId("delete-blog-button")).toHaveAttribute(
+      "data-blog-id",
+      "1"
+    );
+  });
+
+  it("does not render the delete blog button when blog id_url has no numeric id", async () => {
+    const blogWithoutNumericId: Blog = {
+      ...baseBlog,
+      id_url: "http://localhost/api/v1/blogs/invalid",
+    };
+    renderPage(blogWithoutNumericId, "nl");
+
+    expect(screen.queryByTestId("delete-blog-button")).not.toBeInTheDocument();
   });
 });
