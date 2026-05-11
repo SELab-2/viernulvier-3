@@ -80,12 +80,8 @@ async def get_print(
 async def post_print(
     request: Request,
     file: UploadFile = File(...),
-    title: str | None = Query(
-        None
-    ),
-    description: str | None = Query(
-        None
-    ),
+    title: str | None = Query(None),
+    description: str | None = Query(None),
     print_type: str | None = Query(
         None, description="Category of print: poster, timetable, programme, other"
     ),
