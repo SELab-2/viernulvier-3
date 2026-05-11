@@ -3,7 +3,12 @@ import type { AxiosInstance } from "axios";
 import { createApiClient } from "~/shared/services/apiClient";
 
 import { USERS_API_PATH } from "../users.constants";
-import type { IUser, IUserCreateRequest, IUserResponse } from "../users.types";
+import type {
+  IUser,
+  IUserCreateRequest,
+  IUserResponse,
+  IUserUpdateRequest,
+} from "../users.types";
 
 function mapUser(response: IUserResponse): IUser {
   return {
@@ -27,6 +32,18 @@ export async function createUser(
   apiClient: AxiosInstance = createApiClient()
 ) {
   const response = await apiClient.post<IUserResponse>(USERS_API_PATH, payload);
+  return mapUser(response.data);
+}
+
+export async function updateUser(
+  userId: number,
+  payload: IUserUpdateRequest,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  const response = await apiClient.patch<IUserResponse>(
+    `${USERS_API_PATH}/${userId}`,
+    payload
+  );
   return mapUser(response.data);
 }
 

@@ -291,16 +291,21 @@
     },
     "form": {
       "passwordCreateHint": "New users need a password before the account can be created.",
+      "passwordEditHint": "Leave the password blank to keep the current password unchanged.",
       "rolesHint": "Choose any roles that should be assigned as soon as the account is created.",
+      "rolesEditHint": "Choose the roles that should remain assigned to this account.",
       "rolesEmptyHint": "No roles exist yet. Create a role first if this account needs one immediately."
     },
     "actions": {
       "retry": "Retry",
       "refresh": "Refresh",
       "add": "Add user",
+      "edit": "Edit user",
       "cancel": "Cancel",
       "create": "Create user",
       "creating": "Creating user",
+      "update": "Save changes",
+      "updating": "Saving changes",
       "delete": "Delete user",
       "deleting": "Deleting user"
     },
@@ -314,7 +319,9 @@
     "messages": {
       "loadFailed": "We could not load the user administration data right now.",
       "createFailed": "We could not create the user right now.",
+      "updateFailed": "We could not update the user right now.",
       "deleteFailed": "We could not delete the user right now.",
+      "sessionRefreshFailed": "The user was updated, but we could not refresh the active session.",
       "usernameRequired": "A username is required.",
       "passwordRequired": "A password is required."
     },
@@ -322,6 +329,10 @@
       "create": {
         "title": "Add user",
         "description": "Create an account with a username, password, and any initial roles."
+      },
+      "edit": {
+        "title": "Edit user",
+        "description": "Update the account details or assigned roles for this user."
       },
       "delete": {
         "title": "Delete user",
