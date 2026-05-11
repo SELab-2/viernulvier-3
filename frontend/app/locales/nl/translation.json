@@ -208,7 +208,9 @@
     "card": {
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
-      "details": "Details"
+      "details": "Details",
+      "noTitleFound": "Geen beschikbare titel gevonden",
+      "noContentFound": "Geen beschikbare inhoud gevonden"
     },
     "create_blog": "Nieuwe blog",
     "createBlogPage": {

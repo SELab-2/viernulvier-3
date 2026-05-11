@@ -82,22 +82,25 @@ export default function BlogPage() {
       </div>
 
       <div className="mb-4 flex flex-row items-center justify-between gap-3">
-	    <CreateBlogButton onClick={openCreateBlogPage} />
+        <CreateBlogButton onClick={openCreateBlogPage} />
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
         <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
       </div>
 
       <Divider className="bg-archive-ink/5" />
-      {blogs && blogs.length > 0 ? (
-        <BlogCardList blogs={blogs} />
-      ) : (
-        <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
-          <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
-            {t("blogs.noResults.header")}
-          </p>
-          <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
-        </div>
-      )}
+
+      <div className="mt-6 md:mt-10">
+        {blogs && blogs.length > 0 ? (
+          <BlogCardList blogs={blogs} />
+        ) : (
+          <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+            <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+              {t("blogs.noResults.header")}
+            </p>
+            <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
+          </div>
+        )}
+      </div>
 
       {blogList?.pagination.has_more && (
         <ShowMoreButton

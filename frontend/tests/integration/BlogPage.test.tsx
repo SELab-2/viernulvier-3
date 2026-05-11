@@ -10,7 +10,6 @@ vi.mock("~/features/blogs/services/blogService");
 export const mockBlogs: Blog[] = [
   {
     id_url: "/blogs/1",
-    production_id_urls: [],
     blog_contents: [
       {
         language: "en",
@@ -19,10 +18,10 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/1",
       },
     ],
+    production_group_id_url: "",
   },
   {
     id_url: "/blogs/2",
-    production_id_urls: [],
     blog_contents: [
       {
         language: "en",
@@ -31,10 +30,10 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/2",
       },
     ],
+    production_group_id_url: "",
   },
   {
     id_url: "/blogs/3",
-    production_id_urls: [],
     blog_contents: [
       {
         language: "en",
@@ -43,6 +42,7 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/3",
       },
     ],
+    production_group_id_url: "",
   },
 ];
 
@@ -133,7 +133,7 @@ describe("BlogPage", () => {
       expectEveryBlogVisible([mockBlogs[0]]);
 
       expect(blogService.getBlogsPaginated).toHaveBeenNthCalledWith(1, {
-        blog_name: "",
+        blog_name: undefined,
         sort_order: "Descending",
       });
 
@@ -144,7 +144,7 @@ describe("BlogPage", () => {
 
       expect(blogService.getBlogsPaginated).toHaveBeenCalledWith({
         cursor: "test_cursor",
-        blog_name: "",
+        blog_name: undefined,
         sort_order: "Descending",
       });
     });
