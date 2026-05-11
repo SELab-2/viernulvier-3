@@ -275,6 +275,24 @@ def test_api_genre_to_model_tag_fallback():
     assert len(tag.productions) == 0
 
 
+def test_api_genre_to_model_tag_unknown_language(caplog):
+    caplog.set_level(logging.WARNING)
+    test_input = {
+        "@id": "/api/v1/genres/100",
+        "name": {
+            "fr": "Je ne sais quoi",
+        },
+    }
+
+    tag, tagnames = api_genre_to_model_tag(test_input)
+    assert len(tagnames) == 0
+
+    # Check the log messages for dropped languages (fr)
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0] == "ignoring language fr for Tag(viernulvier_id=100)"
+
+
 # Test tags without name should just return an empty list
 def test_api_genre_to_none():
     test_input = {"@id": "/api/v1/genres/7"}
