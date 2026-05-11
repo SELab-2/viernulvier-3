@@ -575,3 +575,65 @@ def test_store_halls(db_session):
     assert len(stored_halls) == 12
 
     assert newest == datetime.fromisoformat("2023-01-09T10:11:57+00:00")
+
+
+# Under here I'm triggering all the broad error paths to check that logging works fine
+
+def test_store_hall_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_hall = {"garblediegook"}
+    store_new_halls(db_session, [test_hall])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing halls (for location: {'garblediegook'}):")
+
+
+def test_store_genre_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_genre = {"garblediegook"}
+    store_new_genres(db_session, [test_genre])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing genre ({'garblediegook'}):")
+
+
+def test_store_production_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_production = {"garblediegook"}
+    store_new_productions(db_session, [test_production])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing production ({'garblediegook'}):")
+
+
+def test_store_eventprice_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_eventprice = {"garblediegook"}
+    store_new_eventprices(db_session, [test_eventprice])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing price ({'garblediegook'}):")
+
+
+def test_store_event_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_event = {"garblediegook"}
+    store_new_events(db_session, [test_event])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing event ({'garblediegook'}):")
