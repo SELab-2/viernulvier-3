@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
 import SearchIcon from "@mui/icons-material/Search";
 import PermMediaOutlinedIcon from "@mui/icons-material/PermMediaOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,6 +9,7 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import LinearProgress from "@mui/material/LinearProgress";
+import ComplexEditableField from "~/shared/components/ComplexEditableField";
 
 function BackToArchiveLink() {
   const { t } = useTranslation();
