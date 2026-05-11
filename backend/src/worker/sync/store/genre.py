@@ -27,6 +27,6 @@ def store_new_genres(db_session: Session, genres: list[dict]):
                 newest_timestamp = created_at
 
         except Exception as e:
-            logger.warn(f"Error storing genre ({json_genre}):\n{e}")
+            logger.warning(f"Error storing genre ({json_genre}):\n{e}")
 
     return newest_timestamp

@@ -138,20 +138,42 @@ function getProductionStartLabel(
   }
 }
 
-function getVenues(production: Production): string[] | undefined {
-  if (!production.events?.length) return;
-
-  const halls = production.events
-    .map((e) => e.hall?.name)
-    .filter((name): name is string => !!name);
-
-  if (halls.length === 0) return;
-
-  // Remove duplicates
-  const uniqueHalls = Array.from(new Set(halls));
-
-  return uniqueHalls;
-}
+// NOTE: This function currently does not work because the underlying data
+//       never sends an actual list of events, it's undefined.
+//       See https://github.com/SELab-2/viernulvier-3/issues/404
+//
+// function getVenues(production: Production): string[] | undefined {
+//   if (!production.events?.length) return;
+//
+//   // TODO: fix this to use actual I18N
+//   // NOTE: this actually never reaches because `production.events` is
+//   //       currently always undefined
+//   const halls = production.events
+//     .map((e) => e.hall?.names[0].name)
+//     .filter((name): name is string => !!name);
+//
+//   if (halls.length === 0) return;
+//
+//   // Remove duplicates
+//   const uniqueHalls = Array.from(new Set(halls));
+//
+//   return uniqueHalls;
+// }
+//
+// The code that was used to display it:
+//   const venues = getVenues(production);
+//   <Typography
+//     className="production-card-text"
+//     sx={{
+//   	color: colorWithOpacity(CARD_COLORS.accent, 0.92),
+//   	fontSize: "var(--text-archive-meta)",
+//   	letterSpacing: "var(--tracking-archive-label)",
+//   	textTransform: "uppercase",
+//     }}
+//   >
+//     {venues &&
+//   	venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
+//   </Typography>
 
 export function ProductionCard({
   production,
@@ -187,7 +209,6 @@ export function ProductionCard({
     defaultCardValues.dateLabel
   );
   const dateParts = dateLabel.split(" - ");
-  const venues = getVenues(production);
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
@@ -410,19 +431,6 @@ export function ProductionCard({
                   <span className="text-center">{dateParts[1]}</span>
                 </>
               )}
-            </Typography>
-
-            <Typography
-              className="production-card-text"
-              sx={{
-                color: colorWithOpacity(CARD_COLORS.accent, 0.92),
-                fontSize: "var(--text-archive-meta)",
-                letterSpacing: "var(--tracking-archive-label)",
-                textTransform: "uppercase",
-              }}
-            >
-              {venues &&
-                venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
             </Typography>
           </Stack>
 

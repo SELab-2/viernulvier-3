@@ -35,7 +35,9 @@ import {
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
+import type { Hall, HallName } from "~/features/archive/types/hallTypes";
 import { AuthSessionProvider } from "~/features/auth";
+import type { Event, Price } from "~/features/archive/types/eventTypes";
 
 function renderPage(production: Production, preferredLanguage: string = "nl") {
   const router = createMemoryRouter(
@@ -168,14 +170,20 @@ describe("ProductionPage", () => {
     const getEventByUrlMock = vi.mocked(getEventByUrl);
     const getHallByUrlMock = vi.mocked(getHallByUrl);
     const getPriceByUrlMock = vi.mocked(getPriceByUrl);
+    const getMockHall = (url: string): HallName => {
+      return {
+        language: "en",
+        name: url.endsWith("/2") ? "Hall Two" : "Hall One",
+      };
+    };
 
-    getEventByUrlMock.mockImplementation(async (url: string) => {
+    getEventByUrlMock.mockImplementation(async (url: string): Promise<Event> => {
       if (url.endsWith("/2")) {
         return {
           id_url: "http://localhost/api/v1/archive/events/2",
           production_id_url: baseProduction.id_url,
           starts_at: "2026-05-10T20:00:00",
-          hall: { id_url: "http://localhost/api/v1/archive/halls/2", name: "" },
+          hall: { id_url: "http://localhost/api/v1/archive/halls/2", names: [] },
           price_urls: ["http://localhost/api/v1/archive/prices/2"],
         };
       }
@@ -184,22 +192,25 @@ describe("ProductionPage", () => {
         id_url: "http://localhost/api/v1/archive/events/1",
         production_id_url: baseProduction.id_url,
         starts_at: "2026-05-09T18:30:00",
-        hall: { id_url: "http://localhost/api/v1/archive/halls/1", name: "" },
+        hall: { id_url: "http://localhost/api/v1/archive/halls/1", names: [] },
         price_urls: ["http://localhost/api/v1/archive/prices/1"],
       };
     });
 
-    getHallByUrlMock.mockImplementation(async (url: string) => ({
-      id_url: url,
-      name: url.endsWith("/2") ? "Hall Two" : "Hall One",
-      location: "Antwerp",
-      total_seats: 100,
-    }));
+    getHallByUrlMock.mockImplementation(
+      async (url: string): Promise<Hall> => ({
+        id_url: url,
+        names: [getMockHall(url)],
+        address: "Antwerp",
+      })
+    );
 
-    getPriceByUrlMock.mockImplementation(async (url: string) => ({
-      id_url: url,
-      amount: url.endsWith("/2") ? 20 : 10,
-    }));
+    getPriceByUrlMock.mockImplementation(
+      async (url: string): Promise<Price> => ({
+        id_url: url,
+        amount: url.endsWith("/2") ? 20 : 10,
+      })
+    );
 
     renderPage(
       {
