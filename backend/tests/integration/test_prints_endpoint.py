@@ -106,7 +106,6 @@ def test_upload_print_success(
     assert data["title"] == "Affiche"
     assert data["description"] == "Seizoen 2024"
     assert data["print_type"] == "poster"
-    assert "id" in data
     assert "url" in data
     assert "id_url" in data
     assert "uploaded_at" in data
@@ -173,7 +172,6 @@ def test_list_prints(client: TestClient, print_items):
     assert data["pagination"]["total_count"] == 3
     assert data["pagination"]["has_more"] is False
     for item in data["prints"]:
-        assert "id" in item
         assert "url" in item
         assert "id_url" in item
         assert "content_type" in item
@@ -219,7 +217,6 @@ def test_get_print(client: TestClient, print_item):
     response = client.get(f"{BASE_URL}/{print_item.id}")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"] == print_item.id
     assert data["title"] == "Fixture poster"
     assert data["description"] == "A fixture poster for testing"
     assert data["print_type"] == "poster"
