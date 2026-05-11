@@ -40,6 +40,7 @@ jobs:
           echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env.dev
           echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env.dev
           echo "MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}" >> .env.dev
+          echo "MINIO_PRINTS_BUCKET=${{ secrets.MINIO_PRINTS_BUCKET }}" >> .env.dev
           echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env.dev
 
       - name: Build and Restart Containers
