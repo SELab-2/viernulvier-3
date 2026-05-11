@@ -21,7 +21,7 @@ def store_new_halls(db_session: Session, json_locations: list[dict]):
             # Valid production id, so store this event
             for hall in halls:
                 if hall.viernulvier_id not in existing_vnv_ids:
-                    db_session.add(halls)
+                    db_session.add(hall)
                     existing_vnv_ids.add(hall.viernulvier_id)
 
             created_at_str = json_location.get("created_at")
