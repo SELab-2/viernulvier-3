@@ -587,6 +587,7 @@ def test_store_halls(db_session):
 
 # Under here I'm triggering all the broad error paths to check that logging works fine
 
+
 def test_store_hall_general_error(db_session, caplog):
     caplog.set_level(logging.WARNING)
 
@@ -596,7 +597,9 @@ def test_store_hall_general_error(db_session, caplog):
     warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
 
     assert len(warnings) == 1
-    assert warnings[0].startswith("Error storing halls (for location: {'garblediegook'}):")
+    assert warnings[0].startswith(
+        "Error storing halls (for location: {'garblediegook'}):"
+    )
 
 
 def test_store_genre_general_error(db_session, caplog):
