@@ -208,7 +208,12 @@
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
       "fallback": "No translation available",
-      "media": "Linked media:"
+      "media": "Linked media:",
+      "edit": {
+        "title": "Edit title",
+        "content": "Edit content",
+        "edit": "Edit blog"
+      }
     },
     "detail": {
       "title": "Blog",

@@ -5,6 +5,7 @@ import { getProductionByUrl } from "~/features/archive/services/productionServic
 import { BlogContentPage } from "~/features/blogs/pages/BlogContentPage";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { AuthSessionProvider } from "~/features/auth";
 
 vi.mock("~/features/archive/services/productionService", () => ({
   getProductionByUrl: vi.fn(),
@@ -35,7 +36,11 @@ function renderPage(blog: Blog, preferredLanguage: string = "nl") {
     }
   );
 
-  return render(<RouterProvider router={router} />);
+  return render(
+    <AuthSessionProvider>
+      <RouterProvider router={router} />
+    </AuthSessionProvider>
+  );
 }
 
 const baseBlog: Blog = {

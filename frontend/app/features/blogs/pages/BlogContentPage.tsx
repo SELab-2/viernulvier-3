@@ -40,7 +40,9 @@ function getBlogContentByLanguage(
   return languageMatch ?? null;
 }
 
-function getSanitizedHtmlOrUndefined(value: string | null | undefined): string | undefined {
+function getSanitizedHtmlOrUndefined(
+  value: string | null | undefined
+): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
@@ -83,35 +85,40 @@ type BlogHeaderProps = {
   setDraftContent: React.Dispatch<React.SetStateAction<BlogContent | null>>;
 };
 
-function BlogHeader({ isEditing, originalContent, draftContent, setDraftContent }: BlogHeaderProps) {
+function BlogHeader({
+  isEditing,
+  originalContent,
+  draftContent,
+  setDraftContent,
+}: BlogHeaderProps) {
   const { t } = useTranslation();
   return (
     <section id="blog-header">
-        <SimpleEditableField
-          label={t("blogs.contentPage.edit.title")}
-          value={draftContent?.title ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalContent?.title, draftContent?.title)}
-          onChange={(newValue) => {
-            setDraftContent((prev) => {
-              // Overwrite title
-			  console.log(prev);
-			  console.log(newValue);
-			  console.log({ ...prev, title: newValue });
-              if (prev) return { ...prev, title: newValue };
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-			  <h1
-				id="blog-title"
-				className="text-archive-ink font-serif text-5xl leading-[1.08] md:text-7xl"
-			  >
-              {getTextOrDefault(value, t("blogs.contentPage.fallback"))}
-            </h1>
-          )}
-          permissions={[BLOG_PERMISSIONS.update]}
-        />
+      <SimpleEditableField
+        label={t("blogs.contentPage.edit.title")}
+        value={draftContent?.title ?? ""}
+        isEditing={isEditing}
+        isModified={isFieldModified(originalContent?.title, draftContent?.title)}
+        onChange={(newValue) => {
+          setDraftContent((prev) => {
+            // Overwrite title
+            console.log(prev);
+            console.log(newValue);
+            console.log({ ...prev, title: newValue });
+            if (prev) return { ...prev, title: newValue };
+            else return prev;
+          });
+        }}
+        renderView={(value) => (
+          <h1
+            id="blog-title"
+            className="text-archive-ink font-serif text-5xl leading-[1.08] md:text-7xl"
+          >
+            {getTextOrDefault(value, t("blogs.contentPage.fallback"))}
+          </h1>
+        )}
+        permissions={[BLOG_PERMISSIONS.update]}
+      />
     </section>
   );
 }
@@ -122,28 +129,32 @@ type BlogContentSectionProps = {
   handleSave: (html: string) => void;
 };
 
-function BlogContentSection({ contentHtml, globalIsEditing, handleSave }: BlogContentSectionProps) {
+function BlogContentSection({
+  contentHtml,
+  globalIsEditing,
+  handleSave,
+}: BlogContentSectionProps) {
   const [isEditing, setIsEditing] = useState<boolean>(true);
   const { t } = useTranslation();
   function _handleSave(html: string) {
-	  handleSave(html);
-	  setIsEditing(false);
+    handleSave(html);
+    setIsEditing(false);
   }
   return (
-	<>
+    <>
       <ComplexEditableField
         id="blog-content"
-        field={t("productionPage.edit.teaser")}
+        field={t("blogs.contentPage.edit.content")}
         html={contentHtml}
         isEditing={globalIsEditing && isEditing}
         onStartEdit={() => setIsEditing(true)}
         onSave={(html) => _handleSave(html)}
         onCancel={() => setIsEditing(false)}
-        fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
+        fallback={<p className="opacity-75">{t("blogs.contentPage.fallback")}</p>}
         canEdit={globalIsEditing}
         permissions={[BLOG_PERMISSIONS.update]}
       />
-	</>
+    </>
   );
 }
 
@@ -240,14 +251,14 @@ async function handleContentSave(
   setIsSaving(true);
   try {
     await updateBlogByUrl(blog.id_url, {
-        blog_contents: [
-            {
-                language: language,
-                title: draftContent.title,
-                content: draftContent.content,
-            },
-        ],
-        production_id_urls: blog.production_id_urls
+      blog_contents: [
+        {
+          language: language,
+          title: draftContent.title,
+          content: draftContent.content,
+        },
+      ],
+      production_id_urls: blog.production_id_urls,
     });
 
     // sync local "source of truth"
@@ -280,8 +291,12 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   const blogContent = getBlogContentByLanguage(blog.blog_contents, language);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [originalContent, setOriginalContent] = useState<BlogContent | null>(blogContent);
-  const [draftContent, setDraftContent] = useState<BlogContent | null>({...blogContent!});
+  const [originalContent, setOriginalContent] = useState<BlogContent | null>(
+    blogContent
+  );
+  const [draftContent, setDraftContent] = useState<BlogContent | null>({
+    ...blogContent!,
+  });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const _handleSave = () =>
@@ -353,25 +368,23 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         <BackToBlogsLink />
 
         <BlogHeader
-		  isEditing={isEditing}
-		  originalContent={originalContent}
-		  draftContent={draftContent}
-		  setDraftContent={setDraftContent}
-		/>
+          isEditing={isEditing}
+          originalContent={originalContent}
+          draftContent={draftContent}
+          setDraftContent={setDraftContent}
+        />
 
         <Divider />
 
         <section id="blog-body" className="mt-8">
           <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-		    <BlogContentSection
-		      contentHtml={contentHtml}
-		      globalIsEditing={isEditing}
-		      handleSave={(html) => {
-                setDraftContent((prev) =>
-                  prev ? { ...prev, content: html } : prev
-                );
-			  }}
-			/>
+            <BlogContentSection
+              contentHtml={contentHtml}
+              globalIsEditing={isEditing}
+              handleSave={(html) => {
+                setDraftContent((prev) => (prev ? { ...prev, content: html } : prev));
+              }}
+            />
           </article>
         </section>
 
@@ -380,7 +393,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         <LinkedProductions productions={linkedProductions} />
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
           <BlogEditButton
-            action={t("productionPage.edit.add")}
+            action={t("blogs.contentPage.edit.edit")}
             isEditing={isEditing}
             setIsEditing={setIsEditing}
             originalContent={originalContent}

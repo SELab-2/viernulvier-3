@@ -207,7 +207,12 @@
       "backToBlogs": "Terug naar blogs",
       "linkedProductions": "Gelinkte producties:",
       "fallback": "Geen vertaling beschikbaar",
-      "media": "Gelinkte media:"
+      "media": "Gelinkte media:",
+      "edit": {
+        "title": "Pas titel aan",
+        "content": "Pas inhoud aan",
+        "edit": "Bewerk blog"
+      }
     },
     "detail": {
       "title": "Blog",
