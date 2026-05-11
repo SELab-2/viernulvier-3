@@ -13,7 +13,7 @@ export async function deltaToHtml(delta: Delta): Promise<string> {
   const container = document.createElement("div");
   const quill = new Quill(container);
   quill.setContents(delta);
-  
+
   const html = quill.getSemanticHTML();
   return html.replace(/&nbsp;/g, " ");
 }

@@ -345,7 +345,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
-
   // And the same but for React links
   useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
 
