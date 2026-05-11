@@ -11,7 +11,8 @@ class PrintResponse(BaseModel):
     url: str
     id_url: str
     content_type: str
-    label: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
     print_type: Optional[str] = None
     uploaded_at: datetime
 

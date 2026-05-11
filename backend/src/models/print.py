@@ -10,7 +10,8 @@ class Print(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     object_key = Column(Text, nullable=False, unique=True)
     content_type = Column(Text, nullable=False)
-    label = Column(Text, nullable=True)
+    title = Column(Text, nullable=True)
+    description = Column(Text, nullable=True)
     print_type = Column(Text, nullable=True)
     uploaded_at = Column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)

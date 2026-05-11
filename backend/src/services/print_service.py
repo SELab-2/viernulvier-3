@@ -26,7 +26,8 @@ def build_print_response(print_obj: Print, base_url: str) -> PrintResponse:
         id_url=f"{base_url}/prints/{print_obj.id}",
         url=f"{host_url}/media/{print_obj.object_key}",
         content_type=print_obj.content_type,
-        label=print_obj.label,
+        title=print_obj.title,
+        description=print_obj.description,
         print_type=print_obj.print_type,
         uploaded_at=print_obj.uploaded_at,
     )
@@ -83,14 +84,15 @@ def upload_print(
     data: bytes,
     minio_client: Minio,
     base_url: str,
-    label: str | None = None,
+    title: str | None = None,
+    description: str | None = None,
     print_type: str | None = None,
 ) -> PrintResponse:
     ext = os.path.splitext(filename)[1].lower()
     object_key = f"prints/{uuid.uuid4()}{ext}"
 
     minio_client.put_object(
-        settings.MINIO_BUCKET,
+        settings.MINIO_PRINTS_BUCKET,
         object_key,
         io.BytesIO(data),
         length=len(data),
@@ -100,7 +102,8 @@ def upload_print(
     print_obj = Print(
         object_key=object_key,
         content_type=content_type,
-        label=label,
+        title=title,
+        description=description,
         print_type=print_type,
     )
     db.add(print_obj)
@@ -116,7 +119,7 @@ def delete_print(db: Session, print_id: int, minio_client: Minio) -> bool:
         return False
 
     try:
-        minio_client.remove_object(settings.MINIO_BUCKET, print_obj.object_key)
+        minio_client.remove_object(settings.MINIO_PRINTS_BUCKET, print_obj.object_key)
     except S3Error as e:
         if e.code != "NoSuchKey":
             raise

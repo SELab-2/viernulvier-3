@@ -80,11 +80,14 @@ async def get_print(
 async def post_print(
     request: Request,
     file: UploadFile = File(...),
-    label: str | None = Query(
-        None, description="Human-readable label, e.g. 'Affiche seizoen 2023-24'"
+    title: str | None = Query(
+        None
+    ),
+    description: str | None = Query(
+        None
     ),
     print_type: str | None = Query(
-        None, description="Type of print: poster, timetable, programme, other"
+        None, description="Category of print: poster, timetable, programme, other"
     ),
     db: Session = Depends(get_db),
     minio: Minio = Depends(get_minio_client),
@@ -107,7 +110,8 @@ async def post_print(
         data=data,
         minio_client=minio,
         base_url=base_url,
-        label=label,
+        title=title,
+        description=description,
         print_type=print_type,
     )
 
