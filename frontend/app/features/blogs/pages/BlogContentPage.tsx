@@ -1,6 +1,6 @@
-import { Link, useParams } from "react-router";
+import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
@@ -10,6 +10,26 @@ import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
+import SimpleEditableField from "~/shared/components/SimpleEditableField";
+import { BLOG_PERMISSIONS } from "../blog.constants";
+import BlogEditButton from "../components/BlogEditButton";
+import { updateBlogByUrl } from "../services/blogService";
+
+function useUnsavedChangesBlocker(when: boolean) {
+  const blocker = useBlocker(when);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+
+      if (confirmLeave) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
+}
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -24,6 +44,21 @@ function getSanitizedHtml(value: string | null | undefined): string | undefined 
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
   return DOMPurify.sanitize(trimmed);
+}
+
+function getTextOrDefault(value: string | null | undefined, fallback: string): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
+
+function isFieldModified(
+  original: string | undefined,
+  draft: string | undefined
+): boolean {
+  return (original ?? "") !== (draft ?? "");
 }
 
 function BackToBlogsLink() {
@@ -41,18 +76,41 @@ function BackToBlogsLink() {
 }
 
 type BlogHeaderProps = {
-  title: string;
+  isEditing: boolean;
+  originalContent: BlogContent | null;
+  draftContent: BlogContent | null;
+  setDraftContent: React.Dispatch<React.SetStateAction<BlogContent | null>>;
 };
 
-function BlogHeader({ title }: BlogHeaderProps) {
+function BlogHeader({ isEditing, originalContent, draftContent, setDraftContent }: BlogHeaderProps) {
+  const { t } = useTranslation();
   return (
     <section id="blog-header">
-      <h1
-        id="blog-title"
-        className="text-archive-ink font-serif text-5xl leading-[1.08] md:text-7xl"
-      >
-        {title}
-      </h1>
+        <SimpleEditableField
+          label={t("blogs.contentPage.edit.title")}
+          value={draftContent?.title ?? ""}
+          isEditing={isEditing}
+          isModified={isFieldModified(originalContent?.title, draftContent?.title)}
+          onChange={(newValue) => {
+            setDraftContent((prev) => {
+              // Overwrite title
+			  console.log(prev);
+			  console.log(newValue);
+			  console.log({ ...prev, title: newValue });
+              if (prev) return { ...prev, title: newValue };
+              else return prev;
+            });
+          }}
+          renderView={(value) => (
+			  <h1
+				id="blog-title"
+				className="text-archive-ink font-serif text-5xl leading-[1.08] md:text-7xl"
+			  >
+              {getTextOrDefault(value, t("blogs.contentPage.fallback"))}
+            </h1>
+          )}
+          permissions={[BLOG_PERMISSIONS.update]}
+        />
     </section>
   );
 }
@@ -137,6 +195,58 @@ function LinkedProductions({ productions }: LinkedProductionsProps) {
   );
 }
 
+function isContentModified(
+  originalContent: BlogContent | null,
+  draftContent: BlogContent | null
+): boolean {
+  if (!originalContent || !draftContent) return false;
+
+  return (
+    originalContent.title !== draftContent.title ||
+    originalContent.content !== draftContent.content
+  );
+}
+
+async function handleContentSave(
+  blog: Blog,
+  originalContent: BlogContent | null,
+  draftContent: BlogContent | null,
+  setOriginalContent: React.Dispatch<React.SetStateAction<BlogContent | null>>,
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
+  language: string,
+  skipUnloadWarning: React.MutableRefObject<boolean>
+) {
+  if (!draftContent) return;
+
+  setIsSaving(true);
+  try {
+    await updateBlogByUrl(blog.id_url, {
+        blog_contents: [
+            {
+                language: language,
+                title: draftContent.title,
+                content: draftContent.content,
+            },
+        ],
+        production_id_urls: blog.production_id_urls
+    });
+
+    // sync local "source of truth"
+    setOriginalContent(draftContent);
+
+    setIsEditing(false);
+    if (!originalContent) {
+      skipUnloadWarning.current = true;
+      window.location.reload();
+    }
+  } catch (err) {
+    window.alert(`Save failed: ${err}`);
+  } finally {
+    setIsSaving(false);
+  }
+}
+
 interface BlogPageProps {
   blog: Blog;
   preferredLanguage?: string;
@@ -151,8 +261,45 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   const language = preferredLanguage ?? lang!;
   const blogContent = getBlogContentByLanguage(blog.blog_contents, language);
 
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [originalContent, setOriginalContent] = useState<BlogContent | null>(blogContent);
+  const [draftContent, setDraftContent] = useState<BlogContent | null>({...blogContent!});
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const _handleSave = () =>
+    handleContentSave(
+      blog,
+      originalContent,
+      draftContent,
+      setOriginalContent,
+      setIsEditing,
+      setIsSaving,
+      language,
+      skipUnloadWarning
+    );
+
   const title = blogContent?.title.trim() || t("blogs.contentPage.fallback");
   const contentHtml = getSanitizedHtml(blogContent?.content);
+
+  const isModified = useMemo(() => {
+    if (originalContent === null) {
+      return isEditing; // With add always true.
+    }
+    return isContentModified(originalContent, draftContent);
+  }, [originalContent, draftContent, isEditing]);
+
+  const skipUnloadWarning = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (skipUnloadWarning.current) return; // skip bij reload na save
+      if (isEditing && isModified) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isEditing, isModified]);
+
+  useUnsavedChangesBlocker(isEditing && isModified && !skipUnloadWarning);
 
   useEffect(() => {
     let cancelled = false;
@@ -187,7 +334,12 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToBlogsLink />
 
-        <BlogHeader title={title} />
+        <BlogHeader
+		  isEditing={isEditing}
+		  originalContent={originalContent}
+		  draftContent={draftContent}
+		  setDraftContent={setDraftContent}
+		/>
 
         <Divider />
 
@@ -204,6 +356,18 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
 
         <LinkedProductions productions={linkedProductions} />
+        <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+          <BlogEditButton
+            action={t("productionPage.edit.add")}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            originalContent={originalContent}
+            setDraftContent={setDraftContent}
+            enable_save={isModified}
+            is_saving={isSaving}
+            _handleSave={_handleSave}
+          />
+        </div>
       </main>
     </div>
   );
