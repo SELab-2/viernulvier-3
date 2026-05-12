@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[RoleResponse],
     summary="List all roles",
     description="Returns all roles with their permissions.",
@@ -29,7 +29,7 @@ def list_roles(
 
 
 @router.post(
-    "/",
+    "",
     response_model=RoleResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a role",

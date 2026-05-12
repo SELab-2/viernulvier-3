@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=BlogListResponse,
     summary="Get Blogs",
     description="Get all blogs of the database, using pagination",
@@ -57,7 +57,7 @@ async def get_blog(
 
 
 @router.post(
-    "/",
+    "",
     response_model=BlogResponse,
     status_code=201,
     summary="Create blog",

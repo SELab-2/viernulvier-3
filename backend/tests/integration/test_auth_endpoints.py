@@ -15,7 +15,7 @@ def test_login_integration(client: TestClient, db_session: Session):
     db_session.commit()
 
     response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "login_int_user", "password": password},
     )
     assert response.status_code == 200
@@ -29,7 +29,7 @@ def test_login_integration(client: TestClient, db_session: Session):
 
 def test_login_integration_fail(client: TestClient):
     response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "non_existent", "password": "password"},
     )
     assert response.status_code == 401
@@ -43,7 +43,7 @@ def test_get_me_integration(client: TestClient, db_session: Session):
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "me_int_user", "password": password},
     )
     token = login_response.json()["access_token"]
@@ -65,7 +65,7 @@ def test_refresh_token_integration(client: TestClient, db_session: Session):
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "refresh_int_user", "password": password},
     )
     refresh_token = login_response.json()["refresh_token"]
@@ -90,7 +90,7 @@ def test_tokens_invalidated_after_password_change_integration(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "invalidate_int_user", "password": password},
     )
     access_token = login_response.json()["access_token"]
@@ -121,7 +121,7 @@ def test_refresh_token_rejected_as_access_token_integration(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "exploit_int_user", "password": password},
     )
     refresh_token = login_response.json()["refresh_token"]
