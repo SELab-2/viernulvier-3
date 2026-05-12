@@ -215,13 +215,9 @@ describe("BlogCardList", () => {
     };
 
     render(
-      <div>
-        {[mockBlog, blog2].map((blog) => (
-          <MemoryRouter>
-            <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
-          </MemoryRouter>
-        ))}
-      </div>
+      <MemoryRouter>
+        <BlogCardList blogs={[mockBlog, blog2]} prefferedLanguage="en" />
+      </MemoryRouter>
     );
 
     expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();
