@@ -53,7 +53,7 @@ describe("historyService", () => {
 
   describe("getHistoryEntries", () => {
     it("returns a list of history entries from the API", async () => {
-      mockAdapter.onGet("/api/v1/archive/history/").reply(200, MOCK_HISTORY_LIST);
+      mockAdapter.onGet("/api/v1/archive/history").reply(200, MOCK_HISTORY_LIST);
 
       const result = await getHistoryEntries();
 
@@ -62,7 +62,7 @@ describe("historyService", () => {
     });
 
     it("returns an empty list when no entries exist", async () => {
-      mockAdapter.onGet("/api/v1/archive/history/").reply(200, []);
+      mockAdapter.onGet("/api/v1/archive/history").reply(200, []);
 
       const result = await getHistoryEntries();
 
@@ -70,7 +70,7 @@ describe("historyService", () => {
     });
 
     it("throws when the request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/history/").reply(500);
+      mockAdapter.onGet("/api/v1/archive/history").reply(500);
 
       await expect(getHistoryEntries()).rejects.toThrow();
     });
@@ -85,7 +85,7 @@ describe("historyService", () => {
         content: "This is a test history entry",
       };
 
-      mockAdapter.onPost("/api/v1/archive/history/").reply(201, MOCK_HISTORY_ENTRY);
+      mockAdapter.onPost("/api/v1/archive/history").reply(201, MOCK_HISTORY_ENTRY);
 
       const result = await createHistoryEntry(request);
 
@@ -102,7 +102,7 @@ describe("historyService", () => {
         content: "Duplicate entry",
       };
 
-      mockAdapter.onPost("/api/v1/archive/history/").reply(400, {
+      mockAdapter.onPost("/api/v1/archive/history").reply(400, {
         detail: "History entry for year 2024 and language 'nl' already exists",
       });
 
@@ -127,7 +127,7 @@ describe("historyService", () => {
         content: "Updated content",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/history/2024/nl/").reply(200, updatedEntry);
+      mockAdapter.onPatch("/api/v1/archive/history/2024/nl").reply(200, updatedEntry);
 
       const result = await updateHistoryEntry(year, language, request);
 
@@ -144,13 +144,13 @@ describe("historyService", () => {
       };
 
       mockAdapter
-        .onPatch("/api/v1/archive/history/1999/en/")
+        .onPatch("/api/v1/archive/history/1999/en")
         .reply(200, MOCK_HISTORY_ENTRY);
 
       await updateHistoryEntry(year, language, request);
 
       expect(mockAdapter.history.patch).toHaveLength(1);
-      expect(mockAdapter.history.patch[0].url).toBe("/api/v1/archive/history/1999/en/");
+      expect(mockAdapter.history.patch[0].url).toBe("/api/v1/archive/history/1999/en");
     });
 
     it("rejects when the entry does not exist", async () => {
@@ -158,7 +158,7 @@ describe("historyService", () => {
       const language = "nl";
       const request: HistoryEntryUpdateRequest = { title: "Updated" };
 
-      mockAdapter.onPatch("/api/v1/archive/history/999/nl/").reply(404, {
+      mockAdapter.onPatch("/api/v1/archive/history/999/nl").reply(404, {
         detail: "History entry not found",
       });
 
@@ -173,7 +173,7 @@ describe("historyService", () => {
       const year = 2024;
       const language = "nl";
 
-      mockAdapter.onDelete("/api/v1/archive/history/2024/nl/").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/history/2024/nl").reply(204);
 
       await expect(deleteHistoryEntry(year, language)).resolves.toBeUndefined();
       expect(mockAdapter.history.delete).toHaveLength(1);
@@ -183,21 +183,19 @@ describe("historyService", () => {
       const year = 1999;
       const language = "en";
 
-      mockAdapter.onDelete("/api/v1/archive/history/1999/en/").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/history/1999/en").reply(204);
 
       await deleteHistoryEntry(year, language);
 
       expect(mockAdapter.history.delete).toHaveLength(1);
-      expect(mockAdapter.history.delete[0].url).toBe(
-        "/api/v1/archive/history/1999/en/"
-      );
+      expect(mockAdapter.history.delete[0].url).toBe("/api/v1/archive/history/1999/en");
     });
 
     it("rejects when the entry does not exist", async () => {
       const year = 999;
       const language = "nl";
 
-      mockAdapter.onDelete("/api/v1/archive/history/999/nl/").reply(404, {
+      mockAdapter.onDelete("/api/v1/archive/history/999/nl").reply(404, {
         detail: "History entry not found",
       });
 

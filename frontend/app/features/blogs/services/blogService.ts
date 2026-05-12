@@ -61,7 +61,7 @@ export async function getBlogsForProduction(productionUrl: string): Promise<Blog
 
     const apiClient = createApiClient();
     const response = await apiClient.get<BlogList>(
-      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs`
     );
 
     return response.data.blogs;
