@@ -54,8 +54,8 @@ export async function deleteBlog(blogId: number): Promise<void> {
 
 export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
   try {
-    const productionId = productionUrl.split("/").pop();
-    if (!productionId) {
+    const productionId = productionUrl.split("/").pop()?.trim();
+    if (!productionId || isNaN(+productionId)) {
       return [];
     }
 
@@ -80,6 +80,8 @@ interface ProductionGroup {
 export async function getProductionsForBlog(blog: Blog): Promise<Production[]> {
   try {
     const productionGroupIdUrl = blog.production_group_id_url;
+    if (!productionGroupIdUrl) return [];
+
     const apiClient = createApiClient();
     const response = await apiClient.get<ProductionGroup>(productionGroupIdUrl);
     const productionIdUrls = response.data.production_id_urls;
