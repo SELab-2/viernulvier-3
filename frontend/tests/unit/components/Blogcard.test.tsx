@@ -135,6 +135,16 @@ describe("BlogCard", () => {
     expect(blogCardText?.querySelectorAll("p")).toHaveLength(2);
   });
 
+  it("renders blog without content", () => {
+    const emptyBlog: Blog = {
+      ...mockBlog,
+      blog_contents: [],
+    };
+
+    renderBlogCard({ blog: emptyBlog });
+    expect(screen.getByText("Untitled blog")).toBeInTheDocument();
+  });
+
   it("renders the no-production fallback text", () => {
     vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([]);
     renderBlogCard({ blog: mockBlogNoProductions });
