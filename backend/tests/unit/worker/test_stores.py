@@ -82,6 +82,11 @@ def test_store_new_productions(db_session):
     # Assert newest timestamp returned
     assert newest == datetime.fromisoformat("2022-11-22T13:45:59+00:00")
 
+    # Test that duplicates won't be stored
+    newest = store_new_productions(db_session, [productions[0]])
+    assert newest is None
+    assert len(stored_prods) == len(db_session.scalars(select(Production.id)).all())
+
 
 # Quick sanity check that we get None when no production was received
 def test_store_new_productions_empty_list(db_session):
@@ -182,6 +187,11 @@ def test_store_new_events_with_orphans(db_session, caplog):
     assert "does not exist" in orphaned_warning_2
 
     assert "Skipped 3 events" in total_orphans_warning
+
+    # Test that duplicates won't be stored
+    newest = store_new_events(db_session, [events[0]])
+    assert newest is None
+    assert len(stored_events) == len(db_session.scalars(select(Event.id)).all())
 
 
 def test_store_new_events_hall(db_session, caplog):
@@ -311,9 +321,9 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     db_session.commit()
 
     # Assert that only one eventprice was stored
-    stored_events = db_session.execute(select(EventPrice)).scalars().all()
-    assert len(stored_events) == 1
-    assert stored_events[0].viernulvier_id == 14085
+    stored_eventprices = db_session.execute(select(EventPrice)).scalars().all()
+    assert len(stored_eventprices) == 1
+    assert stored_eventprices[0].viernulvier_id == 14085
 
     # newest timestamp should be from the last created valid eventprice
     assert newest == datetime.fromisoformat("2023-01-20T10:26:50+00:00")
@@ -338,6 +348,13 @@ def test_store_new_eventprices_with_orphans(db_session, caplog):
     assert "does not exist" in orphaned_warning_2
 
     assert "Skipped 3 eventprices" in total_orphans_warning
+
+    # Test that duplicates won't be stored
+    newest = store_new_eventprices(db_session, [eventprices[0]])
+    assert newest is None
+    assert len(stored_eventprices) == len(
+        db_session.scalars(select(EventPrice.id)).all()
+    )
 
 
 def test_store_new_genres_as_tags(db_session):
@@ -378,6 +395,11 @@ def test_store_new_genres_as_tags(db_session):
     assert len(stored_names) == 4
 
     assert newest == datetime.fromisoformat("2023-03-31T08:44:07+00:00")
+
+    # Test that duplicates won't be stored
+    newest = store_new_genres(db_session, [genres[0]])
+    assert newest is None
+    assert len(stored_tags) == len(db_session.scalars(select(Tag.id)).all())
 
 
 def test_store_production_with_tags(db_session, caplog):

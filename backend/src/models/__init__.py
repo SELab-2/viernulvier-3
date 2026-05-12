@@ -6,7 +6,6 @@ from src.database import Base
 from src.models.associations import (
     prod_tags,
     prod_groups,
-    prod_blogs,
     role_permissions,
     user_roles,
 )
@@ -27,7 +26,6 @@ __all__ = [
     "Base",
     "prod_tags",
     "prod_groups",
-    "prod_blogs",
     "user_roles",
     "role_permissions",
     "Production",
