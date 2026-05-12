@@ -284,8 +284,8 @@ def test_api_genre_to_model_tag_unknown_language(caplog):
         },
     }
 
-    tag, tagnames = api_genre_to_model_tag(test_input)
-    assert len(tagnames) == 0
+    tag = api_genre_to_model_tag(test_input)
+    assert len(tag.names) == 0
 
     # Check the log messages for dropped languages (fr)
     warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
