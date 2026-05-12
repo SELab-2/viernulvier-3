@@ -225,7 +225,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <title>{t("nav.login")}</title>
+      <title>{`${t("nav.login")} | VIERNULVIER`}</title>
       <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <h1 className="mb-2 font-serif text-3xl italic">
