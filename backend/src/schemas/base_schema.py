@@ -13,5 +13,11 @@ class StrictModel(BaseModel):
                 and value.endswith("/")
             ):
                 setattr(self, field_name, value.rstrip("/"))
+            elif field_name.endswith("_urls") and isinstance(value, list):
+                updated_values = [
+                    link.rstrip("/") if isinstance(link, str) else link
+                    for link in value
+                ]
+                setattr(self, field_name, updated_values)
 
         return self
