@@ -20,76 +20,26 @@ import { MobileToggleButton } from "../components/MobileToggleButton";
 import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 import { useDebouncedState } from "../utils/debouncedState";
 import { Protected, useAuthSession } from "~/features/auth";
-
-const PRODUCTION_GROUP_QUERY_PARAM = "group";
-
-function toProductionGroupQueryValue(title: string): string {
-  return (
-    title
-      // Split accented characters into their base letter and combining marks.
-      .normalize("NFKD")
-      // Drop the combining marks so query values stay ASCII-only.
-      .replace(/[\u0300-\u036f]/g, "")
-      // Make matching case-insensitive and remove accidental surrounding spaces.
-      .toLowerCase()
-      .trim()
-      // Turn whitespace and punctuation into a single URL-friendly separator.
-      .replace(/[^a-z0-9]+/g, "-")
-      // Clean up separators that may have landed at the edges.
-      .replace(/(^-|-$)/g, "")
-  );
-}
-
-function getRequestedProductionGroupFilters(searchParams: URLSearchParams): string[] {
-  return searchParams.getAll(PRODUCTION_GROUP_QUERY_PARAM).filter(Boolean);
-}
-
-function resolveProductionGroupsByQuery(
-  productionGroups: ProductionGroup[],
-  requestedSlugs: string[]
-): ProductionGroup[] {
-  const slugMap = new Map(
-    productionGroups.map((group) => [toProductionGroupQueryValue(group.title), group])
-  );
-  const seen = new Set<string>();
-  const resolved: ProductionGroup[] = [];
-
-  for (const slug of requestedSlugs) {
-    const group = slugMap.get(toProductionGroupQueryValue(slug));
-    if (group && !seen.has(group.id_url)) {
-      seen.add(group.id_url);
-      resolved.push(group);
-    }
-  }
-
-  return resolved;
-}
-
-function haveSameProductionGroups(
-  left: ProductionGroup[],
-  right: ProductionGroup[]
-): boolean {
-  return (
-    left.length === right.length &&
-    left.every(
-      (productionGroup, index) => productionGroup.id_url === right[index]?.id_url
-    )
-  );
-}
+import {
+  getProductionGroupId,
+  getRequestedProductionGroupIds,
+  PRODUCTION_GROUP_QUERY_PARAM,
+  resolveProductionGroupsByIds,
+} from "../utils/productionGroupFilters";
 
 function buildProductionFilters({
   debouncedSearch,
   debouncedDateFrom,
   debouncedDateTo,
   selectedTags,
-  selectedProductionGroups,
+  selectedProductionGroupIds,
   selectedArtists,
 }: {
   debouncedSearch: string;
   debouncedDateFrom: string;
   debouncedDateTo: string;
   selectedTags: Tag[];
-  selectedProductionGroups: ProductionGroup[];
+  selectedProductionGroupIds: string[];
   selectedArtists: string[];
 }) {
   return {
@@ -101,9 +51,7 @@ function buildProductionFilters({
         ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
         : undefined,
     group_ids:
-      selectedProductionGroups.length > 0
-        ? selectedProductionGroups.map((group) => group.id_url.split("/").pop()!)
-        : undefined,
+      selectedProductionGroupIds.length > 0 ? selectedProductionGroupIds : undefined,
     artists: selectedArtists.length > 0 ? selectedArtists : undefined,
   };
 }
@@ -126,25 +74,20 @@ export default function ArchivePage() {
   const [dateFrom, debouncedDateFrom, setDateFrom] = useDebouncedState("");
   const [dateTo, debouncedDateTo, setDateTo] = useDebouncedState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [selectedProductionGroups, setSelectedProductionGroups] = useState<
-    ProductionGroup[]
-  >([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
   const [productionGroups, setProductionGroups] = useState<ProductionGroup[]>([]);
-  const [haveLoadedProductionGroups, setHaveLoadedProductionGroups] = useState(false);
+  const [selectedProductionIds, setSelectedProductionIds] = useState<string[]>([]);
 
-  const requestedProductionGroupFilters = useMemo(
-    () => getRequestedProductionGroupFilters(searchParams),
+  const selectedProductionGroupIds = useMemo(
+    () => getRequestedProductionGroupIds(searchParams),
     [searchParams]
   );
 
-  const matchedProductionGroupsFromUrl = useMemo(
-    () =>
-      resolveProductionGroupsByQuery(productionGroups, requestedProductionGroupFilters),
-    [productionGroups, requestedProductionGroupFilters]
+  const selectedProductionGroups = useMemo(
+    () => resolveProductionGroupsByIds(productionGroups, selectedProductionGroupIds),
+    [productionGroups, selectedProductionGroupIds]
   );
-  const [selectedProductionIds, setSelectedProductionIds] = useState<string[]>([]);
 
   const filters = useMemo(
     () =>
@@ -153,7 +96,7 @@ export default function ArchivePage() {
         debouncedDateFrom,
         debouncedDateTo,
         selectedTags,
-        selectedProductionGroups,
+        selectedProductionGroupIds,
         selectedArtists,
       }),
     [
@@ -161,7 +104,7 @@ export default function ArchivePage() {
       debouncedDateFrom,
       debouncedDateTo,
       selectedTags,
-      selectedProductionGroups,
+      selectedProductionGroupIds,
       selectedArtists,
     ]
   );
@@ -178,10 +121,6 @@ export default function ArchivePage() {
         }
       } catch (error) {
         console.error(error);
-      } finally {
-        if (!isCancelled) {
-          setHaveLoadedProductionGroups(true);
-        }
       }
     }
 
@@ -192,35 +131,18 @@ export default function ArchivePage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!haveLoadedProductionGroups) {
-      return;
-    }
-
-    if (
-      haveSameProductionGroups(selectedProductionGroups, matchedProductionGroupsFromUrl)
-    ) {
-      return;
-    }
-
-    setSelectedProductionGroups(matchedProductionGroupsFromUrl);
-  }, [
-    haveLoadedProductionGroups,
-    matchedProductionGroupsFromUrl,
-    selectedProductionGroups,
-  ]);
-
   const handleSelectedProductionGroupsChange = (nextGroups: ProductionGroup[]) => {
-    setSelectedProductionGroups(nextGroups);
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
         next.delete(PRODUCTION_GROUP_QUERY_PARAM);
-        for (const group of nextGroups) {
-          next.append(
-            PRODUCTION_GROUP_QUERY_PARAM,
-            toProductionGroupQueryValue(group.title)
-          );
+
+        const nextGroupIds = nextGroups
+          .map(getProductionGroupId)
+          .filter((groupId) => groupId.length > 0);
+
+        for (const groupId of new Set(nextGroupIds)) {
+          next.append(PRODUCTION_GROUP_QUERY_PARAM, groupId);
         }
         return next;
       },
@@ -230,16 +152,6 @@ export default function ArchivePage() {
 
   // Re-fetch whenever any filter changes
   useEffect(() => {
-    if (
-      !haveLoadedProductionGroups ||
-      !haveSameProductionGroups(
-        selectedProductionGroups,
-        matchedProductionGroupsFromUrl
-      )
-    ) {
-      return;
-    }
-
     async function fetchProductions() {
       const result = await getProductionsPaginated({
         ...filters,
@@ -248,14 +160,7 @@ export default function ArchivePage() {
       setProductionList(result);
     }
     fetchProductions();
-  }, [
-    filters,
-    haveLoadedProductionGroups,
-    i18n.resolvedLanguage,
-    matchedProductionGroupsFromUrl,
-    selectedProductionGroups,
-    sortOrder,
-  ]);
+  }, [filters, i18n.resolvedLanguage, sortOrder]);
 
   const productions = useMemo(
     () => productionList?.productions ?? [],
@@ -312,6 +217,7 @@ export default function ArchivePage() {
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
           productionGroups={productionGroups}
+          selectedProductionGroupIds={selectedProductionGroupIds}
           selectedProductionGroups={selectedProductionGroups}
           setSelectedProductionGroups={handleSelectedProductionGroupsChange}
           selectedArtists={selectedArtists}

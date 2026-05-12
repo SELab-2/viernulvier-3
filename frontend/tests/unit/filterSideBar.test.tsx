@@ -18,12 +18,7 @@ vi.mock("~/features/archive/services/tagService", () => ({
   getTagByName: vi.fn(),
 }));
 
-vi.mock("~/features/archive/services/productionGroupService", () => ({
-  getAllProductionGroups: vi.fn(),
-}));
-
 import { getArtists } from "~/features/archive/services/artistService";
-import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 
 const makeTag = (id: string, nl: string, en: string): Tag => ({
@@ -53,6 +48,12 @@ const PRODUCTION_GROUPS: ProductionGroup[] = [
     is_public_filter: true,
     production_id_urls: [],
   },
+  {
+    id_url: "foo/groups/3",
+    title: "Café Concerten",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
 ];
 
 const defaultProps = () => ({
@@ -66,6 +67,7 @@ const defaultProps = () => ({
   selectedTags: [] as Tag[],
   setSelectedTags: vi.fn(),
   productionGroups: PRODUCTION_GROUPS,
+  selectedProductionGroupIds: [] as string[],
   selectedProductionGroups: [] as ProductionGroup[],
   setSelectedProductionGroups: vi.fn(),
   selectedArtists: [] as string[],
@@ -82,9 +84,6 @@ beforeEach(() => {
       ? Promise.resolve(tag)
       : Promise.reject(new Error(`Tag "${name}" not found`));
   });
-  (getAllProductionGroups as ReturnType<typeof vi.fn>).mockResolvedValue(
-    PRODUCTION_GROUPS
-  );
   (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue([
     "Alice",
     "Bob",
@@ -217,6 +216,14 @@ describe("FilterSidebar – production groups filter", () => {
     expect(props.setSelectedProductionGroups).toHaveBeenCalled();
     expect(input).toHaveValue("");
   });
+
+  it("matches production groups without accents in the search query", async () => {
+    render(<FilterSidebar {...defaultProps()} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "cafe");
+    expect(screen.getByText("Café Concerten")).toBeInTheDocument();
+  });
 });
 
 describe("FilterSidebar – data fetching edge cases", () => {
@@ -240,6 +247,7 @@ describe("FilterSidebar – reset filters button", () => {
       dateFrom: "2024-01-01",
       dateTo: "2024-12-31",
       selectedTags: [TAGS[0]],
+      selectedProductionGroupIds: ["1"],
       selectedProductionGroups: [PRODUCTION_GROUPS[0]],
       selectedArtists: ["Alice"],
     };

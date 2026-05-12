@@ -4,6 +4,7 @@ import { getArtists } from "~/features/archive/services/artistService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
+import { matchesProductionGroupQuery } from "../utils/productionGroupFilters";
 import FilterCard from "./FilterCard";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -263,7 +264,7 @@ const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
   const filteredProductionGroups =
     groupQuery.trim().length > 0
       ? productionGroups.filter((productionGroup) =>
-          productionGroup.title.toLowerCase().includes(groupQuery.toLowerCase())
+          matchesProductionGroupQuery(productionGroup, groupQuery)
         )
       : [];
 
@@ -449,6 +450,7 @@ interface FilterSidebarProps {
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   productionGroups: ProductionGroup[];
+  selectedProductionGroupIds: string[];
   selectedProductionGroups: ProductionGroup[];
   setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
   selectedArtists: string[];
@@ -466,6 +468,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   selectedTags,
   setSelectedTags,
   productionGroups,
+  selectedProductionGroupIds,
   selectedProductionGroups,
   setSelectedProductionGroups,
   selectedArtists,
@@ -479,7 +482,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     dateFrom.length > 0 ||
     dateTo.length > 0 ||
     selectedTags.length > 0 ||
-    selectedProductionGroups.length > 0 ||
+    selectedProductionGroupIds.length > 0 ||
     selectedArtists.length > 0;
 
   const resetFilters = () => {

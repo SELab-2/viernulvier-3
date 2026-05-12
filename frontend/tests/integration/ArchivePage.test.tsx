@@ -204,12 +204,36 @@ describe("Archive", () => {
     expect(screen.getByText("0 archive.results")).toBeInTheDocument();
   });
 
+  it("loads productions without waiting for production groups when no group filter is requested", async () => {
+    mockFetchedProductions([]);
+    vi.mocked(productionGroupService.getAllProductionGroups).mockImplementation(
+      () => new Promise(() => {})
+    );
+
+    renderWithRouterAndTheme({
+      useRealArchive: true,
+      initialPath: "/archive",
+    });
+
+    await waitFor(() =>
+      expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
+        artists: undefined,
+        earliest_at: undefined,
+        group_ids: undefined,
+        latest_at: undefined,
+        production_name: undefined,
+        sort_order: "Descending",
+        tag_ids: undefined,
+      })
+    );
+  });
+
   it("applies a production group from the URL query string", async () => {
     mockFetchedProductions([]);
 
     renderWithRouterAndTheme({
       useRealArchive: true,
-      initialPath: "/archive?group=club-wintercircus",
+      initialPath: "/archive?group=2",
     });
 
     await waitFor(() =>
