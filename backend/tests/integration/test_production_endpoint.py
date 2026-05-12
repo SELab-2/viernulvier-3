@@ -431,8 +431,7 @@ def test_patch_production_tags_success(
 
     data = response.json()
     assert {
-        int(tag_response["id_url"].split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 3}
 
     response = client.patch(
@@ -444,8 +443,7 @@ def test_patch_production_tags_success(
     # Updated in response.
     data = response.json()
     assert {
-        int(tag_response["id_url"].split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2, 3}
 
     response = client.get(
@@ -455,8 +453,7 @@ def test_patch_production_tags_success(
     # Updated in database.
     data = response.json()
     assert {
-        int(tag_response["id_url"].split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2, 3}
 
 
@@ -474,8 +471,7 @@ def test_patch_production_tags_failure(
 
     data = response.json()
     assert {
-        int(tag_response["id_url"].split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 3}
 
     response = client.patch(
@@ -574,8 +570,7 @@ def test_create_production_with_tags_success(
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
     assert {
-        int(tag_response["id_url"].split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2}
 
 

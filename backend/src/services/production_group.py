@@ -30,8 +30,7 @@ def build_production_group_response(
 def _parse_production_ids(production_id_urls: list[str]) -> list[int]:
     try:
         return [
-            int(production_url.split("/")[-1])
-            for production_url in production_id_urls
+            int(production_url.split("/")[-1]) for production_url in production_id_urls
         ]
     except (TypeError, ValueError, IndexError):
         raise ValidationError(

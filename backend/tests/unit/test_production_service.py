@@ -132,8 +132,7 @@ def test_get_productions_with_group(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.total_count == 5
     assert {
-        int(production.id_url.split("/")[-1])
-        for production in result.productions
+        int(production.id_url.split("/")[-1]) for production in result.productions
     } == {production.id for production in many_productions[:5]}
 
 
