@@ -35,7 +35,7 @@ def delete_event(
     delete_event_by_id(db, event_id)
 
 
-@router.post("/", response_model=EventResponse, status_code=201)
+@router.post("", response_model=EventResponse, status_code=201)
 def post_event(
     event_in: EventCreate,
     request: Request,

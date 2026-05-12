@@ -40,7 +40,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -282,7 +282,7 @@ def test_delete_blog_failure(client: TestClient, db_session: Session, blogs_limi
 def test_get_blogs_by_production_success(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_PROD_URL}/1/blogs/")
+    response = client.get(f"{BASE_PROD_URL}/1/blogs")
     assert response.status_code == 200
 
     data = response.json()
@@ -297,7 +297,7 @@ def test_get_blogs_by_production_with_language(
     client: TestClient, db_session: Session, blogs_limited
 ):
     response = client.get(
-        f"{BASE_PROD_URL}/1/blogs/",
+        f"{BASE_PROD_URL}/1/blogs",
         headers={"Accept-Language": Languages.ENGLISH},
     )
     assert response.status_code == 200
@@ -313,7 +313,7 @@ def test_get_blogs_by_production_with_language(
 def test_get_blogs_by_production_empty(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_PROD_URL}/999/blogs/")
+    response = client.get(f"{BASE_PROD_URL}/999/blogs")
     assert response.status_code == 200
 
     data = response.json()
