@@ -135,7 +135,7 @@ def test_create_blog_with_production_group(db_session, blogs_limited):
     result2 = get_blogs_paginated(db_session, BASE_URL)
     assert len(result2.blogs) == 3
 
-    new_id = int(response.id_url.rstrip("/").split("/")[-1])
+    new_id = int(response.id_url.split("/")[-1])
     new_blog_from_db = get_blog_by_id(db_session, new_id, BASE_URL)
     assert new_blog_from_db.production_group_id_url == f"{BASE_URL}/production-groups/2"
 

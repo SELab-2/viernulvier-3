@@ -147,7 +147,7 @@ def create_blog(db: Session, blog_in: BlogCreate, base_url: str) -> BlogResponse
 
     production_group = None
     if production_group_id_url is not None:
-        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+        production_group_id = int(production_group_id_url.split("/")[-1])
         production_group = (
             db.query(ProductionGroup)
             .filter(ProductionGroup.id == production_group_id)
@@ -180,7 +180,7 @@ def update_blog_by_id(
 
     if blog_in.production_group_id_url is not None:
         production_group_id_url = blog_in.production_group_id_url
-        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+        production_group_id = int(production_group_id_url.split("/")[-1])
 
         production_group = (
             db.query(ProductionGroup)
