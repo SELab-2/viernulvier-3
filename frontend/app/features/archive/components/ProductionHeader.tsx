@@ -27,7 +27,7 @@ type ProductionHeaderProps = {
 };
 
 /* ProductionHeader contains main image, supertitle, title and artist */
-export default function ProductionHeader({
+export function ProductionHeader({
   production_info,
   image_url,
   isEditing,
