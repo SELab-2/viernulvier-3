@@ -61,7 +61,11 @@
       }
     }
   },
-
+  "editfield": {
+    "modified": "Modified",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "productionPage": {
     "fallback": {
       "unknownProduction": "Information in this language is not available.",
@@ -82,6 +86,9 @@
     "archiveSchema": "Archive schema",
     "linkedBlogs": "Linked blogs",
     "dateLabel": "Date",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "newEvent": "New Event",
     "timeLabel": "Time",
     "placeLabel": "Venue",
     "priceLabel": "Price",
@@ -96,7 +103,6 @@
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
-      "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",
@@ -244,7 +250,14 @@
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
       "fallback": "No translation available",
-      "media": "Linked media:"
+      "media": "Linked media:",
+      "edit": {
+        "title": "Edit title",
+        "content": "Edit content",
+        "edit": "Edit blog",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
     },
     "detail": {
       "title": "Blog",
