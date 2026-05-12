@@ -322,6 +322,95 @@ type TagsProps = {
   setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
 };
 
+function TagDropdown({
+  isEditing,
+  tagList,
+  setTagList,
+  setIsOpen,
+  language,
+}: {
+  isEditing?: boolean;
+  tagList: Tag[];
+  setTagList: React.Dispatch<React.SetStateAction<Tag[]>>;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  language: string;
+}) {
+  const { t } = useTranslation();
+
+  const [search, setSearch] = useState("");
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  useEffect(() => {
+    if (!isEditing) return;
+
+    getAllTags()
+      .then(setAllTags)
+      .catch(() => setAllTags([]));
+  }, [isEditing]);
+
+  function addTag(tag: Tag) {
+    setTagList((prev) => {
+      const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
+
+      if (alreadyExists) {
+        return prev;
+      }
+
+      return [...prev, tag];
+    });
+
+    setSearch("");
+    setIsOpen(false);
+  }
+  const filteredTags = allTags.filter((tag) => {
+    const localizedName = getTagNameByLanguage(tag, language);
+
+    if (!localizedName) {
+      return false;
+    }
+
+    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
+
+    const alreadySelected = tagList.some((draftTag) => draftTag.id_url === tag.id_url);
+
+    return matchesSearch && !alreadySelected;
+  });
+
+  return (
+    <div className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl">
+      <input
+        type="text"
+        placeholder={t("productionPage.edit.search_tags")}
+        value={search}
+        onBlur={() => {
+          setIsOpen(false);
+          setSearch("");
+        }}
+        onChange={(e) => setSearch(e.target.value)}
+        className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
+        autoFocus
+      />
+
+      <ul className="max-h-64 overflow-y-auto">
+        {filteredTags.map((tag) => (
+          <li
+            key={tag.id_url}
+            className="hover:bg-archive-control cursor-pointer rounded-lg px-3 py-2 text-sm transition"
+            onMouseDown={() => addTag(tag)}
+          >
+            {getTagNameByLanguage(tag, language)}
+          </li>
+        ))}
+
+        {filteredTags.length === 0 && (
+          <li className="px-3 py-2 text-sm opacity-60">
+            {t("productionPage.edit.no_tags")}
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 function Tags({
   performer_type,
   originalTags,
@@ -333,47 +422,8 @@ function Tags({
   const { lang } = useParams();
   const language = preferredLanguage ?? lang!;
 
-  const [allTags, setAllTags] = useState<Tag[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    if (!isEditing) return;
-
-    getAllTags()
-      .then(setAllTags)
-      .catch(() => setAllTags([]));
-  }, [isEditing]);
-
-  function addTag(tag: Tag) {
-    setDraftTags((prev) => {
-      const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
-
-      if (alreadyExists) {
-        return prev;
-      }
-
-      return [...prev, tag];
-    });
-
-    setSearch("");
-    setIsDropdownOpen(false);
-  }
-  const filteredTags = allTags.filter((tag) => {
-    const localizedName = getTagNameByLanguage(tag, language);
-
-    if (!localizedName) {
-      return false;
-    }
-
-    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
-
-    const alreadySelected = draftTags.some(
-      (draftTag) => draftTag.id_url === tag.id_url
-    );
-
-    return matchesSearch && !alreadySelected;
-  });
   function removeTag(id_url: string) {
     setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
   }
@@ -410,6 +460,7 @@ function Tags({
               </Tag>
             ))}
 
+        {/* Add tag button */}
         {isEditing && (
           <Tag
             key="add-tag"
@@ -420,36 +471,16 @@ function Tags({
             <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
           </Tag>
         )}
-      </ul>
-
-      {isDropdownOpen && (
-        <div className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl">
-          <input
-            type="text"
-            placeholder="Search tags..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
-            autoFocus
+        {isDropdownOpen && (
+          <TagDropdown
+            isEditing={isEditing}
+            tagList={draftTags}
+            setTagList={setDraftTags}
+            setIsOpen={setIsDropdownOpen}
+            language={language}
           />
-
-          <ul className="max-h-64 overflow-y-auto">
-            {filteredTags.map((tag) => (
-              <li
-                key={tag.id_url}
-                className="hover:bg-archive-control cursor-pointer rounded-lg px-3 py-2 text-sm transition"
-                onClick={() => addTag(tag)}
-              >
-                {getTagNameByLanguage(tag, language)}
-              </li>
-            ))}
-
-            {filteredTags.length === 0 && (
-              <li className="px-3 py-2 text-sm opacity-60">No tags found</li>
-            )}
-          </ul>
-        </div>
-      )}
+        )}
+      </ul>
     </section>
   );
 }
