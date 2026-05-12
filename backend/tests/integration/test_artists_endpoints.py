@@ -11,7 +11,7 @@ MOCK_ROWS = [
     (3, "nl", "Artiest C"),
 ]
 
-BASE_URL = "/api/v1/archive/artists/"
+BASE_URL = "/api/v1/archive/artists"
 
 
 @pytest.fixture

@@ -3,7 +3,7 @@ import pytest
 from src.models import Event, ProdInfo, Production, Tag, TagName
 from src.services.language import Languages
 
-STATISTICS_URL = "/api/v1/archive/statistics/"
+STATISTICS_URL = "/api/v1/archive/statistics"
 
 
 @pytest.fixture
