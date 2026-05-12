@@ -256,7 +256,8 @@
         "content": "Pas inhoud aan",
         "edit": "Bewerk blog",
         "cancel": "Annuleren",
-        "save": "Opslaan"
+        "save": "Opslaan",
+		"add": "Voeg inhoud toe"
       }
     },
     "detail": {

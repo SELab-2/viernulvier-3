@@ -402,7 +402,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         ) : (
 			<div className="fixed right-6 bottom-6 z-50 flex gap-3">
 			  <BlogEditButton
-				action={t("productionPage.edit.add")}
+				action={t("blogs.contentPage.edit.add")}
 				isEditing={isEditing}
 				setIsEditing={setIsEditing}
 				originalContent={null}
