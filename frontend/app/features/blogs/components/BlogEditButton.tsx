@@ -66,7 +66,7 @@ export default function EditButton({
           </button>
 
           <button
-            id="save-edit-production-button"
+            id="save-edit-blog-button"
             onClick={_handleSave}
             className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save || is_saving}

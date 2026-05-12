@@ -102,6 +102,8 @@ function BlogHeader({
         onChange={(newValue) => {
           setDraftContent((prev) => {
             // Overwrite title
+			console.log(prev);
+			console.log(newValue);
             if (prev) return { ...prev, title: newValue };
             else return prev;
           });
@@ -391,9 +393,10 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
               setDraftContent={setDraftContent}
               enable_save={
                 isModified &&
-                draftContent?.title !== "" &&
-                draftContent?.content !== "" &&
-                draftContent?.content !== "<p></p>"
+			    draftContent !== null &&
+                draftContent.title !== "" &&
+                draftContent.content !== "" &&
+                draftContent.content !== "<p></p>"
               }
               is_saving={isSaving}
               _handleSave={_handleSave}
@@ -407,7 +410,14 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 				setIsEditing={setIsEditing}
 				originalContent={null}
 				setDraftContent={setDraftContent}
-				enable_save={isModified}
+                enable_save={
+				  draftContent !== null &&
+				  draftContent.hasOwnProperty('title') &&
+                  draftContent.title !== "" &&
+				  draftContent.hasOwnProperty('content') &&
+                  draftContent.content !== "" &&
+                  draftContent.content !== "<p></p>"
+                }
 				is_saving={isSaving}
 				_handleSave={_handleSave}
 			  />
