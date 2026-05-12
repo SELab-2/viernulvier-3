@@ -36,6 +36,15 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "add_info": {
+      "supertitle": "Add supertitle",
+      "title": "Add title",
+      "artist": "Add artist",
+      "tagline": "Add tagline",
+      "teaser": "Add teaser",
+      "description": "Add description",
+      "info": "Add additional info"
+    },
     "selection": {
       "enter": "Select productions",
       "exit": "Done selecting",

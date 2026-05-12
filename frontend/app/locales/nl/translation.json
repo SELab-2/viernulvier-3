@@ -47,6 +47,15 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "add_info": {
+      "supertitle": "Voeg een supertitel toe",
+      "title": "Voeg een titel toe",
+      "artist": "Voeg een artiest toe",
+      "tagline": "Voeg een tagline toe",
+      "teaser": "Voeg een teaser toe",
+      "description": "Voeg een beschrijving toe",
+      "info": "Voeg bijkomende info toe"
+    },
     "sortBy": "Sorteer op",
     "sortOrder": {
       "newest": "Nieuwste eerst",
