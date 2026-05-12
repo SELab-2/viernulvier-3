@@ -5,8 +5,11 @@
     "home": "Home",
     "archive": "Archief",
     "history": "Geschiedenis",
+    "blog": "Blog",
     "blogs": "Blogs",
-    "users": "Gebruikers"
+    "blogs_create": "Create Blog",
+    "users": "Gebruikers",
+    "login": "Log in"
   },
   "footer": {
     "website": "Onze officiële website"

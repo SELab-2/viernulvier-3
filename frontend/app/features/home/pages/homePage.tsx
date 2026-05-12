@@ -14,7 +14,7 @@ export default function HomePage() {
   const tagsCount = statistics?.tags_count ?? 0;
 
   return (
-    <main>
+    <>
       <title>{`${t("nav.home")} | VIERNULVIER`}</title>
       <div className="mx-auto max-w-4xl py-12 text-center md:py-24">
         <h1 className="mb-6 font-serif text-5xl italic md:mb-12 md:text-8xl">
@@ -39,6 +39,6 @@ export default function HomePage() {
           />
         </div>
       </div>
-    </main>
+    </>
   );
 }
