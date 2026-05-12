@@ -1,6 +1,13 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -19,10 +26,14 @@ import { getMediaForProduction } from "~/features/archive/services/mediaService"
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
+import Add from "@mui/icons-material/Add";
+import Close from "@mui/icons-material/Close";
 
 import DeleteInfoButton from "../components/DeleteInfoButton";
 import EditButton from "../components/EditButton";
 import ProductionHeader from "../components/ProductionHeader";
+import type { Tag } from "../types/tagTypes";
+import { getAllTags } from "../services/tagService";
 
 interface ProductionPageProps {
   production: Production;
@@ -78,22 +89,14 @@ function getEventTimestamp(startsAt?: string): number {
 }
 
 // prefer active language, then dutch, then first available tag name
-function getTagNamesByLanguage(production: Production, language: string): string[] {
-  if (!production.tags || production.tags.length === 0) {
-    return [];
+function getTagNameByLanguage(tag: Tag, language: string) {
+  const languageMatch = tag.names.find((name) => name.language === language);
+  if (languageMatch?.name) {
+    return languageMatch.name;
   }
 
-  return production.tags
-    .map((tag) => {
-      const languageMatch = tag.names.find((name) => name.language === language);
-      if (languageMatch?.name) {
-        return languageMatch.name;
-      }
-
-      const defaultMatch = tag.names.find((name) => name.language === "nl");
-      return defaultMatch?.name ?? tag.names[0]?.name;
-    })
-    .filter((name): name is string => typeof name === "string" && name.length > 0);
+  const defaultMatch = tag.names.find((name) => name.language === "nl");
+  return defaultMatch?.name ?? tag.names[0]?.name;
 }
 
 function isInfoModified(
@@ -112,12 +115,25 @@ function isInfoModified(
     originalInfo.info !== draftInfo.info
   );
 }
+function areTagsModified(originalTags: Tag[], draftTags: Tag[]): boolean {
+  if (originalTags.length !== draftTags.length) {
+    return true;
+  }
+
+  const originalIds = originalTags.map((tag) => tag.id_url).sort();
+
+  const draftIds = draftTags.map((tag) => tag.id_url).sort();
+
+  return originalIds.some((id, index) => id !== draftIds[index]);
+}
 
 async function handleInfoSave(
   production_id_url: string,
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  draftTags: Tag[],
+  setOriginalTags: React.Dispatch<React.SetStateAction<Tag[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
@@ -141,9 +157,11 @@ async function handleInfoSave(
           info: draftInfo.info,
         },
       ],
+      tag_id_urls: draftTags.map((tag) => tag.id_url),
     });
 
     // sync local "source of truth"
+    setOriginalTags(draftTags);
     setOriginalInfo(draftInfo);
 
     setIsEditing(false);
@@ -199,37 +217,166 @@ function BackToCollectionLink() {
   );
 }
 
+function Tag({
+  id,
+  className,
+  children,
+  onClick,
+}: {
+  key?: string;
+  id?: string;
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLLIElement>;
+  children: ReactNode;
+}) {
+  return (
+    <li
+      id={id}
+      className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase ${className}`}
+      onClick={onClick}
+    >
+      {children}
+    </li>
+  );
+}
+
 type TagsProps = {
-  performer_type?: string | undefined;
-  tags: string[];
+  performer_type?: string;
+  originalTags: Tag[];
+  isEditing?: boolean;
+  draftTags: Tag[];
+  preferredLanguage?: string;
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
 };
 
-function Tags({ performer_type, tags }: TagsProps) {
+function Tags({
+  performer_type,
+  originalTags,
+  draftTags,
+  setDraftTags,
+  isEditing,
+  preferredLanguage,
+}: TagsProps) {
+  const { lang } = useParams();
+  const language = preferredLanguage ?? lang!;
+
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    getAllTags()
+      .then(setAllTags)
+      .catch(() => setAllTags([]));
+  }, [isEditing]);
+
+  function addTag(tag: Tag) {
+    setDraftTags((prev) => {
+      const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
+
+      if (alreadyExists) {
+        return prev;
+      }
+
+      return [...prev, tag];
+    });
+
+    setSearch("");
+    setIsDropdownOpen(false);
+  }
+  const filteredTags = allTags.filter((tag) => {
+    const localizedName = getTagNameByLanguage(tag, language);
+
+    if (!localizedName) {
+      return false;
+    }
+
+    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
+
+    const alreadySelected = draftTags.some(
+      (draftTag) => draftTag.id_url === tag.id_url
+    );
+
+    return matchesSearch && !alreadySelected;
+  });
+  function removeTag(id_url: string) {
+    setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
+  }
+
   return (
     <section id="production-tags" aria-label="Production tags">
       <ul className="mt-6 flex flex-wrap gap-2">
         {/* Performer type badge */}
         {performer_type && (
-          <li
+          <Tag
             id="tag-performer-type"
             aria-label="Performer type"
-            className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] px-4 py-1.5 text-[0.68rem] font-semibold tracking-[var(--archive-tracking-label)] uppercase opacity-90"
+            className="font-semibold"
           >
             {performer_type}
-          </li>
+          </Tag>
         )}
 
         {/* existing tags */}
-        {tags.map((tag) => (
-          <li
-            key={tag}
-            aria-label="Tag"
-            className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase"
+        {!isEditing
+          ? originalTags.map((tag) => (
+              <Tag key={tag.id_url} aria-label="Tag">
+                {getTagNameByLanguage(tag, language)}
+              </Tag>
+            ))
+          : draftTags.map((tag) => (
+              <Tag key={tag.id_url}>
+                {getTagNameByLanguage(tag, language)}
+                <Close
+                  sx={{ fontSize: "1rem" }}
+                  className="cursor-pointer text-red-500"
+                  onClick={() => removeTag(tag.id_url)}
+                />
+              </Tag>
+            ))}
+
+        {isEditing && (
+          <Tag
+            key="add-tag"
+            aria-label="Add Tag"
+            className="cursor-pointer"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
           >
-            {tag}
-          </li>
-        ))}
+            <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
+          </Tag>
+        )}
       </ul>
+
+      {isDropdownOpen && (
+        <div className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl">
+          <input
+            type="text"
+            placeholder="Search tags..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
+            autoFocus
+          />
+
+          <ul className="max-h-64 overflow-y-auto">
+            {filteredTags.map((tag) => (
+              <li
+                key={tag.id_url}
+                className="hover:bg-archive-control cursor-pointer rounded-lg px-3 py-2 text-sm transition"
+                onClick={() => addTag(tag)}
+              >
+                {getTagNameByLanguage(tag, language)}
+              </li>
+            ))}
+
+            {filteredTags.length === 0 && (
+              <li className="px-3 py-2 text-sm opacity-60">No tags found</li>
+            )}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
@@ -285,6 +432,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
     ...productionInfo!,
   });
+  const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
+  const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const _handleSave = () =>
@@ -293,6 +442,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       originalInfo,
       draftInfo,
       setOriginalInfo,
+      draftTags,
+      setOriginalTags,
       setIsEditing,
       setIsSaving,
       language,
@@ -306,8 +457,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     if (originalInfo === null) {
       return isEditing; // With add always true.
     }
-    return isInfoModified(originalInfo, draftInfo);
-  }, [originalInfo, draftInfo, isEditing]);
+    const tagsModified = areTagsModified(originalTags, draftTags);
+    return tagsModified || isInfoModified(originalInfo, draftInfo);
+  }, [originalInfo, draftInfo, isEditing, originalTags, draftTags]);
 
   useEffect(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
@@ -362,7 +514,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
   const imageUrl = firstImageUrl ?? fallbackImageUrl;
-  const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
@@ -500,7 +651,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           setDraftInfo={setDraftInfo}
         />
 
-        <Tags performer_type={production.performer_type} tags={tags} />
+        <Tags
+          performer_type={production.performer_type}
+          originalTags={originalTags}
+          draftTags={draftTags}
+          setDraftTags={setDraftTags}
+          isEditing={isEditing}
+        />
 
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
@@ -560,6 +717,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setIsEditing={setIsEditing}
             originalInfo={originalInfo}
             setDraftInfo={setDraftInfo}
+            originalTags={originalTags}
+            setDraftTags={setDraftTags}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
@@ -579,6 +738,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setIsEditing={setIsEditing}
             originalInfo={null}
             setDraftInfo={setDraftInfo}
+            originalTags={originalTags}
+            setDraftTags={setDraftTags}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}

@@ -2,6 +2,7 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
+import type { Tag } from "../types/tagTypes";
 
 const Spinner = () => (
   <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -13,6 +14,8 @@ type EditButtonProps = {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  originalTags: Tag[] | null;
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
@@ -24,6 +27,8 @@ export default function EditButton({
   setIsEditing,
   originalInfo,
   setDraftInfo,
+  originalTags,
+  setDraftTags,
   enable_save,
   is_saving,
   _handleSave,
@@ -58,6 +63,7 @@ export default function EditButton({
             onClick={() => {
               // Copy (not by reference)
               setDraftInfo(originalInfo ? { ...originalInfo } : null);
+              setDraftTags(originalTags ? [...originalTags] : []);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}
