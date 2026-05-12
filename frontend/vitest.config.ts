@@ -20,6 +20,6 @@ export default defineConfig({
     env: {
       NODE_OPTIONS: "--no-experimental-webstorage",
     },
-    fileParallelism: false,
+    fileParallelism: true,
   },
 });
