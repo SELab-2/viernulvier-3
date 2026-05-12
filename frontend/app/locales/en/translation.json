@@ -61,7 +61,11 @@
       }
     }
   },
-
+  "editfield": {
+    "modified": "Modified",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "productionPage": {
     "fallback": {
       "unknownProduction": "Information in this language is not available.",
@@ -96,7 +100,6 @@
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
-      "modified": "Modified",
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",
@@ -248,7 +251,9 @@
       "edit": {
         "title": "Edit title",
         "content": "Edit content",
-        "edit": "Edit blog"
+        "edit": "Edit blog",
+        "cancel": "Cancel",
+        "save": "Save"
       }
     },
     "detail": {

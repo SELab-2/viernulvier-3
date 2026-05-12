@@ -111,7 +111,7 @@ export default function ComplexEditableField({
           />
           <div className="mt-2 flex gap-2">
             <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>
-              {t("productionPage.edit.cancel")}
+              {t("editfield.cancel")}
             </button>
             <button
               className={`${shared_css} bg-archive-accent`}
@@ -122,7 +122,7 @@ export default function ComplexEditableField({
                 }
               }}
             >
-              {t("productionPage.edit.save")}
+              {t("editfield.save")}
             </button>
           </div>
         </div>

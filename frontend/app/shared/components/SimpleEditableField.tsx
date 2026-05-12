@@ -37,7 +37,7 @@ export default function SimpleEditableField({
 
             {isModified && (
               <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
-                {t("productionPage.edit.modified")}
+                {t("editfield.modified")}
               </span>
             )}
           </div>

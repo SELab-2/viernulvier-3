@@ -61,6 +61,11 @@
       }
     }
   },
+  "editfield": {
+    "modified": "Aangepast",
+    "cancel": "Annuleren",
+    "save": "Opslaan"
+  },
   "productionPage": {
     "fallback": {
       "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
@@ -95,7 +100,6 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
-      "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
@@ -247,7 +251,9 @@
       "edit": {
         "title": "Pas titel aan",
         "content": "Pas inhoud aan",
-        "edit": "Bewerk blog"
+        "edit": "Bewerk blog",
+        "cancel": "Annuleren",
+        "save": "Opslaan"
       }
     },
     "detail": {

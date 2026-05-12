@@ -62,7 +62,7 @@ export default function EditButton({
             }}
             className={`${shared_css} bg-gray-300`}
           >
-            {t("productionPage.edit.cancel")}
+            {t("blogs.contentPage.edit.cancel")}
           </button>
 
           <button
@@ -71,7 +71,7 @@ export default function EditButton({
             className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save || is_saving}
           >
-            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
+            {is_saving ? <Spinner /> : t("blogs.contentPage.edit.save")}
           </button>
         </div>
       )}

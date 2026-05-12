@@ -102,9 +102,6 @@ function BlogHeader({
         onChange={(newValue) => {
           setDraftContent((prev) => {
             // Overwrite title
-            console.log(prev);
-            console.log(newValue);
-            console.log({ ...prev, title: newValue });
             if (prev) return { ...prev, title: newValue };
             else return prev;
           });
@@ -384,18 +381,28 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
 
         <LinkedProductions productions={linkedProductions} />
-        <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-          <BlogEditButton
-            action={t("blogs.contentPage.edit.edit")}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            originalContent={originalContent}
-            setDraftContent={setDraftContent}
-            enable_save={isModified}
-            is_saving={isSaving}
-            _handleSave={_handleSave}
-          />
-        </div>
+
+        {originalContent !== null ? (
+          <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+            <BlogEditButton
+              action={t("blogs.contentPage.edit.edit")}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              originalContent={originalContent}
+              setDraftContent={setDraftContent}
+              enable_save={
+                isModified &&
+                draftContent?.title !== "" &&
+                draftContent?.content !== "" &&
+                draftContent?.content !== "<p></p>"
+              }
+              is_saving={isSaving}
+              _handleSave={_handleSave}
+            />
+          </div>
+        ) : (
+          <div />
+        )}
       </main>
     </div>
   );
