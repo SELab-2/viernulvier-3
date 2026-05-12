@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[PermissionResponse],
     summary="List all possible permissions",
     description="Returns all permissions defined in the application. Requires users:read permission.",
