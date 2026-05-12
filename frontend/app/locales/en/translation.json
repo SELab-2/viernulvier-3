@@ -36,6 +36,11 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "accessDenied": {
+      "sectionLabel": "Restricted area",
+      "title": "You do not have access to the production creation page.",
+      "description": "This section requires the archive:create permission. Contact an administrator if you need access if you need to create productions."
+    },
     "add_info": {
       "supertitle": "Add supertitle",
       "title": "Add title",

@@ -47,6 +47,11 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "accessDenied": {
+      "eyebrow": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
+    },
     "add_info": {
       "supertitle": "Voeg een supertitel toe",
       "title": "Voeg een titel toe",
