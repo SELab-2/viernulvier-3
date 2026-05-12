@@ -102,8 +102,6 @@ function BlogHeader({
         onChange={(newValue) => {
           setDraftContent((prev) => {
             // Overwrite title
-			console.log(prev);
-			console.log(newValue);
             if (prev) return { ...prev, title: newValue };
             else return prev;
           });
@@ -256,7 +254,7 @@ async function handleContentSave(
           title: draftContent.title,
           content: draftContent.content,
         },
-      ]
+      ],
     });
 
     // sync local "source of truth"
@@ -393,7 +391,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
               setDraftContent={setDraftContent}
               enable_save={
                 isModified &&
-			    draftContent !== null &&
+                draftContent !== null &&
                 draftContent.title !== "" &&
                 draftContent.content !== "" &&
                 draftContent.content !== "<p></p>"
@@ -403,25 +401,25 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             />
           </div>
         ) : (
-			<div className="fixed right-6 bottom-6 z-50 flex gap-3">
-			  <BlogEditButton
-				action={t("blogs.contentPage.edit.add")}
-				isEditing={isEditing}
-				setIsEditing={setIsEditing}
-				originalContent={null}
-				setDraftContent={setDraftContent}
-                enable_save={
-				  draftContent !== null &&
-				  draftContent.hasOwnProperty('title') &&
-                  draftContent.title !== "" &&
-				  draftContent.hasOwnProperty('content') &&
-                  draftContent.content !== "" &&
-                  draftContent.content !== "<p></p>"
-                }
-				is_saving={isSaving}
-				_handleSave={_handleSave}
-			  />
-			</div>
+          <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+            <BlogEditButton
+              action={t("blogs.contentPage.edit.add")}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              originalContent={null}
+              setDraftContent={setDraftContent}
+              enable_save={
+                draftContent !== null &&
+                "title" in draftContent &&
+                draftContent.title !== "" &&
+                "content" in draftContent &&
+                draftContent.content !== "" &&
+                draftContent.content !== "<p></p>"
+              }
+              is_saving={isSaving}
+              _handleSave={_handleSave}
+            />
+          </div>
         )}
       </main>
     </div>
