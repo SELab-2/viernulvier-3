@@ -17,9 +17,11 @@ import { SortOrderSelection } from "../components/SortOrderSelection";
 import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
+import { CreateProductionGroupDialog } from "../components/CreateProductionGroupDialog";
 import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 import { useDebouncedState } from "../utils/debouncedState";
 import { Protected, useAuthSession } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import {
   getProductionGroupId,
   getRequestedProductionGroupIds,
@@ -61,9 +63,10 @@ export default function ArchivePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuthSession();
 
-  const isSelectable =
+  const canCreateArchive =
     isAuthenticated &&
-    !!(user?.isSuperUser || user?.permissions.includes("archive:create"));
+    !!(user?.isSuperUser || user?.permissions.includes(ARCHIVE_PERMISSIONS.create));
+  const isSelectable = canCreateArchive;
 
   const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
     ArchiveSortOrder.NewestFirst
@@ -78,6 +81,8 @@ export default function ArchivePage() {
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
   const [productionGroups, setProductionGroups] = useState<ProductionGroup[]>([]);
   const [selectedProductionIds, setSelectedProductionIds] = useState<string[]>([]);
+  const [isCreateProductionGroupDialogOpen, setIsCreateProductionGroupDialogOpen] =
+    useState(false);
 
   const selectedProductionGroupIds = useMemo(
     () => getRequestedProductionGroupIds(searchParams),
@@ -114,7 +119,7 @@ export default function ArchivePage() {
 
     async function fetchProductionGroups() {
       try {
-        const result = await getAllProductionGroups();
+        const result = await getAllProductionGroups(!canCreateArchive);
 
         if (!isCancelled) {
           setProductionGroups(result);
@@ -129,7 +134,7 @@ export default function ArchivePage() {
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [canCreateArchive]);
 
   const handleSelectedProductionGroupsChange = (nextGroups: ProductionGroup[]) => {
     setSearchParams(
@@ -195,6 +200,25 @@ export default function ArchivePage() {
     setSelectedProductionIds([]);
   };
 
+  const handleProductionGroupCreated = (productionGroup: ProductionGroup) => {
+    setProductionGroups((currentGroups) => {
+      const existingIndex = currentGroups.findIndex(
+        (currentGroup) => currentGroup.id_url === productionGroup.id_url
+      );
+
+      if (existingIndex === -1) {
+        return [...currentGroups, productionGroup];
+      }
+
+      const nextGroups = [...currentGroups];
+      nextGroups[existingIndex] = productionGroup;
+      return nextGroups;
+    });
+
+    setSelectedProductionIds([]);
+    setIsCreateProductionGroupDialogOpen(false);
+  };
+
   return (
     <div className="mx-6 md:mx-10">
       <title>{`${t("nav.archive")} | VIERNULVIER`}</title>
@@ -233,7 +257,7 @@ export default function ArchivePage() {
                 {total_count === 1 ? t("archive.result") : t("archive.results")}
               </p>
               <CreateProductionButton />
-              <Protected permissions={["archive:create"]}>
+              <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
                 <Button
                   variant="text"
                   size="small"
@@ -270,7 +294,29 @@ export default function ArchivePage() {
               </p>
 
               <div className="flex flex-wrap items-center gap-2">
-                {/* Future bulk actions go here */}
+                <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => setIsCreateProductionGroupDialogOpen(true)}
+                    sx={{
+                      "backgroundColor": "var(--color-archive-accent)",
+                      "color": "var(--color-archive-paper)",
+                      "fontFamily": "var(--font-sans)",
+                      "textTransform": "uppercase",
+                      "letterSpacing": "0.08em",
+                      "fontSize": "0.72rem",
+                      "fontWeight": 600,
+                      "boxShadow": "none",
+                      "&:hover": {
+                        backgroundColor: "#92653e",
+                        boxShadow: "none",
+                      },
+                    }}
+                  >
+                    {t("archive.productionGroups.actions.create")}
+                  </Button>
+                </Protected>
                 <Button
                   variant="outlined"
                   size="small"
@@ -327,6 +373,12 @@ export default function ArchivePage() {
           )}
         </div>
       </div>
+      <CreateProductionGroupDialog
+        open={isCreateProductionGroupDialogOpen}
+        selectedProductionIds={selectedProductionIds}
+        onClose={() => setIsCreateProductionGroupDialogOpen(false)}
+        onCreated={handleProductionGroupCreated}
+      />
       <Outlet />
     </div>
   );
