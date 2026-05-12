@@ -254,8 +254,7 @@ async function handleContentSave(
           title: draftContent.title,
           content: draftContent.content,
         },
-      ],
-      production_group_id_url: blog.production_group_id_url,
+      ]
     });
 
     // sync local "source of truth"
@@ -401,7 +400,18 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             />
           </div>
         ) : (
-          <div />
+			<div className="fixed right-6 bottom-6 z-50 flex gap-3">
+			  <BlogEditButton
+				action={t("productionPage.edit.add")}
+				isEditing={isEditing}
+				setIsEditing={setIsEditing}
+				originalContent={null}
+				setDraftContent={setDraftContent}
+				enable_save={isModified}
+				is_saving={isSaving}
+				_handleSave={_handleSave}
+			  />
+			</div>
         )}
       </main>
     </div>
