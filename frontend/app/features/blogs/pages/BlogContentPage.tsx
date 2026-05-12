@@ -1,15 +1,15 @@
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
+import { getProductionsForBlog } from "../services/blogService";
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
@@ -78,7 +78,6 @@ type ProductionLinkCardProps = {
 function ProductionLinkCard({ production }: ProductionLinkCardProps) {
   const { t } = useTranslation();
   const { lang } = useParams();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
 
   const primaryInfo = getProductionInfoByLanguage(
@@ -90,22 +89,18 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
   const artist = primaryInfo?.artist ?? "";
 
   const id = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/)?.[1];
-
-  const handleOpenDetails = () => {
-    if (!id) return;
-    navigate(lp(`/archive/productions/${id}`));
-  };
+  if (!id) return null;
 
   return (
-    <div
-      onClick={handleOpenDetails}
+    <Link
+      to={lp(`/archive/productions/${id}`)}
       className="p3 bg-archive-ink/5 bg-archive-ink-dark/5 border-archive-ink/5 border-archive-ink-dark/5 h-[60px] cursor-pointer rounded-lg border shadow-sm"
     >
       <div className="h-full rounded-lg p-3 transition">
         <h3 className="truncate text-sm font-semibold">{title}</h3>
         <p className="truncate text-xs">{artist}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -161,31 +156,24 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadProductions() {
-      if (blog.production_id_urls.length === 0) return;
-
-      const settled = await Promise.all(
-        blog.production_id_urls.map(async (url) => {
-          try {
-            return await getProductionByUrl(url);
-          } catch {
-            return null;
-          }
-        })
-      );
-
-      if (!cancelled) {
-        setLinkedProductions(settled.filter((p): p is Production => p !== null));
+      if (!blog.production_group_id_url) return;
+      try {
+        const productions = await getProductionsForBlog(blog);
+        if (!cancelled) {
+          setLinkedProductions(productions.filter((p): p is Production => p !== null));
+        }
+      } catch {
+        if (!cancelled) {
+          setLinkedProductions([]);
+        }
       }
     }
-
     void loadProductions();
-
     return () => {
       cancelled = true;
     };
-  }, [blog.production_id_urls]);
+  }, [blog]);
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">

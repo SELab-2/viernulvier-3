@@ -1,4 +1,5 @@
 {
+  "notSaveChanges": "You have unsaved changes. Leave anyway?",
   "loading": "Loading...",
   "nav": {
     "home": "Home",
@@ -56,7 +57,7 @@
     "unknownDate": "Unknown date",
     "card": {
       "defaults": {
-        "title": "Unknown production",
+        "title": "Unknown production title",
         "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
@@ -83,10 +84,15 @@
     "archiveSchema": "Archive schema",
     "linkedBlogs": "Linked blogs",
     "dateLabel": "Date",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "newEvent": "New Event",
     "timeLabel": "Time",
     "placeLabel": "Venue",
     "priceLabel": "Price",
     "noPrice": "No price available",
+    "address": "Address",
+    "addressUnknown": "Address unknown",
 
     "visualEvidence": "Photos",
 
@@ -203,6 +209,41 @@
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
       "details": "Details"
+    },
+    "create_blog": "Create blog",
+    "createBlogPage": {
+      "backToBlogs": "Back to blogs",
+      "heading": "Create a new blog",
+      "remove": "Clear",
+      "save": {
+        "save": "Save",
+        "saving": "Saving",
+        "saveDisabledReasonTitle": "Titel is required",
+        "saveDisabledReasonEditing": "Content is not saved yet"
+      },
+      "title": {
+        "title": "Title",
+        "placeholder": "Blog's title (required)"
+      },
+      "content": {
+        "title": "Content",
+        "field": "Continue"
+      },
+      "media": {
+        "title": "Media",
+        "dropMedia": "Drag and drop images and/or videos or",
+        "browse": "click here to upload",
+        "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
+      },
+      "series": {
+        "title": "Connected serie",
+        "searchSeries": "Search for series"
+      },
+      "accessDenied": {
+        "eyebrow": "Restricted area",
+        "title": "You do not have access to blog creation",
+        "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
+      }
     },
     "contentPage": {
       "backToBlogs": "Back to blogs",

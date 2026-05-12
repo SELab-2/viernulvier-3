@@ -15,8 +15,8 @@ class BlogContentResponse(StrictModel):
 # The response for a blog
 class BlogResponse(StrictModel):
     id_url: str
+    production_group_id_url: str
     blog_contents: list[BlogContentResponse] = Field(default_factory=list)
-    production_id_urls: list[str] = Field(default_factory=list)
 
 
 # The response for a list of blogs
@@ -35,7 +35,7 @@ class BlogContentCreate(StrictModel):
 # The model for creating a blog
 class BlogCreate(StrictModel):
     blog_content: BlogContentCreate
-    production_id_urls: list[str] = []
+    production_group_id_url: Optional[str] = None
 
 
 # The model for updating content of a blog in a specific language
@@ -48,5 +48,5 @@ class BlogContentUpdate(StrictModel):
 # The model for updating a blog
 class BlogUpdate(StrictModel):
     blog_contents: list[BlogContentUpdate] = []
-    production_id_urls: list[str] = []
+    production_group_id_url: Optional[str] = None
     remove_languages: list[str] | None = None
