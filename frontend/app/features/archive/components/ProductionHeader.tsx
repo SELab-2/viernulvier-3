@@ -20,7 +20,6 @@ function isFieldModified(
 
 type ProductionHeaderProps = {
   isCreateHeader: boolean;
-  production_info: ProductionInfo | null;
   image_url: string;
   isEditing: boolean;
   originalInfo: ProductionInfo | null;
@@ -31,7 +30,6 @@ type ProductionHeaderProps = {
 /* ProductionHeader contains main image, supertitle, title and artist */
 export function ProductionHeader({
   isCreateHeader,
-  production_info,
   image_url,
   isEditing,
   originalInfo,
@@ -52,7 +50,7 @@ export function ProductionHeader({
     >
       <img
         src={image_url}
-        alt={production_info?.title}
+        alt={originalInfo?.title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
