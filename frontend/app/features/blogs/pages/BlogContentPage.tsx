@@ -313,7 +313,7 @@ function LinkedProductions({
           <div className="relative">
             <input
               type="text"
-              placeholder={t("filter.search_production_groups")}
+              placeholder={t("blogs.contentPage.searchProductionGroups")}
               className="w-full rounded-lg border border-current/20 bg-white/5 px-3 py-2 pr-8 text-sm transition-colors outline-none placeholder:opacity-40 focus:border-current/40 focus:bg-white/10"
               value={groupQuery}
               onChange={(e) => setGroupQuery(e.target.value)}
