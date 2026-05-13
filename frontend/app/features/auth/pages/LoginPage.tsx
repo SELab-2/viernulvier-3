@@ -169,11 +169,14 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
-        <span className="text-xs tracking-widest uppercase opacity-40">
-          {t("auth.login.loading")}
-        </span>
-      </div>
+      <>
+        <title>{`${t("nav.login")} | VIERNULVIER`}</title>
+        <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
+          <span className="text-xs tracking-widest uppercase opacity-40">
+            {t("auth.login.loading")}
+          </span>
+        </div>
+      </>
     );
   }
 
@@ -221,56 +224,61 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-2 font-serif text-3xl italic">{t("auth.login.formTitle")}</h1>
-        <p className="mb-8 text-sm leading-relaxed opacity-60">
-          {t("auth.login.formDescription")}
-        </p>
+    <>
+      <title>{`${t("nav.login")} | VIERNULVIER`}</title>
+      <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4">
+        <div className="w-full max-w-sm">
+          <h1 className="mb-2 font-serif text-3xl italic">
+            {t("auth.login.formTitle")}
+          </h1>
+          <p className="mb-8 text-sm leading-relaxed opacity-60">
+            {t("auth.login.formDescription")}
+          </p>
 
-        <LoginErrorAlert errorMessage={errorMessage} />
+          <LoginErrorAlert errorMessage={errorMessage} />
 
-        <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <LoginCredentialsFields
-            username={username}
-            password={password}
-            showPassword={showPassword}
-            usernameLabel={t("auth.login.usernameLabel")}
-            passwordLabel={t("auth.login.passwordLabel")}
-            showPasswordLabel={t("auth.login.showPassword")}
-            hidePasswordLabel={t("auth.login.hidePassword")}
-            onUsernameChange={handleUsernameChange}
-            onPasswordChange={handlePasswordChange}
-            onTogglePasswordVisibility={() => setShowPassword((value) => !value)}
-          />
+          <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <LoginCredentialsFields
+              username={username}
+              password={password}
+              showPassword={showPassword}
+              usernameLabel={t("auth.login.usernameLabel")}
+              passwordLabel={t("auth.login.passwordLabel")}
+              showPasswordLabel={t("auth.login.showPassword")}
+              hidePasswordLabel={t("auth.login.hidePassword")}
+              onUsernameChange={handleUsernameChange}
+              onPasswordChange={handlePasswordChange}
+              onTogglePasswordVisibility={() => setShowPassword((value) => !value)}
+            />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={isSubmitting || !username.trim() || !password}
-            sx={submitSx}
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={isSubmitting || !username.trim() || !password}
+              sx={submitSx}
+            >
+              {isSubmitting ? (
+                <>
+                  <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
+                  {t("auth.login.submitting")}
+                </>
+              ) : (
+                t("auth.login.submit")
+              )}
+            </Button>
+          </form>
+
+          <a
+            href={homePath}
+            className="mt-8 inline-flex items-center gap-2 text-xs font-medium tracking-widest uppercase opacity-40 transition-opacity hover:opacity-100"
           >
-            {isSubmitting ? (
-              <>
-                <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
-                {t("auth.login.submitting")}
-              </>
-            ) : (
-              t("auth.login.submit")
-            )}
-          </Button>
-        </form>
-
-        <a
-          href={homePath}
-          className="mt-8 inline-flex items-center gap-2 text-xs font-medium tracking-widest uppercase opacity-40 transition-opacity hover:opacity-100"
-        >
-          <span>←</span>
-          <span>{t("auth.login.backToSite")}</span>
-        </a>
+            <span>←</span>
+            <span>{t("auth.login.backToSite")}</span>
+          </a>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
