@@ -504,7 +504,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getSanitizedHtmlOrUndefined(draftInfo?.tagline);
+  const tagline = getTextOrDefault(productionInfo?.tagline, "");
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);

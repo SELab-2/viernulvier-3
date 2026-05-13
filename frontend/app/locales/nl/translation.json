@@ -80,7 +80,6 @@
       "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
-      "noTagline": "NGeen tagline beschikbaar voor deze productie.",
       "noTeaser": "Geen teaser beschikbaar voor deze productie.",
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
@@ -117,7 +116,6 @@
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
-      "tagline": "Tagline",
       "description": "Beschrijving",
       "teaser": "Teaser",
       "info": "Info"

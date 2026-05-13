@@ -81,7 +81,6 @@
       "unknownProduction": "Information in this language is not available.",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
-      "noTagline": "No tagline available for this production.",
       "noTeaser": "No teaser available for this production.",
       "noDescription": "No additional description is available for this production.",
       "noInfo": "No extra information is available for this production.",
@@ -118,7 +117,6 @@
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",
-      "tagline": "Tagline",
       "description": "Description",
       "teaser": "Teaser",
       "info": "Info"
