@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=StatisticsResponse,
     summary="Get archive statistics",
     description="Returns archive counts and all unique tags.",

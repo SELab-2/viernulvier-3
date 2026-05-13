@@ -1,6 +1,7 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useState } from "react";
+import Add from "@mui/icons-material/Add";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type {
@@ -10,17 +11,29 @@ import type {
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
-import { getHallByUrl } from "~/features/archive/services/hallService";
+import {
+  createEvent,
+  getEventByUrl,
+  getPriceByUrl,
+  updateEventByUrl,
+} from "~/features/archive/services/eventService";
+import { getAllHalls, getHallByUrl } from "~/features/archive/services/hallService";
 import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
-import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { updateProductionByUrl } from "../services/productionService";
+import { deleteByUrl } from "~/shared/services/sharedService";
+import type { Hall } from "../types/hallTypes";
+import EditableEventCard from "../components/EditableEventCard";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
+
+import DeleteInfoButton from "../components/DeleteInfoButton";
+import EditButton from "../components/EditButton";
+import ProductionHeader from "../components/ProductionHeader";
+import { Protected } from "~/features/auth";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 interface ProductionPageProps {
   production: Production;
@@ -94,13 +107,6 @@ function getTagNamesByLanguage(production: Production, language: string): string
     .filter((name): name is string => typeof name === "string" && name.length > 0);
 }
 
-function isFieldModified(
-  original: string | undefined,
-  draft: string | undefined
-): boolean {
-  return (original ?? "") !== (draft ?? "");
-}
-
 function isInfoModified(
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null
@@ -118,10 +124,15 @@ function isInfoModified(
   );
 }
 
-async function handleInfoAdd(language: string) {
-  if (language) {
-    // TODO: implement
-  }
+function isEventModified(original?: Event, draft?: Event): boolean {
+  if (!original || !draft) return false;
+
+  return (
+    original.starts_at !== draft.starts_at ||
+    original.ends_at !== draft.ends_at ||
+    original.order_url !== draft.order_url ||
+    original.hall?.id_url !== draft.hall?.id_url
+  );
 }
 
 async function handleInfoSave(
@@ -129,12 +140,21 @@ async function handleInfoSave(
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  draftEvents: EventWithResolvedRelations[],
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  originalEvents: EventWithResolvedRelations[],
+  setOriginalEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  newEvents: EventWithResolvedRelations[],
+  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  deletedEvents: EventWithResolvedRelations[],
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
-  language: string
+  language: string,
+  skipUnloadWarning: React.RefObject<boolean>,
+  setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   if (!draftInfo || !originalInfo) return;
-
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
@@ -152,10 +172,60 @@ async function handleInfoSave(
       ],
     });
 
+    // Find and patch edited events
+    const originalMap = new Map(originalEvents.map((e) => [e.id_url, e]));
+    const updatedEvents = draftEvents.filter((draft) => {
+      if (!draft.id_url) return false;
+      const original = originalMap.get(draft.id_url);
+      if (!original) return false;
+      return isEventModified(original, draft);
+    });
+    for (const event of updatedEvents) {
+      await updateEventByUrl(event.id_url, {
+        hall_id_url: event.hall?.id_url,
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+      });
+    }
+
+    // Create newly made events
+    const createdEvents: EventWithResolvedRelations[] = [];
+    for (const event of newEvents) {
+      const created = await createEvent({
+        production_id_url,
+        hall_id_url: event.hall?.id_url,
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+        order_url: event.order_url,
+      });
+
+      createdEvents.push({
+        ...created,
+        resolvedHall: event.resolvedHall,
+        resolvedPrices: [],
+      });
+    }
+
+    for (const event of deletedEvents) {
+      // skip events that were never created
+      if (!event.id_url) continue;
+
+      await deleteByUrl(event.id_url);
+    }
+
     // sync local "source of truth"
     setOriginalInfo(draftInfo);
+    setOriginalEvents([...draftEvents, ...createdEvents]);
+    setDraftEvents([...draftEvents, ...createdEvents]);
+    setNewEvents([]);
+    setDeletedEvents([]);
 
     setIsEditing(false);
+    if (!originalInfo) {
+      skipUnloadWarning.current = true;
+      setSkipWarning(true);
+      window.location.reload();
+    }
   } catch (err) {
     window.alert(`Save failed: ${err}`);
   } finally {
@@ -165,36 +235,28 @@ async function handleInfoSave(
 
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
+  const blockerRef = useRef(blocker);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
-      const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
+    blockerRef.current = blocker;
+  });
 
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+
+  useEffect(() => {
+    if (blockerRef.current.state === "blocked") {
+      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
       if (confirmLeave) {
-        blocker.proceed();
+        blockerRef.current.proceed();
       } else {
-        blocker.reset();
+        blockerRef.current.reset();
       }
     }
-  }, [blocker]);
-}
-
-async function handleInfoDelete(
-  production_id_url: string,
-  language: string,
-  confirmeMessage: string,
-  errorMessage: string
-) {
-  const confirmed = window.confirm(confirmeMessage);
-  if (!confirmed) return;
-  try {
-    await updateProductionByUrl(production_id_url, {
-      remove_languages: [language],
-    });
-    window.location.reload();
-  } catch {
-    window.alert(errorMessage);
-  }
+  }, [blocker.state]);
 }
 
 function BackToCollectionLink() {
@@ -208,184 +270,6 @@ function BackToCollectionLink() {
     >
       {t("productionPage.backToCollection")}
     </Link>
-  );
-}
-
-type SimpleEditableFieldProps = {
-  label: string;
-  value: string;
-  isEditing: boolean;
-  onChange: (value: string) => void;
-  renderView: (value: string) => React.ReactNode;
-  isModified: boolean;
-};
-// <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-// </Protected>
-function SimpleEditableField({
-  label,
-  value,
-  isEditing,
-  onChange,
-  renderView,
-  isModified,
-}: SimpleEditableFieldProps) {
-  const normal_view = <>{renderView(value)}</>;
-  const { t } = useTranslation();
-
-  if (isEditing) {
-    return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
-        <div
-          className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-2 backdrop-blur-md transition md:p-4 ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
-        >
-          <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
-              {label}
-            </h3>
-
-            {isModified && (
-              <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
-                {t("productionPage.edit.modified")}
-              </span>
-            )}
-          </div>
-
-          {/* Input */}
-          <input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none`}
-          />
-        </div>
-      </Protected>
-    );
-  }
-
-  return normal_view;
-}
-
-function EmptyProductionHeader({ image_url }: { image_url: string }) {
-  const { t } = useTranslation();
-  return (
-    <section
-      id="production-header"
-      className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
-    >
-      <img
-        src={image_url}
-        alt={t("productionPage.infoNotAvailable")}
-        className="h-[280px] w-full object-cover object-center md:h-[360px]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-8 left-7 md:right-12 md:bottom-10 md:left-12">
-        <h1
-          id="title"
-          className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-        >
-          {t("productionPage.infoNotAvailable")}
-        </h1>
-      </div>
-    </section>
-  );
-}
-
-type ProductionHeaderProps = {
-  production_info: ProductionInfo | null;
-  image_url: string;
-  isEditing: boolean;
-  originalInfo: ProductionInfo | null;
-  draftInfo: ProductionInfo | null;
-  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-};
-
-/* ProductionHeader contains main image, supertitle, title and artist */
-function ProductionHeader({
-  production_info,
-  image_url,
-  isEditing,
-  originalInfo,
-  draftInfo,
-  setDraftInfo,
-}: ProductionHeaderProps) {
-  const { t } = useTranslation();
-
-  return (
-    <section
-      id="production-header"
-      className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
-    >
-      <img
-        src={image_url}
-        alt={production_info?.title}
-        className="h-[280px] w-full object-cover object-center md:h-[360px]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="absolute right-7 bottom-4 left-7 md:right-12 md:bottom-10 md:left-12">
-        <SimpleEditableField
-          label={t("productionPage.edit.supertitle")}
-          value={draftInfo?.supertitle ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.supertitle, draftInfo?.supertitle)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              // Overwrite supertitle
-              if (prev) return { ...prev, supertitle: newValue };
-              // !prev => prev ~= null => simple not initialised yet
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <p
-              id="supertitle"
-              className="font-sans text-[0.65rem] tracking-[0.28em] text-white/72 uppercase"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.archive"))}
-            </p>
-          )}
-        />
-        <SimpleEditableField
-          label={t("productionPage.edit.title")}
-          value={draftInfo?.title ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.title, draftInfo?.title)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              // Overwrite title
-              if (prev) return { ...prev, title: newValue };
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <h1
-              id="title"
-              className="mt-2 font-serif text-5xl leading-[1.03] text-[#f0e4d3] md:text-7xl"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
-            </h1>
-          )}
-        />
-        <SimpleEditableField
-          label={t("productionPage.edit.artist")}
-          value={draftInfo?.artist ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.artist, draftInfo?.artist)}
-          onChange={(newValue) => {
-            setDraftInfo((prev) => {
-              if (prev) return { ...prev, artist: newValue };
-              else return prev;
-            });
-          }}
-          renderView={(value) => (
-            <p
-              id="artist"
-              className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl"
-            >
-              {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
-            </p>
-          )}
-        />
-      </div>
-    </section>
   );
 }
 
@@ -451,147 +335,60 @@ function Events({ event_objects }: EventsProps) {
   }
 }
 
-const Spinner = () => (
-  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-);
-
-type AddInfoButtonProps = {
-  language: string;
-};
-
-function AddInfoButton({ language }: AddInfoButtonProps) {
-  const { t } = useTranslation();
-  const shared_css = `
-    shadow-lg
-    hover:bg-archive-control-hover
-    rounded-full
-    cursor-pointer
-    transition-colors
-    duration-150
-    text-archive-ink
-    inline-flex
-    px-6 py-3
-    font-semibold text-white
-    `;
+function EditEvents({
+  draftEvents,
+  setDraftEvents,
+  setDeletedEvents,
+  halls,
+  isNewEvents = false,
+}: {
+  draftEvents: EventWithResolvedRelations[];
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  halls: Hall[];
+  isNewEvents?: boolean;
+}) {
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-      <button
-        id="add-production-button"
-        onClick={() => handleInfoAdd(language)}
-        className={`${shared_css} bg-archive-accent`}
-      >
-        {t("productionPage.add.add")}
-      </button>
-    </Protected>
+    <ul className="mt-6 space-y-2.5">
+      {draftEvents.map((event, index) => (
+        <EditableEventCard
+          key={event.id_url}
+          event={event}
+          halls={halls}
+          onChange={(updated) => {
+            setDraftEvents((prev) => {
+              const copy = [...prev];
+              copy[index] = updated;
+              return copy;
+            });
+          }}
+          onDelete={() => {
+            setDraftEvents((prev) => prev.filter((_, i) => i !== index));
+            if (setDeletedEvents !== undefined) {
+              setDeletedEvents((prev) => [...prev, event]);
+            }
+          }}
+          canDeleteWithoutPerms={isNewEvents}
+        />
+      ))}
+    </ul>
   );
 }
 
-type EditButtonProps = {
-  isEditing: boolean;
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  originalInfo: ProductionInfo | null;
-  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-  enable_save: boolean;
-  is_saving: boolean;
-  _handleSave: () => Promise<void>;
-};
-
-function EditButton({
-  isEditing,
-  setIsEditing,
-  originalInfo,
-  setDraftInfo,
-  enable_save,
-  is_saving,
-  _handleSave,
-}: EditButtonProps) {
+function NewEventButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
-  const shared_css = `
-	shadow-lg
-	hover:bg-archive-control-hover
-	rounded-full
-	cursor-pointer
-	transition-colors
-	duration-150
-	text-archive-ink
-	inline-flex
-	px-6 py-3
-	font-semibold text-white
-  `;
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-      {!isEditing ? (
-        <button
-          id="edit-production-button"
-          onClick={() => setIsEditing(true)}
-          className={`${shared_css} bg-archive-accent`}
-        >
-          {t("productionPage.edit.edit")}
-        </button>
-      ) : (
-        <div id="edit-actions" className="flex gap-3">
-          <button
-            id="cancel-edit-production-button"
-            onClick={() => {
-              // Copy (not by reference)
-              setDraftInfo(originalInfo ? { ...originalInfo } : null);
-              setIsEditing(false);
-            }}
-            className={`${shared_css} bg-gray-300`}
-          >
-            {t("productionPage.edit.cancel")}
-          </button>
-
-          <button
-            id="save-edit-production-button"
-            onClick={_handleSave}
-            className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
-            disabled={!enable_save || is_saving}
-          >
-            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
-          </button>
-        </div>
-      )}
-    </Protected>
-  );
-}
-
-type DeleteInfoButtonProps = {
-  production_id_url: string;
-  language: string;
-};
-
-function DeleteInfoButton({ production_id_url, language }: DeleteInfoButtonProps) {
-  const { t } = useTranslation();
-  const shared_css = `
-    shadow-lg
-    hover:bg-archive-control-hover
-    rounded-full
-    cursor-pointer
-    transition-colors
-    duration-150
-    text-archive-ink
-    inline-flex
-    px-6 py-3
-    font-semibold text-white
-    `;
-  return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+    <div className="mt-4 flex justify-center">
       <button
-        id="delete-production-button"
-        onClick={() =>
-          handleInfoDelete(
-            production_id_url,
-            language,
-            t("productionPage.delete.confirm"),
-            t("productionPage.delete.error")
-          )
-        }
-        className={`${shared_css} bg-archive-accent`}
+        onClick={onClick}
+        className="bg-archive-accent hover:bg-archive-accent/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all duration-100 active:scale-95"
       >
-        {t("productionPage.delete.delete")}
+        <Add fontSize="small" />
+        <p className="text-sm font-medium tracking-wide uppercase">
+          {t("productionPage.newEvent")}
+        </p>
       </button>
-    </Protected>
+    </div>
   );
 }
 
@@ -606,9 +403,12 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
-  const [eventsWithDetails, setEventsWithDetails] = useState<
-    EventWithResolvedRelations[]
-  >([]);
+  const [originalEvents, setOriginalEvents] = useState<EventWithResolvedRelations[]>(
+    []
+  );
+  const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [newEvents, setNewEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [deletedEvents, setDeletedEvents] = useState<EventWithResolvedRelations[]>([]);
   const [linkedBlogs, setLinkedBlogs] = useState<Blog[]>([]);
 
   // States for editing the production info shown
@@ -621,23 +421,59 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  // State containing all halls so that editable event cards don't have to each fetch all the halls themselves for every event
+  const [allHalls, setAllHalls] = useState<Hall[]>([]);
+
   const _handleSave = () =>
     handleInfoSave(
       production.id_url,
       originalInfo,
       draftInfo,
       setOriginalInfo,
+      draftEvents,
+      setDraftEvents,
+      originalEvents,
+      setOriginalEvents,
+      newEvents,
+      setNewEvents,
+      deletedEvents,
+      setDeletedEvents,
       setIsEditing,
       setIsSaving,
-      language
+      language,
+      skipUnloadWarning,
+      setSkipWarning
     );
+  const areEventsModified = useMemo(() => {
+    return (
+      newEvents.length > 0 ||
+      deletedEvents.length > 0 ||
+      draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft))
+    );
+  }, [draftEvents, originalEvents, newEvents, deletedEvents]);
 
   // State when editing, keeps track if something has changed
   // (to enable save button)
-  const isModified = useMemo(
-    () => isInfoModified(originalInfo, draftInfo),
-    [originalInfo, draftInfo]
-  );
+  const isModified = useMemo(() => {
+    if (originalInfo === null) {
+      return isEditing; // With add always true.
+    }
+    return isInfoModified(originalInfo, draftInfo) || areEventsModified;
+  }, [originalInfo, draftInfo, areEventsModified, isEditing]);
+
+  // Helper to create an empty event when pressing new event button
+  function createEmptyEvent(): EventWithResolvedRelations {
+    return {
+      id_url: "", // temporary ID
+      production_id_url: production.id_url,
+      starts_at: "",
+      ends_at: "",
+      order_url: "",
+      price_urls: [],
+      resolvedHall: undefined,
+      resolvedPrices: [],
+    };
+  }
 
   useEffect(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
@@ -652,16 +488,31 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       .catch(() => {});
   }, [production.id_url]);
 
-  // Prevent moving away from page when edit is modified (browser aways)
+  const skipUnloadWarning = useRef(false);
+  const isEditingRef = useRef(false);
+  const isModifiedRef = useRef(false);
+  const isQuillDirtyRef = useRef(false);
+  const [skipWarning, setSkipWarning] = useState(false);
+  const [isQuillDirty, setIsQuillDirty] = useState(false);
+
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+    isModifiedRef.current = isModified;
+    isQuillDirtyRef.current = isQuillDirty;
+  }, [isEditing, isModified, isQuillDirty]);
+
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (isEditing && isModified) e.preventDefault();
+      if (skipUnloadWarning.current) return;
+      if (isEditingRef.current && (isModifiedRef.current || isQuillDirtyRef.current)) {
+        e.preventDefault();
+      }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isEditing, isModified]);
-  // And the same but for React links
-  useUnsavedChangesBlocker(isEditing && isModified);
+  }, []);
+
+  useUnsavedChangesBlocker(isEditing && (isModified || isQuillDirty) && !skipWarning);
 
   const title = getTextOrDefault(
     productionInfo?.title,
@@ -681,7 +532,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
-      eventsWithDetails.slice().sort((leftEvent, rightEvent) => {
+      originalEvents.slice().sort((leftEvent, rightEvent) => {
         const startDifference =
           getEventTimestamp(leftEvent.starts_at) -
           getEventTimestamp(rightEvent.starts_at);
@@ -692,7 +543,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
         return leftEvent.id_url.localeCompare(rightEvent.id_url);
       }),
-    [eventsWithDetails]
+    [originalEvents]
   );
 
   useEffect(() => {
@@ -700,7 +551,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
     const loadEventDetails = async () => {
       if (!isCancelled) {
-        setEventsWithDetails([]);
+        setOriginalEvents([]);
       }
 
       try {
@@ -757,15 +608,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         );
 
         if (!isCancelled) {
-          setEventsWithDetails(
-            hydratedEvents.filter(
-              (event): event is EventWithResolvedRelations => event !== null
-            )
+          const validEvents = hydratedEvents.filter(
+            (event): event is EventWithResolvedRelations => event !== null
           );
+
+          setOriginalEvents(validEvents);
+          setDraftEvents(validEvents.map((e) => ({ ...e }))); // copy
         }
       } catch {
         if (!isCancelled) {
-          setEventsWithDetails([]);
+          setOriginalEvents([]);
         }
       }
     };
@@ -777,6 +629,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
+  // Load list of all halls for autocomplete in editing
+  useEffect(() => {
+    if (isEditing) {
+      const loadHalls = async () => {
+        const halls = await getAllHalls();
+        setAllHalls(halls);
+      };
+      loadHalls();
+    }
+  }, [isEditing]);
   // Load linked blogs for this production
   useEffect(() => {
     let isCancelled = false;
@@ -806,25 +668,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       <title>{`${title} | VIERNULVIER`}</title>
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        {productionInfo !== null ? (
-          <ProductionHeader
-            production_info={productionInfo}
-            image_url={imageUrl}
-            isEditing={isEditing}
-            originalInfo={originalInfo}
-            draftInfo={draftInfo}
-            setDraftInfo={setDraftInfo}
-          />
-        ) : (
-          <EmptyProductionHeader image_url={imageUrl} />
-        )}
+        <ProductionHeader
+          production_info={productionInfo}
+          image_url={imageUrl}
+          isEditing={isEditing}
+          originalInfo={originalInfo}
+          draftInfo={draftInfo}
+          setDraftInfo={setDraftInfo}
+        />
 
         <Tags performer_type={production.performer_type} tags={tags} />
 
         <section id="production-events" className="mt-8">
-          <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+          <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
-              prodinfo_available={productionInfo !== null}
               tagline={tagline}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
@@ -836,6 +693,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
               }}
+              onQuillDirtyChange={useCallback(
+                (isDirty: boolean) => setIsQuillDirty(isDirty),
+                []
+              )}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
@@ -843,7 +704,33 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 {t("productionPage.archiveSchema")}
               </h2>
 
-              <Events event_objects={eventObjects} />
+              {isEditing ? (
+                <>
+                  {/* Events that are being edited */}
+                  <EditEvents
+                    draftEvents={draftEvents}
+                    setDraftEvents={setDraftEvents}
+                    setDeletedEvents={setDeletedEvents}
+                    halls={allHalls}
+                  />
+                  {/* Events that are being newly created */}
+                  <EditEvents
+                    draftEvents={newEvents}
+                    setDraftEvents={setNewEvents}
+                    halls={allHalls}
+                    isNewEvents={true}
+                  />
+                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                    <NewEventButton
+                      onClick={() => {
+                        setNewEvents((prev) => [...prev, createEmptyEvent()]);
+                      }}
+                    />
+                  </Protected>
+                </>
+              ) : (
+                <Events event_objects={eventObjects} />
+              )}
             </section>
 
             {linkedBlogs.length > 0 && (
@@ -871,10 +758,15 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       {productionInfo !== null ? (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
           <EditButton
+            action={t("productionPage.edit.edit")}
             isEditing={isEditing}
             setIsEditing={setIsEditing}
             originalInfo={originalInfo}
             setDraftInfo={setDraftInfo}
+            originalEvents={originalEvents}
+            setDraftEvents={setDraftEvents}
+            setNewEvents={setNewEvents}
+            setDeletedEvents={setDeletedEvents}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
@@ -888,7 +780,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         </div>
       ) : (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-          <AddInfoButton language={""} />
+          <EditButton
+            action={t("productionPage.edit.add")}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            originalInfo={null}
+            setDraftInfo={setDraftInfo}
+            originalEvents={originalEvents}
+            setDraftEvents={setDraftEvents}
+            setNewEvents={setNewEvents}
+            setDeletedEvents={setDeletedEvents}
+            enable_save={isModified}
+            is_saving={isSaving}
+            _handleSave={_handleSave}
+          />
         </div>
       )}
     </div>

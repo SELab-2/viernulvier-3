@@ -39,7 +39,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -679,9 +679,10 @@ def test_delete_production_not_found(
 def test_production_urls_contain_full_path(client: TestClient, db_session: Session):
     from src.models.production import Production
     from src.models.event import Event
-    from src.models.hall import Hall
+    from src.models.hall import Hall, HallName
 
-    hall = Hall(name="Test Hall", address="Test Street")
+    hall = Hall(address="Test Street")
+    hall.names.append(HallName(language="en", name="Test Hall"))
     production = Production()
     db_session.add_all([hall, production])
     db_session.commit()

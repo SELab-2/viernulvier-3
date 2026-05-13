@@ -25,7 +25,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[ProductionGroupResponse],
     summary="Get production groups",
     description="Returns production groups, optionally including hidden groups.",
@@ -54,7 +54,7 @@ async def get_production_group(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductionGroupResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a production group",

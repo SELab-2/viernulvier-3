@@ -1,25 +1,26 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import ComplexEditableField from "~/shared/components/ArchiveRichTextFieldWrapper";
+import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 type ProductionInfoSectionProps = {
-  prodinfo_available: boolean;
   tagline: string;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
   isEditing: boolean;
   onSave: (field: string, html: string) => void;
+  onQuillDirtyChange: (isDirty: boolean) => void;
 };
 
 export function ProductionInfoSection({
-  prodinfo_available,
   tagline,
   teaserHtml,
   descriptionHtml,
   infoHtml,
   isEditing: globalIsEditing,
   onSave,
+  onQuillDirtyChange,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
@@ -30,21 +31,13 @@ export function ProductionInfoSection({
     }
   }, [globalIsEditing]);
 
-  if (!prodinfo_available) {
-    return (
-      <p id="no-prodinfo" className="opacity-75">
-        {t("productionPage.infoNotAvailable")}
-      </p>
-    );
-  }
-
   function handleSave(field: string, html: string) {
     onSave(field, html);
     setEditing(null);
   }
 
   return (
-    <>
+    <div className="flex min-w-0 flex-col gap-6">
       {tagline && <p id="tagline">{tagline}</p>}
 
       <ComplexEditableField
@@ -57,6 +50,8 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -71,6 +66,8 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
 
       <ComplexEditableField
@@ -83,7 +80,9 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
+        onDirtyChange={onQuillDirtyChange}
       />
-    </>
+    </div>
   );
 }

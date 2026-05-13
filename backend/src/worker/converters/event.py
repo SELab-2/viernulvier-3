@@ -3,7 +3,7 @@ from datetime import datetime
 from src.models.event import Event
 
 
-def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
+def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None, int | None]:
     """
     This function takes care of molding the json response of the api for an
     event, into an Event object for our archive database.
@@ -20,6 +20,11 @@ def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
         production_id = production.get("@id")
         if production_id:
             production_id = int(production_id.split("/")[-1])
+
+    hall_url = json_event.get("hall")
+    hall_id = None
+    if hall_url:
+        hall_id = int(hall_url.rstrip("/").split("/")[-1])
 
     start_time = None
     start_str = json_event.get("starts_at")
@@ -45,7 +50,7 @@ def api_event_to_model_event(json_event: dict) -> tuple[Event, int | None]:
         order_url=order_url,
     )
 
-    return event, production_id
+    return event, production_id, hall_id
 
 
 def csv_event_to_model_event(prod_id: int, csv_event: list, hall_id: int) -> Event:

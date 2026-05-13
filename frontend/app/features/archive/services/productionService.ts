@@ -20,6 +20,7 @@ const ARCHIVE_PATH: string = "/api/v1/archive";
 export async function getProductionsPaginated(
   params?: JsonPaginationRequest & {
     tag_ids?: string[];
+    group_ids?: string[];
     artists?: string[];
     production_name?: string;
     earliest_at?: string;
@@ -29,10 +30,11 @@ export async function getProductionsPaginated(
 ): Promise<ProductionList> {
   const apiClient = createApiClient();
 
-  const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions/`, {
+  const response = await apiClient.get<ProductionList>(`${ARCHIVE_PATH}/productions`, {
     params: {
       ...params,
       tag_ids: params?.tag_ids?.join(","),
+      group_ids: params?.group_ids?.join(","),
       artists: params?.artists?.join(","),
     },
   });

@@ -25,6 +25,12 @@ export interface IUserCreateRequest {
   roles?: string[];
 }
 
+export interface IUserUpdateRequest {
+  username?: string;
+  password?: string;
+  roles?: string[];
+}
+
 export interface IRoleResponse {
   id_url: string;
   name: string;
@@ -40,4 +46,8 @@ export interface IRole {
 export interface IRoleCreateRequest {
   name: string;
   permissions?: string[];
+}
+
+export interface IPermissionResponse {
+  name: string;
 }
