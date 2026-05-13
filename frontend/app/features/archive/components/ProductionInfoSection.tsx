@@ -45,6 +45,7 @@ export function ProductionInfoSection({
 
   function handleSave(field: string, html: string) {
     onSave(field, html);
+    setEditing(null);
   }
 
   return (
@@ -64,7 +65,7 @@ export function ProductionInfoSection({
         )}
         isModified={tagline !== (originalTagline ?? "")} 
         permissions={[ARCHIVE_PERMISSIONS.update]}      
-      />
+        />
 
       <ComplexEditableField
         id="teaser"
