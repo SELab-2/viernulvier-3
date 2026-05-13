@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import type { ProductionList } from "../types/productionTypes";
-import type { ArchiveSortOrder } from "./ProductionTimeline";
 import { getProductionsPaginated } from "../services/productionService";
-import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
+import type { SortOrderEnum } from "~/shared/components/SortOrderSelection";
+import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 
 export function ShowMoreButton({
   productionList,
@@ -12,7 +12,7 @@ export function ShowMoreButton({
 }: {
   productionList: ProductionList;
   setProductionList: React.Dispatch<React.SetStateAction<ProductionList | null>>;
-  sortOrder: ArchiveSortOrder;
+  sortOrder: SortOrderEnum;
   filters: {
     production_name?: string;
     earliest_at?: string;
@@ -27,7 +27,7 @@ export function ShowMoreButton({
   async function onClick() {
     const next_productions = await getProductionsPaginated({
       cursor: productionList.pagination.next_cursor,
-      sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+      sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
       ...filters,
     });
 

@@ -9,7 +9,8 @@
     "blogs": "Blogs",
     "blogs_create": "Create Blog",
     "users": "Users",
-    "login": "Log in"
+    "login": "Log in",
+    "create_production": "Create production"
   },
   "footer": {
     "website": "Our official website"
@@ -39,6 +40,20 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "accessDenied": {
+      "sectionLabel": "Restricted area",
+      "title": "You do not have access to the production creation page.",
+      "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
+    },
+    "add_info": {
+      "supertitle": "Add supertitle",
+      "title": "Add title",
+      "artist": "Add artist",
+      "tagline": "Add tagline",
+      "teaser": "Add teaser",
+      "description": "Add description",
+      "info": "Add additional info"
+    },
     "selection": {
       "enter": "Select productions",
       "exit": "Done selecting",
@@ -170,10 +185,19 @@
     }
   },
   "blogs": {
+    "searchPlaceholder": "Search blogs...",
+    "title": "Blogs",
+    "showMore": "Show more",
+    "noResults": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less keywords"
+    },
     "card": {
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
-      "details": "Details"
+      "details": "Details",
+      "noTitleFound": "No available title found",
+      "noContentFound": "No available content found"
     },
     "create_blog": "Create blog",
     "createBlogPage": {
@@ -205,7 +229,7 @@
         "searchSeries": "Search for series"
       },
       "accessDenied": {
-        "eyebrow": "Restricted area",
+        "sectionLabel": "Restricted area",
         "title": "You do not have access to blog creation",
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }

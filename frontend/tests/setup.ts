@@ -28,6 +28,9 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.explore": "I18N_Home_Button_Explore",
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
+  "archive.create_production": "I18_Archive_Create_Production",
+  "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
+  "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",
   "footer.website": "I18N_Footer_Website",
   "users.title": "I18N_Users_Title",
@@ -58,6 +61,11 @@ const translationMap: Record<string, TranslationValue> = {
   "history.messages.updateFailed": "I18N_History_Message_UpdateFailed",
   "history.messages.deleteFailed": "I18N_History_Message_DeleteFailed",
   "edit.cancel": "edit.cancel",
+  "blogs.title": "I18N_Blogs_Title",
+  "blogs.searchPlaceholder": "I18N_Blogs_Search_Placeholder",
+  "blogs.showMore": "I18N_Blogs_Show_More",
+  "blogs.noResults.header": "I18N_Blogs_No_Results_Header",
+  "blogs.noResults.subtext": "I18N_Blogs_No_Results_Subtext",
   "blogs.card.other_prods": "I18N_Blog_Many_Productions",
   "blogs.card.no_prods": "I18N_Blog_No_Productions",
   "blogs.card.details": "I18N_Blog_Details",
@@ -94,6 +102,9 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.infoNotAvailable": "I18N_ProductionInfo_NotAvailable",
   "productionPage.add.add": "I18N_ProductionInfo_Add",
   "productionPage.delete.delete": "I18N_ProductionInfo_Delete",
+  "productionPage.edit.title": "I18N_ProductionInfo_Edit_Title",
+  "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
+  "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

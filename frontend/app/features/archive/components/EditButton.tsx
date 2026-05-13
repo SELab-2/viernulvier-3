@@ -23,7 +23,7 @@ type EditButtonProps = {
   _handleSave: () => Promise<void>;
 };
 
-export default function EditButton({
+export function EditButton({
   action,
   isEditing,
   setIsEditing,

@@ -9,7 +9,8 @@
     "blogs": "Blogs",
     "blogs_create": "Creëer Blog",
     "users": "Gebruikers",
-    "login": "Log in"
+    "login": "Log in",
+    "create_production": "Nieuwe productie"
   },
   "footer": {
     "website": "Onze officiële website"
@@ -50,6 +51,20 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "accessDenied": {
+      "sectionLabel": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
+    },
+    "add_info": {
+      "supertitle": "Voeg een supertitel toe",
+      "title": "Voeg een titel toe",
+      "artist": "Voeg een artiest toe",
+      "tagline": "Voeg een tagline toe",
+      "teaser": "Voeg een teaser toe",
+      "description": "Voeg een beschrijving toe",
+      "info": "Voeg bijkomende info toe"
+    },
     "sortBy": "Sorteer op",
     "sortOrder": {
       "newest": "Nieuwste eerst",
@@ -170,10 +185,19 @@
     }
   },
   "blogs": {
+    "searchPlaceholder": "Zoek naar blogs...",
+    "title": "Blogs",
+    "showMore": "Toon meer",
+    "noResults": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder trefwoorden te bevatten"
+    },
     "card": {
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
-      "details": "Details"
+      "details": "Details",
+      "noTitleFound": "Geen beschikbare titel gevonden",
+      "noContentFound": "Geen beschikbare inhoud gevonden"
     },
     "create_blog": "Nieuwe blog",
     "createBlogPage": {
@@ -205,7 +229,7 @@
         "searchSeries": "Zoek naar reeksen"
       },
       "accessDenied": {
-        "eyebrow": "Beperkt gebied",
+        "sectionLabel": "Beperkt gebied",
         "title": "Je hebt geen toegang tot blogcreatie",
         "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
       }
