@@ -98,6 +98,10 @@ export default function ComplexEditableField({
   if (isEditing) {
     return (
       <Protected permissions={permissions}>
+        <div className="flex items-center gap-2">
+          <p className="font-bold underline">{field}</p>
+          <FiEdit2 />
+        </div>
         <div id={id}>
           <ArchiveRichTextFieldWrapper
             label={field}
