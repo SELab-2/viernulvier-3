@@ -75,44 +75,44 @@ export default function BlogPage() {
 
   return (
     <>
-    <title>{`${t("nav.blogs")} | VIERNULVIER`}</title>
-    <div className="mx-6 md:mx-10">
-      <div className="mb-10 md:mb-16">
-        <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
-          {t("blogs.title")}
-        </h1>
-      </div>
+      <title>{`${t("nav.blogs")} | VIERNULVIER`}</title>
+      <div className="mx-6 md:mx-10">
+        <div className="mb-10 md:mb-16">
+          <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
+            {t("blogs.title")}
+          </h1>
+        </div>
 
-      <div className="mb-4 flex flex-row items-center justify-between gap-3">
-        <CreateBlogButton onClick={openCreateBlogPage} />
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-        <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
-      </div>
+        <div className="mb-4 flex flex-row items-center justify-between gap-3">
+          <CreateBlogButton onClick={openCreateBlogPage} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
+        </div>
 
-      <Divider className="bg-archive-ink/5" />
+        <Divider className="bg-archive-ink/5" />
 
-      <div className="mt-6 md:mt-10">
-        {blogs && blogs.length > 0 ? (
-          <BlogCardList blogs={blogs} />
-        ) : (
-          <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
-            <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
-              {t("blogs.noResults.header")}
-            </p>
-            <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
-          </div>
+        <div className="mt-6 md:mt-10">
+          {blogs && blogs.length > 0 ? (
+            <BlogCardList blogs={blogs} />
+          ) : (
+            <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+              <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+                {t("blogs.noResults.header")}
+              </p>
+              <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
+            </div>
+          )}
+        </div>
+
+        {blogList?.pagination.has_more && (
+          <ShowMoreButton
+            blogList={blogList}
+            setBlogList={setBlogList}
+            sortOrder={sortOrder}
+            blog_name={debouncedSearch || undefined}
+          />
         )}
       </div>
-
-      {blogList?.pagination.has_more && (
-        <ShowMoreButton
-          blogList={blogList}
-          setBlogList={setBlogList}
-          sortOrder={sortOrder}
-          blog_name={debouncedSearch || undefined}
-        />
-      )}
-    </div>
     </>
   );
 }
