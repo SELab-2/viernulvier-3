@@ -378,7 +378,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
           </article>
         </section>
 
-        <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} blog_id_url={blog.id_url} />
+        <BlogPageMediaGallery
+          contentHtml={contentHtml ?? ""}
+          title={title}
+          blog_id_url={blog.id_url}
+        />
 
         <LinkedProductions productions={linkedProductions} />
 
