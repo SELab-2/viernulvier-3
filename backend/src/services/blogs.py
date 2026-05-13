@@ -16,6 +16,7 @@ from src.schemas.blogs import (
 )
 from src.api.exceptions import NotFoundError, ValidationError
 from src.services.production import SortOrder
+from typing import Optional
 
 
 def build_blog_content_response(
@@ -58,7 +59,7 @@ def build_blog_response(
 
 def get_production_group_for_blog(
     db: Session, blog_id: int, base_url: str
-) -> list[str]:
+) -> Optional[str]:
     blog = db.get(Blog, blog_id)
     if not blog or not blog.production_group:
         return None
