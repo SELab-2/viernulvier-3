@@ -63,7 +63,8 @@ export function ProductionInfoSection({
             {getTextOrDefault(value, t("productionPage.fallback.archive"))}
           </p>
         )}
-        isModified={tagline !== (originalTagline ?? "")}
+        isModified={tagline !== (originalTagline ?? "")} 
+        permissions={[ARCHIVE_PERMISSIONS.update]}      
       />
 
       <ComplexEditableField
