@@ -7,13 +7,18 @@ import type { Blog } from "~/features/blogs/types/blogTypes";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
 import {
-  getProductionsForBlog,
   updateBlogByUrl,
 } from "~/features/blogs/services/blogService";
+import { getProductionGroupByUrl, getProductionsForGroup } from "~/features/archive/services/productionGroupService";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 
 vi.mock("~/features/blogs/services/blogService", () => ({
-  getProductionsForBlog: vi.fn(),
   updateBlogByUrl: vi.fn(),
+}));
+
+vi.mock("~/features/archive/services/productionGroupService", () => ({
+  getProductionGroupByUrl: vi.fn(),
+  getProductionsForGroup: vi.fn()
 }));
 
 vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
@@ -136,10 +141,18 @@ const baseBlogEmptyContent: Blog = {
   ],
 };
 
+const baseProdGroup: ProductionGroup = {
+    id_url: "http://localhost/api/v1/production-groups/1",
+    title: "foo",
+    is_public_filter: true,
+    production_id_urls: []
+}
+
 describe("BlogContentPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    vi.mocked(getProductionsForBlog).mockResolvedValue([]);
+	vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getProductionsForGroup).mockResolvedValue([]);
     vi.mocked(updateBlogByUrl).mockResolvedValue(baseBlog);
   });
 
@@ -204,7 +217,7 @@ describe("BlogContentPage", () => {
   });
 
   it("loads and renders linked productions via production group", async () => {
-    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
+    const getProductionsForGroupMock = vi.mocked(getProductionsForGroup);
     const mockProduction: Production = {
       id_url: "http://localhost/api/v1/archive/productions/1",
       performer_type: "Opera",
@@ -221,7 +234,7 @@ describe("BlogContentPage", () => {
       event_id_urls: [],
       tags: [],
     };
-    getProductionsForBlogMock.mockResolvedValue([mockProduction]);
+    getProductionsForGroupMock.mockResolvedValue([mockProduction]);
     renderPage(
       {
         ...baseBlog,
@@ -240,8 +253,8 @@ describe("BlogContentPage", () => {
   });
 
   it("handles a failed production fetch gracefully and omits it from the list", async () => {
-    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
-    getProductionsForBlogMock.mockRejectedValue(new Error("Network error"));
+    const getProductionsForGroupMock = vi.mocked(getProductionsForGroup);
+    getProductionsForGroupMock.mockRejectedValue(new Error("Network error"));
     renderPage(
       {
         ...baseBlog,
@@ -256,8 +269,8 @@ describe("BlogContentPage", () => {
   });
 
   it("renders multiple linked productions", async () => {
-    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
-    getProductionsForBlogMock.mockResolvedValue([
+    const getProductionsForGroupMock = vi.mocked(getProductionsForGroup);
+    getProductionsForGroupMock.mockResolvedValue([
       {
         id_url: "http://localhost/api/v1/archive/productions/1",
         performer_type: "Ballet",
@@ -317,7 +330,7 @@ describe("BlogContentPage", () => {
       await user.click(document.getElementById("edit-blog-button")!);
 
       expect(document.getElementById("edit-actions")).toBeInTheDocument();
-      expect(screen.getByRole("textbox")).toBeInTheDocument();
+      expect(screen.getAllByRole("textbox")[0]).toBeInTheDocument();
     });
 
     it("exits edit mode when cancel is clicked without calling updateBlogByUrl", async () => {
@@ -334,7 +347,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Gewijzigde Titel");
       await user.click(document.getElementById("cancel-edit-blog-button")!);
@@ -348,7 +361,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Nieuwe Titel");
 
@@ -359,7 +372,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Gewijzigde Titel");
 
@@ -386,7 +399,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Nieuwe Titel");
 
@@ -406,7 +419,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Opgeslagen Titel");
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -446,7 +459,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Opgeslagen Titel");
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -460,7 +473,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Definitieve Titel");
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -478,7 +491,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Fout Titel");
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -499,7 +512,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlog);
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.clear(input);
       await user.type(input, "Bezig met Opslaan");
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -537,7 +550,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlogOneLanguage, "en");
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.type(input, "Nieuwe Titel");
 
       expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
@@ -556,7 +569,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlogOneLanguage, "en");
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.type(input, "Nieuwe Titel");
       await user.click(screen.getByTestId("save-content-btn"));
 
@@ -567,7 +580,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlogOneLanguage, "en");
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.type(input, "Nieuwe Titel");
       await user.click(screen.getByTestId("save-content-btn"));
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -592,7 +605,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlogOneLanguage, "en");
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.type(input, "Nieuwe Titel");
       await user.click(screen.getByTestId("save-content-btn"));
       await user.click(document.getElementById("save-edit-blog-button")!);
@@ -608,7 +621,7 @@ describe("BlogContentPage", () => {
       const { user } = renderPage(baseBlogOneLanguage, "en");
 
       await user.click(document.getElementById("edit-blog-button")!);
-      const input = screen.getByRole("textbox");
+      const input = screen.getAllByRole("textbox")[0];
       await user.type(input, "Nieuwe Titel");
       await user.click(screen.getByTestId("save-content-btn"));
       await user.click(document.getElementById("save-edit-blog-button")!);
