@@ -10,15 +10,25 @@ import {
   getProductionsForGroup,
 } from "~/features/archive/services/productionGroupService";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock("react-i18next", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-i18next")>();
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
 
 vi.mock("~/features/archive/services/productionGroupService", () => ({
   getProductionGroupByUrl: vi.fn(),
   getProductionsForGroup: vi.fn(),
+}));
+
+vi.mock("~/features/blogs/services/mediaService", () => ({
+  getMediaForBlog: vi
+    .fn()
+    .mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
 }));
 
 const mockBlogContentEN: BlogContent = {

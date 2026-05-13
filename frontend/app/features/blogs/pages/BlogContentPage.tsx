@@ -170,7 +170,7 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
 
   const primaryInfo = getProductionInfoByLanguage(
     production.production_infos,
-    lang ?? "en"
+    lang ?? "nl"
   );
 
   const title = primaryInfo?.title ?? t("blogs.contentPage.fallback");
@@ -551,7 +551,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             </article>
           </section>
 
-          <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
+          <BlogPageMediaGallery
+            contentHtml={contentHtml ?? ""}
+            title={title}
+            blog_id_url={blog.id_url}
+          />
 
           <LinkedProductions
             productionGroup={blogProdGroup}
