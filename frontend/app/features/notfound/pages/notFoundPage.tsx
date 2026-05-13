@@ -3,7 +3,7 @@ import NavigateButton from "~/shared/components/NavigateButton";
 export default function NotFoundPage() {
   const { t } = useTranslation();
   return (
-    <main>
+    <>
       <title>{`${t("notFound.title")} | VIERNULVIER`}</title>
       <div className="mx-auto max-w-5xl py-12 text-center md:py-24">
         <h1 className="mb-6 font-serif text-5xl italic md:mb-12 md:text-8xl">
@@ -22,6 +22,6 @@ export default function NotFoundPage() {
           "{t("notFound.quote")}"
         </p>
       </div>
-    </main>
+    </>
   );
 }

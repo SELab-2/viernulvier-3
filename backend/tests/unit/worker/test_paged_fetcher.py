@@ -95,3 +95,13 @@ def test_total_items_decreases_error():
 
     with pytest.raises(RuntimeError):
         fetcher.fetch_all("2024-01-01", {})
+
+
+# You might say this is a useless test, and I might have agreed with you,
+# but it made me find an error inside PagedFetcher, so I love this test ok.
+# If you don't believe me do a 'git blame', check the commit hash, and find
+# the associated commit to this change
+def test_not_implemented_error():
+    with pytest.raises(NotImplementedError):
+        fetcher = PagedFetcher(None)
+        fetcher.get_new_items_after(123)
