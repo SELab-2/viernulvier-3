@@ -1,8 +1,7 @@
-import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
-import type { EventWithResolvedRelations } from "./EventCard";
+import type { BlogContent } from "../types/blogTypes";
+import { Protected } from "~/features/auth";
+import { BLOG_PERMISSIONS } from "../blog.constants";
 
 const Spinner = () => (
   <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -12,12 +11,8 @@ type EditButtonProps = {
   action: string;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  originalInfo: ProductionInfo | null;
-  setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
-  originalEvents: EventWithResolvedRelations[] | null;
-  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
-  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
-  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  originalContent: BlogContent | null;
+  setDraftContent: React.Dispatch<React.SetStateAction<BlogContent | null>>;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
@@ -27,12 +22,8 @@ export default function EditButton({
   action,
   isEditing,
   setIsEditing,
-  originalInfo,
-  setDraftInfo,
-  originalEvents,
-  setDraftEvents,
-  setNewEvents,
-  setDeletedEvents,
+  originalContent,
+  setDraftContent,
   enable_save,
   is_saving,
   _handleSave,
@@ -51,10 +42,10 @@ export default function EditButton({
     font-semibold text-white
   `;
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+    <Protected permissions={[BLOG_PERMISSIONS.update]}>
       {!isEditing ? (
         <button
-          id="edit-production-button"
+          id="edit-blog-button"
           onClick={() => setIsEditing(true)}
           className={`${shared_css} bg-archive-accent`}
         >
@@ -63,20 +54,15 @@ export default function EditButton({
       ) : (
         <div id="edit-actions" className="flex gap-3">
           <button
-            id="cancel-edit-production-button"
+            id="cancel-edit-blog-button"
             onClick={() => {
               // Copy (not by reference)
-              setDraftInfo(originalInfo ? { ...originalInfo } : null);
-              setDraftEvents(
-                originalEvents ? originalEvents.map((e) => ({ ...e })) : []
-              );
-              setNewEvents([]);
-              setDeletedEvents([]);
+              setDraftContent(originalContent ? { ...originalContent } : null);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}
           >
-            {t("productionPage.edit.cancel")}
+            {t("blogs.contentPage.edit.cancel")}
           </button>
 
           <button
@@ -85,7 +71,7 @@ export default function EditButton({
             className={` ${shared_css} bg-archive-accent disabled:hover:bg-archive-accent flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40`}
             disabled={!enable_save || is_saving}
           >
-            {is_saving ? <Spinner /> : t("productionPage.edit.save")}
+            {is_saving ? <Spinner /> : t("blogs.contentPage.edit.save")}
           </button>
         </div>
       )}

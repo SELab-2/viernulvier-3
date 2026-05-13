@@ -1,4 +1,5 @@
 {
+  "notSaveChanges": "Je hebt niet opgeslagen wijzigingen. Toch doorgaan?",
   "loading": "Laden...",
   "nav": {
     "home": "Home",
@@ -54,11 +55,16 @@
     "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
-        "title": "Onbekende productie",
+        "title": "Onbekende productie titel",
         "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
     }
+  },
+  "editfield": {
+    "modified": "Aangepast",
+    "cancel": "Annuleren",
+    "save": "Opslaan"
   },
   "productionPage": {
     "fallback": {
@@ -80,6 +86,9 @@
     "archiveSchema": "Archiefschema",
     "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
+    "newEvent": "Nieuw Evenement",
+    "startDateLabel": "Start datum",
+    "endDateLabel": "Eind datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
@@ -94,7 +103,6 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
-      "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
@@ -242,7 +250,14 @@
       "backToBlogs": "Terug naar blogs",
       "linkedProductions": "Gelinkte producties:",
       "fallback": "Geen vertaling beschikbaar",
-      "media": "Gelinkte media:"
+      "media": "Gelinkte media:",
+      "edit": {
+        "title": "Pas titel aan",
+        "content": "Pas inhoud aan",
+        "edit": "Bewerk blog",
+        "cancel": "Annuleren",
+        "save": "Opslaan"
+      }
     },
     "detail": {
       "title": "Blog",

@@ -1,13 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { BlogContentPage } from "~/features/blogs/pages/BlogContentPage";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { AuthSessionProvider } from "~/features/auth";
+import {
+  getProductionsForBlog,
+  updateBlogByUrl,
+} from "~/features/blogs/services/blogService";
 
-vi.mock("~/features/archive/services/productionService", () => ({
-  getProductionByUrl: vi.fn(),
+vi.mock("~/features/blogs/services/blogService", () => ({
+  getProductionsForBlog: vi.fn(),
+  updateBlogByUrl: vi.fn(),
 }));
 
 vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
@@ -16,10 +22,50 @@ vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
   ),
 }));
 
+vi.mock("~/features/auth", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("~/features/auth")>();
+  return {
+    ...actual,
+    Protected: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  };
+});
+
 vi.mock("dompurify", () => ({
   default: {
     sanitize: (html: string) => html,
   },
+}));
+
+vi.mock("~/shared/components/ComplexEditableField", () => ({
+  default: ({
+    html,
+    isEditing,
+    onSave,
+    fallback,
+  }: {
+    html?: string;
+    isEditing: boolean;
+    onSave: (html: string) => void;
+    fallback: React.ReactNode;
+  }) =>
+    isEditing ? (
+      <div>
+        <div
+          data-testid="content-editor"
+          dangerouslySetInnerHTML={{ __html: html ?? "" }}
+        />
+        <button
+          data-testid="save-content-btn"
+          onClick={() => onSave("<p>Updated content</p>")}
+        >
+          Save content
+        </button>
+      </div>
+    ) : html ? (
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    ) : (
+      <>{fallback}</>
+    ),
 }));
 
 function renderPage(blog: Blog, preferredLanguage: string = "nl") {
@@ -35,12 +81,19 @@ function renderPage(blog: Blog, preferredLanguage: string = "nl") {
     }
   );
 
-  return render(<RouterProvider router={router} />);
+  return {
+    user: userEvent.setup(),
+    ...render(
+      <AuthSessionProvider>
+        <RouterProvider router={router} />
+      </AuthSessionProvider>
+    ),
+  };
 }
 
 const baseBlog: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -59,7 +112,7 @@ const baseBlog: Blog = {
 
 const baseBlogOneLanguage: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -72,7 +125,7 @@ const baseBlogOneLanguage: Blog = {
 
 const baseBlogEmptyContent: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_id_urls: [],
+  production_group_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -86,6 +139,8 @@ const baseBlogEmptyContent: Blog = {
 describe("BlogContentPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(getProductionsForBlog).mockResolvedValue([]);
+    vi.mocked(updateBlogByUrl).mockResolvedValue(baseBlog);
   });
 
   it("renders title and content for the active language", async () => {
@@ -148,9 +203,8 @@ describe("BlogContentPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("loads and renders linked productions", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
+  it("loads and renders linked productions via production group", async () => {
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
     const mockProduction: Production = {
       id_url: "http://localhost/api/v1/archive/productions/1",
       performer_type: "Opera",
@@ -167,17 +221,14 @@ describe("BlogContentPage", () => {
       event_id_urls: [],
       tags: [],
     };
-
-    getProductionByUrlMock.mockResolvedValue(mockProduction);
-
+    getProductionsForBlogMock.mockResolvedValue([mockProduction]);
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: ["http://localhost/api/v1/archive/productions/1"],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
       },
       "nl"
     );
-
     expect(
       await screen.findByRole("heading", { name: "Gekoppelde Productie" })
     ).toBeInTheDocument();
@@ -189,59 +240,279 @@ describe("BlogContentPage", () => {
   });
 
   it("handles a failed production fetch gracefully and omits it from the list", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
-    getProductionByUrlMock.mockRejectedValue(new Error("Network error"));
-
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
+    getProductionsForBlogMock.mockRejectedValue(new Error("Network error"));
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: ["http://localhost/api/v1/archive/productions/99"],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/99",
       },
       "nl"
     );
-
     await screen.findByTestId("blog-media-gallery");
-
     expect(
       screen.queryByRole("region", { name: "Linked productions" })
     ).not.toBeInTheDocument();
   });
 
   it("renders multiple linked productions", async () => {
-    const getProductionByUrlMock = vi.mocked(getProductionByUrl);
-
-    getProductionByUrlMock.mockImplementation(async (url: string) => ({
-      id_url: url,
-      performer_type: "Ballet",
-      production_infos: [
-        {
-          production_id_url: url,
-          language: "nl",
-          title: url.endsWith("/2") ? "Productie Twee" : "Productie Één",
-          supertitle: "Collectie",
-          artist: url.endsWith("/2") ? "Artiest Twee" : "Artiest Één",
-          tagline: "Een tagline",
-        },
-      ],
-      event_id_urls: [],
-      tags: [],
-    }));
-
+    const getProductionsForBlogMock = vi.mocked(getProductionsForBlog);
+    getProductionsForBlogMock.mockResolvedValue([
+      {
+        id_url: "http://localhost/api/v1/archive/productions/1",
+        performer_type: "Ballet",
+        production_infos: [
+          {
+            production_id_url: "http://localhost/api/v1/archive/productions/1",
+            language: "nl",
+            title: "Productie Één",
+            supertitle: "Collectie",
+            artist: "Artiest Één",
+            tagline: "Een tagline",
+          },
+        ],
+        event_id_urls: [],
+        tags: [],
+      },
+      {
+        id_url: "http://localhost/api/v1/archive/productions/2",
+        performer_type: "Ballet",
+        production_infos: [
+          {
+            production_id_url: "http://localhost/api/v1/archive/productions/2",
+            language: "nl",
+            title: "Productie Twee",
+            supertitle: "Collectie",
+            artist: "Artiest Twee",
+            tagline: "Een tagline",
+          },
+        ],
+        event_id_urls: [],
+        tags: [],
+      },
+    ]);
     renderPage(
       {
         ...baseBlog,
-        production_id_urls: [
-          "http://localhost/api/v1/archive/productions/1",
-          "http://localhost/api/v1/archive/productions/2",
-        ],
+        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
       },
       "nl"
     );
-
     expect(await screen.findByText("Productie Één")).toBeInTheDocument();
     expect(await screen.findByText("Productie Twee")).toBeInTheDocument();
     expect(screen.getByText("Artiest Één")).toBeInTheDocument();
     expect(screen.getByText("Artiest Twee")).toBeInTheDocument();
+  });
+
+  describe("edit functionality", () => {
+    it("shows the edit button when originalContent exists", () => {
+      renderPage(baseBlog);
+
+      expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
+    });
+
+    it("does not show the edit button when there is no content for the language", () => {
+      renderPage(baseBlogOneLanguage, "en");
+
+      expect(document.getElementById("edit-blog-button")).not.toBeInTheDocument();
+    });
+
+    it("switches to edit mode when the edit button is clicked", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+
+      expect(document.getElementById("edit-actions")).toBeInTheDocument();
+      expect(screen.getByRole("textbox")).toBeInTheDocument();
+    });
+
+    it("exits edit mode when cancel is clicked without calling updateBlogByUrl", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      await user.click(document.getElementById("cancel-edit-blog-button")!);
+
+      expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
+      expect(vi.mocked(updateBlogByUrl)).not.toHaveBeenCalled();
+    });
+
+    it("restores the original title when cancel is clicked after editing", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Gewijzigde Titel");
+      await user.click(document.getElementById("cancel-edit-blog-button")!);
+
+      expect(
+        screen.getByRole("heading", { name: "Nederlandse Blog Titel" })
+      ).toBeInTheDocument();
+    });
+
+    it("reflects title changes in the input while editing", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Nieuwe Titel");
+
+      expect(input).toHaveValue("Nieuwe Titel");
+    });
+
+    it("shows the modified indicator when the title is changed", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Gewijzigde Titel");
+
+      expect(screen.getByText("I18N_Modified")).toBeInTheDocument();
+    });
+
+    it("does not show the modified indicator when the title is unchanged", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+
+      expect(screen.queryByText("I18N_Modified")).not.toBeInTheDocument();
+    });
+
+    it("keeps the save button disabled when nothing has been modified", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+
+      expect(document.getElementById("save-edit-production-button")).toBeDisabled();
+    });
+
+    it("enables the save button after the title is changed", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Nieuwe Titel");
+
+      expect(document.getElementById("save-edit-production-button")).not.toBeDisabled();
+    });
+
+    it("enables the save button after the content is changed", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      await user.click(screen.getByTestId("save-content-btn"));
+
+      expect(document.getElementById("save-edit-production-button")).not.toBeDisabled();
+    });
+
+    it("calls updateBlogByUrl with the updated title on save", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Opgeslagen Titel");
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      await waitFor(() => {
+        expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
+          baseBlog.id_url,
+          expect.objectContaining({
+            blog_contents: expect.arrayContaining([
+              expect.objectContaining({ title: "Opgeslagen Titel", language: "nl" }),
+            ]),
+          })
+        );
+      });
+    });
+
+    it("calls updateBlogByUrl with the updated content on save", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      await user.click(screen.getByTestId("save-content-btn"));
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      await waitFor(() => {
+        expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
+          baseBlog.id_url,
+          expect.objectContaining({
+            blog_contents: expect.arrayContaining([
+              expect.objectContaining({ content: "<p>Updated content</p>" }),
+            ]),
+          })
+        );
+      });
+    });
+
+    it("exits edit mode after a successful save", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Opgeslagen Titel");
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      await waitFor(() => {
+        expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
+      });
+    });
+
+    it("reflects the saved title in the heading after a successful save", async () => {
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Definitieve Titel");
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("heading", { name: "Definitieve Titel" })
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("shows an alert and stays in edit mode when the save request fails", async () => {
+      vi.mocked(updateBlogByUrl).mockRejectedValue(new Error("Server error"));
+      const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Fout Titel");
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("Save failed"));
+      });
+      expect(document.getElementById("edit-actions")).toBeInTheDocument();
+    });
+
+    it("disables the save button while saving is in progress", async () => {
+      let resolveSave!: (blog: Blog) => void;
+      vi.mocked(updateBlogByUrl).mockReturnValue(
+        new Promise<Blog>((resolve) => {
+          resolveSave = resolve;
+        })
+      );
+      const { user } = renderPage(baseBlog);
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.clear(input);
+      await user.type(input, "Bezig met Opslaan");
+      await user.click(document.getElementById("save-edit-production-button")!);
+
+      expect(document.getElementById("save-edit-production-button")).toBeDisabled();
+
+      resolveSave(baseBlog);
+    });
   });
 });

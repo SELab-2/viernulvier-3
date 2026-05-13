@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 

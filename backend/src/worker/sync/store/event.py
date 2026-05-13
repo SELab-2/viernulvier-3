@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
+from src.models.event import Event
 from src.models.hall import Hall
 from src.models.production import Production
 from src.worker.converters.event import api_event_to_model_event
@@ -27,6 +28,8 @@ def store_new_events(db_session: Session, events: list[dict]):
         for (hall_id, hall_viernulvier_id) in existing_halls
     }
 
+    existing_vnv_ids = set(db_session.scalars(select(Event.viernulvier_id)))
+
     orphans = 0
 
     for json_event in events:
@@ -34,6 +37,10 @@ def store_new_events(db_session: Session, events: list[dict]):
             event, viernulvier_prod_id, viernulvier_hall_id = api_event_to_model_event(
                 json_event
             )
+
+            if event.viernulvier_id in existing_vnv_ids:
+                continue
+            existing_vnv_ids.add(event.viernulvier_id)
 
             # Check if the event is tied to a valid production, else we would get a
             # ForeignKey violation

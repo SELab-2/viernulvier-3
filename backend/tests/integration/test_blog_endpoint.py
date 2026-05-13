@@ -6,6 +6,7 @@ from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
 
+BASE_PROD_GROUP_URL = "/api/v1/archive/production-groups"
 BASE_PROD_URL = "/api/v1/archive/productions"
 BASE_BLOG_URL = "/api/v1/archive/blogs"
 
@@ -39,7 +40,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -177,8 +178,8 @@ def test_patch_blog_failure(client: TestClient, db_session: Session, blogs_limit
     assert response.json()["detail"] == "Incorrect permissions"
 
 
-# User can change productions of a blog if all given productions exist.
-def test_patch_blog_productions_success(
+# User can change production group of a blog if it exists
+def test_patch_blog_production_group_success(
     client: TestClient, db_session: Session, blogs_limited
 ):
     headers = create_user_and_login(
@@ -190,27 +191,17 @@ def test_patch_blog_productions_success(
     )
 
     data = response.json()
-    assert {
-        int(production_url.rstrip("/").split("/")[-1])
-        for production_url in data["production_id_urls"]
-    } == {1}
+    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
 
     response = client.patch(
         f"{BASE_BLOG_URL}/{id}",
-        json={
-            "production_id_urls": [
-                f"{BASE_PROD_URL}/{production_id}" for production_id in (1, 2)
-            ]
-        },
+        json={"production_group_id_url": f"{BASE_PROD_GROUP_URL}/2"},
         headers=headers,
     )
 
     # Updated in response.
     data = response.json()
-    assert {
-        int(production_url.rstrip("/").split("/")[-1])
-        for production_url in data["production_id_urls"]
-    } == {1, 2}
+    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
 
     response = client.get(
         BASE_BLOG_URL + f"/{id}",
@@ -218,10 +209,7 @@ def test_patch_blog_productions_success(
 
     # Updated in database.
     data = response.json()
-    assert {
-        int(production_url.rstrip("/").split("/")[-1])
-        for production_url in data["production_id_urls"]
-    } == {1, 2}
+    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
 
 
 # User with permissions can delete an existing content of an existing blog.
@@ -244,7 +232,7 @@ def test_patch_blog_delete_content_success(
     assert len(data["blog_contents"]) == 1
 
 
-# User should be able to create a new blog with productions.
+# User should be able to create a new blog with a production group.
 def test_create_blog_success(
     client: TestClient,
     db_session: Session,
@@ -261,19 +249,14 @@ def test_create_blog_success(
                 "title": "Nieuwe blog",
                 "content": "Nieuwe content",
             },
-            "production_id_urls": [
-                f"{BASE_PROD_URL}/{production_id}" for production_id in (1, 2)
-            ],
+            "production_group_id_url": f"{BASE_PROD_GROUP_URL}/1",
         },
         headers=headers,
     )
 
     assert response.status_code == 201
     data = response.json()
-    assert {
-        int(production_url.rstrip("/").split("/")[-1])
-        for production_url in data["production_id_urls"]
-    } == {1, 2}
+    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
     assert data["blog_contents"][0]["title"] == "Nieuwe blog"
 
 
@@ -299,7 +282,7 @@ def test_delete_blog_failure(client: TestClient, db_session: Session, blogs_limi
 def test_get_blogs_by_production_success(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_PROD_URL}/1/blogs/")
+    response = client.get(f"{BASE_PROD_URL}/1/blogs")
     assert response.status_code == 200
 
     data = response.json()
@@ -314,7 +297,7 @@ def test_get_blogs_by_production_with_language(
     client: TestClient, db_session: Session, blogs_limited
 ):
     response = client.get(
-        f"{BASE_PROD_URL}/1/blogs/",
+        f"{BASE_PROD_URL}/1/blogs",
         headers={"Accept-Language": Languages.ENGLISH},
     )
     assert response.status_code == 200
@@ -330,7 +313,7 @@ def test_get_blogs_by_production_with_language(
 def test_get_blogs_by_production_empty(
     client: TestClient, db_session: Session, blogs_limited
 ):
-    response = client.get(f"{BASE_PROD_URL}/999/blogs/")
+    response = client.get(f"{BASE_PROD_URL}/999/blogs")
     assert response.status_code == 200
 
     data = response.json()
