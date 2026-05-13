@@ -45,7 +45,6 @@ export function ProductionInfoSection({
 
   function handleSave(field: string, html: string) {
     onSave(field, html);
-    setEditing(null);
   }
 
   return (
