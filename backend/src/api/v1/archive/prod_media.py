@@ -33,7 +33,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/{production_id}/media/",
+    "/{production_id}/media",
     response_model=MediaListResponse,
     summary="Get media for production",
     description="Returns paginated media linked to a production.",
@@ -50,7 +50,7 @@ async def get_media_for_production(
 
 
 @router.post(
-    "/{production_id}/media/",
+    "/{production_id}/media",
     response_model=MediaResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Upload media for production",

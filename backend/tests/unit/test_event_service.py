@@ -103,7 +103,7 @@ def test_create_event_invalid_prod_hall_error(db_session, hall):
     with pytest.raises(ValidationError):
         create_event(db_session, event, BASE_URL)
 
-    event = EventCreate(production_id_url="", hall_id_url="lls/")
+    event = EventCreate(production_id_url="", hall_id_url="lls")
 
     with pytest.raises(ValidationError):
         create_event(db_session, event, BASE_URL)

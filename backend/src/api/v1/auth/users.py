@@ -29,7 +29,7 @@ def get_current_user_profile(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[UserResponse],
     summary="List all users",
     description="Returns all users with their roles and permissions.",
@@ -44,7 +44,7 @@ def list_users(
 
 
 @router.post(
-    "/",
+    "",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a user",

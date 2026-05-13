@@ -237,13 +237,13 @@ def test_api_genre_to_model_tag():
         "slug": {"nl": "Met voeltoer"},
     }
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 100
-    assert len(tag_names) == 2
+    assert len(tag.names) == 2
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.DUTCH][0]
-    tagname_en = [tn for tn in tag_names if tn.language == Languages.ENGLISH][0]
+    tagname_nl = [tn for tn in tag.names if tn.language == Languages.DUTCH][0]
+    tagname_en = [tn for tn in tag.names if tn.language == Languages.ENGLISH][0]
 
     assert tagname_nl.name == "Met voeltoer"
     assert tagname_en.name == "With feeling tour"
@@ -263,27 +263,45 @@ def test_api_genre_to_model_tag_fallback():
         "vendor_id": "cabaret",
     }
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 1
-    assert len(tag_names) == 1
+    assert len(tag.names) == 1
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.DUTCH][0]
+    tagname_nl = [tn for tn in tag.names if tn.language == Languages.DUTCH][0]
 
     assert tagname_nl.name == "cabaret"
 
     assert len(tag.productions) == 0
 
 
+def test_api_genre_to_model_tag_unknown_language(caplog):
+    caplog.set_level(logging.WARNING)
+    test_input = {
+        "@id": "/api/v1/genres/100",
+        "name": {
+            "fr": "Je ne sais quoi",
+        },
+    }
+
+    tag = api_genre_to_model_tag(test_input)
+    assert len(tag.names) == 0
+
+    # Check the log messages for dropped languages (fr)
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0] == "ignoring language fr for Tag(viernulvier_id=100)"
+
+
 # Test tags without name should just return an empty list
 def test_api_genre_to_none():
     test_input = {"@id": "/api/v1/genres/7"}
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag is not None
     assert tag.viernulvier_id == 7
-    assert len(tag_names) == 0
+    assert len(tag.names) == 0
 
 
 def test_get_address_from_location():

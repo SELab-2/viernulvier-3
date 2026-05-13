@@ -138,11 +138,11 @@ export default function HistoryPage() {
   }
   function renderMain() {
     return (
-      <main>
+      <>
         <title>{`${t("nav.history")} | VIERNULVIER`}</title>
         {renderHeroSection()}
         {renderContentSection()}
-      </main>
+      </>
     );
   }
 

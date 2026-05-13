@@ -11,6 +11,7 @@ from src.api.v1.archive import (
     artists,
     blogs,
     history,
+    visuals,
 )
 
 
@@ -40,3 +41,5 @@ router.include_router(artists.router, prefix="/artists", tags=["Artists"])
 router.include_router(blogs.router, prefix="/blogs", tags=["Blogs"])
 
 router.include_router(history.router, prefix="/history", tags=["History"])
+
+router.include_router(visuals.router, prefix="/visuals", tags=["Visuals"])

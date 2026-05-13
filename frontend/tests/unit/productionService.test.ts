@@ -95,8 +95,8 @@ describe("productionService", () => {
 
     const apiClient = createApiClient();
     mockAdapter = new AxiosMockAdapter(apiClient);
-    mockAdapter.onGet("/api/v1/archive/productions/1/").reply(200, mockProduction1);
-    mockAdapter.onGet("/api/v1/archive/productions/2/").reply(200, mockProduction2);
+    mockAdapter.onGet("/api/v1/archive/productions/1").reply(200, mockProduction1);
+    mockAdapter.onGet("/api/v1/archive/productions/2").reply(200, mockProduction2);
     vi.spyOn(axios, "create").mockReturnValue(apiClient);
   });
 
@@ -112,7 +112,7 @@ describe("productionService", () => {
         pagination: pagination,
       };
 
-      mockAdapter.onGet("/api/v1/archive/productions/").reply(200, mockProductionList);
+      mockAdapter.onGet("/api/v1/archive/productions").reply(200, mockProductionList);
       const result = await getProductionsPaginated();
 
       expect(result.productions).toHaveLength(2);
@@ -146,7 +146,7 @@ describe("productionService", () => {
   describe("createProduction", () => {
     it("creates a new production and returns it", async () => {
       const production_info: ProductionInfo = {
-        production_id_url: "/api/v1/archive/productions/3/",
+        production_id_url: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
         artist: "William Shatner",
@@ -159,21 +159,21 @@ describe("productionService", () => {
       };
 
       const mockResponse: Production = {
-        id_url: "/api/v1/archive/productions/3/",
+        id_url: "/api/v1/archive/productions/3",
         production_infos: [production_info],
         event_id_urls: [],
         tags: [tag1],
       };
 
-      mockAdapter.onPost("/api/v1/archive/productions/").reply(201, mockResponse);
+      mockAdapter.onPost("/api/v1/archive/productions").reply(201, mockResponse);
       const result = await createProduction(productionData);
       expect(result).toEqual(mockResponse);
-      expect(result.id_url).toBe("/api/v1/archive/productions/3/");
+      expect(result.id_url).toBe("/api/v1/archive/productions/3");
     });
 
     it("throws when create request fails", async () => {
       const production_info: ProductionInfo = {
-        production_id_url: "/api/v1/archive/productions/3/",
+        production_id_url: "/api/v1/archive/productions/3",
         language: "en",
         title: "Rocking the Suburbs!",
         artist: "William Shatner",
@@ -185,7 +185,7 @@ describe("productionService", () => {
         tag_id_urls: ["1", "2"],
       };
 
-      mockAdapter.onPost("/api/v1/archive/productions/").reply(400);
+      mockAdapter.onPost("/api/v1/archive/productions").reply(400);
 
       await expect(createProduction(productionData)).rejects.toThrow();
     });
@@ -209,7 +209,7 @@ describe("productionService", () => {
       };
 
       mockAdapter
-        .onPatch("/api/v1/archive/productions/2/")
+        .onPatch("/api/v1/archive/productions/2")
         .reply(200, mockProduction2_updated);
 
       const result = await updateProduction(2, productionUpdate);
@@ -224,19 +224,19 @@ describe("productionService", () => {
         attendance_mode: "online",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/productions/2/").reply(400);
+      mockAdapter.onPatch("/api/v1/archive/productions/2").reply(400);
       await expect(updateProduction(1, productionUpdate)).rejects.toThrow();
     });
   });
   describe("deleteProduction", () => {
     it("deletes a production successfully", async () => {
-      mockAdapter.onDelete("/api/v1/archive/productions/1/").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/productions/1").reply(204);
 
       await expect(deleteProduction(1)).resolves.toBeUndefined();
     });
 
     it("throws when delete request fails", async () => {
-      mockAdapter.onDelete("/api/v1/archive/productions/1/").reply(404);
+      mockAdapter.onDelete("/api/v1/archive/productions/1").reply(404);
 
       await expect(deleteProduction(1)).rejects.toThrow();
     });

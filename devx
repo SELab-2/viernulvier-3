@@ -324,7 +324,7 @@ function test_cmd() {
 				(
 					run cd backend \
 						&& run coverage run -m pytest \
-						&& run coverage html \
+						&& run coverage html --omit="tests/*" \
 						&& run xdg-open htmlcov/index.html >/dev/null 2>&1
 				)
 				;;

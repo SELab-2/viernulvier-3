@@ -23,7 +23,7 @@ export interface Event {
 
 export interface EventCreate {
   production_id_url: string;
-  hall_id_url: string;
+  hall_id_url?: string;
   starts_at?: string;
   ends_at?: string;
   order_url?: string;

@@ -74,6 +74,8 @@ export default function BlogPage() {
   };
 
   return (
+    <>
+    <title>{`${t("nav.blogs")} | VIERNULVIER`}</title>
     <div className="mx-6 md:mx-10">
       <div className="mb-10 md:mb-16">
         <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
@@ -111,5 +113,6 @@ export default function BlogPage() {
         />
       )}
     </div>
+    </>
   );
 }

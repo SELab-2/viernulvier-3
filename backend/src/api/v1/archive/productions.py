@@ -29,7 +29,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=ProductionListResponse,
     summary="Get productions",
     description="Gets all productions of the database, using pagination.",
@@ -84,7 +84,7 @@ async def get_productions(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductionResponse,
     status_code=201,
     summary="Create production",
@@ -158,7 +158,7 @@ async def delete_production(
 
 
 @router.get(
-    "/{production_id}/blogs/",
+    "/{production_id}/blogs",
     response_model=BlogListResponse,
     summary="Get blogs by production id",
     description="Get all blogs linked to a specific production",

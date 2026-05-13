@@ -21,7 +21,7 @@ export async function getBlogsPaginated(
 ): Promise<BlogList> {
   const apiClient = createApiClient();
 
-  const response = await apiClient.get<BlogList>(`${ARCHIVE_PATH}/blogs/`, {
+  const response = await apiClient.get<BlogList>(`${ARCHIVE_PATH}/blogs`, {
     params: { ...params },
   });
 
@@ -64,7 +64,7 @@ export async function getBlogsForProduction(productionUrl: string): Promise<Blog
 
     const apiClient = createApiClient();
     const response = await apiClient.get<BlogList>(
-      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs`
     );
 
     return response.data.blogs;
