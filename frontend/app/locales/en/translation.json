@@ -5,8 +5,11 @@
     "home": "Home",
     "archive": "Archive",
     "history": "History",
+    "blog": "Blog",
     "blogs": "Blogs",
-    "users": "Users"
+    "blogs_create": "Create Blog",
+    "users": "Users",
+    "login": "Log in"
   },
   "footer": {
     "website": "Our official website"
