@@ -6,7 +6,7 @@ import { AuthSessionProvider } from "~/features/auth";
 import * as loginServiceModule from "~/features/auth/services/loginService";
 import * as productionServiceModule from "~/features/archive/services/productionService";
 
-import DeleteInfoButton from "~/features/archive/components/DeleteInfoButton";
+import { DeleteInfoButton } from "~/features/archive/components/DeleteInfoButton";
 
 const baseUser = {
   id: 1,
