@@ -174,6 +174,23 @@ def test_update_blog_prod_group(db_session, blogs_limited):
     assert blog_response.production_group_id_url == f"{BASE_URL}/production-groups/2"
 
 
+# Unlink production group of a blog
+def test_unlink_blog_prod_group(db_session, blogs_limited):
+    blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
+    assert blog_response.production_group_id_url == f"{BASE_URL}/production-groups/1"
+
+    blog_update1 = BlogUpdate(production_group_id_url="")
+
+    # Correct responses are returned.
+    result = update_blog_by_id(db_session, blog_update1, blogs_limited[0].id, BASE_URL)
+
+    assert result.production_group_id_url is None
+
+    # Updated in database.
+    blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
+    assert blog_response.production_group_id_url is None
+
+
 # Update an existing blog - delete existing blog content.
 def test_update_blog_content_delete(db_session, blogs_limited):
     blog_response = get_blog_by_id(db_session, blogs_limited[1].id, BASE_URL)

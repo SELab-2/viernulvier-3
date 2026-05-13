@@ -59,7 +59,7 @@ def get_production_group_for_blog(
 ) -> list[str]:
     blog = db.get(Blog, blog_id)
     if not blog or not blog.production_group:
-        return ""
+        return None
 
     return f"{base_url}/production-groups/{blog.production_group.id}"
 
@@ -184,7 +184,9 @@ def update_blog_by_id(
             blog.production_group = None
         else:
             production_group_id_url = blog_in.production_group_id_url
-            production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+            production_group_id = int(
+                production_group_id_url.rstrip("/").split("/")[-1]
+            )
 
             production_group = (
                 db.query(ProductionGroup)
