@@ -18,7 +18,6 @@ import {
   getBlogByUrl,
   getBlogsForProduction,
   getBlogsPaginated,
-  getProductionsForBlog,
   updateBlog,
   updateBlogByUrl,
 } from "~/features/blogs/services/blogService";
