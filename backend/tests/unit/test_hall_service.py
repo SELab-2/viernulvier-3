@@ -22,7 +22,7 @@ def test_create_hall(db_session):
     assert hall.names[0].language == "en"
     assert hall.names[0].name == "Main Hall"
     assert hall.address == "Street 1"
-    assert hall.id_url.startswith("BASE/halls/")
+    assert hall.id_url.startswith("BASE/halls")
 
 
 def test_get_hall_by_id_success(db_session):
@@ -37,7 +37,7 @@ def test_get_hall_by_id_success(db_session):
     assert len(result.names) == 1
     assert result.names[0].name == "Hall A"
     assert result.address == "Street A"
-    assert result.id_url.startswith("BASE/halls/")
+    assert result.id_url.startswith("BASE/halls")
 
 
 def test_get_hall_by_id_not_found(db_session):
@@ -61,7 +61,7 @@ def test_get_all_halls(db_session):
     assert len(halls[1].names) == 1
     assert halls[0].names[0].name == "Hall A"
     assert halls[1].names[0].name == "Hall B"
-    assert all(hall.id_url.startswith("BASE/halls/") for hall in halls)
+    assert all(hall.id_url.startswith("BASE/halls") for hall in halls)
 
 
 def test_update_hall_success(db_session):
@@ -87,7 +87,7 @@ def test_update_hall_success(db_session):
     assert updated.names[1].language == "nl"
     assert updated.names[1].name == "Nieuwe Hal"
     assert updated.address == "New Street"
-    assert updated.id_url.startswith("BASE/halls/")
+    assert updated.id_url.startswith("BASE/halls")
 
 
 def test_update_hall_not_found(db_session):

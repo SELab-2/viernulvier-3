@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 import { Protected } from "~/features/auth";
 
 type SimpleEditableFieldProps = {
@@ -9,6 +8,7 @@ type SimpleEditableFieldProps = {
   onChange: (value: string) => void;
   renderView: (value: string) => React.ReactNode;
   isModified: boolean;
+  permissions: string[];
 };
 // <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
 // </Protected>
@@ -19,13 +19,14 @@ export default function SimpleEditableField({
   onChange,
   renderView,
   isModified,
+  permissions,
 }: SimpleEditableFieldProps) {
   const normal_view = <>{renderView(value)}</>;
   const { t } = useTranslation();
 
   if (isEditing) {
     return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]} fallback={normal_view}>
+      <Protected permissions={permissions} fallback={normal_view}>
         <div
           className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-2 backdrop-blur-md transition md:p-4 ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
         >
@@ -36,7 +37,7 @@ export default function SimpleEditableField({
 
             {isModified && (
               <span className="text-archive-paper text-[10px] tracking-widest uppercase opacity-80">
-                {t("productionPage.edit.modified")}
+                {t("editfield.modified")}
               </span>
             )}
           </div>

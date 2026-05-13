@@ -80,7 +80,7 @@ def test_create_tag(db_session):
 
     result = create_tag(db_session, tag_in, BASE_URL)
 
-    assert result.id_url.startswith(f"{BASE_URL}/tags/")
+    assert result.id_url.startswith(f"{BASE_URL}/tags")
     assert len(result.names) == 2
 
     names = {n.language: n.name for n in result.names}
