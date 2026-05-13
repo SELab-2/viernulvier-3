@@ -158,7 +158,9 @@ export function CreateProductionPage() {
       <title>{`${t("nav.create_production")} | VIERNULVIER`}</title>
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
-        <h1 className="mb-2 font-serif text-3xl italic">{t("archive.create_production")}</h1>
+        <h1 className="mb-2 font-serif text-3xl italic">
+          {t("archive.create_production")}
+        </h1>
         <ProductionHeader
           production_info={null}
           image_url={imageUrl}

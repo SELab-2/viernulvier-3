@@ -102,7 +102,7 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
   "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
-  "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",  
+  "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

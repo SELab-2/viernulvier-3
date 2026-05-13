@@ -21,9 +21,10 @@ describe("CreateProductionPage", () => {
   beforeEach(() => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(adminUser);
     vi.mocked(productionService.createProduction).mockResolvedValue({
-        id_url: "/api/productions/123", production_infos: [],
-        event_id_urls: [],
-        tags: []
+      id_url: "/api/productions/123",
+      production_infos: [],
+      event_id_urls: [],
+      tags: [],
     });
   });
 
