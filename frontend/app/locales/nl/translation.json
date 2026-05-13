@@ -305,16 +305,21 @@
     },
     "form": {
       "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "passwordEditHint": "Laat het wachtwoord leeg om het huidige wachtwoord ongewijzigd te laten.",
       "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEditHint": "Kies de rollen die aan dit account gekoppeld moeten blijven.",
       "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
     },
     "actions": {
       "retry": "Opnieuw proberen",
       "refresh": "Herladen",
       "add": "Gebruiker toevoegen",
+      "edit": "Gebruiker bewerken",
       "cancel": "Annuleren",
       "create": "Gebruiker aanmaken",
       "creating": "Gebruiker wordt aangemaakt",
+      "update": "Wijzigingen opslaan",
+      "updating": "Wijzigingen worden opgeslagen",
       "delete": "Gebruiker verwijderen",
       "deleting": "Gebruiker wordt verwijderd"
     },
@@ -328,7 +333,9 @@
     "messages": {
       "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
       "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "updateFailed": "De gebruiker kon nu niet worden bijgewerkt.",
       "deleteFailed": "De gebruiker kon nu niet worden verwijderd.",
+      "sessionRefreshFailed": "De gebruiker is bijgewerkt, maar de actieve sessie kon niet ververst worden.",
       "usernameRequired": "Een gebruikersnaam is verplicht.",
       "passwordRequired": "Een wachtwoord is verplicht."
     },
@@ -336,6 +343,10 @@
       "create": {
         "title": "Gebruiker toevoegen",
         "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
+      },
+      "edit": {
+        "title": "Gebruiker bewerken",
+        "description": "Werk de accountgegevens of toegewezen rollen van deze gebruiker bij."
       },
       "delete": {
         "title": "Gebruiker verwijderen",
