@@ -28,7 +28,7 @@ const studentUser = {
   permissions: ["archive:update"],
   createdAt: "2024-01-01T00:00:00Z",
   lastLoginAt: null,
-}
+};
 
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
@@ -57,31 +57,41 @@ describe("CreateProductionButton", () => {
   it("create button is not visible without rights", async () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(studentUser);
     await renderArchiveAndNavigate();
-    
+
     expect(screen.queryByText("I18_Archive_Create_Production")).not.toBeInTheDocument();
   });
 
   it("navigating with rights shows CreateProductionPage", async () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(adminUser);
 
-    renderWithRouterAndTheme({ 
-        useRealCreateProductionPage: true, 
-        initialPath: "/archive/productions/create" 
+    renderWithRouterAndTheme({
+      useRealCreateProductionPage: true,
+      initialPath: "/archive/productions/create",
     });
 
-    expect(await screen.findByText("I18N_ProductionInfo_Edit_Title")).toBeInTheDocument();
-    expect(await screen.findByText("I18N_ProductionInfo_Edit_Teaser")).toBeInTheDocument();
-    expect(await screen.findByText("I18N_ProductionInfo_Edit_Description")).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_ProductionInfo_Edit_Title")
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_ProductionInfo_Edit_Teaser")
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_ProductionInfo_Edit_Description")
+    ).toBeInTheDocument();
   });
 
   it("navigating without rights shows access denied", async () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(studentUser);
-    renderWithRouterAndTheme({ 
-        useRealCreateProductionPage: true, 
-        initialPath: "/archive/productions/create" 
+    renderWithRouterAndTheme({
+      useRealCreateProductionPage: true,
+      initialPath: "/archive/productions/create",
     });
 
-    expect(await screen.findByText("I18N_Archive_Access_Denied_Title")).toBeInTheDocument();
-    expect(await screen.findByText("I18N_Archive_Access_Denied_Description")).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_Archive_Access_Denied_Title")
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("I18N_Archive_Access_Denied_Description")
+    ).toBeInTheDocument();
   });
-})
+});

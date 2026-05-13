@@ -1,9 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import SimpleEditableField from "~/shared/components/SimpleEditableField";
+
+function getTextOrDefault(value: string | null | undefined, fallback: string): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
 
 type ProductionInfoSectionProps = {
   tagline: string;
+  originalTagline: string | undefined | null;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
@@ -14,6 +25,7 @@ type ProductionInfoSectionProps = {
 
 export function ProductionInfoSection({
   tagline,
+  originalTagline,
   teaserHtml,
   descriptionHtml,
   infoHtml,
@@ -37,7 +49,22 @@ export function ProductionInfoSection({
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {tagline && <p id="tagline">{tagline}</p>}
+      <SimpleEditableField
+        value={tagline}
+        isEditing={globalIsEditing}
+        onChange={(value) => handleSave("tagline", value)}
+        label={"tagline"}
+        renderView={(value) => (
+          <p
+            id="supertitle"
+            className="font-sans text-[0.65rem] tracking-[0.28em]ext-archive-ink text-sm uppercase"
+          >
+            {getTextOrDefault(value, t("productionPage.fallback.archive"))}
+          </p>
+        )}
+        isModified={tagline !== (originalTagline ?? "")}
+      />
+      
 
       <ComplexEditableField
         id="teaser"

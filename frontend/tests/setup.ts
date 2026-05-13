@@ -28,7 +28,7 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.explore": "I18N_Home_Button_Explore",
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
-   "archive.create_production": "I18_Archive_Create_Production",
+  "archive.create_production": "I18_Archive_Create_Production",
   "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
   "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",

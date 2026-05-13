@@ -28,7 +28,7 @@ import { getMediaForProduction } from "~/features/archive/services/mediaService"
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
-import { BackToCollectionLink } from "../components/BackToCollectionLink"
+import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { DeleteInfoButton } from "../components/DeleteInfoButton";
 import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
@@ -504,7 +504,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(productionInfo?.tagline, "");
+  const tagline = getTextOrDefault(draftInfo?.tagline, "");
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
@@ -669,6 +669,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
               tagline={tagline}
+              originalTagline={originalInfo?.tagline}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}

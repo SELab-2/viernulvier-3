@@ -1,5 +1,5 @@
-import { ProductionInfoSection } from "../components/ProductionInfoSection"
-import { ProductionHeader } from "../components/ProductionHeader"
+import { ProductionInfoSection } from "../components/ProductionInfoSection";
+import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -27,62 +27,63 @@ export function CreateProductionPageAccessDenied() {
 }
 
 export function CreateProductionPage() {
-    const { lang } = useParams();
-    const { t } = useTranslation();
-    const emptyInfo: ProductionInfo = {
-        production_id_url: "",
-        language: lang!,
-        title: t("archive.add_info.title"),
-        supertitle: t("archive.add_info.supertitle"),
-        artist: t("archive.add_info.artist"),
-        tagline: t("archive.add_info.tagline"),
-        teaser: t("archive.add_info.teaser"),
-        description: t("archive.add_info.description"),
-        info: t("archive.add_info.info"),
-    };
-    const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(emptyInfo);
-    const [isQuillDirty, setIsQuillDirty] = useState(false);
+  const { lang } = useParams();
+  const { t } = useTranslation();
+  const emptyInfo: ProductionInfo = {
+    production_id_url: "",
+    language: lang!,
+    title: t("archive.add_info.title"),
+    supertitle: t("archive.add_info.supertitle"),
+    artist: t("archive.add_info.artist"),
+    tagline: t("archive.add_info.tagline"),
+    teaser: t("archive.add_info.teaser"),
+    description: t("archive.add_info.description"),
+    info: t("archive.add_info.info"),
+  };
+  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(emptyInfo);
+  const [isQuillDirty, setIsQuillDirty] = useState(false);
 
-    // TODO
-    const fallbackImageUrl =
+  // TODO
+  const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-    const imageUrl = fallbackImageUrl;
+  const imageUrl = fallbackImageUrl;
 
-    return (
-        <div className="bg-archive-paper text-archive-ink min-h-screen">
-            <title>{`${t("archive.create_production")} | VIERNULVIER`}</title>
-            <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
-                <BackToCollectionLink />
-                <ProductionHeader
-                  production_info={null}
-                  image_url={imageUrl}
-                  isEditing={true}
-                  originalInfo={emptyInfo}
-                  draftInfo={draftInfo}
-                  setDraftInfo={setDraftInfo}
-                />
-                <section id="production-info" className="mt-8">
-                    <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-                        <ProductionInfoSection
-                            tagline={emptyInfo.tagline}
-                            teaserHtml={emptyInfo.teaser}
-                            descriptionHtml={emptyInfo.description}
-                            infoHtml={emptyInfo.info}
-                            isEditing={true}
-                            onSave={(field, html) => {
-                                const isEmpty = html === "<p><br></p>" || html === "";
-                                setDraftInfo((prev) =>
-                                    prev ? { ...prev, [field]: isEmpty ? null : html } : prev
-                                );
-                            }}
-                            onQuillDirtyChange={useCallback(
-                                (isDirty: boolean) => setIsQuillDirty(isDirty),
-                                []
-                            )}
-                        />
-                    </article>
-                </section>
-            </main>
-        </div>      
-    )
+  return (
+    <div className="bg-archive-paper text-archive-ink min-h-screen">
+      <title>{`${t("archive.create_production")} | VIERNULVIER`}</title>
+      <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
+        <BackToCollectionLink />
+        <ProductionHeader
+          production_info={null}
+          image_url={imageUrl}
+          isEditing={true}
+          originalInfo={emptyInfo}
+          draftInfo={draftInfo}
+          setDraftInfo={setDraftInfo}
+        />
+        <section id="production-info" className="mt-8">
+          <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+            <ProductionInfoSection
+              tagline={emptyInfo.tagline!}
+              originalTagline={emptyInfo.tagline}
+              teaserHtml={emptyInfo.teaser}
+              descriptionHtml={emptyInfo.description}
+              infoHtml={emptyInfo.info}
+              isEditing={true}
+              onSave={(field, html) => {
+                const isEmpty = html === "<p><br></p>" || html === "";
+                setDraftInfo((prev) =>
+                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                );
+              }}
+              onQuillDirtyChange={useCallback(
+                (isDirty: boolean) => setIsQuillDirty(isDirty),
+                []
+              )}
+            />
+          </article>
+        </section>
+      </main>
+    </div>
+  );
 }
