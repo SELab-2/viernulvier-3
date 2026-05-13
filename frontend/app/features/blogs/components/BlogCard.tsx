@@ -189,7 +189,6 @@ export function BlogCard({
   // Fallback should never happen, but just in case...
   const title = blog_content?.title || t("blogs.card.noTitleFound");
   const content = blog_content?.content || t("blogs.card.noContentFound");
-  const imageUrl = DEFAULT_IMAGE;
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);
 
