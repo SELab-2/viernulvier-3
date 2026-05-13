@@ -3,7 +3,6 @@ import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
 import { deltaToHtml, htmlToDelta } from "~/archive-rich-text.client";
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 import { FiEdit2 } from "react-icons/fi";
 
 const ArchiveRichTextFieldLazy = lazy(() =>
@@ -46,6 +45,7 @@ type ComplexEditableFieldProps = {
   onSave: (html: string) => void;
   onCancel: () => void;
   canEdit: boolean;
+  permissions: string[];
   onDirtyChange?: (isDirty: boolean) => void;
 };
 
@@ -59,6 +59,7 @@ export default function ComplexEditableField({
   onSave,
   onCancel,
   canEdit,
+  permissions,
   onDirtyChange,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
@@ -96,7 +97,7 @@ export default function ComplexEditableField({
 
   if (isEditing) {
     return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+      <Protected permissions={permissions}>
         <div id={id}>
           <ArchiveRichTextFieldWrapper
             label={field}
@@ -110,7 +111,7 @@ export default function ComplexEditableField({
           />
           <div className="mt-2 flex gap-2">
             <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>
-              {t("productionPage.edit.cancel")}
+              {t("editfield.cancel")}
             </button>
             <button
               className={`${shared_css} bg-archive-accent`}
@@ -121,7 +122,7 @@ export default function ComplexEditableField({
                 }
               }}
             >
-              {t("productionPage.edit.save")}
+              {t("editfield.save")}
             </button>
           </div>
         </div>

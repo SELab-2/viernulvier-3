@@ -21,7 +21,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[TagResponse],
     summary="Get all tags",
     description="Returns a list of tags.",
@@ -53,7 +53,7 @@ def get_tag(
 
 
 @router.post(
-    "/",
+    "",
     response_model=TagResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a new tag",
