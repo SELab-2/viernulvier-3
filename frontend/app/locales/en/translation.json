@@ -258,7 +258,8 @@
         "content": "Edit content",
         "edit": "Edit blog",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "add": "Add content"
       }
     },
     "detail": {
