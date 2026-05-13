@@ -57,17 +57,17 @@ export function CreateProductionPage() {
                   production_info={null}
                   image_url={imageUrl}
                   isEditing={true}
-                  originalInfo={null}
+                  originalInfo={emptyInfo}
                   draftInfo={draftInfo}
                   setDraftInfo={setDraftInfo}
                 />
                 <section id="production-info" className="mt-8">
                     <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
                         <ProductionInfoSection
-                            tagline={""}
-                            teaserHtml={undefined}
-                            descriptionHtml={undefined}
-                            infoHtml={undefined}
+                            tagline={emptyInfo.tagline}
+                            teaserHtml={emptyInfo.teaser}
+                            descriptionHtml={emptyInfo.description}
+                            infoHtml={emptyInfo.info}
                             isEditing={true}
                             onSave={(field, html) => {
                                 const isEmpty = html === "<p><br></p>" || html === "";

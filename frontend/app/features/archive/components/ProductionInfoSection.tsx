@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
 
 type ProductionInfoSectionProps = {
-  tagline: string;
+  tagline: string | undefined;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
@@ -37,7 +37,18 @@ export function ProductionInfoSection({
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {tagline && <p id="tagline">{tagline}</p>}
+      <ComplexEditableField
+        id="tagline"
+        field={t("productionPage.edit.tagline")}
+        html={tagline}
+        isEditing={editing === "tagline"}
+        onStartEdit={() => globalIsEditing && setEditing("tagline")}
+        onSave={(html) => handleSave("tagline", html)}
+        onCancel={() => setEditing(null)}
+        fallback={<p className="opacity-75">{t("productionPage.fallback.noTagline")}</p>}
+        canEdit={globalIsEditing}
+        onDirtyChange={onQuillDirtyChange}
+      />
 
       <ComplexEditableField
         id="teaser"
