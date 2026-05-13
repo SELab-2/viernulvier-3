@@ -40,7 +40,7 @@
     "accessDenied": {
       "sectionLabel": "Restricted area",
       "title": "You do not have access to the production creation page.",
-      "description": "This section requires the archive:create permission. Contact an administrator if you need access if you need to create productions."
+      "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
     },
     "add_info": {
       "supertitle": "Add supertitle",
@@ -256,7 +256,7 @@
         "searchSeries": "Search for series"
       },
       "accessDenied": {
-        "eyebrow": "Restricted area",
+        "sectionLabel": "Restricted area",
         "title": "You do not have access to blog creation",
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }

@@ -296,7 +296,7 @@ export function CreateBlogAccessDenied() {
     <section className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
       <div className="border-archive-border bg-archive-surface rounded-[2rem] border p-8 shadow-[0_20px_70px_rgba(45,40,37,0.05)]">
         <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-          {t("blogs.createBlogPage.accessDenied.eyebrow")}
+          {t("blogs.createBlogPage.accessDenied.sectionLabel")}
         </p>
         <h1 className="mt-3 font-serif text-4xl italic md:text-5xl">
           {t("blogs.createBlogPage.accessDenied.title")}
