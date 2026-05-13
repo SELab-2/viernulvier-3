@@ -65,8 +65,8 @@ export function CreateProductionPage() {
         <section id="production-info" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
-              tagline={emptyInfo.tagline!}
-              originalTagline={emptyInfo.tagline}
+              tagline={draftInfo?.tagline ?? ""}
+              originalTagline={undefined}
               teaserHtml={emptyInfo.teaser}
               descriptionHtml={emptyInfo.description}
               infoHtml={emptyInfo.info}
@@ -81,7 +81,6 @@ export function CreateProductionPage() {
                 (isDirty: boolean) => setIsQuillDirty(isDirty),
                 []
               )}
-              permissions={[ARCHIVE_PERMISSIONS.create, ARCHIVE_PERMISSIONS.update]}
             />
           </article>
         </section>

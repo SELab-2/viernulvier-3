@@ -684,7 +684,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 (isDirty: boolean) => setIsQuillDirty(isDirty),
                 []
               )}
-              permissions={[ARCHIVE_PERMISSIONS.update]}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
