@@ -142,7 +142,7 @@ describe("BlogCard", () => {
     };
 
     renderBlogCard({ blog: emptyBlog });
-    expect(screen.getByText("Untitled blog")).toBeInTheDocument();
+    expect(screen.getByText("blogs.card.noContentFound")).toBeInTheDocument();
   });
 
   it("renders the no-production fallback text", () => {
