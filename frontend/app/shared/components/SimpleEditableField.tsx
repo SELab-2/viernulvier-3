@@ -4,6 +4,7 @@ import { Protected } from "~/features/auth";
 type SimpleEditableFieldProps = {
   label: string;
   value: string;
+  placeholder?: string;
   isEditing: boolean;
   onChange: (value: string) => void;
   renderView: (value: string) => React.ReactNode;
@@ -15,6 +16,7 @@ type SimpleEditableFieldProps = {
 export default function SimpleEditableField({
   label,
   value,
+  placeholder,
   isEditing,
   onChange,
   renderView,
@@ -45,6 +47,7 @@ export default function SimpleEditableField({
           {/* Input */}
           <input
             value={value}
+            placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
             className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none`}
           />

@@ -2,13 +2,11 @@ import { screen, within, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { mockProductions } from "tests/mocks/productions.mock";
 import { describe, it, expect } from "vitest";
-import {
-  ArchiveSortOrder,
-  ProductionTimeline,
-} from "~/features/archive/components/ProductionTimeline";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import type { Production } from "~/features/archive/types/productionTypes";
+import { SortOrderEnum } from "~/shared/components/SortOrderSelection";
 
-function renderTimeline(productions: Production[], sortOrder?: ArchiveSortOrder) {
+function renderTimeline(productions: Production[], sortOrder?: SortOrderEnum) {
   return render(
     <MemoryRouter initialEntries={["/en/archive"]}>
       <ProductionTimeline
@@ -70,8 +68,8 @@ describe("ProductionTimeline", () => {
   });
 
   describe("sort order", () => {
-    it("lists years in descending order when passing ArchiveSortOrder.NewestFirst", () => {
-      renderTimeline(mockProductions, ArchiveSortOrder.NewestFirst);
+    it("lists years in descending order when passing SortOrderEnum.NewestFirst", () => {
+      renderTimeline(mockProductions, SortOrderEnum.NewestFirst);
 
       const year2026 = screen.getByText("2026");
       const year2025 = screen.getByText("2025");
@@ -82,8 +80,8 @@ describe("ProductionTimeline", () => {
       );
     });
 
-    it("lists years in ascending order when passing ArchiveSortOrder.OldestFirst", () => {
-      renderTimeline(mockProductions, ArchiveSortOrder.OldestFirst);
+    it("lists years in ascending order when passing SortOrderEnum.OldestFirst", () => {
+      renderTimeline(mockProductions, SortOrderEnum.OldestFirst);
 
       const year2026 = screen.getByText("2026");
       const year2025 = screen.getByText("2025");

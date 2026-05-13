@@ -4,22 +4,18 @@ import { Divider } from "@mui/material";
 import type { Production } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
 import { getLongMonthName } from "~/shared/utils/dateFormatting";
+import { SortOrderEnum } from "~/shared/components/SortOrderSelection";
 
 type GroupedProductions = Map<number, Map<number, Production[]>>;
-
-export enum ArchiveSortOrder {
-  NewestFirst = "NewestFirst",
-  OldestFirst = "OldestFirst",
-}
 
 const UNKNOWN_YEAR_OR_MONTH = -1;
 
 // Returns a sorting function to sort a list of numbers based on the ArchiveSortOrder enum
-function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => number[] {
+function getSortFunction(sortOrder?: SortOrderEnum): (list: number[]) => number[] {
   const direction =
-    sortOrder === ArchiveSortOrder.NewestFirst
+    sortOrder === SortOrderEnum.NewestFirst
       ? -1
-      : sortOrder === ArchiveSortOrder.OldestFirst
+      : sortOrder === SortOrderEnum.OldestFirst
         ? 1
         : 0;
 
@@ -121,7 +117,7 @@ function YearDisplay({
 }: {
   productionsPerMonth: Map<number, Production[]>;
   year: number;
-  sortOrder?: ArchiveSortOrder;
+  sortOrder?: SortOrderEnum;
   preferredLanguage?: string;
   isSelectable?: boolean;
   selectedProductionIds?: string[];
@@ -167,7 +163,7 @@ export function ProductionTimeline({
 }: {
   productions: Production[];
   className?: string;
-  sortOrder?: ArchiveSortOrder;
+  sortOrder?: SortOrderEnum;
   preferredLanguage?: string;
   isSelectable?: boolean;
   selectedProductionIds?: string[];

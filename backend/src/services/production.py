@@ -111,7 +111,7 @@ def decode_cursor(cursor: str) -> tuple[datetime | None, int]:
         raise ValidationError("Invalid cursor")
 
 
-type ProductionSortOrder = Literal["Ascending", "Descending"]
+type SortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
@@ -127,7 +127,7 @@ def get_productions_paginated(
     production_name: str | None = None,
     earliest_at: datetime | None = None,
     latest_at: datetime | None = None,
-    sort_order: ProductionSortOrder = "Descending",
+    sort_order: SortOrder = "Descending",
 ) -> ProductionListResponse:
     is_asc = sort_order == "Ascending"
     order_func = asc if is_asc else desc
@@ -310,7 +310,7 @@ def create_production(
         )
 
     tag_id_urls = production_in.tag_id_urls or []
-    tag_ids = [int(tag_url.rstrip("/").split("/")[-1]) for tag_url in tag_id_urls]
+    tag_ids = [int(tag_url.split("/")[-1]) for tag_url in tag_id_urls]
 
     existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
     existing_tag_ids = {t.id for t in existing_tags}
@@ -356,7 +356,7 @@ def update_production_by_id(
     # Check for tags.
     if production_in.tag_id_urls is not None:
         tag_id_urls = production_in.tag_id_urls or []
-        tag_ids = [int(id_url.rstrip("/").split("/")[-1]) for id_url in tag_id_urls]
+        tag_ids = [int(id_url.split("/")[-1]) for id_url in tag_id_urls]
         existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
         existing_tag_ids = {t.id for t in existing_tags}
         missing_tag_ids = set(tag_ids) - existing_tag_ids
