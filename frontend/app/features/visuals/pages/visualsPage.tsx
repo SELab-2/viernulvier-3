@@ -518,7 +518,7 @@ function UploadDialog({
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visualType, setVisualType] = useState<VisualType | "">("");
+  const [visualType, setVisualType] = useState<VisualType>("other");
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -587,7 +587,7 @@ function UploadDialog({
     }
   }
 
-  const canSubmit = file !== null && !isUploading;
+  const canSubmit = file !== null && title.trim() !== "" && !isUploading;
 
   return (
     <div
@@ -718,7 +718,7 @@ function UploadDialog({
                       ? "bg-archive-accent text-white"
                       : "bg-archive-ink/10 hover:bg-archive-ink/20"
                   }`}
-                  onClick={() => setVisualType(visualType === type ? "" : type)}
+                  onClick={() => setVisualType(type)}
                 >
                   {t(`visuals.types.${type}`, type)}
                 </button>
