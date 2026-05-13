@@ -2,7 +2,12 @@ import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import Add from "@mui/icons-material/Add";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getSanitizedHtmlOrUndefined, getTextOrDefault, useUnsavedChangesBlocker, isEmptyHtml } from "../utils/productionPageFunctions";
+import {
+  getSanitizedHtmlOrUndefined,
+  getTextOrDefault,
+  useUnsavedChangesBlocker,
+  isEmptyHtml,
+} from "../utils/productionPageFunctions";
 
 import type {
   Production,

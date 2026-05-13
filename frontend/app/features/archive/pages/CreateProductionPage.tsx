@@ -7,7 +7,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
 import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
-import { getSanitizedHtmlOrUndefined, useUnsavedChangesBlocker, isEmptyHtml } from "../utils/productionPageFunctions";
+import {
+  getSanitizedHtmlOrUndefined,
+  useUnsavedChangesBlocker,
+  isEmptyHtml,
+} from "../utils/productionPageFunctions";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -29,37 +33,37 @@ async function handleAddProduction(
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
-  navigate: (path: string) => void,
+  navigate: (path: string) => void
 ) {
-    if (!draftInfo) return;
-    setIsSaving(true);
-    
-    try {
-      const response = await createProduction({
-        production_info: {
-          language: language,
-          artist: draftInfo.artist,
-          title: draftInfo.title,
-          supertitle: draftInfo.supertitle,
-          tagline: draftInfo.tagline,
-          teaser: draftInfo.teaser,
-          description: draftInfo.description,
-          info: draftInfo.info, 
-        },
-        tag_id_urls: []
-      });
-      skipWarning.current = true;
-      
-      // Go to newly created production
-      const currentParts = window.location.pathname.split("/");
-      const responseParts = response["id_url"].split("/");
-      currentParts[currentParts.length - 1] = responseParts[responseParts.length - 1];
-      navigate(currentParts.join("/"));
-    } catch (e) {
-      window.alert(`${errorMessage}: ${e}`);
-    } finally {
-      setIsSaving(false);
-    }
+  if (!draftInfo) return;
+  setIsSaving(true);
+
+  try {
+    const response = await createProduction({
+      production_info: {
+        language: language,
+        artist: draftInfo.artist,
+        title: draftInfo.title,
+        supertitle: draftInfo.supertitle,
+        tagline: draftInfo.tagline,
+        teaser: draftInfo.teaser,
+        description: draftInfo.description,
+        info: draftInfo.info,
+      },
+      tag_id_urls: [],
+    });
+    skipWarning.current = true;
+
+    // Go to newly created production
+    const currentParts = window.location.pathname.split("/");
+    const responseParts = response["id_url"].split("/");
+    currentParts[currentParts.length - 1] = responseParts[responseParts.length - 1];
+    navigate(currentParts.join("/"));
+  } catch (e) {
+    window.alert(`${errorMessage}: ${e}`);
+  } finally {
+    setIsSaving(false);
+  }
 }
 
 export function CreateProductionPageAccessDenied() {
@@ -101,17 +105,28 @@ export function CreateProductionPage() {
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
-  useUnsavedChangesBlocker(!skipWarning.current && (isInfoModified(draftInfo) || isQuillDirty));  const navigate = useNavigate();
+  useUnsavedChangesBlocker(
+    !skipWarning.current && (isInfoModified(draftInfo) || isQuillDirty)
+  );
+  const navigate = useNavigate();
 
-  const _handleAddProduction = () => handleAddProduction(language, draftInfo, setIsSaving, t("archive.create_error"), skipWarning, navigate);
+  const _handleAddProduction = () =>
+    handleAddProduction(
+      language,
+      draftInfo,
+      setIsSaving,
+      t("archive.create_error"),
+      skipWarning,
+      navigate
+    );
   // TODO
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
   const imageUrl = fallbackImageUrl;
-  const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser)
-  const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description)
-  const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info)
+  const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
+  const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
+  const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
   // warning if going to another url when edits are not saved.
   const isModifiedRef = useRef(false);
@@ -169,22 +184,22 @@ export function CreateProductionPage() {
             />
           </article>
         </section>
-         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-            <EditButton
-              action={t("archive.create_production")}
-              isEditing={true}
-              setIsEditing={()=>{}}
-              originalInfo={null}
-              setDraftInfo={setDraftInfo}
-              originalEvents={[]}
-              setDraftEvents={()=>{}}
-              setNewEvents={()=>{}}
-              setDeletedEvents={()=>{}}
-              enable_save={isInfoModified(draftInfo) || isQuillDirty}
-              is_saving={isSaving}
-              _handleSave={_handleAddProduction}
-            />
-          </div>
+        <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+          <EditButton
+            action={t("archive.create_production")}
+            isEditing={true}
+            setIsEditing={() => {}}
+            originalInfo={null}
+            setDraftInfo={setDraftInfo}
+            originalEvents={[]}
+            setDraftEvents={() => {}}
+            setNewEvents={() => {}}
+            setDeletedEvents={() => {}}
+            enable_save={isInfoModified(draftInfo) || isQuillDirty}
+            is_saving={isSaving}
+            _handleSave={_handleAddProduction}
+          />
+        </div>
       </main>
     </div>
   );
