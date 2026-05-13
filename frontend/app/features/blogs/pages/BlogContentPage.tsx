@@ -377,7 +377,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             </article>
           </section>
 
-<BlogPageMediaGallery
+          <BlogPageMediaGallery
             contentHtml={contentHtml ?? ""}
             title={title}
             blog_id_url={blog.id_url}
