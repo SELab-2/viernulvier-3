@@ -10,7 +10,6 @@ import type {
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
-import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import {
   createEvent,
   getEventByUrl,
@@ -504,7 +503,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(draftInfo?.tagline, "");
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);

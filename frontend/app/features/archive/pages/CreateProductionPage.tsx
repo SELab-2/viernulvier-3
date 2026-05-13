@@ -5,7 +5,6 @@ import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useCallback, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 export function CreateProductionPageAccessDenied() {
   const { t } = useTranslation();
@@ -42,7 +41,7 @@ export function CreateProductionPage() {
     info: t("archive.add_info.info"),
   };
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(emptyInfo);
-  const [isQuillDirty, setIsQuillDirty] = useState(false);
+  const [_isQuillDirty, setIsQuillDirty] = useState(false);
 
   // TODO
   const fallbackImageUrl =
