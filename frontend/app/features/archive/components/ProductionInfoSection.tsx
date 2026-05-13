@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
+import type { ArchivePermission } from "../archive.constants";
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
   if (typeof value !== "string") {
@@ -13,15 +13,23 @@ function getTextOrDefault(value: string | null | undefined, fallback: string): s
   return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
+function isFieldModified(
+  original: string | undefined,
+  draft: string | undefined
+): boolean {
+  return (original ?? "") !== (draft ?? "");
+}
+
 type ProductionInfoSectionProps = {
   tagline: string;
-  originalTagline: string | undefined | null;
+  originalTagline: string | undefined;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
   isEditing: boolean;
   onSave: (field: string, html: string) => void;
   onQuillDirtyChange: (isDirty: boolean) => void;
+  permissions: ArchivePermission[]
 };
 
 export function ProductionInfoSection({
@@ -33,6 +41,7 @@ export function ProductionInfoSection({
   isEditing: globalIsEditing,
   onSave,
   onQuillDirtyChange,
+  permissions,
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
@@ -53,18 +62,15 @@ export function ProductionInfoSection({
       <SimpleEditableField
         value={tagline}
         isEditing={globalIsEditing}
-        onChange={(value) => handleSave("tagline", value)}
+        onChange={(value) => onSave("tagline", value)}
         label={"tagline"}
         renderView={(value) => (
-          <p
-            id="supertitle"
-            className="tracking-[0.28em]ext-archive-ink font-sans text-sm text-[0.65rem] uppercase"
-          >
+          <p className="...">
             {getTextOrDefault(value, t("productionPage.fallback.archive"))}
           </p>
         )}
-        isModified={tagline !== (originalTagline ?? "")} 
-        permissions={[ARCHIVE_PERMISSIONS.update]}      
+        isModified={isFieldModified(originalTagline, tagline)} 
+        permissions={permissions}      
         />
 
       <ComplexEditableField
@@ -77,7 +83,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -93,7 +99,7 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -107,7 +113,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
     </div>

@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useCallback, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 export function CreateProductionPageAccessDenied() {
   const { t } = useTranslation();
@@ -80,6 +81,7 @@ export function CreateProductionPage() {
                 (isDirty: boolean) => setIsQuillDirty(isDirty),
                 []
               )}
+              permissions={[ARCHIVE_PERMISSIONS.create, ARCHIVE_PERMISSIONS.update]}
             />
           </article>
         </section>

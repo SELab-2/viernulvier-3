@@ -668,8 +668,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
-              tagline={tagline}
-              originalTagline={originalInfo?.tagline}
+              tagline={draftInfo?.tagline ?? ""}
+              originalTagline={originalInfo?.tagline ?? undefined}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}
@@ -684,6 +684,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                 (isDirty: boolean) => setIsQuillDirty(isDirty),
                 []
               )}
+              permissions={[ARCHIVE_PERMISSIONS.update]}
             />
 
             <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
