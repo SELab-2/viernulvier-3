@@ -58,40 +58,6 @@ const translationMap: Record<string, TranslationValue> = {
   "history.messages.updateFailed": "I18N_History_Message_UpdateFailed",
   "history.messages.deleteFailed": "I18N_History_Message_DeleteFailed",
   "edit.cancel": "edit.cancel",
-  "history.entries": [
-    {
-      title: "I18N_History_Entry1_Title",
-      description: "I18N_History_Entry1_Description",
-    },
-    {
-      title: "I18N_History_Entry2_Title",
-      description: "I18N_History_Entry2_Description",
-    },
-    {
-      title: "I18N_History_Entry3_Title",
-      description: "I18N_History_Entry3_Description",
-    },
-    {
-      title: "I18N_History_Entry4_Title",
-      description: "I18N_History_Entry4_Description",
-    },
-    {
-      title: "I18N_History_Entry5_Title",
-      description: "I18N_History_Entry5_Description",
-    },
-    {
-      title: "I18N_History_Entry6_Title",
-      description: "I18N_History_Entry6_Description",
-    },
-    {
-      title: "I18N_History_Entry7_Title",
-      description: "I18N_History_Entry7_Description",
-    },
-    {
-      title: "I18N_History_Entry8_Title",
-      description: "I18N_History_Entry8_Description",
-    },
-  ],
   "blogs.card.other_prods": "I18N_Blog_Many_Productions",
   "blogs.card.no_prods": "I18N_Blog_No_Productions",
   "blogs.card.details": "I18N_Blog_Details",
