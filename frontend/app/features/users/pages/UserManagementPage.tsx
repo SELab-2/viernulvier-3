@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import axios from "axios";
 import {
   Alert,
@@ -15,17 +15,24 @@ import { useTranslation } from "react-i18next";
 import { useAuthSession } from "~/features/auth";
 import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
+import { UserFormDialog } from "../components/UserFormDialog";
 import { UserCard } from "../components/UserCard";
 import { RoleCard } from "../components/RoleCard";
 import { USER_PERMISSIONS } from "../users.constants";
 import { listPermissions } from "../services/permissionManagementService";
-import { createUser, deleteUser, listUsers } from "../services/userManagementService";
+import {
+  createUser,
+  deleteUser,
+  listUsers,
+  updateUser,
+} from "../services/userManagementService";
 import { createRole, deleteRole, listRoles } from "../services/roleManagementService";
 import type {
   IRole,
   IRoleCreateRequest,
   IUser,
   IUserCreateRequest,
+  IUserUpdateRequest,
 } from "../users.types";
 
 function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
@@ -49,7 +56,7 @@ function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
 
 function SummaryCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="border-archive-border bg-archive-surface rounded-[1.5rem] border p-5 backdrop-blur-sm">
+    <div className="border-archive-border bg-archive-surface rounded-3xl border p-5 backdrop-blur-sm">
       <div className="font-serif text-4xl italic">{value}</div>
       <div className="mt-2 text-[0.68rem] font-bold tracking-[0.24em] uppercase opacity-45">
         {label}
@@ -75,191 +82,6 @@ function UserMutationAlert({ message }: { message: string | null }) {
     <Alert severity="error" variant="outlined" sx={bannerSx}>
       {message}
     </Alert>
-  );
-}
-
-function CreateUserDialog({
-  open,
-  isSubmitting,
-  availableRoles,
-  errorMessage,
-  onClose,
-  onSubmit,
-}: {
-  open: boolean;
-  isSubmitting: boolean;
-  availableRoles: IRole[];
-  errorMessage: string | null;
-  onClose: () => void;
-  onSubmit: (payload: IUserCreateRequest) => Promise<void>;
-}) {
-  const { t } = useTranslation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const trimmedUsername = username.trim();
-
-  function resetForm() {
-    setUsername("");
-    setPassword("");
-    setSelectedRoles([]);
-    setValidationError(null);
-  }
-
-  function toggleRole(roleName: string) {
-    setSelectedRoles((currentRoles) =>
-      currentRoles.includes(roleName)
-        ? currentRoles.filter((currentRole) => currentRole !== roleName)
-        : [...currentRoles, roleName]
-    );
-  }
-
-  function handleClose() {
-    resetForm();
-    onClose();
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!trimmedUsername) {
-      setValidationError(t("users.messages.usernameRequired"));
-      return;
-    }
-
-    if (!password) {
-      setValidationError(t("users.messages.passwordRequired"));
-      return;
-    }
-
-    setValidationError(null);
-    await onSubmit({
-      username: trimmedUsername,
-      password,
-      roles: selectedRoles,
-    });
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onClose={isSubmitting ? undefined : handleClose}
-      fullWidth
-      maxWidth="sm"
-      slotProps={{
-        paper: {
-          sx: dialogPaperSx,
-        },
-        backdrop: {
-          sx: dialogBackdropSx,
-        },
-      }}
-    >
-      <DialogTitle sx={dialogTitleSx}>{t("users.dialogs.create.title")}</DialogTitle>
-      <DialogContent sx={dialogContentSx}>
-        <p className="mb-5 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
-          {t("users.dialogs.create.description")}
-        </p>
-
-        <UserMutationAlert message={validationError || errorMessage} />
-
-        <form
-          id="user-form-dialog"
-          onSubmit={handleSubmit}
-          className="mt-6 flex flex-col gap-5"
-        >
-          <ArchiveTextField
-            label={t("users.fields.username")}
-            name="username"
-            autoComplete="username"
-            autoFocus
-            value={username}
-            onChange={(event) => {
-              setUsername(event.target.value);
-              if (validationError) {
-                setValidationError(null);
-              }
-            }}
-          />
-          <ArchiveTextField
-            label={t("users.fields.password")}
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            helperText={t("users.form.passwordCreateHint")}
-            slotProps={{
-              formHelperText: {
-                sx: helperTextSx,
-              },
-            }}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              if (validationError) {
-                setValidationError(null);
-              }
-            }}
-          />
-
-          <div>
-            <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
-              {t("users.fields.roles")}
-            </div>
-            <p className="mt-2 text-sm leading-relaxed opacity-65">
-              {availableRoles.length > 0
-                ? t("users.form.rolesHint")
-                : t("users.form.rolesEmptyHint")}
-            </p>
-
-            {availableRoles.length > 0 ? (
-              <div className="mt-4 grid gap-2">
-                {availableRoles.map((role) => {
-                  const isSelected = selectedRoles.includes(role.name);
-
-                  return (
-                    <label
-                      key={role.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-[1rem] px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => toggleRole(role.name)}
-                        sx={roleCheckboxSx}
-                      />
-                      <span className="text-sm font-medium text-[color:var(--archive-ink)]">
-                        {role.name}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-        </form>
-      </DialogContent>
-      <DialogActions sx={dialogActionsSx}>
-        <Button onClick={handleClose} disabled={isSubmitting} sx={secondaryButtonSx}>
-          {t("users.actions.cancel")}
-        </Button>
-        <Button
-          type="submit"
-          form="user-form-dialog"
-          disabled={isSubmitting || !trimmedUsername || !password}
-          sx={primaryButtonSx}
-        >
-          {isSubmitting ? (
-            <>
-              <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
-              {t("users.actions.creating")}
-            </>
-          ) : (
-            t("users.actions.create")
-          )}
-        </Button>
-      </DialogActions>
-    </Dialog>
   );
 }
 
@@ -367,7 +189,7 @@ function CreateRoleDialog({
     onClose();
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!trimmedName) {
@@ -570,7 +392,7 @@ export function UserManagementAccessDenied() {
 
 export default function UserManagementPage() {
   const { t, i18n } = useTranslation();
-  const { user: currentUser } = useAuthSession();
+  const { user: currentUser, refreshSession } = useAuthSession();
   const [users, setUsers] = useState<IUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [reloadToken, setReloadToken] = useState(0);
@@ -578,6 +400,9 @@ export default function UserManagementPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [createMutationError, setCreateMutationError] = useState<string | null>(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [editMutationError, setEditMutationError] = useState<string | null>(null);
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [userIdToEdit, setUserIdToEdit] = useState<number | null>(null);
   const [deleteMutationError, setDeleteMutationError] = useState<string | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<number | null>(null);
@@ -598,6 +423,10 @@ export default function UserManagementPage() {
     userIdToDelete === null
       ? null
       : (users.find((managedUser) => managedUser.id === userIdToDelete) ?? null);
+  const userToEdit =
+    userIdToEdit === null
+      ? null
+      : (users.find((managedUser) => managedUser.id === userIdToEdit) ?? null);
   const roleToDelete =
     roleIdToDelete === null
       ? null
@@ -738,6 +567,20 @@ export default function UserManagementPage() {
     return canDeleteUsers && managedUser.id !== currentUser?.id;
   }
 
+  function openEditDialog(userId: number) {
+    setEditMutationError(null);
+    setUserIdToEdit(userId);
+  }
+
+  function closeEditDialog() {
+    if (isEditingUser) {
+      return;
+    }
+
+    setEditMutationError(null);
+    setUserIdToEdit(null);
+  }
+
   function openDeleteDialog(userId: number) {
     setDeleteMutationError(null);
     setUserIdToDelete(userId);
@@ -766,6 +609,39 @@ export default function UserManagementPage() {
       );
     } finally {
       setIsCreatingUser(false);
+    }
+  }
+
+  async function handleEditUser(payload: IUserUpdateRequest) {
+    if (userIdToEdit === null) {
+      return;
+    }
+
+    setIsEditingUser(true);
+    setEditMutationError(null);
+
+    try {
+      const updatedUser = await updateUser(userIdToEdit, payload);
+      setUsers((currentUsers) =>
+        currentUsers.map((managedUser) =>
+          managedUser.id === updatedUser.id ? updatedUser : managedUser
+        )
+      );
+      setUserIdToEdit(null);
+
+      if (updatedUser.id === currentUser?.id) {
+        try {
+          await refreshSession();
+        } catch (error) {
+          setPageError(
+            getApiErrorMessage(error, t("users.messages.sessionRefreshFailed"))
+          );
+        }
+      }
+    } catch (error) {
+      setEditMutationError(getApiErrorMessage(error, t("users.messages.updateFailed")));
+    } finally {
+      setIsEditingUser(false);
     }
   }
 
@@ -885,6 +761,11 @@ export default function UserManagementPage() {
     currentUser?.isSuperUser,
     USER_PERMISSIONS.create
   );
+  const canEditUsers = hasPermission(
+    currentUser?.permissions,
+    currentUser?.isSuperUser,
+    USER_PERMISSIONS.update
+  );
 
   const canDeleteUsers = hasPermission(
     currentUser?.permissions,
@@ -895,9 +776,8 @@ export default function UserManagementPage() {
 
   return (
     <>
+      <title>{`${t("nav.users")} | VIERNULVIER`}</title>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-        <title>{`${t("nav.users")} | VIERNULVIER`}</title>
-
         <div className="max-w-3xl">
           <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
             {t("users.sectionLabel")}
@@ -962,6 +842,7 @@ export default function UserManagementPage() {
                 key={managedUser.id}
                 user={managedUser}
                 formatDateTime={formatDateTime}
+                onEdit={canEditUsers ? () => openEditDialog(managedUser.id) : undefined}
                 onDelete={
                   canDeleteManagedUser(managedUser)
                     ? () => openDeleteDialog(managedUser.id)
@@ -1027,15 +908,32 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <CreateUserDialog
-        key={isCreateDialogOpen ? "create-user-open" : "create-user-closed"}
-        open={isCreateDialogOpen}
-        isSubmitting={isCreatingUser}
-        availableRoles={roles}
-        errorMessage={isCreateDialogOpen ? createMutationError : null}
-        onClose={closeCreateDialog}
-        onSubmit={handleCreateUser}
-      />
+      {isCreateDialogOpen ? (
+        <UserFormDialog
+          key="create-user-dialog"
+          mode="create"
+          open={true}
+          isSubmitting={isCreatingUser}
+          availableRoles={roles}
+          errorMessage={createMutationError}
+          onClose={closeCreateDialog}
+          onSubmit={handleCreateUser}
+        />
+      ) : null}
+
+      {userToEdit ? (
+        <UserFormDialog
+          key={userToEdit.id}
+          mode="edit"
+          open={true}
+          user={userToEdit}
+          isSubmitting={isEditingUser}
+          availableRoles={roles}
+          errorMessage={editMutationError}
+          onClose={closeEditDialog}
+          onSubmit={handleEditUser}
+        />
+      ) : null}
 
       <DeleteUserDialog
         user={userToDelete}
@@ -1133,11 +1031,6 @@ const dialogActionsSx = {
   pb: 3,
   gap: 1.5,
   borderTop: "1px solid var(--archive-border)",
-};
-
-const helperTextSx = {
-  marginTop: "0.55rem",
-  lineHeight: 1.45,
 };
 
 const roleCheckboxSx = {
