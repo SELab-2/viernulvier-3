@@ -6,6 +6,7 @@ import type { IUser } from "../users.types";
 type UserCardProps = {
   user: IUser;
   formatDateTime: (value: string | null) => string;
+  onEdit?: () => void;
   onDelete?: () => void;
 };
 
@@ -45,7 +46,7 @@ function UserBadge({ children }: { children: string }) {
   );
 }
 
-export function UserCard({ user, formatDateTime, onDelete }: UserCardProps) {
+export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -97,16 +98,38 @@ export function UserCard({ user, formatDateTime, onDelete }: UserCardProps) {
         </section>
       </div>
 
-      {onDelete ? (
+      {onEdit || onDelete ? (
         <div className="border-archive-border mt-5 border-t pt-4">
-          <Button onClick={onDelete} sx={deleteButtonSx}>
-            {t("users.actions.delete")}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            {onEdit ? (
+              <Button onClick={onEdit} sx={editButtonSx}>
+                {t("users.actions.edit")}
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button onClick={onDelete} sx={deleteButtonSx}>
+                {t("users.actions.delete")}
+              </Button>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </article>
   );
 }
+
+const editButtonSx = {
+  py: 1,
+  px: 2,
+  borderRadius: "999px",
+  textTransform: "none" as const,
+  fontFamily: "var(--font-sans)",
+  fontSize: "0.72rem",
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  color: "var(--archive-ink)",
+  border: "1px solid var(--archive-border)",
+};
 
 const deleteButtonSx = {
   py: 1,

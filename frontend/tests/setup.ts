@@ -107,6 +107,7 @@ const translationMap: Record<string, TranslationValue> = {
   "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
   "notFound.buttons.history": "I18N_NotFound_Button_History",
   "notFound.quote": "I18N_NotFound_Quote",
+  "editfield.modified": "I18N_Modified",
   "productionPage.backToCollection": "I18N_Production_BackToCollection",
   "productionPage.fallback.unknownProduction":
     "I18N_Production_Fallback_UnknownProduction",

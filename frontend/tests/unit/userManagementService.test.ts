@@ -8,6 +8,7 @@ import {
   createUser,
   deleteUser,
   listUsers,
+  updateUser,
 } from "~/features/users/services/userManagementService";
 
 describe("userManagementService", () => {
@@ -112,6 +113,44 @@ describe("userManagementService", () => {
         username: "editor-user",
         password: "temporary-secret",
         roles: ["editor", "viewer"],
+      })
+    );
+  });
+
+  it("patches a user and returns the mapped result", async () => {
+    mockAdapter.onPatch("/api/v1/auth/users/12").reply(200, {
+      id: 12,
+      id_url: "http://localhost/api/v1/auth/users/12",
+      username: "updated-user",
+      super_user: false,
+      roles: ["editor"],
+      permissions: ["archive:write"],
+      created_at: "2026-04-15T09:30:00",
+      last_login_at: "2026-04-16T08:00:00",
+    });
+
+    await expect(
+      updateUser(12, {
+        username: "updated-user",
+        roles: ["editor"],
+        password: "fresh-secret",
+      })
+    ).resolves.toEqual({
+      id: 12,
+      username: "updated-user",
+      isSuperUser: false,
+      roles: ["editor"],
+      permissions: ["archive:write"],
+      createdAt: "2026-04-15T09:30:00",
+      lastLoginAt: "2026-04-16T08:00:00",
+    });
+
+    expect(mockAdapter.history.patch[0].url).toBe("/api/v1/auth/users/12");
+    expect(mockAdapter.history.patch[0].data).toBe(
+      JSON.stringify({
+        username: "updated-user",
+        roles: ["editor"],
+        password: "fresh-secret",
       })
     );
   });

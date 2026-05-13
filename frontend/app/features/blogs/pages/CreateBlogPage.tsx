@@ -10,6 +10,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import LinearProgress from "@mui/material/LinearProgress";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import { BLOG_PERMISSIONS } from "../blog.constants";
 
 function BackToArchiveLink() {
   const { t } = useTranslation();
@@ -255,6 +256,7 @@ export function CreateBlogPage() {
             }}
             onCancel={() => setIsEditing(false)}
             canEdit={true}
+            permissions={[BLOG_PERMISSIONS.update]}
           />
         </SectionCard>
 

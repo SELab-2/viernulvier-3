@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
@@ -75,6 +76,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -90,6 +92,7 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -103,6 +106,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
         onDirtyChange={onQuillDirtyChange}
       />
     </div>

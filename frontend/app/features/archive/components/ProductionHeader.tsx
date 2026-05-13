@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { ProductionInfo } from "../types/productionTypes";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
   if (typeof value !== "string") {
@@ -70,6 +71,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
         <SimpleEditableField
           label={t("productionPage.edit.title")}
@@ -91,6 +93,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
         <SimpleEditableField
           label={t("productionPage.edit.artist")}
@@ -111,6 +114,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
       </div>
     </section>
