@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionsForBlog } from "../services/blogService";
 import { getMediaForBlog } from "../services/mediaService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
