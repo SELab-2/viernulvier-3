@@ -27,7 +27,7 @@ describe("htmlToDelta", () => {
   });
 });
 
-// Tests for deltaToHtml not derictly covered because very annoying to create
+// Tests for deltaToHtml not directly covered because very annoying to create
 // a Delta object
 
 describe("round-trip conversions", () => {
