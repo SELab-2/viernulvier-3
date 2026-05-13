@@ -1,8 +1,8 @@
-import { useBlocker, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import Add from "@mui/icons-material/Add";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getSanitizedHtmlOrUndefined, getTextOrDefault } from "../utils/productionPageFunctions";
+import { getSanitizedHtmlOrUndefined, getTextOrDefault, useUnsavedChangesBlocker, isEmptyHtml } from "../utils/productionPageFunctions";
 
 import type {
   Production,
@@ -206,32 +206,6 @@ async function handleInfoSave(
   } finally {
     setIsSaving(false);
   }
-}
-
-function useUnsavedChangesBlocker(when: boolean) {
-  const blocker = useBlocker(when);
-  const blockerRef = useRef(blocker);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    blockerRef.current = blocker;
-  });
-
-  const tRef = useRef(t);
-  useEffect(() => {
-    tRef.current = t;
-  });
-
-  useEffect(() => {
-    if (blockerRef.current.state === "blocked") {
-      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
-      if (confirmLeave) {
-        blockerRef.current.proceed();
-      } else {
-        blockerRef.current.reset();
-      }
-    }
-  }, [blocker.state]);
 }
 
 type TagsProps = {
@@ -651,9 +625,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               infoHtml={infoHtml}
               isEditing={isEditing}
               onSave={(field, html) => {
-                const isEmpty = html === "<p><br></p>" || html === "" || html === "<p></p>";
                 setDraftInfo((prev) =>
-                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                  prev ? { ...prev, [field]: isEmptyHtml(html) ? null : html } : prev
                 );
               }}
               onQuillDirtyChange={useCallback(
