@@ -29,18 +29,17 @@ export function CreateProductionPageAccessDenied() {
 export function CreateProductionPage() {
   const { lang } = useParams();
   const { t } = useTranslation();
-  const emptyInfo: ProductionInfo = {
+  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
     production_id_url: "",
     language: lang!,
-    title: t("archive.add_info.title"),
-    supertitle: t("archive.add_info.supertitle"),
-    artist: t("archive.add_info.artist"),
-    tagline: t("archive.add_info.tagline"),
-    teaser: t("archive.add_info.teaser"),
-    description: t("archive.add_info.description"),
-    info: t("archive.add_info.info"),
-  };
-  const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(emptyInfo);
+    title: "",
+    supertitle: "",
+    artist: "",
+    tagline: "",
+    teaser: "",
+    description: "",
+    info: "",
+  });
   const [, setIsQuillDirty] = useState(false);
 
   // TODO
@@ -57,18 +56,20 @@ export function CreateProductionPage() {
           production_info={null}
           image_url={imageUrl}
           isEditing={true}
-          originalInfo={emptyInfo}
+          originalInfo={null}
           draftInfo={draftInfo}
           setDraftInfo={setDraftInfo}
+          isCreateHeader={true}
         />
         <section id="production-info" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
+              isCreateInfo={true}
               tagline={draftInfo?.tagline ?? ""}
               originalTagline={undefined}
-              teaserHtml={emptyInfo.teaser}
-              descriptionHtml={emptyInfo.description}
-              infoHtml={emptyInfo.info}
+              teaserHtml={undefined}
+              descriptionHtml={undefined}
+              infoHtml={undefined}
               isEditing={true}
               onSave={(field, html) => {
                 const isEmpty = html === "<p><br></p>" || html === "";

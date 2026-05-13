@@ -21,6 +21,7 @@ function isFieldModified(
 }
 
 type ProductionInfoSectionProps = {
+  isCreateInfo: boolean;
   tagline: string;
   originalTagline: string | undefined;
   teaserHtml: string | undefined;
@@ -32,6 +33,7 @@ type ProductionInfoSectionProps = {
 };
 
 export function ProductionInfoSection({
+  isCreateInfo,
   tagline,
   originalTagline,
   teaserHtml,
@@ -55,11 +57,17 @@ export function ProductionInfoSection({
     setEditing(null);
   }
 
+  const effectiveIsEditing = isCreateInfo || globalIsEditing;
+
+  const modified = (orig: string | undefined, draft: string | undefined) =>
+    !isCreateInfo && isFieldModified(orig, draft);
+
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <SimpleEditableField
         value={tagline}
-        isEditing={globalIsEditing}
+        placeholder={t("archive.add_info.tagline")}
+        isEditing={effectiveIsEditing}
         onChange={(value) => onSave("tagline", value)}
         label={"tagline"}
         renderView={(value) => (
@@ -67,7 +75,7 @@ export function ProductionInfoSection({
             {getTextOrDefault(value, t("productionPage.fallback.archive"))}
           </p>
         )}
-        isModified={isFieldModified(originalTagline, tagline)}
+        isModified={modified(originalTagline, tagline)}
         permissions={[ARCHIVE_PERMISSIONS.update]}
       />
 

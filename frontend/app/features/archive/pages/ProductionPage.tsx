@@ -659,6 +659,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           originalInfo={originalInfo}
           draftInfo={draftInfo}
           setDraftInfo={setDraftInfo}
+          isCreateHeader={false}
         />
 
         <Tags performer_type={production.performer_type} tags={tags} />
@@ -666,6 +667,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
+              isCreateInfo={false}
               tagline={draftInfo?.tagline ?? ""}
               originalTagline={originalInfo?.tagline ?? undefined}
               teaserHtml={teaserHtml}
