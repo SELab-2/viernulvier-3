@@ -5,10 +5,12 @@ import userEvent from "@testing-library/user-event";
 import * as artistService from "~/features/archive/services/artistService";
 import * as tagService from "~/features/archive/services/tagService";
 import * as loginServiceModule from "~/features/auth/services/loginService";
+import * as productionGroupService from "~/features/archive/services/productionGroupService";
 
 vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/tagService");
+vi.mock("~/features/archive/services/productionGroupService");
 
 const adminUser = {
   id: 1,
@@ -41,6 +43,7 @@ describe("CreateProductionButton", () => {
   beforeEach(() => {
     vi.mocked(artistService.getArtists).mockResolvedValue([]);
     vi.mocked(tagService.getAllTags).mockResolvedValue([]);
+    vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([]);
   });
 
   afterEach(() => {
