@@ -444,6 +444,9 @@
     "empty": {
       "title": "No visuals found",
       "description": "No visuals are available for this filter yet."
+    },
+    "lightbox": {
+      "close": "Close"
     }
   }
 }

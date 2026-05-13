@@ -444,6 +444,9 @@
     "empty": {
       "title": "Geen beeldmateriaal gevonden",
       "description": "Er is nog geen beeldmateriaal beschikbaar voor dit filter."
+    },
+    "lightbox": {
+      "close": "Sluiten"
     }
   }
 }
