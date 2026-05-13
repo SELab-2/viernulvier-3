@@ -11,7 +11,7 @@ from src.schemas.production import (
 from src.schemas.blogs import BlogListResponse
 from src.services.blogs import get_blogs_by_production_id
 from src.services.production import (
-    ProductionSortOrder,
+    SortOrder,
     create_production,
     get_production_by_id,
     get_productions_paginated,
@@ -45,7 +45,7 @@ async def get_productions(
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
     latest_at: datetime | None = Query(None),
-    sort_order: ProductionSortOrder = Query("Descending"),
+    sort_order: SortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     if tag_ids:

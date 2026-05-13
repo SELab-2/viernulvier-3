@@ -776,9 +776,8 @@ export default function UserManagementPage() {
 
   return (
     <>
+      <title>{`${t("nav.users")} | VIERNULVIER`}</title>
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-        <title>{`${t("nav.users")} | VIERNULVIER`}</title>
-
         <div className="max-w-3xl">
           <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
             {t("users.sectionLabel")}

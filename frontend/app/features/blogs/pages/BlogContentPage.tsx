@@ -144,20 +144,18 @@ function BlogContentSection({
     setIsEditing(false);
   }
   return (
-    <>
-      <ComplexEditableField
-        id="blog-content"
-        field={t("blogs.contentPage.edit.content")}
-        html={contentHtml}
-        isEditing={globalIsEditing && isEditing}
-        onStartEdit={() => setIsEditing(true)}
-        onSave={(html) => _handleSave(html)}
-        onCancel={() => setIsEditing(false)}
-        fallback={<p className="opacity-75">{t("blogs.contentPage.fallback")}</p>}
-        canEdit={globalIsEditing}
-        permissions={[BLOG_PERMISSIONS.update]}
-      />
-    </>
+    <ComplexEditableField
+      id="blog-content"
+      field={t("blogs.contentPage.edit.content")}
+      html={contentHtml}
+      isEditing={globalIsEditing && isEditing}
+      onStartEdit={() => setIsEditing(true)}
+      onSave={(html) => _handleSave(html)}
+      onCancel={() => setIsEditing(false)}
+      fallback={<p className="opacity-75">{t("blogs.contentPage.fallback")}</p>}
+      canEdit={globalIsEditing}
+      permissions={[BLOG_PERMISSIONS.update]}
+    />
   );
 }
 
@@ -526,80 +524,82 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   }, [blog]);
 
   return (
-    <div className="bg-archive-paper text-archive-ink min-h-screen">
-      <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
-        <BackToBlogsLink />
+    <>
+      <title>{`${t("nav.blog")}: ${originalContent?.title ?? ""} | VIERNULVIER`}</title>
+      <div className="bg-archive-paper text-archive-ink min-h-screen">
+        <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
+          <BackToBlogsLink />
 
-        <BlogHeader
-          isEditing={isEditing}
-          originalContent={originalContent}
-          draftContent={draftContent}
-          setDraftContent={setDraftContent}
-        />
+          <BlogHeader
+            isEditing={isEditing}
+            originalContent={originalContent}
+            draftContent={draftContent}
+            setDraftContent={setDraftContent}
+          />
 
-        <Divider />
+          <Divider />
 
-        <section id="blog-body" className="mt-8">
-          <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            <BlogContentSection
-              contentHtml={contentHtml}
-              globalIsEditing={isEditing}
-              handleSave={(html) => {
-                setDraftContent((prev) => (prev ? { ...prev, content: html } : prev));
-              }}
-            />
-          </article>
-        </section>
+          <section id="blog-body" className="mt-8">
+            <article className="space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+              <BlogContentSection
+                contentHtml={contentHtml}
+                globalIsEditing={isEditing}
+                handleSave={(html) => {
+                  setDraftContent((prev) => (prev ? { ...prev, content: html } : prev));
+                }}
+              />
+            </article>
+          </section>
 
-        <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
+          <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
 
-        <LinkedProductions
-          productionGroup={blogProdGroup}
-          isEditing={isEditing}
-          setNewProductionGroup={setNewBlogProdGroup}
-        />
-
-        {originalContent !== null ? (
-          <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-            <BlogEditButton
-              action={t("blogs.contentPage.edit.edit")}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              originalContent={originalContent}
-              setDraftContent={setDraftContent}
-              enable_save={
-                isModified &&
-                draftContent !== null &&
-                draftContent.title !== "" &&
-                draftContent.content !== "" &&
-                draftContent.content !== "<p></p>"
-              }
-              is_saving={isSaving}
-              _handleSave={_handleSave}
-            />
-          </div>
-        ) : (
-          <div className="fixed right-6 bottom-6 z-50 flex gap-3">
-            <BlogEditButton
-              action={t("blogs.contentPage.edit.add")}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              originalContent={null}
-              setDraftContent={setDraftContent}
-              enable_save={
-                draftContent !== null &&
-                "title" in draftContent &&
-                draftContent.title !== "" &&
-                "content" in draftContent &&
-                draftContent.content !== "" &&
-                draftContent.content !== "<p></p>"
-              }
-              is_saving={isSaving}
-              _handleSave={_handleSave}
-            />
-          </div>
-        )}
-      </main>
-    </div>
+          <LinkedProductions
+            productionGroup={blogProdGroup}
+            isEditing={isEditing}
+            setNewProductionGroup={setNewBlogProdGroup}
+          />
+          {originalContent !== null ? (
+            <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+              <BlogEditButton
+                action={t("blogs.contentPage.edit.edit")}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                originalContent={originalContent}
+                setDraftContent={setDraftContent}
+                enable_save={
+                  isModified &&
+                  draftContent !== null &&
+                  draftContent.title !== "" &&
+                  draftContent.content !== "" &&
+                  draftContent.content !== "<p></p>"
+                }
+                is_saving={isSaving}
+                _handleSave={_handleSave}
+              />
+            </div>
+          ) : (
+            <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+              <BlogEditButton
+                action={t("blogs.contentPage.edit.add")}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                originalContent={null}
+                setDraftContent={setDraftContent}
+                enable_save={
+                  draftContent !== null &&
+                  "title" in draftContent &&
+                  draftContent.title !== "" &&
+                  "content" in draftContent &&
+                  draftContent.content !== "" &&
+                  draftContent.content !== "<p></p>"
+                }
+                is_saving={isSaving}
+                _handleSave={_handleSave}
+              />
+            </div>
+          )}
+        </main>
+      </div>
+    </>
   );
 }

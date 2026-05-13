@@ -111,7 +111,7 @@ def decode_cursor(cursor: str) -> tuple[datetime | None, int]:
         raise ValidationError("Invalid cursor")
 
 
-type ProductionSortOrder = Literal["Ascending", "Descending"]
+type SortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
@@ -127,7 +127,7 @@ def get_productions_paginated(
     production_name: str | None = None,
     earliest_at: datetime | None = None,
     latest_at: datetime | None = None,
-    sort_order: ProductionSortOrder = "Descending",
+    sort_order: SortOrder = "Descending",
 ) -> ProductionListResponse:
     is_asc = sort_order == "Ascending"
     order_func = asc if is_asc else desc
