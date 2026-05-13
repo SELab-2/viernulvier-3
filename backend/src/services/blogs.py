@@ -179,18 +179,22 @@ def update_blog_by_id(
         raise NotFoundError("Blog", blog_id)
 
     if blog_in.production_group_id_url is not None:
-        production_group_id_url = blog_in.production_group_id_url
-        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+        # unlink the production
+        if blog_in.production_group_id_url == "":
+            blog.production_group = None
+        else:
+            production_group_id_url = blog_in.production_group_id_url
+            production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
 
-        production_group = (
-            db.query(ProductionGroup)
-            .filter(ProductionGroup.id == production_group_id)
-            .first()
-        )
+            production_group = (
+                db.query(ProductionGroup)
+                .filter(ProductionGroup.id == production_group_id)
+                .first()
+            )
 
-        if production_group is None:
-            raise NotFoundError("production group", production_group_id)
-        blog.production_group = production_group
+            if production_group is None:
+                raise NotFoundError("production group", production_group_id)
+            blog.production_group = production_group
 
     if blog_in.blog_contents:
         for blog_content_in in blog_in.blog_contents:
