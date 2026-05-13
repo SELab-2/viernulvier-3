@@ -38,7 +38,7 @@ describe("productionGroupService", () => {
 
   it("lists public production groups by default", async () => {
     mockAdapter
-      .onGet("/api/v1/archive/production-groups/?public_only=true")
+      .onGet("/api/v1/archive/production-groups?public_only=true")
       .reply(200, [productionGroup]);
 
     const result = await getAllProductionGroups();
@@ -48,7 +48,7 @@ describe("productionGroupService", () => {
 
   it("fetches all production groups when requested", async () => {
     mockAdapter
-      .onGet("/api/v1/archive/production-groups/?public_only=false")
+      .onGet("/api/v1/archive/production-groups?public_only=false")
       .reply(200, [productionGroup]);
 
     const result = await getAllProductionGroups(false);
@@ -57,7 +57,9 @@ describe("productionGroupService", () => {
   });
 
   it("returns a production group by id", async () => {
-    mockAdapter.onGet("/api/v1/archive/production-groups/1/").reply(200, productionGroup);
+    mockAdapter
+      .onGet("/api/v1/archive/production-groups/1")
+      .reply(200, productionGroup);
 
     const result = await getProductionGroupById(1);
 
@@ -71,7 +73,7 @@ describe("productionGroupService", () => {
       production_id_urls: ["/api/v1/archive/productions/10"],
     };
 
-    mockAdapter.onPost("/api/v1/archive/production-groups/").reply(201, {
+    mockAdapter.onPost("/api/v1/archive/production-groups").reply(201, {
       ...productionGroup,
       is_public_filter: false,
       production_id_urls: request.production_id_urls,
@@ -84,7 +86,7 @@ describe("productionGroupService", () => {
   });
 
   it("updates a production group", async () => {
-    mockAdapter.onPatch("/api/v1/archive/production-groups/1/").reply(200, {
+    mockAdapter.onPatch("/api/v1/archive/production-groups/1").reply(200, {
       ...productionGroup,
       title: "Updated spring series",
     });
@@ -97,7 +99,7 @@ describe("productionGroupService", () => {
   });
 
   it("deletes a production group", async () => {
-    mockAdapter.onDelete("/api/v1/archive/production-groups/1/").reply(204);
+    mockAdapter.onDelete("/api/v1/archive/production-groups/1").reply(204);
 
     await expect(deleteProductionGroup(1)).resolves.toBeUndefined();
   });
