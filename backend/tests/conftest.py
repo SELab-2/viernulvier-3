@@ -480,7 +480,7 @@ def many_blogs(db_session):
         content_en = BlogContent(
             blog_id=blog.id,
             language=Languages.ENGLISH,
-            title="title",
+            title="title" if i % 2 == 0 else "other",
             content="content",
         )
         content_nl = BlogContent(

@@ -177,10 +177,19 @@
   },
 
   "blogs": {
+    "searchPlaceholder": "Search blogs...",
+    "title": "Blogs",
+    "showMore": "Show more",
+    "noResults": {
+      "header": "No results...",
+      "subtext": "Change your search to contain less keywords"
+    },
     "card": {
       "other_prods": "other productions",
       "no_prods": "No productions are linked to this blog",
-      "details": "Details"
+      "details": "Details",
+      "noTitleFound": "No available title found",
+      "noContentFound": "No available content found"
     },
     "create_blog": "Create blog",
     "createBlogPage": {
