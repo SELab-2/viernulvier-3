@@ -41,7 +41,7 @@ export function CreateProductionPage() {
     info: t("archive.add_info.info"),
   };
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>(emptyInfo);
-  const [_isQuillDirty, setIsQuillDirty] = useState(false);
+  const [, setIsQuillDirty] = useState(false);
 
   // TODO
   const fallbackImageUrl =
