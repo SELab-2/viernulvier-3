@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import EditButton from "~/features/archive/components/EditButton";
+import { EditButton } from "~/features/archive/components/EditButton";
 
 import { AuthSessionProvider } from "~/features/auth";
 import * as loginServiceModule from "~/features/auth/services/loginService";
