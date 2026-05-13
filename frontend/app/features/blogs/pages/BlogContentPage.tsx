@@ -9,12 +9,16 @@ import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
-import { getProductionsForBlog } from "../services/blogService";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { BLOG_PERMISSIONS } from "../blog.constants";
 import BlogEditButton from "../components/BlogEditButton";
 import { updateBlogByUrl } from "../services/blogService";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 function useUnsavedChangesBlocker(when: boolean) {
   const blocker = useBlocker(when);
@@ -189,11 +193,39 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
 }
 
 type LinkedProductionsProps = {
-  productions: Production[];
+  productionGroup: ProductionGroup | null;
+  isEditing: boolean;
+  setNewProductionGroup: React.Dispatch<React.SetStateAction<ProductionGroup | null>>;
 };
 
-function LinkedProductions({ productions }: LinkedProductionsProps) {
+function LinkedProductions({
+  productionGroup,
+  isEditing,
+  setNewProductionGroup,
+}: LinkedProductionsProps) {
+  const [productions, setProductions] = useState<Production[]>([]);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadProductions() {
+      if (!productionGroup) return;
+      try {
+        const intProductions = await getProductionsForGroup(productionGroup);
+        if (!cancelled) {
+          setProductions(intProductions);
+        }
+      } catch {
+        if (!cancelled) {
+          setProductions([]);
+        }
+      }
+    }
+    void loadProductions();
+    return () => {
+      cancelled = true;
+    };
+  }, [productionGroup]);
 
   if (productions.length === 0) return null;
 
@@ -278,8 +310,10 @@ interface BlogPageProps {
 }
 
 export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
-  const [linkedProductions, setLinkedProductions] = useState<Production[]>([]);
-
+  const [blogProdGroup, setBlogProdGroup] = useState<ProductionGroup | null>(null);
+  const [newBlogProdGroup, setNewBlogProdGroup] = useState<ProductionGroup | null>(
+    null
+  );
   const { t } = useTranslation();
   const { lang } = useParams();
 
@@ -332,20 +366,22 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   useEffect(() => {
     let cancelled = false;
-    async function loadProductions() {
+    async function loadProductionGroup() {
       if (!blog.production_group_id_url) return;
       try {
-        const productions = await getProductionsForBlog(blog);
+        const productionGroup = await getProductionGroupByUrl(
+          blog.production_group_id_url
+        );
         if (!cancelled) {
-          setLinkedProductions(productions.filter((p): p is Production => p !== null));
+          setBlogProdGroup(productionGroup);
         }
       } catch {
         if (!cancelled) {
-          setLinkedProductions([]);
+          setBlogProdGroup(null);
         }
       }
     }
-    void loadProductions();
+    void loadProductionGroup();
     return () => {
       cancelled = true;
     };
@@ -379,7 +415,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
         <BlogPageMediaGallery contentHtml={contentHtml ?? ""} title={title} />
 
-        <LinkedProductions productions={linkedProductions} />
+        <LinkedProductions
+          productionGroup={blogProdGroup}
+          isEditing={isEditing}
+          setNewProductionGroup={setNewBlogProdGroup}
+        />
 
         {originalContent !== null ? (
           <div className="fixed right-6 bottom-6 z-50 flex gap-3">
