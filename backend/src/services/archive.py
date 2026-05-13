@@ -6,9 +6,9 @@ def get_base_url(url: str, remove_last_segments: int = 1) -> str:
     Returns the base URL by removing a specified number of path segments from the end.
 
     Examples:
-        >>> get_base_url("https://example.com/api/v1/users/", 1)
+        >>> get_base_url("https://example.com/api/v1/users", 1)
         'https://example.com/api/v1'
-        >>> get_base_url("https://example.com/api/v1/users/", 2)
+        >>> get_base_url("https://example.com/api/v1/users", 2)
         'https://example.com/api'
         >>> get_base_url("https://example.com/api/v1/archive/productions/?cursor=1&limit=20", 1)
         'https://example.com/api/v1/archive'

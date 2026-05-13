@@ -7,5 +7,6 @@ export const PERMISSIONS_API_PATH = `${AUTH_API_PATH}/permissions`;
 export const USER_PERMISSIONS = {
   read: "users:read",
   create: "users:create",
+  update: "users:update",
   delete: "users:delete",
 } as const;

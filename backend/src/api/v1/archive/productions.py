@@ -11,7 +11,7 @@ from src.schemas.production import (
 from src.schemas.blogs import BlogListResponse
 from src.services.blogs import get_blogs_by_production_id
 from src.services.production import (
-    ProductionSortOrder,
+    SortOrder,
     create_production,
     get_production_by_id,
     get_productions_paginated,
@@ -29,7 +29,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=ProductionListResponse,
     summary="Get productions",
     description="Gets all productions of the database, using pagination.",
@@ -45,7 +45,7 @@ async def get_productions(
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
     latest_at: datetime | None = Query(None),
-    sort_order: ProductionSortOrder = Query("Descending"),
+    sort_order: SortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
     if tag_ids:
@@ -84,7 +84,7 @@ async def get_productions(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductionResponse,
     status_code=201,
     summary="Create production",
@@ -158,7 +158,7 @@ async def delete_production(
 
 
 @router.get(
-    "/{production_id}/blogs/",
+    "/{production_id}/blogs",
     response_model=BlogListResponse,
     summary="Get blogs by production id",
     description="Get all blogs linked to a specific production",

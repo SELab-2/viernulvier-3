@@ -44,7 +44,7 @@ describe("eventService", () => {
         updated_at: "2026-03-20T10:00:00",
       };
 
-      mockAdapter.onGet("/api/v1/archive/events/1/").reply(200, mockEvent);
+      mockAdapter.onGet("/api/v1/archive/events/1").reply(200, mockEvent);
 
       const result = await getEvent(1);
 
@@ -54,7 +54,7 @@ describe("eventService", () => {
     });
 
     it("throws when event is not found", async () => {
-      mockAdapter.onGet("/api/v1/archive/events/999/").reply(404);
+      mockAdapter.onGet("/api/v1/archive/events/999").reply(404);
 
       await expect(getEvent(999)).rejects.toThrow();
     });
@@ -78,7 +78,7 @@ describe("eventService", () => {
         updated_at: "2026-03-20T10:00:00",
       };
 
-      mockAdapter.onPost("/api/v1/archive/events/").reply(201, mockResponse);
+      mockAdapter.onPost("/api/v1/archive/events").reply(201, mockResponse);
 
       const result = await createEvent(eventData);
 
@@ -92,7 +92,7 @@ describe("eventService", () => {
         hall_id_url: "hall1",
       };
 
-      mockAdapter.onPost("/api/v1/archive/events/").reply(400);
+      mockAdapter.onPost("/api/v1/archive/events").reply(400);
 
       await expect(createEvent(eventData)).rejects.toThrow();
     });
@@ -114,7 +114,7 @@ describe("eventService", () => {
         updated_at: "2026-03-21T10:00:00",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/events/1/").reply(200, mockResponse);
+      mockAdapter.onPatch("/api/v1/archive/events/1").reply(200, mockResponse);
 
       const result = await updateEvent(1, eventData);
 
@@ -127,7 +127,7 @@ describe("eventService", () => {
         starts_at: "2026-03-21T19:00:00",
       };
 
-      mockAdapter.onPatch("/api/v1/archive/events/1/").reply(400);
+      mockAdapter.onPatch("/api/v1/archive/events/1").reply(400);
 
       await expect(updateEvent(1, eventData)).rejects.toThrow();
     });
@@ -135,13 +135,13 @@ describe("eventService", () => {
 
   describe("deleteEvent", () => {
     it("deletes an event successfully", async () => {
-      mockAdapter.onDelete("/api/v1/archive/events/1/").reply(204);
+      mockAdapter.onDelete("/api/v1/archive/events/1").reply(204);
 
       await expect(deleteEvent(1)).resolves.toBeUndefined();
     });
 
     it("throws when delete request fails", async () => {
-      mockAdapter.onDelete("/api/v1/archive/events/1/").reply(404);
+      mockAdapter.onDelete("/api/v1/archive/events/1").reply(404);
 
       await expect(deleteEvent(1)).rejects.toThrow();
     });
@@ -168,7 +168,7 @@ describe("eventService", () => {
         },
       ];
 
-      mockAdapter.onGet("/api/v1/archive/events/1/prices/").reply(200, mockPrices);
+      mockAdapter.onGet("/api/v1/archive/events/1/prices").reply(200, mockPrices);
 
       const result = await getEventPrices(1);
 
@@ -177,7 +177,7 @@ describe("eventService", () => {
     });
 
     it("throws when get prices request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/events/1/prices/").reply(500);
+      mockAdapter.onGet("/api/v1/archive/events/1/prices").reply(500);
 
       await expect(getEventPrices(1)).rejects.toThrow();
     });
@@ -194,7 +194,7 @@ describe("eventService", () => {
         updated_at: "2026-03-20T10:00:00",
       };
 
-      mockAdapter.onGet("/api/v1/archive/events/1/prices/1/").reply(200, mockPrice);
+      mockAdapter.onGet("/api/v1/archive/events/1/prices/1").reply(200, mockPrice);
 
       const result = await getEventPrice(1, 1);
 
@@ -204,7 +204,7 @@ describe("eventService", () => {
     });
 
     it("throws when price is not found", async () => {
-      mockAdapter.onGet("/api/v1/archive/events/1/prices/999/").reply(404);
+      mockAdapter.onGet("/api/v1/archive/events/1/prices/999").reply(404);
 
       await expect(getEventPrice(1, 999)).rejects.toThrow();
     });

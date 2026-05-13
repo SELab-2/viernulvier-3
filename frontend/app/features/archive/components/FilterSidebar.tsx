@@ -2,7 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getArtists } from "~/features/archive/services/artistService";
 import { getAllTags, getTagByName } from "~/features/archive/services/tagService";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
+import { matchesProductionGroupQuery } from "../utils/productionGroupFilters";
 import FilterCard from "./FilterCard";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -229,6 +231,96 @@ const FilterTagCard: React.FC<TagCardProps> = ({ selectedTags, setSelectedTags }
   );
 };
 
+interface ProductionGroupCardProps {
+  productionGroups: ProductionGroup[];
+  selectedProductionGroups: ProductionGroup[];
+  setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
+}
+
+const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
+  productionGroups,
+  selectedProductionGroups,
+  setSelectedProductionGroups,
+}) => {
+  const [groupQuery, setGroupQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const { t } = useTranslation();
+
+  const toggleProductionGroup = (productionGroup: ProductionGroup) => {
+    const isSelected = selectedProductionGroups.some(
+      (selectedGroup) => selectedGroup.id_url === productionGroup.id_url
+    );
+
+    setSelectedProductionGroups(
+      isSelected
+        ? selectedProductionGroups.filter(
+            (selectedGroup) => selectedGroup.id_url !== productionGroup.id_url
+          )
+        : [...selectedProductionGroups, productionGroup]
+    );
+  };
+
+  const filteredProductionGroups =
+    groupQuery.trim().length > 0
+      ? productionGroups.filter((productionGroup) =>
+          matchesProductionGroupQuery(productionGroup, groupQuery)
+        )
+      : [];
+
+  return (
+    <FilterCard title={t("filter.production_groups")}>
+      <div className="space-y-4">
+        {selectedProductionGroups.length > 0 && (
+          <div className="sticky-scroll flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2 md:max-h-60">
+            {selectedProductionGroups.map((productionGroup) => (
+              <button
+                key={productionGroup.id_url}
+                onClick={() => toggleProductionGroup(productionGroup)}
+                className="bg-archive-accent border-archive-accent cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap text-white uppercase transition-all"
+              >
+                {productionGroup.title}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder={t("filter.search_production_groups")}
+            className="archive-filter-input pr-9"
+            value={groupQuery}
+            onChange={(e) => setGroupQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+          <SearchIcon
+            className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
+            fontSize="inherit"
+          />
+          {isFocused && filteredProductionGroups.length > 0 && (
+            <ul className="border-archive-ink/10 border-archive-ink-dark/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
+              {filteredProductionGroups.map((productionGroup) => (
+                <li
+                  key={productionGroup.id_url}
+                  onMouseDown={() => {
+                    toggleProductionGroup(productionGroup);
+                    setGroupQuery("");
+                  }}
+                  className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
+                >
+                  {productionGroup.title}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </FilterCard>
+  );
+};
+
 interface ArtistCardProps {
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
@@ -357,6 +449,10 @@ interface FilterSidebarProps {
   setDateTo: React.Dispatch<React.SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  productionGroups: ProductionGroup[];
+  selectedProductionGroupIds: string[];
+  selectedProductionGroups: ProductionGroup[];
+  setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
   selectedArtists: string[];
   setSelectedArtists: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -371,6 +467,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setDateTo,
   selectedTags,
   setSelectedTags,
+  productionGroups,
+  selectedProductionGroupIds,
+  selectedProductionGroups,
+  setSelectedProductionGroups,
   selectedArtists,
   setSelectedArtists,
 }) => {
@@ -382,6 +482,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     dateFrom.length > 0 ||
     dateTo.length > 0 ||
     selectedTags.length > 0 ||
+    selectedProductionGroupIds.length > 0 ||
     selectedArtists.length > 0;
 
   const resetFilters = () => {
@@ -389,6 +490,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     setDateFrom("");
     setDateTo("");
     setSelectedTags([]);
+    setSelectedProductionGroups([]);
     setSelectedArtists([]);
   };
 
@@ -414,6 +516,11 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         setDateTo={setDateTo}
       />
       <FilterTagCard selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
+      <FilterProductionGroupCard
+        productionGroups={productionGroups}
+        selectedProductionGroups={selectedProductionGroups}
+        setSelectedProductionGroups={setSelectedProductionGroups}
+      />
       <FilterArtistCard
         selectedArtists={selectedArtists}
         setSelectedArtists={setSelectedArtists}

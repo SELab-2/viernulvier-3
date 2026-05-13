@@ -6,14 +6,24 @@ import * as blogService from "~/features/blogs/services/blogService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { MemoryRouter } from "react-router";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock("react-i18next", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-i18next")>();
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
 
 vi.mock("~/features/blogs/services/blogService", () => ({
   getProductionsForBlog: vi.fn(),
+}));
+
+vi.mock("~/features/blogs/services/mediaService", () => ({
+  getMediaForBlog: vi
+    .fn()
+    .mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
 }));
 
 const mockBlogContentEN: BlogContent = {
@@ -135,6 +145,16 @@ describe("BlogCard", () => {
     expect(blogCardText?.querySelectorAll("p")).toHaveLength(2);
   });
 
+  it("renders blog without content", () => {
+    const emptyBlog: Blog = {
+      ...mockBlog,
+      blog_contents: [],
+    };
+
+    renderBlogCard({ blog: emptyBlog });
+    expect(screen.getByText("blogs.card.noContentFound")).toBeInTheDocument();
+  });
+
   it("renders the no-production fallback text", () => {
     vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([]);
     renderBlogCard({ blog: mockBlogNoProductions });
@@ -215,13 +235,9 @@ describe("BlogCardList", () => {
     };
 
     render(
-      <div>
-        {[mockBlog, blog2].map((blog) => (
-          <MemoryRouter>
-            <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
-          </MemoryRouter>
-        ))}
-      </div>
+      <MemoryRouter>
+        <BlogCardList blogs={[mockBlog, blog2]} prefferedLanguage="en" />
+      </MemoryRouter>
     );
 
     expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();

@@ -22,7 +22,7 @@ from src.services.history import (
 router = APIRouter()
 
 
-@router.get("/", response_model=List[HistoryResponse])
+@router.get("", response_model=List[HistoryResponse])
 def get_history(
     request: Request,
     db: Session = Depends(get_db),
@@ -47,7 +47,7 @@ def get_history_entry(
     return get_history_entry_by_key(db, year, language, base_url)
 
 
-@router.post("/", response_model=HistoryResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=HistoryResponse, status_code=status.HTTP_201_CREATED)
 def post_history(
     history_in: HistoryCreate,
     request: Request,

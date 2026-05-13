@@ -1,4 +1,4 @@
-import { Link, useBlocker, useParams } from "react-router";
+import { useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, {
   useCallback,
@@ -18,7 +18,6 @@ import type {
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
-import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import {
   createEvent,
   getEventByUrl,
@@ -36,12 +35,12 @@ import { getMediaForProduction } from "~/features/archive/services/mediaService"
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
-
-import DeleteInfoButton from "../components/DeleteInfoButton";
-import EditButton from "../components/EditButton";
-import ProductionHeader from "../components/ProductionHeader";
 import type { Tag } from "../types/tagTypes";
 import { getAllTags } from "../services/tagService";
+import { BackToCollectionLink } from "../components/BackToCollectionLink";
+import { DeleteInfoButton } from "../components/DeleteInfoButton";
+import { EditButton } from "../components/EditButton";
+import { ProductionHeader } from "../components/ProductionHeader";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
@@ -276,27 +275,13 @@ function useUnsavedChangesBlocker(when: boolean) {
   }, [blocker.state]);
 }
 
-function BackToCollectionLink() {
-  const { t } = useTranslation();
-  const lp = useLocalizedPath();
-  return (
-    <Link
-      id="back-to-collection"
-      to={lp("/archive")}
-      className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
-    >
-      {t("productionPage.backToCollection")}
-    </Link>
-  );
-}
-
 type TagProps = React.LiHTMLAttributes<HTMLLIElement> & {
   children: ReactNode;
 };
 function Tag({ className, children, ...props }: TagProps) {
   return (
     <li
-      className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase ${className}`}
+      className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[--archive-tracking-label] uppercase ${className}`}
       {...props}
     >
       {children}
@@ -695,7 +680,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(productionInfo?.tagline, "");
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
@@ -851,6 +835,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           originalInfo={originalInfo}
           draftInfo={draftInfo}
           setDraftInfo={setDraftInfo}
+          isCreateHeader={false}
         />
 
         <Tags
@@ -864,7 +849,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
             <ProductionInfoSection
-              tagline={tagline}
+              isCreateInfo={false}
+              tagline={draftInfo?.tagline ?? ""}
+              originalTagline={originalInfo?.tagline ?? undefined}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}

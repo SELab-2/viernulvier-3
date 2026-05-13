@@ -1,35 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
-import { Outlet } from "react-router";
+import { Outlet, useSearchParams } from "react-router";
 
-import {
-  ArchiveSortOrder,
-  ProductionTimeline,
-} from "~/features/archive/components/ProductionTimeline";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
+import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { Button, Divider } from "@mui/material";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import FilterSidebar from "../components/FilterSidebar";
-import { SortOrderSelection } from "../components/SortOrderSelection";
 import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
-import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 import { useDebouncedState } from "../utils/debouncedState";
+import {
+  SortOrderEnum,
+  SortOrderSelection,
+} from "~/shared/components/SortOrderSelection";
+import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 import { Protected, useAuthSession } from "~/features/auth";
+import {
+  getProductionGroupId,
+  getRequestedProductionGroupIds,
+  PRODUCTION_GROUP_QUERY_PARAM,
+  resolveProductionGroupsByIds,
+} from "../utils/productionGroupFilters";
 
 function buildProductionFilters({
   debouncedSearch,
   debouncedDateFrom,
   debouncedDateTo,
   selectedTags,
+  selectedProductionGroupIds,
   selectedArtists,
 }: {
   debouncedSearch: string;
   debouncedDateFrom: string;
   debouncedDateTo: string;
   selectedTags: Tag[];
+  selectedProductionGroupIds: string[];
   selectedArtists: string[];
 }) {
   return {
@@ -40,21 +50,22 @@ function buildProductionFilters({
       selectedTags.length > 0
         ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
         : undefined,
+    group_ids:
+      selectedProductionGroupIds.length > 0 ? selectedProductionGroupIds : undefined,
     artists: selectedArtists.length > 0 ? selectedArtists : undefined,
   };
 }
 
 export default function ArchivePage() {
   const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuthSession();
 
   const isSelectable =
     isAuthenticated &&
     !!(user?.isSuperUser || user?.permissions.includes("archive:create"));
 
-  const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
-    ArchiveSortOrder.NewestFirst
-  );
+  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
@@ -63,7 +74,18 @@ export default function ArchivePage() {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);
+  const [productionGroups, setProductionGroups] = useState<ProductionGroup[]>([]);
   const [selectedProductionIds, setSelectedProductionIds] = useState<string[]>([]);
+
+  const selectedProductionGroupIds = useMemo(
+    () => getRequestedProductionGroupIds(searchParams),
+    [searchParams]
+  );
+
+  const selectedProductionGroups = useMemo(
+    () => resolveProductionGroupsByIds(productionGroups, selectedProductionGroupIds),
+    [productionGroups, selectedProductionGroupIds]
+  );
 
   const filters = useMemo(
     () =>
@@ -72,22 +94,71 @@ export default function ArchivePage() {
         debouncedDateFrom,
         debouncedDateTo,
         selectedTags,
+        selectedProductionGroupIds,
         selectedArtists,
       }),
-    [debouncedSearch, debouncedDateFrom, debouncedDateTo, selectedTags, selectedArtists]
+    [
+      debouncedSearch,
+      debouncedDateFrom,
+      debouncedDateTo,
+      selectedTags,
+      selectedProductionGroupIds,
+      selectedArtists,
+    ]
   );
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function fetchProductionGroups() {
+      try {
+        const result = await getAllProductionGroups();
+
+        if (!isCancelled) {
+          setProductionGroups(result);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchProductionGroups();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  const handleSelectedProductionGroupsChange = (nextGroups: ProductionGroup[]) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(PRODUCTION_GROUP_QUERY_PARAM);
+
+        const nextGroupIds = nextGroups
+          .map(getProductionGroupId)
+          .filter((groupId) => groupId.length > 0);
+
+        for (const groupId of new Set(nextGroupIds)) {
+          next.append(PRODUCTION_GROUP_QUERY_PARAM, groupId);
+        }
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   // Re-fetch whenever any filter changes
   useEffect(() => {
     async function fetchProductions() {
       const result = await getProductionsPaginated({
         ...filters,
-        sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+        sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
       });
       setProductionList(result);
     }
     fetchProductions();
-  }, [filters, sortOrder, i18n.resolvedLanguage]);
+  }, [filters, i18n.resolvedLanguage, sortOrder]);
 
   const productions = useMemo(
     () => productionList?.productions ?? [],
@@ -143,6 +214,10 @@ export default function ArchivePage() {
           setDateFrom={setDateFrom}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
+          productionGroups={productionGroups}
+          selectedProductionGroupIds={selectedProductionGroupIds}
+          selectedProductionGroups={selectedProductionGroups}
+          setSelectedProductionGroups={handleSelectedProductionGroupsChange}
           selectedArtists={selectedArtists}
           setSelectedArtists={setSelectedArtists}
         />
