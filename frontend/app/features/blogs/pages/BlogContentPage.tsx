@@ -378,17 +378,25 @@ function isContentModified(
   );
 }
 
-async function handleContentSave(
+async function handleBlogSave(
   blog: Blog,
   originalContent: BlogContent | null,
   draftContent: BlogContent | null,
   setOriginalContent: React.Dispatch<React.SetStateAction<BlogContent | null>>,
+  newBlogProdGroup: ProductionGroup | null;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
   skipUnloadWarning: React.MutableRefObject<boolean>
 ) {
   if (!draftContent) return;
+
+  let newProdBlogIdUrl = "";
+  if (newBlogProdGroup === null) {
+	  newProdBlogIdUrl = blog.production_group_id_url;
+  } else {
+	  newProdBlogIdUrl = newBlogProdGroup.id_url;
+  }
 
   setIsSaving(true);
   try {
@@ -400,6 +408,7 @@ async function handleContentSave(
           content: draftContent.content,
         },
       ],
+	  production_group_id_url: newProdBlogIdUrl
     });
 
     // sync local "source of truth"
@@ -443,11 +452,12 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const _handleSave = () =>
-    handleContentSave(
+    handleBlogSave(
       blog,
       originalContent,
       draftContent,
       setOriginalContent,
+	  newBlogProdGroup,
       setIsEditing,
       setIsSaving,
       language,
@@ -461,8 +471,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     if (originalContent === null) {
       return isEditing; // With add always true.
     }
+	if (blogProdGroup && newBlogProdGroup && blogProdGroup.id_url !== newBlogProdGroup.id_url) {
+		return true;
+	}
     return isContentModified(originalContent, draftContent);
-  }, [originalContent, draftContent, isEditing]);
+  }, [originalContent, draftContent, isEditing, newBlogProdGroup]);
 
   const skipUnloadWarning = useRef(false);
 
