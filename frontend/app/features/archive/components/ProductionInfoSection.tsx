@@ -57,14 +57,13 @@ export function ProductionInfoSection({
         renderView={(value) => (
           <p
             id="supertitle"
-            className="font-sans text-[0.65rem] tracking-[0.28em]ext-archive-ink text-sm uppercase"
+            className="tracking-[0.28em]ext-archive-ink font-sans text-sm text-[0.65rem] uppercase"
           >
             {getTextOrDefault(value, t("productionPage.fallback.archive"))}
           </p>
         )}
         isModified={tagline !== (originalTagline ?? "")}
       />
-      
 
       <ComplexEditableField
         id="teaser"
