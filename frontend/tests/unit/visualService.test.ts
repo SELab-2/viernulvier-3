@@ -102,9 +102,7 @@ describe("visualService", () => {
 
   describe("getVisualById", () => {
     it("returns a single visual by id", async () => {
-      mockAdapter
-        .onGet("/api/v1/archive/visuals/1")
-        .reply(200, mockVisualItem1);
+      mockAdapter.onGet("/api/v1/archive/visuals/1").reply(200, mockVisualItem1);
 
       const result = await getVisualById(1);
 
@@ -123,9 +121,7 @@ describe("visualService", () => {
     it("returns list of valid visual types from the backend", async () => {
       const types = ["poster", "timetable", "programme", "video", "picture", "other"];
 
-      mockAdapter
-        .onGet("/api/v1/archive/visuals/types")
-        .reply(200, types);
+      mockAdapter.onGet("/api/v1/archive/visuals/types").reply(200, types);
 
       const result = await getVisualTypes();
 
@@ -143,9 +139,7 @@ describe("visualService", () => {
 
   describe("uploadVisual", () => {
     it("uploads a file and returns the created visual", async () => {
-      mockAdapter
-        .onPost("/api/v1/archive/visuals")
-        .reply(201, mockVisualItem1);
+      mockAdapter.onPost("/api/v1/archive/visuals").reply(201, mockVisualItem1);
 
       const file = new File(["dummy content"], "poster.jpg", {
         type: "image/jpeg",

@@ -30,9 +30,7 @@ export async function getVisualById(visualId: number): Promise<VisualItem> {
 
 export async function getVisualTypes(): Promise<VisualType[]> {
   const apiClient = createApiClient();
-  const response = await apiClient.get<VisualType[]>(
-    `${ARCHIVE_PATH}/visuals/types`
-  );
+  const response = await apiClient.get<VisualType[]>(`${ARCHIVE_PATH}/visuals/types`);
   return response.data;
 }
 
