@@ -430,7 +430,17 @@
     },
     "upload": {
       "button": "Uploaden",
-      "uploading": "Bezig met uploaden..."
+      "uploading": "Bezig met uploaden...",
+      "dialogTitle": "Nieuw beeldmateriaal uploaden",
+      "dropOrBrowse": "Sleep een bestand hierheen of klik om te bladeren",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef een titel voor dit beeldmateriaal",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf dit beeldmateriaal...",
+      "typeLabel": "Type",
+      "cancel": "Annuleren",
+      "submit": "Uploaden"
     },
     "messages": {
       "loadMoreFailed": "Meer laden mislukt: {{error}}",

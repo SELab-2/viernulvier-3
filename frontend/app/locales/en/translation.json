@@ -430,7 +430,17 @@
     },
     "upload": {
       "button": "Upload",
-      "uploading": "Uploading..."
+      "uploading": "Uploading...",
+      "dialogTitle": "Upload new visual",
+      "dropOrBrowse": "Drop a file here or click to browse",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Give this visual a title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe this visual...",
+      "typeLabel": "Type",
+      "cancel": "Cancel",
+      "submit": "Upload"
     },
     "messages": {
       "loadMoreFailed": "Could not load more: {{error}}",

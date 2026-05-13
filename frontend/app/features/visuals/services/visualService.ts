@@ -14,7 +14,7 @@ export async function getVisuals(
   params?: IdPaginationRequest & { visual_type?: VisualType }
 ): Promise<VisualList> {
   const apiClient = createApiClient();
-  const response = await apiClient.get<VisualList>(`${ARCHIVE_PATH}/visuals`, {
+  const response = await apiClient.get<VisualList>(`${ARCHIVE_PATH}/visuals/`, {
     params,
   });
   return response.data;
@@ -42,7 +42,7 @@ export async function uploadVisual(
   const formData = new FormData();
   formData.append("file", file);
   const response = await apiClient.post<VisualItem>(
-    `${ARCHIVE_PATH}/visuals`,
+    `${ARCHIVE_PATH}/visuals/`,
     formData,
     { params: uploadParams }
   );

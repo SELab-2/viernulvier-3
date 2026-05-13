@@ -25,11 +25,10 @@ export default function VisualsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [lightboxVisual, setLightboxVisual] = useState<VisualItem | null>(
     null
   );
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const closeLightbox = useCallback(() => setLightboxVisual(null), []);
 
@@ -131,29 +130,6 @@ export default function VisualsPage() {
     }
   }
 
-  async function handleUpload() {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const created = await uploadVisual(file, {
-        visual_type: selectedType || undefined,
-      });
-      setVisuals((prev) => [created, ...prev]);
-      setTotalCount((prev) => prev + 1);
-    } catch (error) {
-      window.alert(
-        t("visuals.messages.uploadFailed", {
-          error: error instanceof Error ? error.message : String(error),
-        })
-      );
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
   async function handleDelete(visualId: number) {
     if (!window.confirm(t("visuals.messages.confirmDelete"))) return;
 
@@ -183,6 +159,16 @@ export default function VisualsPage() {
         {renderHeader()}
         {renderContentSection()}
         {lightboxVisual && renderLightbox()}
+        {isUploadDialogOpen && (
+          <UploadDialog
+            visualTypes={visualTypes}
+            onClose={() => setIsUploadDialogOpen(false)}
+            onUploaded={(item) => {
+              setVisuals((prev) => [item, ...prev]);
+              setTotalCount((prev) => prev + 1);
+            }}
+          />
+        )}
       </>
     );
   }
@@ -255,17 +241,12 @@ export default function VisualsPage() {
             </span>
           )}
           <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
-            <label className="bg-archive-accent hover:bg-archive-accent/90 cursor-pointer rounded px-4 py-2 text-sm font-medium text-white transition-colors">
-              {isUploading ? t("visuals.upload.uploading") : t("visuals.upload.button")}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,video/*,.pdf"
-                className="hidden"
-                onChange={handleUpload}
-                disabled={isUploading}
-              />
-            </label>
+            <button
+              className="bg-archive-accent hover:bg-archive-accent/90 rounded px-4 py-2 text-sm font-medium text-white transition-colors"
+              onClick={() => setIsUploadDialogOpen(true)}
+            >
+              {t("visuals.upload.button")}
+            </button>
           </Protected>
         </div>
       </div>
@@ -491,4 +472,247 @@ export default function VisualsPage() {
   }
 
   return renderMain();
+}
+
+function UploadDialog({
+  visualTypes,
+  onClose,
+  onUploaded,
+}: {
+  visualTypes: VisualType[];
+  onClose: () => void;
+  onUploaded: (item: VisualItem) => void;
+}) {
+  const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [visualType, setVisualType] = useState<VisualType | "">("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0] ?? null;
+    setFile(selected);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (selected && selected.type.startsWith("image/")) {
+      setPreviewUrl(URL.createObjectURL(selected));
+    } else {
+      setPreviewUrl(null);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const dropped = e.dataTransfer.files[0] ?? null;
+    setFile(dropped);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (dropped && dropped.type.startsWith("image/")) {
+      setPreviewUrl(URL.createObjectURL(dropped));
+    } else {
+      setPreviewUrl(null);
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+  }
+
+  async function handleSubmit() {
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const created = await uploadVisual(file, {
+        title: title || undefined,
+        description: description || undefined,
+        visual_type: visualType || undefined,
+      });
+      onUploaded(created);
+      onClose();
+    } catch (error) {
+      window.alert(
+        t("visuals.messages.uploadFailed", {
+          error: error instanceof Error ? error.message : String(error),
+        })
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  const canSubmit = file !== null && !isUploading;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="mx-4 w-full max-w-2xl overflow-hidden rounded-lg bg-archive-paper shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="border-archive-ink/10 flex items-center justify-between border-b px-6 py-4">
+          <h2 className="font-serif text-xl">
+            {t("visuals.upload.dialogTitle")}
+          </h2>
+          <button
+            className="rounded-full p-1 transition-colors hover:bg-archive-ink/10"
+            onClick={onClose}
+            aria-label={t("visuals.lightbox.close")}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
+          <div
+            className={`border-archive-ink/20 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
+              file ? "border-archive-accent bg-archive-accent/5" : "hover:border-archive-accent/50 hover:bg-archive-ink/5"
+            }`}
+            onClick={() => fileInputRef.current?.click()}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="max-h-48 rounded object-contain"
+              />
+            ) : file ? (
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-3xl opacity-20">
+                  {file.type.startsWith("video/") ? "▶" : "📄"}
+                </span>
+                <span className="text-sm opacity-60">{file.name}</span>
+              </div>
+            ) : (
+              <div className="text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto h-10 w-10 opacity-30"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <p className="mt-2 text-sm opacity-50">
+                  {t("visuals.upload.dropOrBrowse")}
+                </p>
+                <p className="mt-1 text-xs opacity-30">
+                  {t("visuals.upload.acceptedFormats")}
+                </p>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime,.pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              {t("visuals.upload.titleLabel")}
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t("visuals.upload.titlePlaceholder")}
+              className="bg-archive-surface border-archive-ink/20 w-full rounded border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              {t("visuals.upload.descriptionLabel")}
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t("visuals.upload.descriptionPlaceholder")}
+              rows={4}
+              className="bg-archive-surface border-archive-ink/20 w-full rounded border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              {t("visuals.upload.typeLabel")}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {visualTypes.map((type) => (
+                <button
+                  key={type}
+                  className={`rounded px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                    visualType === type
+                      ? "bg-archive-accent text-white"
+                      : "bg-archive-ink/10 hover:bg-archive-ink/20"
+                  }`}
+                  onClick={() => setVisualType(visualType === type ? "" : type)}
+                >
+                  {t(`visuals.types.${type}`, type)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="border-archive-ink/10 flex justify-end gap-3 border-t px-6 py-4">
+          <button
+            className="rounded px-4 py-2 text-sm font-medium transition-colors hover:bg-archive-ink/10"
+            onClick={onClose}
+          >
+            {t("visuals.upload.cancel")}
+          </button>
+          <button
+            className="bg-archive-accent hover:bg-archive-accent/90 rounded px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+          >
+            {isUploading ? t("visuals.upload.uploading") : t("visuals.upload.submit")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
