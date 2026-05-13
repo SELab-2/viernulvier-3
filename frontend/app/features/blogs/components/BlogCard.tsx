@@ -44,7 +44,7 @@ function colorWithOpacity(color: string, opacity: number): string {
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
-  language: string
+  language: string = "en"
 ): BlogContent | null {
   if (blogContents.length === 0) {
     return null;
@@ -184,8 +184,9 @@ export function BlogCard({
 
   const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
 
-  const title = blog_content?.title ?? "Untitled blog";
-  const content = blog_content?.content ?? "";
+  // Fallback should never happen, but just in case...
+  const title = blog_content?.title || t("blogs.card.noTitleFound");
+  const content = blog_content?.content || t("blogs.card.noContentFound");
   const imageUrl = DEFAULT_IMAGE;
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);

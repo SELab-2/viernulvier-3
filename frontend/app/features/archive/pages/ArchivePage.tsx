@@ -4,22 +4,22 @@ import type { ProductionGroup } from "~/features/archive/types/productionGroupTy
 import type { Tag } from "~/features/archive/types/tagTypes";
 import { Outlet, useSearchParams } from "react-router";
 
-import {
-  ArchiveSortOrder,
-  ProductionTimeline,
-} from "~/features/archive/components/ProductionTimeline";
+import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import { Button, Divider } from "@mui/material";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import FilterSidebar from "../components/FilterSidebar";
-import { SortOrderSelection } from "../components/SortOrderSelection";
 import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
 import { CreateProductionGroupDialog } from "../components/CreateProductionGroupDialog";
-import { archiveSortOrderToBackendSortOrder } from "../utils/archiveMapping";
 import { useDebouncedState } from "../utils/debouncedState";
+import {
+  SortOrderEnum,
+  SortOrderSelection,
+} from "~/shared/components/SortOrderSelection";
+import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 import { Protected, useAuthSession } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import {
@@ -68,9 +68,7 @@ export default function ArchivePage() {
     !!(user?.isSuperUser || user?.permissions.includes(ARCHIVE_PERMISSIONS.create));
   const isSelectable = canCreateArchive;
 
-  const [sortOrder, setSortOrder] = useState<ArchiveSortOrder>(
-    ArchiveSortOrder.NewestFirst
-  );
+  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
@@ -160,7 +158,7 @@ export default function ArchivePage() {
     async function fetchProductions() {
       const result = await getProductionsPaginated({
         ...filters,
-        sort_order: archiveSortOrderToBackendSortOrder[sortOrder],
+        sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
       });
       setProductionList(result);
     }
