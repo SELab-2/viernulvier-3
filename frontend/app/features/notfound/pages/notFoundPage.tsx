@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
 import NavigateButton from "~/shared/components/NavigateButton";
-
 export default function NotFoundPage() {
   const { t } = useTranslation();
-
   return (
     <main>
       <title>{`${t("notFound.title")} | VIERNULVIER`}</title>
@@ -20,6 +18,9 @@ export default function NotFoundPage() {
             variant="secondary"
           />
         </div>
+        <p className="mt-16 font-serif text-lg italic md:mt-15 md:text-2xl">
+          "{t("notFound.quote")}"
+        </p>
       </div>
     </main>
   );

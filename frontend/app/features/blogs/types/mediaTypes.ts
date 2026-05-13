@@ -1,1 +1,0 @@
-export type { MediaItem as MediaResponse, MediaList as MediaListResponse } from "~/features/archive/types/mediaTypes";

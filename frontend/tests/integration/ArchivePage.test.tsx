@@ -5,12 +5,23 @@ import userEvent from "@testing-library/user-event";
 import * as productionService from "~/features/archive/services/productionService";
 import * as artistService from "~/features/archive/services/artistService";
 import * as tagService from "~/features/archive/services/tagService";
+import * as loginServiceModule from "~/features/auth/services/loginService";
 import { mockProductions } from "tests/mocks/productions.mock";
 import type { Production } from "~/features/archive/types/productionTypes";
 
 vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/tagService");
+
+const adminUser = {
+  id: 1,
+  username: "testadmin",
+  isSuperUser: true,
+  roles: [],
+  permissions: ["archive:create"],
+  createdAt: "2024-01-01T00:00:00Z",
+  lastLoginAt: null,
+};
 
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
@@ -38,6 +49,7 @@ function expectEveryProductionVisible(productions: Production[]) {
 
 describe("Archive", () => {
   beforeEach(() => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(adminUser);
     vi.mocked(artistService.getArtists).mockResolvedValue([]);
     vi.mocked(tagService.getAllTags).mockResolvedValue([]);
   });
@@ -60,6 +72,26 @@ describe("Archive", () => {
 
     expectEveryProductionVisible(mockProductions);
   });
+
+  it("allows selecting all visible productions", async () => {
+    mockFetchedProductions(mockProductions);
+    await renderArchiveAndNavigate();
+
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: "archive.selection.select_all" })
+    );
+
+    expect(
+      await screen.findByText(
+        (_, element) =>
+          element?.textContent ===
+          `${mockProductions.length} archive.selection.selected_plural`
+      )
+    ).toBeInTheDocument();
+  });
+
   describe("Result count", async () => {
     it("displays correct result count", async () => {
       mockFetchedProductions(mockProductions);

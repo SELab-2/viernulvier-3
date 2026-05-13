@@ -5,7 +5,6 @@ const ARCHIVE_PATH: string = "/api/v1/archive";
 
 function normalizeRequestUrl(url: string): string {
   const trimmedUrl = url.trim();
-
   if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
     try {
       const parsedUrl = new URL(trimmedUrl);
@@ -14,8 +13,11 @@ function normalizeRequestUrl(url: string): string {
       return trimmedUrl;
     }
   }
-
   return trimmedUrl;
+}
+
+function archivePath(url: string): string {
+  return `${ARCHIVE_PATH}${url}`;
 }
 
 export async function getByUrl<T>(url: string, lang?: string): Promise<T> {
@@ -26,19 +28,19 @@ export async function getByUrl<T>(url: string, lang?: string): Promise<T> {
 
 export async function getFromArchive<T>(url: string, lang?: string): Promise<T> {
   const apiClient = createApiClient(lang);
-  const data = await apiClient.get<T>(`${ARCHIVE_PATH}${url}`);
+  const data = await apiClient.get<T>(archivePath(url));
   return data.data;
 }
 
 export async function postToArchive<T>(url: string, data: unknown): Promise<T> {
   const apiClient = createApiClient();
-  const response = await apiClient.post<T>(`${ARCHIVE_PATH}${url}`, data);
+  const response = await apiClient.post<T>(archivePath(url), data);
   return response.data;
 }
 
 export async function patchToArchive<T>(url: string, data: unknown): Promise<T> {
   const apiClient = createApiClient();
-  const response = await apiClient.patch<T>(`${ARCHIVE_PATH}${url}`, data);
+  const response = await apiClient.patch<T>(archivePath(url), data);
   return response.data;
 }
 
@@ -50,7 +52,12 @@ export async function patchByUrl<T>(url: string, data: unknown): Promise<T> {
 
 export async function deleteFromArchive(url: string): Promise<void> {
   const apiClient = createApiClient();
-  await apiClient.delete(`${ARCHIVE_PATH}${url}`);
+  await apiClient.delete(archivePath(url));
+}
+
+export async function deleteByUrl(url: string): Promise<void> {
+  const apiClient = createApiClient();
+  await apiClient.delete(url);
 }
 
 export async function getFromArchiveList<T, CursorT = number>(
@@ -58,8 +65,6 @@ export async function getFromArchiveList<T, CursorT = number>(
   params?: PaginationRequest<CursorT>
 ): Promise<T[]> {
   const apiClient = createApiClient();
-  const data = await apiClient.get<T[]>(`${ARCHIVE_PATH}${url}`, {
-    params,
-  });
+  const data = await apiClient.get<T[]>(archivePath(url), { params });
   return data.data;
 }

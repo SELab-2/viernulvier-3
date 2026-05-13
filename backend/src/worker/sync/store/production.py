@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from src.models.tag import Tag
+from src.models.production import Production
 from src.worker.converters.production import api_prod_to_model_prod
 
 logger = logging.getLogger(__name__)
@@ -11,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 def store_new_productions(db_session: Session, productions: list[dict]):
     newest_timestamp = None
+
+    existing_vnv_ids = set(db_session.scalars(select(Production.viernulvier_id)))
 
     existing_tags = db_session.execute(select(Tag))
     tag_map: dict[int, Tag] = {tag.viernulvier_id: tag for (tag,) in existing_tags}
@@ -21,8 +24,9 @@ def store_new_productions(db_session: Session, productions: list[dict]):
             # sqlalchemy should automatically create all the required objects.
             prod, vnv_tag_ids = api_prod_to_model_prod(json_prod)
 
-            # Attach 'prod' to sql-alchemy session
-            prod = db_session.merge(prod)
+            if prod.viernulvier_id in existing_vnv_ids:
+                continue
+            existing_vnv_ids.add(prod.viernulvier_id)
 
             tags = []
             for tag in vnv_tag_ids:
@@ -37,11 +41,13 @@ def store_new_productions(db_session: Session, productions: list[dict]):
 
             prod.tags.extend(tags)
 
+            db_session.add(prod)
+
             created_at = datetime.fromisoformat(json_prod["created_at"])
             if newest_timestamp is None or created_at > newest_timestamp:
                 newest_timestamp = created_at
 
         except Exception as e:
-            logger.warn(f"Error storing genre ({json_prod}):\n{e}")
+            logger.warning(f"Error storing production ({json_prod}):\n{e}")
 
     return newest_timestamp

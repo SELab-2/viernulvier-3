@@ -2,7 +2,6 @@ import { type RouteConfig, route, index } from "@react-router/dev/routes";
 
 export default [
   index("routes/_index.tsx"),
-  route("login", "routes/login-redirect.tsx", { id: "routes/login-redirect" }),
 
   route(":lang", "shared/components/LanguageWrapper.tsx", [
     index("routes/home.tsx"),
@@ -10,6 +9,8 @@ export default [
     route("archive/productions/:productionId", "routes/productions.$productionId.tsx"),
     route("history", "routes/history.tsx"),
     route("blogs", "routes/blogs.tsx"),
+    route("blogs/create", "routes/createBlogs.tsx"),
+    route("blogs/:blogId", "routes/blogs.$blogId.tsx"),
     route("login", "routes/login.tsx"),
     route("users", "routes/users.tsx"),
     route("*", "routes/not-found.tsx"),

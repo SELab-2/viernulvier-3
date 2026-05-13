@@ -9,10 +9,10 @@ from src.schemas.blogs import (
 )
 from src.services.blogs import (
     create_blog,
+    delete_blog_by_id,
     get_blog_by_id,
     get_blogs_paginated,
     update_blog_by_id,
-    delete_blog_by_id,
 )
 from fastapi import APIRouter, Depends, Query, Request, status
 from src.services.auth.permissions import Permissions
@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=BlogListResponse,
     summary="Get Blogs",
     description="Get all blogs of the database, using pagination",
@@ -57,7 +57,7 @@ async def get_blog(
 
 
 @router.post(
-    "/",
+    "",
     response_model=BlogResponse,
     status_code=201,
     summary="Create blog",

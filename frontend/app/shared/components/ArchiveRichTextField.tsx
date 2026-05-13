@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
-import { useQuill } from "react-quilljs";
 import type { SxProps, Theme } from "@mui/material/styles";
 import "quill/dist/quill.snow.css";
 import type { Delta } from "quill";
@@ -11,6 +10,7 @@ type Props = {
   onChange: (value: Delta) => void;
   placeholder?: string;
   sx?: SxProps<Theme>;
+  canEdit: boolean;
 };
 
 const archiveRichTextFieldSx: SxProps<Theme> = {
@@ -38,10 +38,13 @@ const archiveRichTextFieldSx: SxProps<Theme> = {
     fontSize: "0.875rem",
     color: "var(--archive-ink)",
     minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-editor": {
     padding: "0.75rem",
+    minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-toolbar button": {
@@ -75,74 +78,100 @@ function toSxArray(sx: SxProps<Theme> | undefined) {
   return archiveRichTextFieldSx;
 }
 
-function isSameDelta(a: Delta, b: Delta) {
-  if (a.ops.length !== b.ops.length) return false;
-  return JSON.stringify(a.ops) === JSON.stringify(b.ops);
-}
-
 export function ArchiveRichTextField({
   label,
   value,
   onChange,
   placeholder,
   sx,
+  canEdit,
 }: Props) {
-  const { quill, quillRef } = useQuill({
-    theme: "snow",
-    placeholder: placeholder,
-    modules: {
-      toolbar: [
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-      ],
-    },
-  });
-
+  const containerRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<InstanceType<typeof import("quill").default> | null>(null);
   const onChangeRef = useRef(onChange);
+  const [quillReady, setQuillReady] = useState(false);
+
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
   useEffect(() => {
-    if (!quill) return;
-    const handler = () => onChangeRef.current(quill.getContents());
-    quill.on("text-change", handler);
-    return () => {
-      quill.off("text-change", handler);
-    };
-  }, [quill]);
+    if (!containerRef.current || quillRef.current) return;
+    if (containerRef.current.querySelector(".ql-editor")) return;
 
+    import("quill").then(({ default: Quill }) => {
+      if (!containerRef.current) return;
+      if (containerRef.current.querySelector(".ql-editor")) return;
+
+      const quill = new Quill(containerRef.current, {
+        theme: "snow",
+        readOnly: !canEdit,
+        placeholder,
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+          ],
+        },
+      });
+
+      quillRef.current = quill;
+
+      quill.on("text-change", () => {
+        onChangeRef.current(quill.getContents());
+      });
+
+      if (value) {
+        quill.setContents(value, "silent");
+      }
+
+      if (label) {
+        quill.root.setAttribute("aria-label", label);
+      }
+
+      setQuillReady(true);
+    });
+
+    return () => {
+      quillRef.current = null;
+    };
+    // Disable is needed because quill has to be rendered only once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // sync value changes
   useEffect(() => {
+    const quill = quillRef.current;
     if (!quill) return;
     if (!value) {
       quill.setContents([], "silent");
       return;
     }
     const current = quill.getContents();
-
-    if (!isSameDelta(current, value)) {
+    if (JSON.stringify(current.ops) !== JSON.stringify(value.ops)) {
       const selection = quill.getSelection();
-
       quill.setContents(value, "silent");
-
       if (selection) {
-        const length = quill.getLength();
-        const safeIndex = Math.min(selection.index, length - 1);
-
+        const safeIndex = Math.min(selection.index, quill.getLength() - 1);
         quill.setSelection(safeIndex, selection.length);
       }
     }
-  }, [quill, value]);
+  }, [value, quillReady]);
 
   useEffect(() => {
-    if (!quill || !label) return;
-    quill.root.setAttribute("aria-label", label);
-  }, [quill, label]);
+    const quill = quillRef.current;
+    if (!quill) return;
+    if (canEdit) {
+      quill.enable();
+    } else {
+      quill.disable();
+    }
+  }, [canEdit]);
 
   return (
-    <Box sx={toSxArray(sx)}>
-      <div ref={quillRef} />
+    <Box sx={toSxArray(sx)} onClick={() => quillRef.current?.focus()}>
+      <div ref={containerRef} />
     </Box>
   );
 }

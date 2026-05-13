@@ -16,6 +16,7 @@ import {
   deleteBlog,
   getBlog,
   getBlogByUrl,
+  getBlogsForProduction,
   getBlogsPaginated,
   updateBlog,
   updateBlogByUrl,
@@ -47,16 +48,13 @@ describe("blogService", () => {
 
   const mockBlog1: Blog = {
     id_url: "/api/v1/archive/blogs/1",
-    production_id_urls: ["/api/v1/archive/productions/1"],
+    production_group_id_url: "/api/v1/archive/production-groups/1",
     blog_contents: [mockBlogContent1EN],
   };
 
   const mockBlog2: Blog = {
     id_url: "/api/v1/archive/blogs/2",
-    production_id_urls: [
-      "/api/v1/archive/productions/1",
-      "/api/v1/archive/productions/2",
-    ],
+    production_group_id_url: "/api/v1/archive/production-groups/2",
     blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
   };
 
@@ -99,7 +97,7 @@ describe("blogService", () => {
       expect(result).toBeDefined();
 
       expect(result.id_url).toBe(mockBlog1.id_url);
-      expect(result.production_id_urls).toEqual(mockBlog1.production_id_urls);
+      expect(result.production_group_id_url).toEqual(mockBlog1.production_group_id_url);
 
       expect(result.blog_contents).toHaveLength(1);
       expect(result.blog_contents).toEqual(
@@ -113,7 +111,7 @@ describe("blogService", () => {
       expect(result).toBeDefined();
 
       expect(result.id_url).toBe(mockBlog1.id_url);
-      expect(result.production_id_urls).toEqual(mockBlog1.production_id_urls);
+      expect(result.production_group_id_url).toEqual(mockBlog1.production_group_id_url);
 
       expect(result.blog_contents).toHaveLength(1);
       expect(result.blog_contents).toEqual(
@@ -125,38 +123,38 @@ describe("blogService", () => {
   describe("createBlog", () => {
     it("creates a new blog and returns it", async () => {
       const blog_content: BlogContent = {
-        blog_id_url: "/api/v1/archive/blogs/3",
+        blog_id_url: "/api/v1/archive/blogs/3/",
         language: "en",
         title: "title3",
         content: "content3",
       };
       const blogData: BlogCreate = {
         blog_content: blog_content,
-        production_id_urls: [],
+        production_group_id_url: "/api/v1/archive/production-groups/3/",
       };
 
       const mockResponse: Blog = {
-        id_url: "/api/v1/archive/blogs/3",
+        id_url: "/api/v1/archive/blogs/3/",
         blog_contents: [blog_content],
-        production_id_urls: [],
+        production_group_id_url: "/api/v1/archive/production-groups/3/",
       };
 
       mockAdapter.onPost("/api/v1/archive/blogs").reply(201, mockResponse);
       const result = await createBlog(blogData);
       expect(result).toEqual(mockResponse);
-      expect(result.id_url).toBe("/api/v1/archive/blogs/3");
+      expect(result.id_url).toBe("/api/v1/archive/blogs/3/");
     });
 
     it("throws when create request fails", async () => {
       const blog_content: BlogContent = {
-        blog_id_url: "/api/v1/archive/blogs/3",
+        blog_id_url: "/api/v1/archive/blogs/3/",
         language: "en",
         title: "title3",
         content: "content3",
       };
       const blogData: BlogCreate = {
         blog_content: blog_content,
-        production_id_urls: [],
+        production_group_id_url: "",
       };
 
       mockAdapter.onPost("/api/v1/archive/blogs").reply(400);
@@ -168,13 +166,13 @@ describe("blogService", () => {
     it("updates a blog and returns updated data", async () => {
       const blogUpdate: BlogUpdate = {
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        production_id_urls: ["/api/v1/archive/productions/3"],
+        production_group_id_url: "/api/v1/archive/production-groups/3",
       };
 
       const mockBlog2_updated: Blog = {
-        id_url: "/api/v1/archive/blogs/2",
+        id_url: "/api/v1/archive/blogs/2/",
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        production_id_urls: ["/api/v1/archive/productions/3"],
+        production_group_id_url: "/api/v1/archive/production-groups/3",
       };
 
       mockAdapter.onPatch("/api/v1/archive/blogs/2").reply(200, mockBlog2_updated);
@@ -187,13 +185,13 @@ describe("blogService", () => {
     it("updates a blog and returns updated data by url", async () => {
       const blogUpdate: BlogUpdate = {
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        production_id_urls: ["/api/v1/archive/productions/3"],
+        production_group_id_url: "/api/v1/archive/production-groups/3",
       };
 
       const mockBlog2_updated: Blog = {
-        id_url: "/api/v1/archive/blogs/2",
+        id_url: "/api/v1/archive/blogs/2/",
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        production_id_urls: ["/api/v1/archive/productions/3"],
+        production_group_id_url: "/api/v1/archive/production-groups/3",
       };
 
       mockAdapter.onPatch("/api/v1/archive/blogs/2").reply(200, mockBlog2_updated);
@@ -206,7 +204,7 @@ describe("blogService", () => {
     it("throws when update request fails", async () => {
       const blogUpdate: BlogUpdate = {
         blog_contents: [],
-        production_id_urls: [],
+        production_group_id_url: "",
       };
 
       mockAdapter.onPatch("/api/v1/archive/blogs/2").reply(400);
@@ -224,6 +222,50 @@ describe("blogService", () => {
       mockAdapter.onDelete("/api/v1/archive/blogs/1").reply(404);
 
       await expect(deleteBlog(1)).rejects.toThrow();
+    });
+  });
+
+  describe("getBlogsForProduction", () => {
+    it("returns blogs for a production", async () => {
+      const blogList: BlogList = {
+        blogs: [mockBlog1, mockBlog2],
+        pagination: { has_more: false, total_count: 2 },
+      };
+
+      mockAdapter.onGet("/api/v1/archive/productions/1/blogs").reply(200, blogList);
+
+      const result = await getBlogsForProduction("/api/v1/archive/productions/1");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id_url).toBe(mockBlog1.id_url);
+      expect(result[1].id_url).toBe(mockBlog2.id_url);
+    });
+
+    it("returns empty array when request fails", async () => {
+      mockAdapter.onGet("/api/v1/archive/productions/1/blogs").reply(500);
+
+      const result = await getBlogsForProduction("/api/v1/archive/productions/1");
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns empty array when production URL is invalid", async () => {
+      const result = await getBlogsForProduction("invalid-url");
+
+      expect(result).toEqual([]);
+    });
+
+    it("correctly extracts production ID from URL", async () => {
+      const blogList: BlogList = {
+        blogs: [mockBlog1],
+        pagination: { has_more: false, total_count: 1 },
+      };
+
+      mockAdapter.onGet("/api/v1/archive/productions/42/blogs").reply(200, blogList);
+
+      const result = await getBlogsForProduction("/api/v1/archive/productions/42");
+
+      expect(result).toHaveLength(1);
     });
   });
 });

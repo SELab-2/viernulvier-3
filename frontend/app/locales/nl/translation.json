@@ -1,4 +1,6 @@
 {
+  "notSaveChanges": "Je hebt niet opgeslagen wijzigingen. Toch doorgaan?",
+  "loading": "Laden...",
   "nav": {
     "home": "Home",
     "archive": "Archief",
@@ -9,7 +11,6 @@
   "footer": {
     "website": "Onze officiële website"
   },
-
   "filter": {
     "search": "Zoeken",
     "search_in_collection": "Zoek in de collectie",
@@ -24,12 +25,21 @@
     "reset": "Filters resetten",
     "toggle_menu": "Filteren & Zoeken"
   },
-
   "archive": {
     "title": "De Collectie",
     "results": "resultaten",
     "result": "resultaat",
     "show_more": "Toon meer",
+    "selection": {
+      "enter": "Producties selecteren",
+      "exit": "Selectie afronden",
+      "select_all": "Alles zichtbaar selecteren",
+      "clear": "Selectie wissen",
+      "selected_singular": "geselecteerde productie",
+      "selected_plural": "geselecteerde producties",
+      "select": "Selecteer",
+      "selected": "Geselecteerd"
+    },
     "no_results": {
       "header": "Geen resultaten...",
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
@@ -43,22 +53,27 @@
     "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
-        "title": "Onbekende productie",
+        "title": "Onbekende productie titel",
         "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
     }
   },
+  "editfield": {
+    "modified": "Aangepast",
+    "cancel": "Annuleren",
+    "save": "Opslaan"
+  },
   "productionPage": {
-    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
-      "unknownProduction": "Onbekende productie",
+      "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
       "noTeaser": "Geen teaser beschikbaar voor deze productie.",
       "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
       "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
       "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
       "dateUnknown": "Datum onbekend",
       "locationUnknown": "Locatie onbekend"
     },
@@ -67,32 +82,36 @@
     "backToCollection": "Terug naar de collectie",
     "eventMore": "Meer",
     "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
+    "newEvent": "Nieuw Evenement",
+    "startDateLabel": "Start datum",
+    "endDateLabel": "Eind datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
+    "address": "Adres",
+    "addressUnknown": "Adres onbekend",
     "visualEvidence": "Foto's",
-
     "edit": {
+      "add": "Voeg info toe",
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
-      "modified": "Aangepast",
       "supertitle": "Supertitel",
       "title": "Titel",
-      "artist": "Artiest"
+      "artist": "Artiest",
+      "description": "Beschrijving",
+      "teaser": "Teaser",
+      "info": "Info"
     },
     "delete": {
       "delete": "Verwijder",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
-    },
-    "add": {
-      "add": "Voeg productie-informatie toe"
     }
   },
-
   "home": {
     "title": "Vensters naar het Verleden",
     "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
@@ -107,7 +126,6 @@
       "history": "Onze Geschiedenis"
     }
   },
-
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
@@ -180,15 +198,66 @@
       }
     ]
   },
-
   "blogs": {
     "card": {
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
       "details": "Details"
+    },
+    "create_blog": "Nieuwe blog",
+    "createBlogPage": {
+      "backToBlogs": "Terug naar blogs",
+      "heading": "Maak een nieuwe blog aan",
+      "remove": "Verwijder",
+      "save": {
+        "save": "Opslaan",
+        "saving": "Aan het opslaan",
+        "saveDisabledReasonTitle": "Titel is verplicht",
+        "saveDisabledReasonEditing": "Inhoud is nog niet opgeslagen"
+      },
+      "title": {
+        "title": "Titel",
+        "placeholder": "Titel van de blog (verplicht)"
+      },
+      "content": {
+        "title": "Inhoud",
+        "field": "Bewerk de inhoud verder"
+      },
+      "media": {
+        "title": "Media",
+        "dropMedia": "Sleep afbeeldingen en/of video's hier of",
+        "browse": "klik om te uploaden",
+        "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
+      },
+      "series": {
+        "title": "Verbonden reeks",
+        "searchSeries": "Zoek naar reeksen"
+      },
+      "accessDenied": {
+        "eyebrow": "Beperkt gebied",
+        "title": "Je hebt geen toegang tot blogcreatie",
+        "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
+      }
+    },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:",
+      "edit": {
+        "title": "Pas titel aan",
+        "content": "Pas inhoud aan",
+        "edit": "Bewerk blog",
+        "cancel": "Annuleren",
+        "save": "Opslaan"
+      },
+      "archivePhotoAlt": "{{title}} - Foto {{index}}"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
-
   "auth": {
     "actions": {
       "login": "Aanmelden",
@@ -211,7 +280,6 @@
       }
     }
   },
-
   "users": {
     "sectionLabel": "Beheer",
     "title": "Gebruikersbeheer",
@@ -286,7 +354,13 @@
       "title": "Rollen",
       "loading": "Rollen worden geladen",
       "fields": {
-        "name": "Rolnaam"
+        "name": "Rolnaam",
+        "permissions": "Permissies"
+      },
+      "form": {
+        "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsLoading": "Beschikbare permissies worden geladen.",
+        "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
@@ -297,6 +371,7 @@
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
+        "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
@@ -304,7 +379,7 @@
       "dialogs": {
         "create": {
           "title": "Rol toevoegen",
-          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+          "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
         },
         "delete": {
           "title": "Rol verwijderen",
@@ -327,6 +402,7 @@
     "buttons": {
       "explore": "Ontdek de Collectie",
       "history": "Onze Geschiedenis"
-    }
+    },
+    "quote": "Less is soms more, maar soms ook niet"
   }
 }

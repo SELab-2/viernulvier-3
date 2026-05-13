@@ -41,3 +41,7 @@ export interface IRoleCreateRequest {
   name: string;
   permissions?: string[];
 }
+
+export interface IPermissionResponse {
+  name: string;
+}

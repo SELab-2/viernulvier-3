@@ -53,7 +53,7 @@ describe("mediaService", () => {
       };
 
       mockAdapter
-        .onGet("/api/v1/archive/productions/1/media/")
+        .onGet("/api/v1/archive/productions/1/media")
         .reply(200, mockMediaList);
 
       const result = await getMediaForProduction(1);
@@ -69,7 +69,7 @@ describe("mediaService", () => {
       };
 
       mockAdapter
-        .onGet("/api/v1/archive/productions/1/media/")
+        .onGet("/api/v1/archive/productions/1/media")
         .reply(200, mockMediaList);
 
       const result = await getMediaForProduction(1);
@@ -78,7 +78,7 @@ describe("mediaService", () => {
     });
 
     it("throws when request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/productions/1/media/").reply(404);
+      mockAdapter.onGet("/api/v1/archive/productions/1/media").reply(404);
 
       await expect(getMediaForProduction(1)).rejects.toThrow();
     });
@@ -87,7 +87,7 @@ describe("mediaService", () => {
   describe("uploadMedia", () => {
     it("uploads a file and returns the created media item", async () => {
       mockAdapter
-        .onPost("/api/v1/archive/productions/1/media/")
+        .onPost("/api/v1/archive/productions/1/media")
         .reply(201, mockMediaItem1);
 
       const file = new File(["dummy content"], "poster.jpg", {
@@ -101,7 +101,7 @@ describe("mediaService", () => {
     });
 
     it("throws when upload fails", async () => {
-      mockAdapter.onPost("/api/v1/archive/productions/1/media/").reply(415);
+      mockAdapter.onPost("/api/v1/archive/productions/1/media").reply(415);
 
       const file = new File(["dummy content"], "doc.pdf", {
         type: "application/pdf",

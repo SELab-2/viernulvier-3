@@ -9,9 +9,9 @@ import {
   deleteMediaForBlog,
 } from "~/features/blogs/services/mediaService";
 import type {
-  MediaResponse,
-  MediaListResponse,
-} from "~/features/blogs/types/mediaTypes";
+  MediaItem as MediaResponse,
+  MediaList as MediaListResponse,
+} from "~/features/archive/types/mediaTypes";
 import type { IdPaginationResponse } from "~/features/archive/types/paginationTypes";
 
 describe("blog mediaService", () => {

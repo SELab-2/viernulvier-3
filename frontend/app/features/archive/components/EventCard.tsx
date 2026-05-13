@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 
@@ -44,15 +43,6 @@ function formatEventDateTimeRange(
     dateLabel,
     timeLabel: `${startTimeLabel}-${formatEventTime(endDate)}`,
   };
-}
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
 function formatPrices(prices: Price[], language: string, fallback: string): string {
@@ -125,7 +115,7 @@ function EventCardSummary({
         </p>
       </div>
 
-      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
+      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition select-none group-open:rotate-180">
         {t("productionPage.eventMore")}
       </span>
     </summary>
@@ -139,13 +129,20 @@ type EventCardProps = {
 export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
 
+  const getLocalizedHallName = (hall?: Hall): string => {
+    const lang = i18n.language.startsWith("nl") ? "nl" : "en";
+    const fallback = lang === "nl" ? "en" : "nl";
+    return (
+      hall?.names.find((tn) => tn.language === lang)?.name ??
+      hall?.names.find((tn) => tn.language === fallback)?.name ??
+      t("productionPage.fallback.locationUnknown")
+    );
+  };
+
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
   const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
   const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
-  const eventLocation = getTextOrDefault(
-    event.resolvedHall?.name ?? event.hall?.name,
-    t("productionPage.fallback.locationUnknown")
-  );
+  const eventLocation = getLocalizedHallName(event.resolvedHall ?? event.hall);
   const eventPrice = formatPrices(
     event.resolvedPrices,
     i18n.language,
@@ -168,6 +165,14 @@ export function EventCard({ event }: EventCardProps) {
             <EventCardDetail
               label={t("productionPage.priceLabel")}
               value={eventPrice}
+            />
+            <EventCardDetail
+              label={t("productionPage.address")}
+              value={
+                event.hall?.address ??
+                event.resolvedHall?.address ??
+                t("productionPage.addressUnknown")
+              }
             />
           </div>
         </div>
