@@ -48,19 +48,19 @@ describe("LanguageWrapper loader", () => {
     expect(result).toBeNull();
   });
 
-  it("redirects to /en when lang is undefined", async () => {
+  it("redirects to /nl when lang is undefined", async () => {
     const result = await getRedirectResult("/undefined", undefined);
-    expect(result.headers.Location).toBe("/en/undefined");
+    expect(result.headers.Location).toBe("/nl/undefined");
   });
 
-  it("redirects /login to /en/login when lang is unsupported", async () => {
+  it("redirects /login to /nl/login when lang is unsupported", async () => {
     const result = await getRedirectResult("/login", "login");
-    expect(result.headers.Location).toBe("/en/login");
+    expect(result.headers.Location).toBe("/nl/login");
   });
 
-  it("redirects /fr/home to /en/fr/home when lang is unsupported", async () => {
+  it("redirects /fr/home to /nl/fr/home when lang is unsupported", async () => {
     const result = await getRedirectResult("/fr/home", "fr");
-    expect(result.headers.Location).toBe("/en/fr/home");
+    expect(result.headers.Location).toBe("/nl/fr/home");
   });
 });
 

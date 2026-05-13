@@ -26,7 +26,7 @@ type DeleteInfoButtonProps = {
   language: string;
 };
 
-export default function DeleteInfoButton({
+export function DeleteInfoButton({
   production_id_url,
   language,
 }: DeleteInfoButtonProps) {

@@ -11,7 +11,7 @@ export async function getMediaForProduction(
 ): Promise<MediaList> {
   const apiClient = createApiClient();
   const response = await apiClient.get<MediaList>(
-    `${ARCHIVE_PATH}/productions/${productionId}/media/`,
+    `${ARCHIVE_PATH}/productions/${productionId}/media`,
     { params }
   );
   return response.data;
@@ -25,7 +25,7 @@ export async function uploadMedia(
   const formData = new FormData();
   formData.append("file", file);
   const response = await apiClient.post<MediaItem>(
-    `${ARCHIVE_PATH}/productions/${productionId}/media/`,
+    `${ARCHIVE_PATH}/productions/${productionId}/media`,
     formData
   );
   return response.data;

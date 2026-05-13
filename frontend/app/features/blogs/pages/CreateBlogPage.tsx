@@ -207,85 +207,88 @@ export function CreateBlogPage() {
   }
 
   return (
-    <div className="bg-archive-paper text-archive-ink min-h-screen">
-      {isSaving && (
-        <LinearProgress
-          className="!fixed !top-0 !left-0 !z-50 !w-full"
-          color="inherit"
-        />
-      )}
+    <>
+      <title>{`${t("nav.blogs_create")} | VIERNULVIER`}</title>
+      <div className="bg-archive-paper text-archive-ink min-h-screen">
+        {isSaving && (
+          <LinearProgress
+            className="!fixed !top-0 !left-0 !z-50 !w-full"
+            color="inherit"
+          />
+        )}
 
-      <main className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-6 pt-10 pb-24 md:px-12">
-        <BackToArchiveLink />
+        <main className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-6 pt-10 pb-24 md:px-12">
+          <BackToArchiveLink />
 
-        <div className="mb-2">
-          <h1 className="font-serif text-3xl font-light tracking-tight md:text-4xl">
-            {t("blogs.createBlogPage.heading")}
-          </h1>
-        </div>
+          <div className="mb-2">
+            <h1 className="font-serif text-3xl font-light tracking-tight md:text-4xl">
+              {t("blogs.createBlogPage.heading")}
+            </h1>
+          </div>
 
-        <SectionCard>
-          <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
-            {t("blogs.createBlogPage.title.title")}
-            <span className="ml-1 text-red-500" aria-hidden="true">
-              *
+          <SectionCard>
+            <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
+              {t("blogs.createBlogPage.title.title")}
+              <span className="ml-1 text-red-500" aria-hidden="true">
+                *
+              </span>
+            </h3>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t("blogs.createBlogPage.title.placeholder")}
+              className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm transition focus:ring-4 focus:outline-none`}
+            />
+          </SectionCard>
+
+          <SectionCard>
+            <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
+              {t("blogs.createBlogPage.content.title")}
+            </h3>
+            <ComplexEditableField
+              id="content"
+              field={t("blogs.createBlogPage.content.field")}
+              html={contentHtml}
+              isEditing={isEditing}
+              onStartEdit={() => setIsEditing(true)}
+              onSave={(html) => {
+                setContentHtml(html);
+                setIsEditing(false);
+              }}
+              onCancel={() => setIsEditing(false)}
+              canEdit={true}
+              permissions={[BLOG_PERMISSIONS.update]}
+            />
+          </SectionCard>
+
+          <SectionCard>
+            <MediaUploadWidget />
+          </SectionCard>
+
+          <SectionCard>
+            <SeriesSearchBar />
+          </SectionCard>
+        </main>
+
+        <div className="fixed right-6 bottom-6 z-50">
+          <Tooltip title={saveTooltip}>
+            <span>
+              <button
+                onClick={handleSave}
+                disabled={!canSave}
+                className={`bg-archive-accent text-archive-paper flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none`}
+              >
+                <SaveOutlinedIcon style={{ fontSize: 18 }} />
+                {isSaving
+                  ? t("blogs.createBlogPage.save.saving")
+                  : t("blogs.createBlogPage.save.save")}
+              </button>
             </span>
-          </h3>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={t("blogs.createBlogPage.title.placeholder")}
-            className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm transition focus:ring-4 focus:outline-none`}
-          />
-        </SectionCard>
-
-        <SectionCard>
-          <h3 className="text-archive-ink/70 mb-3 text-xs font-bold tracking-[0.2em] uppercase">
-            {t("blogs.createBlogPage.content.title")}
-          </h3>
-          <ComplexEditableField
-            id="content"
-            field={t("blogs.createBlogPage.content.field")}
-            html={contentHtml}
-            isEditing={isEditing}
-            onStartEdit={() => setIsEditing(true)}
-            onSave={(html) => {
-              setContentHtml(html);
-              setIsEditing(false);
-            }}
-            onCancel={() => setIsEditing(false)}
-            canEdit={true}
-            permissions={[BLOG_PERMISSIONS.update]}
-          />
-        </SectionCard>
-
-        <SectionCard>
-          <MediaUploadWidget />
-        </SectionCard>
-
-        <SectionCard>
-          <SeriesSearchBar />
-        </SectionCard>
-      </main>
-
-      <div className="fixed right-6 bottom-6 z-50">
-        <Tooltip title={saveTooltip}>
-          <span>
-            <button
-              onClick={handleSave}
-              disabled={!canSave}
-              className={`bg-archive-accent text-archive-paper flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none`}
-            >
-              <SaveOutlinedIcon style={{ fontSize: 18 }} />
-              {isSaving
-                ? t("blogs.createBlogPage.save.saving")
-                : t("blogs.createBlogPage.save.save")}
-            </button>
-          </span>
-        </Tooltip>
+          </Tooltip>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -296,7 +299,7 @@ export function CreateBlogAccessDenied() {
     <section className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
       <div className="border-archive-border bg-archive-surface rounded-[2rem] border p-8 shadow-[0_20px_70px_rgba(45,40,37,0.05)]">
         <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-          {t("blogs.createBlogPage.accessDenied.eyebrow")}
+          {t("blogs.createBlogPage.accessDenied.sectionLabel")}
         </p>
         <h1 className="mt-3 font-serif text-4xl italic md:text-5xl">
           {t("blogs.createBlogPage.accessDenied.title")}

@@ -131,3 +131,36 @@ def test_sync_new_items_no_data(monkeypatch):
     fetcher.get_new_items_after.assert_called_once()
     mocks["store_new_productions"].assert_not_called()
     mocks["update_sync_state"].assert_not_called()
+
+
+# Test if the old timestamp is used when no new items were fetched
+def test_sync_new_items_falls_back_to_last_timestamp(monkeypatch):
+    mocks = overwrite_functions(monkeypatch)
+
+    db_session = MagicMock()
+    fetcher = MagicMock()
+
+    fetcher.get_new_items_after.return_value = [{"id": 4}]
+
+    mocks["get_last_sync"].return_value = OLD_TS
+    # Override the `store_new_productions` to act like it stored nothing
+    mocks["store_new_productions"].return_value = None
+
+    sync_new_items(db_session, fetcher, ResourceType.PRODUCTION)
+
+    mocks["update_sync_state"].assert_called_once_with(
+        db_session,
+        ResourceType.PRODUCTION,
+        sync_new.SyncType.CREATED_AT,
+        OLD_TS,
+    )
+
+
+# To be 100% complete, also test that unknow resource types will throw so that
+# they do not silently fail
+def test_sync_new_items_throws_for_unknown_type():
+    with pytest.raises(
+        ValueError, match="No store function registered for unknown_resource_type"
+    ):
+        db_session = MagicMock()
+        sync_new.store_new_items(db_session, "unknown_resource_type", [])

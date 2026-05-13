@@ -37,7 +37,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]

@@ -10,6 +10,7 @@ from src.worker.sync.store.event import store_new_events
 from src.worker.sync.store.eventprice import store_new_eventprices
 from src.worker.sync.store.genre import store_new_genres
 from src.worker.sync.store.production import store_new_productions
+from src.worker.sync.store.hall import store_new_halls
 
 
 # Test storing a list of productions from the API into our database
@@ -401,7 +402,10 @@ def test_store_new_genres_as_tags(db_session):
     assert len(stored_tags) == len(db_session.scalars(select(Tag.id)).all())
 
 
-def test_store_production_with_tags(db_session):
+def test_store_production_with_tags(db_session, caplog):
+    # Capture warnings, for unexisting tags
+    caplog.set_level(logging.WARNING)
+
     # Simple genres to test only the appending
     genres = [
         {
@@ -424,7 +428,7 @@ def test_store_production_with_tags(db_session):
             "created_at": "2022-11-22T11:02:27+00:00",
             "updated_at": "2022-11-30T08:59:20+00:00",
             "title": {"nl": "Poplife - NYE", "en": "Poplife - NYE"},
-            "genres": ["api/v1/genres/10"],
+            "genres": ["api/v1/genres/10", "api/v1/genres/42"],
         },
         {
             "@id": "/api/v1/productions/5610",
@@ -453,3 +457,216 @@ def test_store_production_with_tags(db_session):
     assert stored_prods[0].tags[0].id == stored_prods[1].tags[0].id
     assert stored_prods[0].tags[0].id == stored_tags[0].id
     assert stored_prods[1].tags[1].id == stored_tags[1].id
+
+    # Check the log messages for the not-existing tags
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Genre (id=42) does not exist in ")
+
+
+def test_store_halls(db_session):
+    # Data from actual API, fetched ID 12 and 15 and put them in a list
+    locations = [
+        {
+            "@id": "/api/v1/locations/12",
+            "created_at": "2023-01-09T10:10:03+00:00",
+            "updated_at": "2025-07-15T06:36:24+00:00",
+            "street": "Romain Deconinckplein",
+            "postal_code": "9000",
+            "city": "Gent",
+            "country": "BE",
+            "spaces": [
+                {
+                    "@id": "/api/v1/spaces/13",
+                    "created_at": "2024-09-03T06:48:31+00:00",
+                    "updated_at": "2024-09-03T06:48:31+00:00",
+                    "name": {"nl": "Minard"},
+                    "halls": [
+                        {
+                            "@id": "/api/v1/halls/24",
+                            "created_at": "2018-07-05T14:31:48+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/112",
+                            "created_at": "2019-02-15T11:52:08+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/114",
+                            "created_at": "2019-02-15T11:52:28+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/116",
+                            "created_at": "2019-02-15T11:52:45+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/118",
+                            "created_at": "2019-02-15T11:53:07+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/120",
+                            "created_at": "2019-02-15T11:53:27+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/122",
+                            "created_at": "2019-02-15T11:53:43+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Minard"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/241",
+                            "created_at": "2020-03-09T11:02:34+00:00",
+                            "updated_at": "2025-05-26T12:03:08+00:00",
+                            "name": {
+                                "nl": "Minardschouwburg",
+                                "en": "Minardschouwburg",
+                            },
+                        },
+                    ],
+                },
+                {
+                    "@id": "/api/v1/spaces/109",
+                    "created_at": "2024-09-03T06:48:32+00:00",
+                    "updated_at": "2024-09-03T06:48:32+00:00",
+                    "name": {"nl": " Romain Deconinckplein 2"},
+                    "halls": [],
+                },
+            ],
+        },
+        {
+            "@id": "/api/v1/locations/15",
+            "created_at": "2023-01-09T10:11:57+00:00",
+            "updated_at": "2025-07-15T06:36:24+00:00",
+            "street": "Biezekapelstraat",
+            "number": "9",
+            "postal_code": "9000",
+            "city": "Gent",
+            "country": "BE",
+            "spaces": [
+                {
+                    "@id": "/api/v1/spaces/19",
+                    "created_at": "2024-09-03T06:48:31+00:00",
+                    "updated_at": "2024-09-03T06:48:31+00:00",
+                    "name": {"nl": "Miry Concertzaal"},
+                    "halls": [
+                        {
+                            "@id": "/api/v1/halls/36",
+                            "created_at": "2018-07-23T11:32:10+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Miry Concertzaal"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/38",
+                            "created_at": "2018-07-23T11:32:12+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Miry Concertzaal"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/40",
+                            "created_at": "2018-07-23T11:33:00+00:00",
+                            "updated_at": "2024-09-03T06:48:31+00:00",
+                            "name": {"nl": "Miry Concertzaal"},
+                        },
+                        {
+                            "@id": "/api/v1/halls/62",
+                            "created_at": "2018-11-15T14:56:05+00:00",
+                            "updated_at": "2025-11-03T09:54:11+00:00",
+                            "name": {"nl": "MIRY Concertzaal"},
+                        },
+                    ],
+                },
+                {
+                    "@id": "/api/v1/spaces/29",
+                    "created_at": "2024-09-03T06:48:31+00:00",
+                    "updated_at": "2024-09-03T06:48:31+00:00",
+                    "name": {"nl": "Biezekapelstraat 9, 9000 Gent"},
+                    "location": "/api/v1/locations/15",
+                    "halls": [],
+                },
+            ],
+        },
+    ]
+
+    newest = store_new_halls(db_session, locations)
+    db_session.commit()
+
+    stored_halls: list[Hall] = db_session.scalars(select(Hall)).all()
+    assert len(stored_halls) == 12
+
+    assert newest == datetime.fromisoformat("2023-01-09T10:11:57+00:00")
+
+
+# Under here I'm triggering all the broad error paths to check that logging works fine
+
+
+def test_store_hall_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_hall = {"garblediegook"}
+    store_new_halls(db_session, [test_hall])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith(
+        "Error storing halls (for location: {'garblediegook'}):"
+    )
+
+
+def test_store_genre_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_genre = {"garblediegook"}
+    store_new_genres(db_session, [test_genre])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing genre ({'garblediegook'}):")
+
+
+def test_store_production_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_production = {"garblediegook"}
+    store_new_productions(db_session, [test_production])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing production ({'garblediegook'}):")
+
+
+def test_store_eventprice_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_eventprice = {"garblediegook"}
+    store_new_eventprices(db_session, [test_eventprice])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing price ({'garblediegook'}):")
+
+
+def test_store_event_general_error(db_session, caplog):
+    caplog.set_level(logging.WARNING)
+
+    test_event = {"garblediegook"}
+    store_new_events(db_session, [test_event])
+
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+
+    assert len(warnings) == 1
+    assert warnings[0].startswith("Error storing event ({'garblediegook'}):")
