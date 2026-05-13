@@ -18,6 +18,7 @@ import {
   getBlogByUrl,
   getBlogsForProduction,
   getBlogsPaginated,
+  getProductionsForBlog,
   updateBlog,
   updateBlogByUrl,
 } from "~/features/blogs/services/blogService";
@@ -250,9 +251,11 @@ describe("blogService", () => {
     });
 
     it("returns empty array when production URL is invalid", async () => {
-      const result = await getBlogsForProduction("invalid-url");
+      const result1 = await getBlogsForProduction("invalid-url");
+      expect(result1).toEqual([]);
 
-      expect(result).toEqual([]);
+      const result2 = await getBlogsForProduction("");
+      expect(result2).toEqual([]);
     });
 
     it("correctly extracts production ID from URL", async () => {

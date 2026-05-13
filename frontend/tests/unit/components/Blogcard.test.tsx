@@ -148,6 +148,16 @@ describe("BlogCard", () => {
     expect(blogCardText?.querySelectorAll("p")).toHaveLength(2);
   });
 
+  it("renders blog without content", () => {
+    const emptyBlog: Blog = {
+      ...mockBlog,
+      blog_contents: [],
+    };
+
+    renderBlogCard({ blog: emptyBlog });
+    expect(screen.getByText("blogs.card.noContentFound")).toBeInTheDocument();
+  });
+
   it("renders the no-production fallback text", () => {
     renderBlogCard({ blog: mockBlogNoProductions });
     expect(screen.getByText("blogs.card.no_prods")).toBeInTheDocument();
@@ -228,13 +238,9 @@ describe("BlogCardList", () => {
     };
 
     render(
-      <div>
-        {[mockBlog, blog2].map((blog) => (
-          <MemoryRouter key={blog.id_url}>
-            <BlogCard blog={blog} preferredLanguage="en" />
-          </MemoryRouter>
-        ))}
-      </div>
+      <MemoryRouter>
+        <BlogCardList blogs={[mockBlog, blog2]} prefferedLanguage="en" />
+      </MemoryRouter>
     );
 
     expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();

@@ -56,8 +56,8 @@ export async function deleteBlog(blogId: number): Promise<void> {
 
 export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
   try {
-    const productionId = productionUrl.split("/").pop();
-    if (!productionId) {
+    const productionId = productionUrl.split("/").pop()?.trim();
+    if (!productionId || isNaN(+productionId)) {
       return [];
     }
 
