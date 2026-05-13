@@ -15,6 +15,7 @@ import type { ProductionGroup } from "~/features/archive/types/productionGroupTy
 import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
 import type { Blog, BlogCreate } from "../types/blogTypes";
 import { createBlog } from "../services/blogService";
+import { uploadMediaForBlog } from "../services/mediaService";
 
 function BackToArchiveLink() {
   const { t } = useTranslation();
@@ -29,9 +30,13 @@ function BackToArchiveLink() {
   );
 }
 
-type MediaPreview = { src: string; isVideo: boolean };
+type MediaPreview = { src: string; isVideo: boolean; file: File };
 
-function MediaUploadWidget() {
+type MediaUploadWidgetProps = {
+  onFilesChange: (files: File[]) => void;
+};
+
+function MediaUploadWidget({ onFilesChange }: MediaUploadWidgetProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<MediaPreview[]>([]);
@@ -44,12 +49,21 @@ function MediaUploadWidget() {
       .map((f) => ({
         src: URL.createObjectURL(f),
         isVideo: f.type.startsWith("video/"),
+        file: f,
       }));
-    setPreviews((prev) => [...prev, ...newPreviews]);
+    setPreviews((prev) => {
+      const updated = [...prev, ...newPreviews];
+      onFilesChange(updated.map((p) => p.file));
+      return updated;
+    });
   }
 
   function removePreview(index: number) {
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      onFilesChange(updated.map((p) => p.file));
+      return updated;
+    });
   }
 
   return (
@@ -148,9 +162,9 @@ type SeriesSearchBarProps = {
 };
 
 function SeriesSearchBar({
-	productionGroup,
-	setProductionGroup
-} : SeriesSearchBarProps) {
+  productionGroup,
+  setProductionGroup,
+}: SeriesSearchBarProps) {
   const [allProductionGroups, setAllProductionGroups] = useState<ProductionGroup[]>([]);
   const [selectedProductionGroup, setSelectedProductionGroup] =
     useState<ProductionGroup | null>(null);
@@ -221,57 +235,48 @@ function SeriesSearchBar({
         </h3>
       </div>
 
-	<section
-        id="blog-linked-productions"
-        aria-label="Linked productions"
-        className="mt-12"
-      >
-        <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
-          {t("blogs.contentPage.linkedProductions")}
-        </h2>
-        <div className="space-y-3" style={{ maxWidth: "min(25%, 280px)" }}>
-          {selectedProductionGroup && (
-            <button
-              onClick={() => {
-                setSelectedProductionGroup(null);
-                setProductionGroup(null);
-              }}
-              className="flex w-full items-center justify-between gap-2 rounded-lg border border-current/20 bg-white/5 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-white/10"
-            >
-              <span>{selectedProductionGroup.title}</span>
-              <span className="text-xs opacity-40">✕</span>
-            </button>
+      <div className="space-y-3" style={{ maxWidth: "min(25%, 280px)" }}>
+        {selectedProductionGroup && (
+          <button
+            onClick={() => {
+              setSelectedProductionGroup(null);
+              setProductionGroup(null);
+            }}
+            className="flex w-full items-center justify-between gap-2 rounded-lg border border-current/20 bg-white/5 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-white/10"
+          >
+            <span>{selectedProductionGroup.title}</span>
+            <span className="text-xs opacity-40">✕</span>
+          </button>
+        )}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder={t("blogs.createBlogPage.series.searchSeries")}
+            className="w-full rounded-lg border border-current/20 bg-white/5 px-3 py-2 pr-8 text-sm transition-colors outline-none placeholder:opacity-40 focus:border-current/40 focus:bg-white/10"
+            value={groupQuery}
+            onChange={(e) => setGroupQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+          <SearchIcon
+            className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
+            fontSize="inherit"
+          />
+          {isFocused && filteredProductionGroups.length > 0 && (
+            <ul className="border-archive-ink/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
+              {filteredProductionGroups.map((pg) => (
+                <li
+                  key={pg.id_url}
+                  onMouseDown={() => selectGroup(pg)}
+                  className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
+                >
+                  {pg.title}
+                </li>
+              ))}
+            </ul>
           )}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={t("blogs.contentPage.searchProductionGroups")}
-              className="w-full rounded-lg border border-current/20 bg-white/5 px-3 py-2 pr-8 text-sm transition-colors outline-none placeholder:opacity-40 focus:border-current/40 focus:bg-white/10"
-              value={groupQuery}
-              onChange={(e) => setGroupQuery(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-            />
-            <SearchIcon
-              className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
-              fontSize="inherit"
-            />
-            {isFocused && filteredProductionGroups.length > 0 && (
-              <ul className="border-archive-ink/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
-                {filteredProductionGroups.map((pg) => (
-                  <li
-                    key={pg.id_url}
-                    onMouseDown={() => selectGroup(pg)}
-                    className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
-                  >
-                    {pg.title}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
@@ -290,6 +295,7 @@ export function CreateBlogPage() {
   const [contentHtml, setContentHtml] = useState("");
   const [isEditing, setIsEditing] = useState(true);
   const [productionGroup, setProductionGroup] = useState<ProductionGroup | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const { t } = useTranslation();
   const { lang } = useParams();
   const navigate = useNavigate();
@@ -298,29 +304,40 @@ export function CreateBlogPage() {
   const isTitleEmpty = title.trim() === "";
   const canSave = !isTitleEmpty && !isEditing && !isSaving;
 
-  const selectedLanguage = lang == "nl" ? "nl" : "en";
+  const selectedLanguage = lang === "nl" ? "nl" : "en";
 
-  const saveTooltip = isTitleEmpty
-    ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
-    : t("blogs.createBlogPage.save.saveDisabledReasonEditing");
+  const saveTooltip = isEditing
+    ? t("blogs.createBlogPage.save.saveDisabledReasonEditing")
+    : isTitleEmpty
+      ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
+      : "";
 
-  function handleSave() {
+  async function handleSave() {
     if (!canSave) return;
     setIsSaving(true);
-	const newBlog: BlogCreate = {
-        blog_content: {
-            language: selectedLanguage,
-            title: title,
-            content: contentHtml
-        },
-		production_group_id_url: productionGroup?.id_url
+    const newBlog: BlogCreate = {
+      blog_content: {
+        language: selectedLanguage,
+        title: title,
+        content: contentHtml,
+      },
+      production_group_id_url: productionGroup?.id_url,
+    };
+    try {
+      const createdBlog: Blog = await createBlog(newBlog);
+      const blogNumericId = createdBlog.id_url.match(/\/blogs\/(\d+)(?:[/?#]|$)/)?.[1];
+      if (blogNumericId && mediaFiles.length > 0) {
+        const id = parseInt(blogNumericId, 10);
+        await Promise.allSettled(
+          mediaFiles.map((file) => uploadMediaForBlog(id, file))
+        );
+      }
+      navigate(lp("/blogs"));
+    } catch (err) {
+      window.alert(`Save failed: ${err}`);
+    } finally {
+      setIsSaving(false);
     }
-	try {
-		createBlog(newBlog);
-		navigate(lp("/blogs"));
-	} catch {
-		// failed
-	}
   }
 
   return (
@@ -380,13 +397,13 @@ export function CreateBlogPage() {
           </SectionCard>
 
           <SectionCard>
-            <MediaUploadWidget />
+            <MediaUploadWidget onFilesChange={setMediaFiles} />
           </SectionCard>
 
           <SectionCard>
             <SeriesSearchBar
-			  productionGroup={productionGroup}
-			  setProductionGroup={setProductionGroup}
+              productionGroup={productionGroup}
+              setProductionGroup={setProductionGroup}
             />
           </SectionCard>
         </main>
