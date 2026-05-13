@@ -53,6 +53,7 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
     "accessDenied": {
       "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot blogcreatie",
