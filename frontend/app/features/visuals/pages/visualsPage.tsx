@@ -7,10 +7,7 @@ import {
   uploadVisual,
   deleteVisual,
 } from "~/features/visuals/services/visualService";
-import type {
-  VisualItem,
-  VisualType,
-} from "~/features/visuals/types/visualTypes";
+import type { VisualItem, VisualType } from "~/features/visuals/types/visualTypes";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
@@ -25,9 +22,7 @@ export default function VisualsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [lightboxVisual, setLightboxVisual] = useState<VisualItem | null>(
-    null
-  );
+  const [lightboxVisual, setLightboxVisual] = useState<VisualItem | null>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const closeLightbox = useCallback(() => setLightboxVisual(null), []);
@@ -88,9 +83,7 @@ export default function VisualsPage() {
       } catch (error) {
         if (!isActive) return;
         setVisuals([]);
-        setErrorMessage(
-          error instanceof Error ? error.message : t("visuals.error")
-        );
+        setErrorMessage(error instanceof Error ? error.message : t("visuals.error"));
       } finally {
         if (isActive) setIsLoading(false);
       }
@@ -107,9 +100,7 @@ export default function VisualsPage() {
     if (!hasMore || visuals.length === 0) return;
 
     try {
-      const lastId = Number(
-        visuals[visuals.length - 1].id_url.split("/").pop()
-      );
+      const lastId = Number(visuals[visuals.length - 1].id_url.split("/").pop());
       const params: Record<string, unknown> = {
         cursor: lastId,
         limit: PAGE_SIZE,
@@ -180,9 +171,7 @@ export default function VisualsPage() {
           <h1 className="font-serif text-[clamp(2rem,5vw,3.5rem)] italic">
             {t("visuals.title")}
           </h1>
-          <p className="mt-2 max-w-2xl text-lg opacity-60">
-            {t("visuals.subtitle")}
-          </p>
+          <p className="mt-2 max-w-2xl text-lg opacity-60">{t("visuals.subtitle")}</p>
         </div>
       </section>
     );
@@ -256,9 +245,7 @@ export default function VisualsPage() {
   function renderLoadingState() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="font-serif text-3xl italic opacity-60">
-          {t("visuals.loading")}
-        </p>
+        <p className="font-serif text-3xl italic opacity-60">{t("visuals.loading")}</p>
       </div>
     );
   }
@@ -280,9 +267,7 @@ export default function VisualsPage() {
         <p className="font-serif text-3xl italic opacity-60">
           {t("visuals.empty.title")}
         </p>
-        <p className="mt-3 max-w-2xl opacity-70">
-          {t("visuals.empty.description")}
-        </p>
+        <p className="mt-3 max-w-2xl opacity-70">{t("visuals.empty.description")}</p>
       </div>
     );
   }
@@ -316,7 +301,7 @@ export default function VisualsPage() {
         className="bg-archive-paper border-archive-ink/10 group overflow-hidden rounded border shadow-sm transition-shadow hover:shadow-md"
       >
         <div
-          className="relative aspect-[4/3] cursor-pointer overflow-hidden bg-archive-ink/5"
+          className="bg-archive-ink/5 relative aspect-[4/3] cursor-pointer overflow-hidden"
           onClick={() => setLightboxVisual(visual)}
         >
           {isImageItem(visual) ? (
@@ -335,14 +320,25 @@ export default function VisualsPage() {
           )}
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
             <span className="scale-0 text-white transition-transform group-hover:scale-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                />
               </svg>
             </span>
           </div>
           <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
             <button
-              className="absolute top-2 right-2 z-10 rounded-full bg-black/50 p-1.5 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
+              className="absolute top-2 right-2 z-10 rounded-full bg-black/50 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(visualId);
@@ -366,17 +362,12 @@ export default function VisualsPage() {
             </button>
           </Protected>
         </div>
-        <div
-          className="cursor-pointer p-4"
-          onClick={() => setLightboxVisual(visual)}
-        >
+        <div className="cursor-pointer p-4" onClick={() => setLightboxVisual(visual)}>
           <h3 className="font-serif text-lg">
             {visual.title || t("visuals.card.noTitle")}
           </h3>
           {visual.description && (
-            <p className="mt-1 line-clamp-2 text-sm opacity-70">
-              {visual.description}
-            </p>
+            <p className="mt-1 line-clamp-2 text-sm opacity-70">{visual.description}</p>
           )}
           <div className="mt-2 flex items-center justify-between text-xs opacity-50">
             <span className="capitalize">
@@ -402,7 +393,7 @@ export default function VisualsPage() {
         onClick={closeLightbox}
       >
         <div
-          className="relative mx-4 flex max-h-[90vh] max-w-5xl flex-col overflow-hidden rounded-lg bg-archive-paper shadow-2xl"
+          className="bg-archive-paper relative mx-4 flex max-h-[90vh] max-w-5xl flex-col overflow-hidden rounded-lg shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -468,11 +459,9 @@ export default function VisualsPage() {
               </div>
               <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
                 <button
-                  className="text-red-400 hover:text-red-800 flex items-center gap-2 text-sm font-medium opacity-100 transition-colors"
+                  className="flex items-center gap-2 text-sm font-medium text-red-400 opacity-100 transition-colors hover:text-red-800"
                   onClick={() => {
-                    const visualId = Number(
-                      lightboxVisual.id_url.split("/").pop()
-                    );
+                    const visualId = Number(lightboxVisual.id_url.split("/").pop());
                     handleDelete(visualId);
                     closeLightbox();
                   }}
@@ -595,15 +584,13 @@ function UploadDialog({
       onClick={onClose}
     >
       <div
-        className="mx-4 w-full max-w-2xl overflow-hidden rounded-lg bg-archive-paper shadow-2xl"
+        className="bg-archive-paper mx-4 w-full max-w-2xl overflow-hidden rounded-lg shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-archive-ink/10 flex items-center justify-between border-b px-6 py-4">
-          <h2 className="font-serif text-xl">
-            {t("visuals.upload.dialogTitle")}
-          </h2>
+          <h2 className="font-serif text-xl">{t("visuals.upload.dialogTitle")}</h2>
           <button
-            className="rounded-full p-1 transition-colors hover:bg-archive-ink/10"
+            className="hover:bg-archive-ink/10 rounded-full p-1 transition-colors"
             onClick={onClose}
             aria-label={t("visuals.lightbox.close")}
           >
@@ -627,7 +614,9 @@ function UploadDialog({
         <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
           <div
             className={`border-archive-ink/20 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
-              file ? "border-archive-accent bg-archive-accent/5" : "hover:border-archive-accent/50 hover:bg-archive-ink/5"
+              file
+                ? "border-archive-accent bg-archive-accent/5"
+                : "hover:border-archive-accent/50 hover:bg-archive-ink/5"
             }`}
             onClick={() => fileInputRef.current?.click()}
             onDrop={handleDrop}
@@ -729,7 +718,7 @@ function UploadDialog({
 
         <div className="border-archive-ink/10 flex justify-end gap-3 border-t px-6 py-4">
           <button
-            className="rounded px-4 py-2 text-sm font-medium transition-colors hover:bg-archive-ink/10"
+            className="hover:bg-archive-ink/10 rounded px-4 py-2 text-sm font-medium transition-colors"
             onClick={onClose}
           >
             {t("visuals.upload.cancel")}
