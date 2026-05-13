@@ -2,7 +2,7 @@ import { useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import Add from "@mui/icons-material/Add";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DOMPurify from "dompurify";
+import { getSanitizedHtmlOrUndefined, getTextOrDefault } from "../utils/productionPageFunctions";
 
 import type {
   Production,
@@ -48,30 +48,6 @@ function getProductionInfoByLanguage(
     return languageMatch;
   }
   return null;
-}
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
-
-function getSanitizedHtmlOrUndefined(
-  value: string | null | undefined
-): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmedValue = value.trim();
-  if (trimmedValue.length === 0) {
-    return undefined;
-  }
-
-  return DOMPurify.sanitize(trimmedValue);
 }
 
 function getEventTimestamp(startsAt?: string): number {
@@ -675,7 +651,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               infoHtml={infoHtml}
               isEditing={isEditing}
               onSave={(field, html) => {
-                const isEmpty = html === "<p><br></p>" || html === "";
+                const isEmpty = html === "<p><br></p>" || html === "" || html === "<p></p>";
                 setDraftInfo((prev) =>
                   prev ? { ...prev, [field]: isEmpty ? null : html } : prev
                 );
