@@ -134,7 +134,7 @@ async function handleInfoSave(
   skipUnloadWarning: React.RefObject<boolean>,
   setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  if (!draftInfo || !originalInfo) return;
+  if (!draftInfo) return;
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
