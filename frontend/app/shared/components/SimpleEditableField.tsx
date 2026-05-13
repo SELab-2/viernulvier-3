@@ -31,7 +31,7 @@ export default function SimpleEditableField({
           className={`bg-archive-ink/50 bg-archive-ink-dark/60 mb-1 rounded-2xl border p-2 backdrop-blur-md transition md:p-4 ${isModified ? "border-archive-accent border-l-10" : "border-archive-ink/5 border-archive-ink-dark/5"} `}
         >
           <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-archive-ink/70 dark:text-archive-paper/70 text-xs font-bold tracking-[0.2em] uppercase">
+            <h3 className="text-archive-surface/70 text-xs font-bold tracking-[0.2em] uppercase">
               {label}
             </h3>
 

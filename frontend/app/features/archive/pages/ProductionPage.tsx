@@ -290,23 +290,14 @@ function BackToCollectionLink() {
   );
 }
 
-function Tag({
-  id,
-  className,
-  children,
-  onClick,
-}: {
-  key?: string;
-  id?: string;
-  className?: string;
-  onClick?: React.MouseEventHandler<HTMLLIElement>;
+type TagProps = React.LiHTMLAttributes<HTMLLIElement> & {
   children: ReactNode;
-}) {
+};
+function Tag({ className, children, ...props }: TagProps) {
   return (
     <li
-      id={id}
       className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase ${className}`}
-      onClick={onClick}
+      {...props}
     >
       {children}
     </li>
@@ -376,7 +367,10 @@ function TagDropdown({
   });
 
   return (
-    <div className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl">
+    <div
+      data-testid="tag-dropdown"
+      className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl"
+    >
       <input
         type="text"
         placeholder={t("productionPage.edit.search_tags")}
@@ -411,7 +405,7 @@ function TagDropdown({
   );
 }
 
-function Tags({
+export function Tags({
   performer_type,
   originalTags,
   draftTags,
@@ -453,6 +447,7 @@ function Tags({
               <Tag key={tag.id_url}>
                 {getTagNameByLanguage(tag, language)}
                 <Close
+                  aria-label={`remove-${getTagNameByLanguage(tag, language)}`}
                   sx={{ fontSize: "1rem" }}
                   className="cursor-pointer text-red-500"
                   onClick={() => removeTag(tag.id_url)}
