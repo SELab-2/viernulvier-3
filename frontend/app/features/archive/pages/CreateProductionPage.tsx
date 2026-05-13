@@ -12,6 +12,7 @@ export function CreateProductionPageAccessDenied() {
   return (
     <section className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
       <div className="border-archive-border bg-archive-surface rounded-[2rem] border p-8 shadow-[0_20px_70px_rgba(45,40,37,0.05)]">
+        <title>{`${t("archive.accessDenied.sectionLabel")} | VIERNULVIER`}</title>
         <p className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
           {t("archive.accessDenied.sectionLabel")}
         </p>
@@ -49,7 +50,7 @@ export function CreateProductionPage() {
 
   return (
     <div className="bg-archive-paper text-archive-ink min-h-screen">
-      <title>{`${t("archive.create_production")} | VIERNULVIER`}</title>
+      <title>{`${t("nav.create_production")} | VIERNULVIER`}</title>
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader

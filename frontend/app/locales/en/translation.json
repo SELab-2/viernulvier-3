@@ -6,7 +6,8 @@
     "archive": "Archive",
     "history": "History",
     "blogs": "Blogs",
-    "users": "Users"
+    "users": "Users",
+    "create_production": "Create production"
   },
   "footer": {
     "website": "Our official website"
