@@ -311,12 +311,6 @@ describe("BlogContentPage", () => {
       expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
     });
 
-    it("does not show the edit button when there is no content for the language", () => {
-      renderPage(baseBlogOneLanguage, "en");
-
-      expect(document.getElementById("edit-blog-button")).not.toBeInTheDocument();
-    });
-
     it("switches to edit mode when the edit button is clicked", async () => {
       const { user } = renderPage(baseBlog);
 
@@ -385,7 +379,7 @@ describe("BlogContentPage", () => {
 
       await user.click(document.getElementById("edit-blog-button")!);
 
-      expect(document.getElementById("save-edit-production-button")).toBeDisabled();
+      expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
     });
 
     it("enables the save button after the title is changed", async () => {
@@ -396,7 +390,7 @@ describe("BlogContentPage", () => {
       await user.clear(input);
       await user.type(input, "Nieuwe Titel");
 
-      expect(document.getElementById("save-edit-production-button")).not.toBeDisabled();
+      expect(document.getElementById("save-edit-blog-button")).not.toBeDisabled();
     });
 
     it("enables the save button after the content is changed", async () => {
@@ -405,7 +399,7 @@ describe("BlogContentPage", () => {
       await user.click(document.getElementById("edit-blog-button")!);
       await user.click(screen.getByTestId("save-content-btn"));
 
-      expect(document.getElementById("save-edit-production-button")).not.toBeDisabled();
+      expect(document.getElementById("save-edit-blog-button")).not.toBeDisabled();
     });
 
     it("calls updateBlogByUrl with the updated title on save", async () => {
@@ -415,7 +409,7 @@ describe("BlogContentPage", () => {
       const input = screen.getByRole("textbox");
       await user.clear(input);
       await user.type(input, "Opgeslagen Titel");
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
       await waitFor(() => {
         expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
@@ -434,7 +428,7 @@ describe("BlogContentPage", () => {
 
       await user.click(document.getElementById("edit-blog-button")!);
       await user.click(screen.getByTestId("save-content-btn"));
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
       await waitFor(() => {
         expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
@@ -455,7 +449,7 @@ describe("BlogContentPage", () => {
       const input = screen.getByRole("textbox");
       await user.clear(input);
       await user.type(input, "Opgeslagen Titel");
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
       await waitFor(() => {
         expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
@@ -469,7 +463,7 @@ describe("BlogContentPage", () => {
       const input = screen.getByRole("textbox");
       await user.clear(input);
       await user.type(input, "Definitieve Titel");
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
       await waitFor(() => {
         expect(
@@ -487,7 +481,7 @@ describe("BlogContentPage", () => {
       const input = screen.getByRole("textbox");
       await user.clear(input);
       await user.type(input, "Fout Titel");
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("Save failed"));
@@ -508,11 +502,121 @@ describe("BlogContentPage", () => {
       const input = screen.getByRole("textbox");
       await user.clear(input);
       await user.type(input, "Bezig met Opslaan");
-      await user.click(document.getElementById("save-edit-production-button")!);
+      await user.click(document.getElementById("save-edit-blog-button")!);
 
-      expect(document.getElementById("save-edit-production-button")).toBeDisabled();
+      expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
 
       resolveSave(baseBlog);
+    });
+  });
+
+  describe("add content functionality", () => {
+    it("shows the add button when no content exists for the language", () => {
+      renderPage(baseBlogOneLanguage, "en");
+
+      expect(document.getElementById("edit-blog-button")).toBeInTheDocument();
+    });
+
+    it("switches to edit mode when the add button is clicked", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+
+      expect(document.getElementById("edit-actions")).toBeInTheDocument();
+    });
+
+    it("keeps the save button disabled when neither title nor content has been filled in", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+
+      expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
+    });
+
+    it("keeps the save button disabled when only the title is filled in", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "Nieuwe Titel");
+
+      expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
+    });
+
+    it("keeps the save button disabled when only the content is filled in", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      await user.click(screen.getByTestId("save-content-btn"));
+
+      expect(document.getElementById("save-edit-blog-button")).toBeDisabled();
+    });
+
+    it("enables the save button when both title and content are filled in", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "Nieuwe Titel");
+      await user.click(screen.getByTestId("save-content-btn"));
+
+      expect(document.getElementById("save-edit-blog-button")).not.toBeDisabled();
+    });
+
+    it("calls updateBlogByUrl with the new title and content on save", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "Nieuwe Titel");
+      await user.click(screen.getByTestId("save-content-btn"));
+      await user.click(document.getElementById("save-edit-blog-button")!);
+
+      await waitFor(() => {
+        expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
+          baseBlogOneLanguage.id_url,
+          expect.objectContaining({
+            blog_contents: expect.arrayContaining([
+              expect.objectContaining({
+                language: "en",
+                title: "Nieuwe Titel",
+                content: "<p>Updated content</p>",
+              }),
+            ]),
+          })
+        );
+      });
+    });
+
+    it("exits edit mode after a successful add save", async () => {
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "Nieuwe Titel");
+      await user.click(screen.getByTestId("save-content-btn"));
+      await user.click(document.getElementById("save-edit-blog-button")!);
+
+      await waitFor(() => {
+        expect(document.getElementById("edit-actions")).not.toBeInTheDocument();
+      });
+    });
+
+    it("shows an alert and stays in edit mode when the add save request fails", async () => {
+      vi.mocked(updateBlogByUrl).mockRejectedValue(new Error("Server error"));
+      const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+      const { user } = renderPage(baseBlogOneLanguage, "en");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "Nieuwe Titel");
+      await user.click(screen.getByTestId("save-content-btn"));
+      await user.click(document.getElementById("save-edit-blog-button")!);
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("Save failed"));
+      });
+      expect(document.getElementById("edit-actions")).toBeInTheDocument();
     });
   });
 });

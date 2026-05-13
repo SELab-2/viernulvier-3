@@ -129,6 +129,7 @@ describe("UserManagementPage", () => {
       createdAt: "2026-04-09T10:00:00",
       lastLoginAt: null,
     };
+    authSessionValue.refreshSession = vi.fn().mockResolvedValue(authSessionValue.user);
     // Default: roles load successfully with an empty list so existing
     // user-focused tests are not affected by the roles section.
     vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
@@ -251,7 +252,7 @@ describe("UserManagementPage", () => {
     await screen.findByText("users.empty.title");
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
 
-    const createForm = document.querySelector("#user-form-dialog");
+    const createForm = document.querySelector("#user-form-dialog-create");
     expect(createForm).not.toBeNull();
 
     fireEvent.submit(createForm as HTMLFormElement);
@@ -307,6 +308,107 @@ describe("UserManagementPage", () => {
     ) as HTMLInputElement;
     expect(usernameInput.value).toBe("");
     expect(passwordInput.value).toBe("");
+  });
+
+  it("hides edit buttons without the users:update permission", async () => {
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "users.actions.edit" })).toBeNull();
+  });
+
+  it("updates a user from the edit dialog", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:update"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+    vi.spyOn(userManagementServiceModule, "updateUser").mockResolvedValue({
+      ...users[0],
+      username: "curator-updated",
+      roles: ["editor", "viewer"],
+      permissions: ["archive:write"],
+    });
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+    expect(curatorCard).not.toBeNull();
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.edit",
+      })
+    );
+
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
+    expect(usernameInput.value).toBe("curator");
+    expect(passwordInput.value).toBe("");
+
+    await user.clear(usernameInput);
+    await user.type(usernameInput, " curator-updated ");
+    await user.click(screen.getByRole("checkbox", { name: "viewer" }));
+    await user.click(screen.getByRole("button", { name: "users.actions.update" }));
+
+    expect(userManagementServiceModule.updateUser).toHaveBeenCalledWith(users[0].id, {
+      username: "curator-updated",
+      roles: ["editor", "viewer"],
+    });
+
+    expect(await screen.findByText("curator-updated")).toBeInTheDocument();
+    expect(screen.queryByText("curator")).toBeNull();
+  });
+
+  it("refreshes the session after updating the current user", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      id: users[0].id,
+      permissions: ["users:read", "users:update"],
+    };
+    authSessionValue.refreshSession = vi.fn().mockResolvedValue({
+      ...authSessionValue.user,
+      username: "curator-updated",
+    });
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+    vi.spyOn(userManagementServiceModule, "updateUser").mockResolvedValue({
+      ...users[0],
+      username: "curator-updated",
+    });
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.edit",
+      })
+    );
+    setFieldValue("users.fields.username", "curator-updated");
+    await user.click(screen.getByRole("button", { name: "users.actions.update" }));
+
+    expect(authSessionValue.refreshSession).toHaveBeenCalledTimes(1);
   });
 
   it("hides create actions without the matching permissions", async () => {
