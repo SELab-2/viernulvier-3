@@ -164,7 +164,7 @@ function ProductionLinkCard({ production }: ProductionLinkCardProps) {
 
   const primaryInfo = getProductionInfoByLanguage(
     production.production_infos,
-    lang ?? "en"
+    lang ?? "nl"
   );
 
   const title = primaryInfo?.title ?? t("blogs.contentPage.fallback");
