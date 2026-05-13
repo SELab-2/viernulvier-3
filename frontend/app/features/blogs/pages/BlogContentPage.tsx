@@ -1,6 +1,6 @@
 import { Link, useBlocker, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
@@ -240,9 +240,9 @@ function LinkedProductions({
     let cancelled = false;
     async function loadProductions() {
       if (!productionGroup) {
-		setProductions([]);
-		return;
-	  }
+        setProductions([]);
+        return;
+      }
       try {
         const intProductions = await getProductionsForGroup(productionGroup);
         if (!cancelled) setProductions(intProductions);
@@ -405,13 +405,13 @@ async function handleBlogSave(
           content: draftContent.content,
         },
       ],
-	  production_group_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : ""
+      production_group_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : "",
     });
 
     // sync local "source of truth"
     setOriginalContent(draftContent);
 
-	setBlogProdGroup(newBlogProdGroup);
+    setBlogProdGroup(newBlogProdGroup);
 
     setIsEditing(false);
     if (!originalContent) {
@@ -450,13 +450,15 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  function blogProdModified() {
-	  return (
-		(blogProdGroup && newBlogProdGroup && blogProdGroup.id_url !== newBlogProdGroup.id_url) ||
-		(!blogProdGroup && newBlogProdGroup) ||
-		(blogProdGroup && !newBlogProdGroup)
-	  )
-  }
+  const blogProdModified = useCallback(() => {
+    return (
+      (blogProdGroup &&
+        newBlogProdGroup &&
+        blogProdGroup.id_url !== newBlogProdGroup.id_url) ||
+      (!blogProdGroup && newBlogProdGroup) ||
+      (blogProdGroup && !newBlogProdGroup)
+    );
+  }, [blogProdGroup, newBlogProdGroup]);
 
   const _handleSave = () =>
     handleBlogSave(
@@ -464,8 +466,8 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       originalContent,
       draftContent,
       setOriginalContent,
-	  newBlogProdGroup,
-	  setBlogProdGroup,
+      newBlogProdGroup,
+      setBlogProdGroup,
       setIsEditing,
       setIsSaving,
       language,
@@ -479,11 +481,11 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     if (originalContent === null) {
       return isEditing; // With add always true.
     }
-	if (blogProdModified()) {
-		return true;
-	}
+    if (blogProdModified()) {
+      return true;
+    }
     return isContentModified(originalContent, draftContent);
-  }, [originalContent, draftContent, isEditing, newBlogProdGroup]);
+  }, [originalContent, draftContent, isEditing, blogProdModified]);
 
   const skipUnloadWarning = useRef(false);
 
@@ -508,12 +510,12 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
         );
         if (!cancelled) {
           setBlogProdGroup(productionGroup);
-		  setNewBlogProdGroup(productionGroup);
+          setNewBlogProdGroup(productionGroup);
         }
       } catch {
         if (!cancelled) {
           setBlogProdGroup(null);
-		  setNewBlogProdGroup(null);
+          setNewBlogProdGroup(null);
         }
       }
     }

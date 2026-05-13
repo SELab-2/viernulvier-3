@@ -5,7 +5,10 @@ import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { MemoryRouter } from "react-router";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
-import { getProductionGroupByUrl, getProductionsForGroup } from "~/features/archive/services/productionGroupService";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -15,7 +18,7 @@ vi.mock("react-i18next", () => ({
 
 vi.mock("~/features/archive/services/productionGroupService", () => ({
   getProductionGroupByUrl: vi.fn(),
-  getProductionsForGroup: vi.fn()
+  getProductionsForGroup: vi.fn(),
 }));
 
 const mockBlogContentEN: BlogContent = {
@@ -80,11 +83,11 @@ function makeProduction(index: number): Production {
 }
 
 const baseProdGroup: ProductionGroup = {
-    id_url: "http://localhost/api/v1/production-groups/1",
-    title: "foo",
-    is_public_filter: true,
-    production_id_urls: []
-}
+  id_url: "http://localhost/api/v1/production-groups/1",
+  title: "foo",
+  is_public_filter: true,
+  production_id_urls: [],
+};
 
 function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
   return render(
@@ -96,7 +99,7 @@ function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
 
 describe("BlogCard", () => {
   beforeEach(() => {
-	vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
     vi.mocked(getProductionsForGroup).mockResolvedValue([]);
   });
 
@@ -151,7 +154,7 @@ describe("BlogCard", () => {
   });
 
   it("renders the production chip with the correct label for 1 production", async () => {
-	vi.mocked(getProductionsForGroup).mockResolvedValue([mockProductionEN])
+    vi.mocked(getProductionsForGroup).mockResolvedValue([mockProductionEN]);
     renderBlogCard({ blog: mockBlog });
     await waitFor(() =>
       expect(screen.getByText("Production Title EN")).toBeInTheDocument()
@@ -182,7 +185,7 @@ describe("BlogCard", () => {
     "overflow count shows $expected for $count productions",
     async ({ count, expected }) => {
       vi.mocked(getProductionsForGroup).mockResolvedValue(
-      	Array.from({ length: count }, (_, i) => makeProduction(i + 1))
+        Array.from({ length: count }, (_, i) => makeProduction(i + 1))
       );
 
       const blog: Blog = {

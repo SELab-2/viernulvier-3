@@ -6,10 +6,12 @@ import { BlogContentPage } from "~/features/blogs/pages/BlogContentPage";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { AuthSessionProvider } from "~/features/auth";
+import { updateBlogByUrl } from "~/features/blogs/services/blogService";
 import {
-  updateBlogByUrl,
-} from "~/features/blogs/services/blogService";
-import { getProductionGroupByUrl, getProductionsForGroup } from "~/features/archive/services/productionGroupService";
+  getAllProductionGroups,
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 
 vi.mock("~/features/blogs/services/blogService", () => ({
@@ -17,8 +19,9 @@ vi.mock("~/features/blogs/services/blogService", () => ({
 }));
 
 vi.mock("~/features/archive/services/productionGroupService", () => ({
+  getAllProductionGroups: vi.fn(),
   getProductionGroupByUrl: vi.fn(),
-  getProductionsForGroup: vi.fn()
+  getProductionsForGroup: vi.fn(),
 }));
 
 vi.mock("~/features/blogs/components/BlogPageMediaGallery", () => ({
@@ -142,16 +145,17 @@ const baseBlogEmptyContent: Blog = {
 };
 
 const baseProdGroup: ProductionGroup = {
-    id_url: "http://localhost/api/v1/production-groups/1",
-    title: "foo",
-    is_public_filter: true,
-    production_id_urls: []
-}
+  id_url: "http://localhost/api/v1/production-groups/1",
+  title: "foo",
+  is_public_filter: true,
+  production_id_urls: [],
+};
 
 describe("BlogContentPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-	vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getAllProductionGroups).mockResolvedValue([]);
+    vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
     vi.mocked(getProductionsForGroup).mockResolvedValue([]);
     vi.mocked(updateBlogByUrl).mockResolvedValue(baseBlog);
   });
@@ -630,6 +634,73 @@ describe("BlogContentPage", () => {
         expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("Save failed"));
       });
       expect(document.getElementById("edit-actions")).toBeInTheDocument();
+    });
+  });
+
+  describe("edit groups functionality", () => {
+    it("enables the save button when selected production is changed", async () => {
+      vi.mocked(getAllProductionGroups).mockResolvedValue([
+        {
+          id_url: "http://localhost/api/v1/production-groups/1",
+          title: "foo",
+          is_public_filter: true,
+          production_id_urls: [],
+        },
+        {
+          id_url: "http://localhost/api/v1/production-groups/2",
+          title: "bar",
+          is_public_filter: true,
+          production_id_urls: [],
+        },
+      ]);
+      const { user } = renderPage(baseBlogOneLanguage, "nl");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getAllByRole("textbox")[1];
+      await user.type(input, "bar");
+      await user.click(screen.getByText("bar", { selector: "li" }));
+
+      expect(document.getElementById("save-edit-blog-button")).not.toBeDisabled();
+    });
+
+    it("calls updateBlogByUrl with the new production group on save", async () => {
+      vi.mocked(getAllProductionGroups).mockResolvedValue([
+        {
+          id_url: "http://localhost/api/v1/production-groups/1",
+          title: "foo",
+          is_public_filter: true,
+          production_id_urls: [],
+        },
+        {
+          id_url: "http://localhost/api/v1/production-groups/2",
+          title: "bar",
+          is_public_filter: true,
+          production_id_urls: [],
+        },
+      ]);
+      const { user } = renderPage(baseBlogOneLanguage, "nl");
+
+      await user.click(document.getElementById("edit-blog-button")!);
+      const input = screen.getAllByRole("textbox")[1];
+      await user.type(input, "bar");
+      await user.click(screen.getByText("bar", { selector: "li" }));
+
+      await user.click(document.getElementById("save-edit-blog-button")!);
+
+      await waitFor(() => {
+        expect(vi.mocked(updateBlogByUrl)).toHaveBeenCalledWith(
+          baseBlogOneLanguage.id_url,
+          expect.objectContaining({
+            blog_contents: expect.arrayContaining([
+              expect.objectContaining({
+                language: "en",
+                title: "Nieuwe Titel",
+                content: "<p>Updated content</p>",
+              }),
+            ]),
+          })
+        );
+      });
     });
   });
 });

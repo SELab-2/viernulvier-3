@@ -17,7 +17,7 @@ vi.mock("~/features/blogs/services/blogService", () => ({
 
 vi.mock("~/features/archive/services/productionGroupService", () => ({
   getProductionGroupByUrl: vi.fn(),
-  getProductionsForGroup: vi.fn()
+  getProductionsForGroup: vi.fn(),
 }));
 
 vi.mock("~/features/archive/services/productionService", () => ({
@@ -32,9 +32,7 @@ vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
 
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import {
-  getBlogsForProduction,
-} from "~/features/blogs/services/blogService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
@@ -42,7 +40,10 @@ import type { Hall, HallName } from "~/features/archive/types/hallTypes";
 import { AuthSessionProvider } from "~/features/auth";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
-import { getProductionGroupByUrl, getProductionsForGroup } from "~/features/archive/services/productionGroupService";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 function renderPage(production: Production, preferredLanguage: string = "nl") {
   const router = createMemoryRouter(
@@ -128,17 +129,17 @@ const baseProductionOneInfo: Production = {
 };
 
 const baseProdGroup: ProductionGroup = {
-    id_url: "http://localhost/api/v1/production-groups/1",
-    title: "foo",
-    is_public_filter: true,
-    production_id_urls: []
-}
+  id_url: "http://localhost/api/v1/production-groups/1",
+  title: "foo",
+  is_public_filter: true,
+  production_id_urls: [],
+};
 
 describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.mocked(getBlogsForProduction).mockResolvedValue([]);
-	vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
     vi.mocked(getProductionsForGroup).mockResolvedValue([]);
     vi.mocked(getProductionByUrl).mockResolvedValue({
       id_url: "",
