@@ -468,7 +468,7 @@ export default function VisualsPage() {
               </div>
               <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
                 <button
-                  className="text-red-600 hover:text-red-800 flex items-center gap-2 text-sm font-medium opacity-100 transition-colors"
+                  className="text-red-400 hover:text-red-800 flex items-center gap-2 text-sm font-medium opacity-100 transition-colors"
                   onClick={() => {
                     const visualId = Number(
                       lightboxVisual.id_url.split("/").pop()
