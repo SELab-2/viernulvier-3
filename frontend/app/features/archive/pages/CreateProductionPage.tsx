@@ -33,6 +33,7 @@ async function handleAddProduction(
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
+  setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>,
   navigate: (path: string) => void
 ) {
   if (!draftInfo) return;
@@ -53,6 +54,7 @@ async function handleAddProduction(
       tag_id_urls: [],
     });
     skipWarning.current = true;
+    setSkipWarning(true);
 
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
@@ -105,8 +107,10 @@ export function CreateProductionPage() {
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
+  const [skipWarningState, setSkipWarningState] = useState(false);
+
   useUnsavedChangesBlocker(
-    !skipWarning.current && (isInfoModified(draftInfo) || isQuillDirty)
+    !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
   );
   const navigate = useNavigate();
 
@@ -117,6 +121,7 @@ export function CreateProductionPage() {
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
+      setSkipWarningState,
       navigate
     );
   // TODO
