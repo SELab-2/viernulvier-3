@@ -9,6 +9,7 @@ import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { BLOG_PERMISSIONS } from "../blog.constants";
 import BlogEditButton from "../components/BlogEditButton";
@@ -16,6 +17,7 @@ import { updateBlogByUrl } from "../services/blogService";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import {
+  getAllProductionGroups,
   getProductionGroupByUrl,
   getProductionsForGroup,
 } from "~/features/archive/services/productionGroupService";
@@ -204,31 +206,143 @@ function LinkedProductions({
   setNewProductionGroup,
 }: LinkedProductionsProps) {
   const [productions, setProductions] = useState<Production[]>([]);
+  const [allProductionGroups, setAllProductionGroups] = useState<ProductionGroup[]>([]);
+  const [selectedProductionGroup, setSelectedProductionGroup] =
+    useState<ProductionGroup | null>(null);
+  const [groupQuery, setGroupQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
+    if (!isEditing) return;
+    let cancelled = false;
+    async function loadAllGroups() {
+      try {
+        const groups = await getAllProductionGroups();
+        if (!cancelled) {
+          setAllProductionGroups(groups);
+          const current =
+            groups.find((g) => g.id_url === productionGroup?.id_url) ?? null;
+          setSelectedProductionGroup(current);
+        }
+      } catch {
+        if (!cancelled) setAllProductionGroups([]);
+      }
+    }
+    void loadAllGroups();
+    return () => {
+      cancelled = true;
+    };
+  }, [isEditing, productionGroup]);
+
+  useEffect(() => {
+    if (isEditing) return;
     let cancelled = false;
     async function loadProductions() {
       if (!productionGroup) return;
       try {
         const intProductions = await getProductionsForGroup(productionGroup);
-        if (!cancelled) {
-          setProductions(intProductions);
-        }
+        if (!cancelled) setProductions(intProductions);
       } catch {
-        if (!cancelled) {
-          setProductions([]);
-        }
+        if (!cancelled) setProductions([]);
       }
     }
     void loadProductions();
     return () => {
       cancelled = true;
     };
-  }, [productionGroup]);
+  }, [productionGroup, isEditing]);
+  function normalizeProductionGroupText(value: string): string {
+    return value
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function matchesProductionGroupQuery(
+    productionGroup: ProductionGroup,
+    query: string
+  ): boolean {
+    const normalizedQuery = normalizeProductionGroupText(query);
+
+    if (normalizedQuery.length === 0) {
+      return false;
+    }
+
+    return normalizeProductionGroupText(productionGroup.title).includes(
+      normalizedQuery
+    );
+  }
+
+  const filteredProductionGroups =
+    groupQuery.trim().length > 0
+      ? allProductionGroups.filter((pg) => matchesProductionGroupQuery(pg, groupQuery))
+      : [];
+
+  const selectGroup = (pg: ProductionGroup) => {
+    setSelectedProductionGroup(pg);
+    setNewProductionGroup(pg);
+    setGroupQuery("");
+  };
+
+  if (isEditing) {
+    return (
+      <section
+        id="blog-linked-productions"
+        aria-label="Linked productions"
+        className="mt-12"
+      >
+        <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+          {t("blogs.contentPage.linkedProductions")}
+        </h2>
+        <div className="space-y-3" style={{ maxWidth: "min(25%, 280px)" }}>
+          {selectedProductionGroup && (
+            <button
+              onClick={() => {
+                setSelectedProductionGroup(null);
+                setNewProductionGroup(null);
+              }}
+              className="flex w-full items-center justify-between gap-2 rounded-lg border border-current/20 bg-white/5 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-white/10"
+            >
+              <span>{selectedProductionGroup.title}</span>
+              <span className="text-xs opacity-40">✕</span>
+            </button>
+          )}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t("filter.search_production_groups")}
+              className="w-full rounded-lg border border-current/20 bg-white/5 px-3 py-2 pr-8 text-sm transition-colors outline-none placeholder:opacity-40 focus:border-current/40 focus:bg-white/10"
+              value={groupQuery}
+              onChange={(e) => setGroupQuery(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <SearchIcon
+              className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
+              fontSize="inherit"
+            />
+            {isFocused && filteredProductionGroups.length > 0 && (
+              <ul className="border-archive-ink/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
+                {filteredProductionGroups.map((pg) => (
+                  <li
+                    key={pg.id_url}
+                    onMouseDown={() => selectGroup(pg)}
+                    className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
+                  >
+                    {pg.title}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (productions.length === 0) return null;
-
   return (
     <section
       id="blog-linked-productions"
@@ -238,7 +352,6 @@ function LinkedProductions({
       <h2 className="mb-6 text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
         {t("blogs.contentPage.linkedProductions")}
       </h2>
-
       <div
         className="grid gap-6"
         style={{
