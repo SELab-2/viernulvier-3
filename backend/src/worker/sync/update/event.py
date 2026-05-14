@@ -122,6 +122,8 @@ def store_updated_events(db_session: Session, events: list[dict]):
             logger.error(f"Error updating event ({json_event}):\n{e}")
 
     if deletes > 2:
-        logger.warning(f"[UPDATE] Deleted {deletes} events due to no valid production_id")
+        logger.warning(
+            f"[UPDATE] Deleted {deletes} events due to no valid production_id"
+        )
 
     return newest_timestamp
