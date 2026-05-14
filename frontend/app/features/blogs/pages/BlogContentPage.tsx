@@ -561,6 +561,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             contentHtml={contentHtml ?? ""}
             title={title}
             blog_id_url={blog.id_url}
+			isEditing={isEditing}
           />
 
           <LinkedProductions
