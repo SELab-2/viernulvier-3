@@ -240,10 +240,10 @@
       "searchProductionGroups": "Zoeken naar reeksen",
       "fallback": "Geen vertaling beschikbaar",
       "media": "Gelinkte media:",
-	  "uploading": "Aan het uploaden...",
-	  "uploadMedia": "Upload media",
-	  "deleteMedia": "Verwijder media",
-	  "noMedia": "Geen media voor deze blog",
+      "uploading": "Aan het uploaden...",
+      "uploadMedia": "Upload media",
+      "deleteMedia": "Verwijder media",
+      "noMedia": "Geen media voor deze blog",
       "edit": {
         "title": "Pas titel aan",
         "content": "Pas inhoud aan",
@@ -251,9 +251,9 @@
         "cancel": "Annuleren",
         "save": "Opslaan",
         "add": "Voeg inhoud toe",
-		"delete": "Verwijder",
-		"confirmTitle": "Bent u zeker dat dit bestand verwijderd mag worden?",
-		"confirmBody": "Deze actie kan niet ongedaan gemaakt worden."
+        "delete": "Verwijder",
+        "confirmTitle": "Bent u zeker dat dit bestand verwijderd mag worden?",
+        "confirmBody": "Deze actie kan niet ongedaan gemaakt worden."
       },
       "archivePhotoAlt": "{{title}} - Foto {{index}}"
     },

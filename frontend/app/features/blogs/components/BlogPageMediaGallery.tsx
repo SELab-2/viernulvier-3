@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { getMediaForBlog, deleteMediaForBlog, uploadMediaForBlog } from "~/features/blogs/services/mediaService";
-
-const FALLBACK_IMAGE_URL =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit/crop";
+import {
+  getMediaForBlog,
+  deleteMediaForBlog,
+  uploadMediaForBlog,
+} from "~/features/blogs/services/mediaService";
 
 function extractImageSrcs(html: string): string[] {
   const imgRegex = /<img[^>]*\/?>/gi;
@@ -36,6 +37,7 @@ type BlogPageMediaGalleryProps = {
   title: string;
   blog_id_url: string;
   isEditing: boolean;
+  setMediaEdited: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function BlogPageMediaGallery({
@@ -43,11 +45,16 @@ export function BlogPageMediaGallery({
   title,
   blog_id_url,
   isEditing,
+  setMediaEdited,
 }: BlogPageMediaGalleryProps) {
   const { t } = useTranslation();
   const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
-  const [mediaIdUrlByImageUrl, setMediaIdUrlByImageUrl] = useState<Record<string, string>>({});
-  const [confirmDeleteImageUrl, setConfirmDeleteImageUrl] = useState<string | null>(null);
+  const [mediaIdUrlByImageUrl, setMediaIdUrlByImageUrl] = useState<
+    Record<string, string>
+  >({});
+  const [confirmDeleteImageUrl, setConfirmDeleteImageUrl] = useState<string | null>(
+    null
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
@@ -120,9 +127,10 @@ export function BlogPageMediaGallery({
       seen.add(url);
       return true;
     });
-	return unique
+    return unique;
   }, [mediaImageUrls, contentImageUrls]);
 
+  // Use this hidden file input
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
@@ -139,6 +147,7 @@ export function BlogPageMediaGallery({
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      setMediaEdited(true);
     }
   };
 
@@ -146,17 +155,24 @@ export function BlogPageMediaGallery({
     if (confirmDeleteImageUrl === null || !blogNumericId) return;
 
     const mediaIdUrl = mediaIdUrlByImageUrl[confirmDeleteImageUrl];
-    const mediaNumericId = mediaIdUrl ? getMediaNumericIdFromUrl(mediaIdUrl) : undefined;
+    const mediaNumericId = mediaIdUrl
+      ? getMediaNumericIdFromUrl(mediaIdUrl)
+      : undefined;
     if (mediaNumericId === undefined) return;
 
     setIsDeleting(true);
     try {
       await deleteMediaForBlog(blogNumericId, mediaNumericId);
       setMediaImageUrls((prev) => prev.filter((url) => url !== confirmDeleteImageUrl));
-      setMediaIdUrlByImageUrl(({ [confirmDeleteImageUrl]: _, ...rest }) => rest);
+      setMediaIdUrlByImageUrl((prev) => {
+        const next = { ...prev };
+        delete next[confirmDeleteImageUrl];
+        return next;
+      });
     } finally {
       setIsDeleting(false);
       setConfirmDeleteImageUrl(null);
+      setMediaEdited(true);
     }
   };
 
@@ -180,14 +196,28 @@ export function BlogPageMediaGallery({
             >
               {isUploading ? (
                 <>
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
                   {t("blogs.contentPage.uploading")}
                 </>
               ) : (
                 <>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
@@ -199,6 +229,7 @@ export function BlogPageMediaGallery({
           )}
         </div>
 
+        {/* hidden inputfield to have cleaner file selection ui */}
         <input
           ref={fileInputRef}
           type="file"
@@ -211,40 +242,53 @@ export function BlogPageMediaGallery({
           ref={evidenceTrackRef}
           className="flex cursor-default gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin]"
         >
-          {imageUrls.length > 0 ? imageUrls.map((url, index) => (
-            <figure
-              key={`${url}-${index}`}
-              className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
-            >
-              <img
-                src={url}
-                alt={t("blogs.contentPage.archivePhotoAlt", { title, index: index + 1 })}
-                loading="lazy"
-                className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-              />
+          {imageUrls.length > 0 ? (
+            imageUrls.map((url, index) => (
+              <figure
+                key={`${url}-${index}`}
+                className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
+              >
+                <img
+                  src={url}
+                  alt={t("blogs.contentPage.archivePhotoAlt", {
+                    title,
+                    index: index + 1,
+                  })}
+                  loading="lazy"
+                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
 
-              {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDeleteImageUrl(url)}
-                  aria-label={t("blogs.contentPage.deleteMedia")}
-                  className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 hover:bg-red-600/80 group-hover:opacity-100"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
-                </button>
-              )}
-            </figure>
-          )) :
-              <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
-                {t("blogs.contentPage.noMedia")}
-              </p>
-		  }
+                {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteImageUrl(url)}
+                    aria-label={t("blogs.contentPage.deleteMedia")}
+                    className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                  </button>
+                )}
+              </figure>
+            ))
+          ) : (
+            <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+              {t("blogs.contentPage.noMedia")}
+            </p>
+          )}
         </div>
       </section>
 
@@ -278,7 +322,13 @@ export function BlogPageMediaGallery({
                 className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isDeleting && (
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
                 )}

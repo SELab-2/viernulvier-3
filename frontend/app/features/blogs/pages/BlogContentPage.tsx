@@ -392,6 +392,7 @@ async function handleBlogSave(
   setOriginalContent: React.Dispatch<React.SetStateAction<BlogContent | null>>,
   newBlogProdGroup: ProductionGroup | null,
   setBlogProdGroup: React.Dispatch<React.SetStateAction<ProductionGroup | null>>,
+  setMediaEdited: React.Dispatch<React.SetStateAction<boolean>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
@@ -416,6 +417,8 @@ async function handleBlogSave(
     setOriginalContent(draftContent);
 
     setBlogProdGroup(newBlogProdGroup);
+
+    setMediaEdited(false);
 
     setIsEditing(false);
     if (!originalContent) {
@@ -453,8 +456,10 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     ...blogContent!,
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [mediaEdited, setMediaEdited] = useState<boolean>(false);
 
   const blogProdModified = useCallback(() => {
+    if (mediaEdited) return true;
     return (
       (blogProdGroup &&
         newBlogProdGroup &&
@@ -462,7 +467,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       (!blogProdGroup && newBlogProdGroup) ||
       (blogProdGroup && !newBlogProdGroup)
     );
-  }, [blogProdGroup, newBlogProdGroup]);
+  }, [blogProdGroup, newBlogProdGroup, mediaEdited]);
 
   const _handleSave = () =>
     handleBlogSave(
@@ -472,6 +477,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       setOriginalContent,
       newBlogProdGroup,
       setBlogProdGroup,
+      setMediaEdited,
       setIsEditing,
       setIsSaving,
       language,
@@ -561,7 +567,8 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             contentHtml={contentHtml ?? ""}
             title={title}
             blog_id_url={blog.id_url}
-			isEditing={isEditing}
+            isEditing={isEditing}
+            setMediaEdited={setMediaEdited}
           />
 
           <LinkedProductions
