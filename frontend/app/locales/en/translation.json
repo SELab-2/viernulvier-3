@@ -9,12 +9,12 @@
     "blogs": "Blogs",
     "blogs_create": "Create Blog",
     "users": "Users",
-    "login": "Log in"
+    "login": "Log in",
+    "create_production": "Create production"
   },
   "footer": {
     "website": "Our official website"
   },
-
   "filter": {
     "search": "Search",
     "search_in_collection": "Search in our collection",
@@ -31,7 +31,6 @@
     "reset": "Reset filters",
     "toggle_menu": "Filter & Search"
   },
-
   "archive": {
     "title": "The Collection",
     "results": "results",
@@ -59,7 +58,20 @@
         "titleRequired": "A production group title is required.",
         "noProductionsSelected": "Select at least one production before creating a production group.",
         "createFailed": "Could not create the production group."
-      }
+      },
+    "accessDenied": {
+      "sectionLabel": "Restricted area",
+      "title": "You do not have access to the production creation page.",
+      "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
+    },
+    "add_info": {
+      "supertitle": "Add supertitle",
+      "title": "Add title",
+      "artist": "Add artist",
+      "tagline": "Add tagline",
+      "teaser": "Add teaser",
+      "description": "Add description",
+      "info": "Add additional info"
     },
     "selection": {
       "enter": "Select productions",
@@ -120,9 +132,7 @@
     "noPrice": "No price available",
     "address": "Address",
     "addressUnknown": "Address unknown",
-
     "visualEvidence": "Photos",
-
     "edit": {
       "add": "Add info",
       "edit": "Edit",
@@ -141,7 +151,6 @@
       "error": "Error: Each production should have info in at least one language."
     }
   },
-
   "home": {
     "title": "Windows to the Past",
     "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
@@ -156,7 +165,6 @@
       "history": "Our History"
     }
   },
-
   "history": {
     "title": "The Echoes of the Building",
     "heroAlt": "A black-and-white photo of the inauguration of the Vooruit Festivities Hall in 1914, with a large crowd in front of the entrance.",
@@ -195,7 +203,6 @@
       }
     }
   },
-
   "blogs": {
     "searchPlaceholder": "Search blogs...",
     "title": "Blogs",
@@ -241,7 +248,7 @@
         "searchSeries": "Search for series"
       },
       "accessDenied": {
-        "eyebrow": "Restricted area",
+        "sectionLabel": "Restricted area",
         "title": "You do not have access to blog creation",
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }
@@ -258,14 +265,14 @@
         "cancel": "Cancel",
         "save": "Save",
         "add": "Add content"
-      }
+      },
+      "archivePhotoAlt": "{{title}} - Photo {{index}}"
     },
     "detail": {
       "title": "Blog",
       "comingSoon": "This blog page is coming soon."
     }
   },
-
   "auth": {
     "actions": {
       "login": "Login",
@@ -288,7 +295,6 @@
       }
     }
   },
-
   "users": {
     "sectionLabel": "Administration",
     "title": "User management",

@@ -1,10 +1,29 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
+import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
+function getTextOrDefault(value: string | null | undefined, fallback: string): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : fallback;
+}
+
+function isFieldModified(
+  original: string | undefined,
+  draft: string | undefined
+): boolean {
+  return (original ?? "") !== (draft ?? "");
+}
+
 type ProductionInfoSectionProps = {
+  isCreateInfo: boolean;
   tagline: string;
+  originalTagline: string | undefined;
   teaserHtml: string | undefined;
   descriptionHtml: string | undefined;
   infoHtml: string | undefined;
@@ -14,7 +33,9 @@ type ProductionInfoSectionProps = {
 };
 
 export function ProductionInfoSection({
+  isCreateInfo,
   tagline,
+  originalTagline,
   teaserHtml,
   descriptionHtml,
   infoHtml,
@@ -36,9 +57,27 @@ export function ProductionInfoSection({
     setEditing(null);
   }
 
+  const effectiveIsEditing = isCreateInfo || globalIsEditing;
+
+  const modified = (orig: string | undefined, draft: string | undefined) =>
+    !isCreateInfo && isFieldModified(orig, draft);
+
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {tagline && <p id="tagline">{tagline}</p>}
+      <SimpleEditableField
+        value={tagline}
+        placeholder={t("archive.add_info.tagline")}
+        isEditing={effectiveIsEditing}
+        onChange={(value) => onSave("tagline", value)}
+        label={"tagline"}
+        renderView={(value) => (
+          <p className="...">
+            {getTextOrDefault(value, t("productionPage.fallback.archive"))}
+          </p>
+        )}
+        isModified={modified(originalTagline, tagline)}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
+      />
 
       <ComplexEditableField
         id="teaser"

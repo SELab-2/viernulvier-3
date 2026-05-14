@@ -9,12 +9,12 @@
     "blogs": "Blogs",
     "blogs_create": "Creëer Blog",
     "users": "Gebruikers",
-    "login": "Log in"
+    "login": "Log in",
+    "create_production": "Nieuwe productie"
   },
   "footer": {
     "website": "Onze officiële website"
   },
-
   "filter": {
     "search": "Zoeken",
     "search_in_collection": "Zoek in de collectie",
@@ -31,7 +31,6 @@
     "reset": "Filters resetten",
     "toggle_menu": "Filteren & Zoeken"
   },
-
   "archive": {
     "title": "De Collectie",
     "results": "resultaten",
@@ -71,6 +70,19 @@
         "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
         "createFailed": "Kon de productiegroep niet aanmaken."
       }
+    "accessDenied": {
+      "sectionLabel": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
+    },
+    "add_info": {
+      "supertitle": "Voeg een supertitel toe",
+      "title": "Voeg een titel toe",
+      "artist": "Voeg een artiest toe",
+      "tagline": "Voeg een tagline toe",
+      "teaser": "Voeg een teaser toe",
+      "description": "Voeg een beschrijving toe",
+      "info": "Voeg bijkomende info toe"
     },
     "sortBy": "Sorteer op",
     "sortOrder": {
@@ -120,9 +132,7 @@
     "noPrice": "Geen prijs beschikbaar",
     "address": "Adres",
     "addressUnknown": "Adres onbekend",
-
     "visualEvidence": "Foto's",
-
     "edit": {
       "add": "Voeg info toe",
       "edit": "Pas aan",
@@ -141,7 +151,6 @@
       "error": "Error: Elke productie heeft info in minstens één taal."
     }
   },
-
   "home": {
     "title": "Vensters naar het Verleden",
     "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
@@ -156,7 +165,6 @@
       "history": "Onze Geschiedenis"
     }
   },
-
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
@@ -195,7 +203,6 @@
       }
     }
   },
-
   "blogs": {
     "searchPlaceholder": "Zoek naar blogs...",
     "title": "Blogs",
@@ -241,7 +248,7 @@
         "searchSeries": "Zoek naar reeksen"
       },
       "accessDenied": {
-        "eyebrow": "Beperkt gebied",
+        "sectionLabel": "Beperkt gebied",
         "title": "Je hebt geen toegang tot blogcreatie",
         "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
       }
@@ -258,14 +265,14 @@
         "cancel": "Annuleren",
         "save": "Opslaan",
         "add": "Voeg inhoud toe"
-      }
+      },
+      "archivePhotoAlt": "{{title}} - Foto {{index}}"
     },
     "detail": {
       "title": "Blog",
       "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
-
   "auth": {
     "actions": {
       "login": "Aanmelden",
@@ -288,7 +295,6 @@
       }
     }
   },
-
   "users": {
     "sectionLabel": "Beheer",
     "title": "Gebruikersbeheer",
