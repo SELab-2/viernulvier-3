@@ -5,7 +5,10 @@ import { useTranslation } from "react-i18next";
 import type { EventWithResolvedRelations } from "./EventCard";
 
 const Spinner = () => (
-  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+  <span
+    data-testid="spinner"
+    className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white"
+  />
 );
 
 type EditButtonProps = {
