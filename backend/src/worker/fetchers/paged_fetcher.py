@@ -48,6 +48,30 @@ class PagedFetcher:
         parameters = {"created_at[after]": last_timestamp}
         return self.fetch_all(self.endpoint, parameters)
 
+    def get_updated_items_after(self, last_timestamp):
+        """
+        Get all updated items after the given timestamp.
+
+        The timestamp is used **inclusive**, meaning that it probably returns
+        an item that already exists in the database.
+
+        When calling the API fails this will throw an error. However,
+        if there was already data fetched (f.e. when paging and hitting a
+        rate limit), the object will have stored the results which you can
+        query with `.has_partial_data()` and `.get_partial_data()`.
+
+        ---
+
+        :param timestamp: used to get updated items after (inclusive)
+        """
+        if self.endpoint is None:
+            raise NotImplementedError(
+                f"Class {__class__} did not set 'endpoint' and can thus not sync"
+            )
+
+        parameters = {"updated_at[after]": last_timestamp}
+        return self.fetch_all(self.endpoint, parameters)
+
     def fetch_all(self, link: str, parameters: dict) -> list:
         """
         Fetches all (potentially paginated) data from the API endpoint.
