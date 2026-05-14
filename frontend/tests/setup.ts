@@ -29,6 +29,24 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
   "archive.create_production": "I18_Archive_Create_Production",
+  "archive.productionGroups.actions.create": "Create production group",
+  "archive.productionGroups.actions.creating": "Creating...",
+  "archive.productionGroups.actions.cancel": "Cancel",
+  "archive.productionGroups.dialog.title": "Create a production group",
+  "archive.productionGroups.dialog.description":
+    "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
+  "archive.productionGroups.dialog.selectedCount": "{{count}} selected productions",
+  "archive.productionGroups.dialog.nameLabel": "Group title",
+  "archive.productionGroups.dialog.publicLabel":
+    "Show this group in the public archive filters",
+  "archive.productionGroups.dialog.publicHint":
+    "When enabled, visitors can use this production group as a filter in the archive.",
+  "archive.productionGroups.messages.titleRequired":
+    "A production group title is required.",
+  "archive.productionGroups.messages.noProductionsSelected":
+    "Select at least one production before creating a production group.",
+  "archive.productionGroups.messages.createFailed":
+    "Could not create the production group.",
   "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
   "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",

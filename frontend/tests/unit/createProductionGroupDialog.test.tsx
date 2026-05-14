@@ -6,42 +6,6 @@ vi.mock("~/features/archive/services/productionGroupService", () => ({
   createProductionGroup: vi.fn(),
 }));
 
-const translations: Record<string, string> = {
-  "archive.productionGroups.dialog.title": "Create a production group",
-  "archive.productionGroups.dialog.description":
-    "Group the selected productions under a shared title so they can be managed and reused together.",
-  "archive.productionGroups.dialog.nameLabel": "Group title",
-  "archive.productionGroups.dialog.publicLabel":
-    "Show this group in the public archive filters",
-  "archive.productionGroups.dialog.publicHint":
-    "When enabled, visitors can use this production group as a filter in the archive.",
-  "archive.productionGroups.actions.cancel": "Cancel",
-  "archive.productionGroups.actions.create": "Create production group",
-  "archive.productionGroups.actions.creating": "Creating...",
-  "archive.productionGroups.messages.createFailed":
-    "Could not create the production group.",
-};
-
-function translate(key: string, options?: Record<string, unknown>) {
-  if (key === "archive.productionGroups.dialog.selectedCount") {
-    return `${options?.count ?? 0} selected productions`;
-  }
-
-  return translations[key] ?? key;
-}
-
-vi.mock("react-i18next", async () => {
-  const actual = await vi.importActual<typeof import("react-i18next")>("react-i18next");
-
-  return {
-    ...actual,
-    useTranslation: () => ({
-      t: translate,
-      i18n: { language: "en" },
-    }),
-  };
-});
-
 import { CreateProductionGroupDialog } from "~/features/archive/components/CreateProductionGroupDialog";
 import * as productionGroupServiceModule from "~/features/archive/services/productionGroupService";
 
