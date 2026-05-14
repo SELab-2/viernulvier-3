@@ -43,6 +43,7 @@ import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { useClickOutside } from "~/shared/hooks/useClickOutside";
 
 interface ProductionPageProps {
   production: Production;
@@ -99,13 +100,12 @@ function getEventTimestamp(startsAt?: string): number {
 
 // prefer active language, then dutch, then first available tag name
 function getTagNameByLanguage(tag: Tag, language: string) {
-  const languageMatch = tag.names.find((name) => name.language === language);
-  if (languageMatch?.name) {
-    return languageMatch.name;
+  let fallback = tag.names[0]?.name;
+  for (const name of tag.names) {
+    if (name.language === language) return name.name;
+    if (name.language === "nl") fallback = name.name;
   }
-
-  const defaultMatch = tag.names.find((name) => name.language === "nl");
-  return defaultMatch?.name ?? tag.names[0]?.name;
+  return fallback;
 }
 
 function isInfoModified(
@@ -312,7 +312,7 @@ function TagDropdown({
   language: string;
 }) {
   const { t } = useTranslation();
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   function addTag(tag: Tag) {
     setSelectedTags((prev) => {
@@ -344,8 +344,14 @@ function TagDropdown({
     return matchesSearch && !alreadySelected;
   });
 
+  useClickOutside(dropdownRef, () => {
+    setIsOpen(false);
+    setSearch("");
+  });
+
   return (
     <div
+      ref={dropdownRef}
       data-testid="tag-dropdown"
       className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl"
     >
@@ -353,10 +359,6 @@ function TagDropdown({
         type="text"
         placeholder={t("productionPage.edit.search_tags")}
         value={search}
-        onBlur={() => {
-          setIsOpen(false);
-          setSearch("");
-        }}
         onChange={(e) => setSearch(e.target.value)}
         className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
         autoFocus
@@ -364,12 +366,13 @@ function TagDropdown({
 
       <ul className="max-h-64 overflow-y-auto">
         {filteredTags.map((tag) => (
-          <li
-            key={tag.id_url}
-            className="hover:bg-archive-control cursor-pointer rounded-lg px-3 py-2 text-sm transition"
-            onMouseDown={() => addTag(tag)}
-          >
-            {getTagNameByLanguage(tag, language)}
+          <li key={tag.id_url}>
+            <button
+              className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
+              onClick={() => addTag(tag)}
+            >
+              {getTagNameByLanguage(tag, language)}
+            </button>
           </li>
         ))}
 
@@ -450,14 +453,14 @@ export function Tags({
 
         {/* Add tag button */}
         {isEditing && (
-          <TagListItem
-            key="add-tag"
-            aria-label="Add Tag"
+          <button
             className="cursor-pointer"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
           >
-            <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
-          </TagListItem>
+            <TagListItem key="add-tag" aria-label="Add Tag">
+              <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
+            </TagListItem>
+          </button>
         )}
         {isDropdownOpen && (
           <TagDropdown
