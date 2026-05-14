@@ -253,12 +253,18 @@ function LinkedProductions({
       cancelled = true;
     };
   }, [productionGroup, isEditing]);
+
   function normalizeProductionGroupText(value: string): string {
-    return value
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+    return (
+      value
+        // Split accented characters into their base letter and combining marks.
+        .normalize("NFKD")
+        // Drop the combining marks so query values stay ASCII-only.
+        .replace(/[\u0300-\u036f]/g, "")
+        // Make matching case-insensitive and remove accidental surrounding spaces.
+        .toLowerCase()
+        .trim()
+    );
   }
 
   function matchesProductionGroupQuery(
