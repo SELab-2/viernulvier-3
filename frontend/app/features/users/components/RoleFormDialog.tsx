@@ -286,21 +286,22 @@ const dialogActionsSx = {
 };
 
 const dialogPaperSx = {
-  background:
-    "linear-gradient(180deg, rgba(251,247,242,0.97) 0%, rgba(246,239,231,0.98) 100%)",
   borderRadius: "1.75rem",
-  border: "1px solid rgba(160, 124, 84, 0.18)",
-  boxShadow: "0 28px 90px rgba(32, 24, 20, 0.16)",
-  backdropFilter: "blur(20px)",
+  border: "1px solid var(--archive-border)",
+  backgroundColor: "var(--archive-surface-strong)",
+  color: "var(--archive-ink)",
+  backdropFilter: "blur(18px)",
+  boxShadow: "0 28px 90px rgba(0, 0, 0, 0.24)",
 };
 
 const dialogBackdropSx = {
-  backgroundColor: "rgba(37, 29, 24, 0.34)",
-  backdropFilter: "blur(6px)",
+  backgroundColor: "rgba(17, 16, 14, 0.48)",
+  backdropFilter: "blur(4px)",
 };
 
 const roleCheckboxSx = {
-  "color": "var(--archive-border)",
+  "color": "rgba(196, 164, 132, 0.7)",
+  "padding": 0,
   "&.Mui-checked": {
     color: "var(--archive-accent)",
   },
