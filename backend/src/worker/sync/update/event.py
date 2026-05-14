@@ -95,7 +95,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
                         f"'{old_hall_vnv_id}' to '{viernulvier_hall_id}' "
                         f"for Event(viernulvier_id={existing_event.viernulvier_id})"
                     )
-                    existing_event.hall_id = old_hall_vnv_id
+                    existing_event.hall_id = internal_hall_id
             elif existing_event.hall_id:
                 # Hall got deleted
                 logger.info(
