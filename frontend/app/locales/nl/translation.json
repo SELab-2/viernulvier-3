@@ -60,7 +60,7 @@
       },
       "dialog": {
         "title": "Maak een productiegroep",
-        "description": "Groepeer de geselecteerde producties onder één gedeelde titel zodat je ze samen kunt beheren en hergebruiken.",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",
         "selectedCount": "{{count}} geselecteerde producties",
         "nameLabel": "Titel van de groep",
         "publicLabel": "Toon deze groep in de publieke archieffilters",

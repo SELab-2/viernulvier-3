@@ -49,7 +49,7 @@
       },
       "dialog": {
         "title": "Create a production group",
-        "description": "Group the selected productions under a shared title so they can be managed and reused together.",
+        "description": "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
         "selectedCount": "{{count}} selected productions",
         "nameLabel": "Group title",
         "publicLabel": "Show this group in the public archive filters",
