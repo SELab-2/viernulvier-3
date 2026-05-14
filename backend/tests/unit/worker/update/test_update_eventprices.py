@@ -53,12 +53,12 @@ def test_store_updated_eventprices_normal(db_session: Session, caplog):
     assert db_price.event_id == event.id
     assert db_price.amount == Decimal("3.14")
     assert db_price.available == 52
-    assert db_price.expires_at is None             # Not set anywhere
+    assert db_price.expires_at is None  # Not set anywhere
 
     warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
     assert len(warnings) == 0
     infos = [r.message for r in caplog.records if r.levelno == logging.INFO]
-    assert len(infos) == 2                  # Changed amount and available
+    assert len(infos) == 2  # Changed amount and available
 
     # NOTE: this order is implementation-dependant but should be deterministic
     #       if order changes in src/worker/sync/update/eventprice.py:68,
