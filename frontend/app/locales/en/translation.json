@@ -58,7 +58,8 @@
         "titleRequired": "A production group title is required.",
         "noProductionsSelected": "Select at least one production before creating a production group.",
         "createFailed": "Could not create the production group."
-      },
+      }
+    },
     "accessDenied": {
       "sectionLabel": "Restricted area",
       "title": "You do not have access to the production creation page.",

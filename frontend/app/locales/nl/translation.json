@@ -70,6 +70,7 @@
         "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
         "createFailed": "Kon de productiegroep niet aanmaken."
       }
+    },
     "accessDenied": {
       "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot blogcreatie",
