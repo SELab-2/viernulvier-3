@@ -26,7 +26,7 @@ def test_create_history_success(db_session):
 
     result = create_history(db_session, history_in, BASE_URL)
 
-    assert result.id_url.startswith(f"{BASE_URL}/history/")
+    assert result.id_url.startswith(f"{BASE_URL}/history")
     assert result.year == 2024
     assert result.language == "nl"
     assert result.title == "Titel"

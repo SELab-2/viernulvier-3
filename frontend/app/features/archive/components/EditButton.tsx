@@ -2,9 +2,13 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
+import type { EventWithResolvedRelations } from "./EventCard";
 
 const Spinner = () => (
-  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+  <span
+    data-testid="spinner"
+    className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white"
+  />
 );
 
 type EditButtonProps = {
@@ -13,17 +17,25 @@ type EditButtonProps = {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  originalEvents: EventWithResolvedRelations[] | null;
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
 };
 
-export default function EditButton({
+export function EditButton({
   action,
   isEditing,
   setIsEditing,
   originalInfo,
   setDraftInfo,
+  originalEvents,
+  setDraftEvents,
+  setNewEvents,
+  setDeletedEvents,
   enable_save,
   is_saving,
   _handleSave,
@@ -58,6 +70,11 @@ export default function EditButton({
             onClick={() => {
               // Copy (not by reference)
               setDraftInfo(originalInfo ? { ...originalInfo } : null);
+              setDraftEvents(
+                originalEvents ? originalEvents.map((e) => ({ ...e })) : []
+              );
+              setNewEvents([]);
+              setDeletedEvents([]);
               setIsEditing(false);
             }}
             className={`${shared_css} bg-gray-300`}

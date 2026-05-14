@@ -21,12 +21,13 @@ from src.api.dependencies import RequirePermissions
 from src.models.user import User
 from src.services.archive import get_base_url
 from src.services.media import get_minio_client
+from src.services.production import SortOrder
 
 router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=BlogListResponse,
     summary="Get Blogs",
     description="Get all blogs of the database, using pagination",
@@ -36,9 +37,18 @@ async def get_blogs(
     db: Session = Depends(get_db),
     cursor: str | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
+    blog_name: str | None = Query(None),
+    sort_order: SortOrder = Query("Descending"),
 ) -> BlogListResponse:
     base_url = get_base_url(str(request.url))
-    return get_blogs_paginated(db, base_url, cursor=cursor, limit=limit)
+    return get_blogs_paginated(
+        db,
+        base_url,
+        cursor=cursor,
+        limit=limit,
+        blog_name=blog_name,
+        sort_order=sort_order,
+    )
 
 
 @router.get(
@@ -59,7 +69,7 @@ async def get_blog(
 
 
 @router.post(
-    "/",
+    "",
     response_model=BlogResponse,
     status_code=201,
     summary="Create blog",

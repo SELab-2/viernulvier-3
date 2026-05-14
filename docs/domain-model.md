@@ -92,9 +92,16 @@ Table event_prices {
 
 Table halls {
   id int [pk]
+  viernulvier_id int
   address varchar
   name varchar
 
+}
+
+Table hallnames {
+  hall_id int [pk, ref: > halls.id]
+  language varchar [pk]
+  name varchar
 }
 
 Table media {
@@ -107,13 +114,9 @@ Table media {
   uploaded_at datetime
 }
 
-Table prod_blogs {
-  prod_id int [pk, ref: - productions.id]
-  blog_id int [pk, ref: - blogs.id]
-}
-
 Table blogs {
   id int [pk]
+  production_group_id int [ref: > production_groups.id]
 }
 
 Table blog_content {

@@ -8,7 +8,7 @@ const SUPPORTED_LANGS = ["en", "nl"];
 export function loader({ params, request }: Route.LoaderArgs) {
   if (!SUPPORTED_LANGS.includes(params.lang ?? "")) {
     const url = new URL(request.url);
-    return redirect(`/en${url.pathname}`);
+    return redirect(`/nl${url.pathname}`);
   }
   return null;
 }

@@ -11,11 +11,12 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import type { Blog, BlogContent } from "../types/blogTypes";
+import { getProductionsForBlog } from "../services/blogService";
+import { getMediaForBlog } from "../services/mediaService";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
-import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
-import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 
 const DEFAULT_IMAGE =
@@ -44,7 +45,7 @@ function colorWithOpacity(color: string, opacity: number): string {
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
-  language: string
+  language: string = "nl"
 ): BlogContent | null {
   if (blogContents.length === 0) {
     return null;
@@ -74,21 +75,19 @@ async function getProductionTitlesByLanguage(
   blog: Blog,
   language: string
 ): Promise<string[]> {
-  if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
+  if (!blog.production_group_id_url || blog.production_group_id_url === "") {
     return [];
   }
 
-  const titles = await Promise.all(
-    blog.production_id_urls.map(async (prod_id_url) => {
-      const prod = await getProductionByUrl(prod_id_url);
+  const productions = await getProductionsForBlog(blog);
 
-      const languageMatch = prod.production_infos.find(
-        (prod_info) => prod_info.language === language
-      );
+  const titles = productions.map((prod) => {
+    const languageMatch = prod.production_infos.find(
+      (prod_info) => prod_info.language === language
+    );
 
-      return languageMatch?.title ?? prod.production_infos[0]?.title;
-    })
-  );
+    return languageMatch?.title ?? prod.production_infos[0]?.title;
+  });
 
   return titles.filter(
     (title): title is string => typeof title === "string" && title.length > 0
@@ -177,6 +176,7 @@ export function BlogCard({
   compact = false,
 }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
 
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -186,11 +186,13 @@ export function BlogCard({
 
   const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
 
-  const title = blog_content?.title ?? "Untitled blog";
-  const content = blog_content?.content ?? "";
-  const imageUrl = DEFAULT_IMAGE;
+  // Fallback should never happen, but just in case...
+  const title = blog_content?.title || t("blogs.card.noTitleFound");
+  const content = blog_content?.content || t("blogs.card.noContentFound");
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);
+
+  const blogId = getBlogNumericIdFromUrl(blog.id_url);
 
   useEffect(() => {
     async function fetchProductionTitles() {
@@ -200,7 +202,21 @@ export function BlogCard({
     fetchProductionTitles();
   }, [blog, language]);
 
-  const blogId = getBlogNumericIdFromUrl(blog.id_url);
+  useEffect(() => {
+    if (!blogId) return;
+
+    async function fetchBlogImage() {
+      try {
+        const response = await getMediaForBlog(Number(blogId), { limit: 1 }, language);
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setImageUrl(first.url);
+      } catch {
+        // keep default image on error
+      }
+    }
+    fetchBlogImage();
+  }, [blogId, language]);
+
   if (!blogId) return null;
 
   return (

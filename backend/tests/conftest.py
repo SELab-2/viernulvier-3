@@ -14,6 +14,7 @@ from src.models.production import ProdInfo, Production
 from src.models.event import Event
 from src.models.tag import Tag, TagName
 from src.models.blogs import Blog, BlogContent
+from src.models.production_group import ProductionGroup
 from src.services.language import Languages
 from src.models import Media
 
@@ -411,11 +412,18 @@ def blogs_limited(db_session):
     db_session.add_all([prod1, prod2])
     db_session.flush()
 
+    prod_group1 = ProductionGroup(title="group1", productions=[prod1])
+
+    prod_group2 = ProductionGroup(title="group2", productions=[prod1, prod2])
+
+    db_session.add_all([prod_group1, prod_group2])
+    db_session.flush()
+
     blog1 = Blog(
-        productions=[prod1],
+        production_group=prod_group1,
     )
     blog2 = Blog(
-        productions=[prod1, prod2],
+        production_group=prod_group2,
     )
     db_session.add_all([blog1, blog2])
     db_session.flush()
@@ -457,10 +465,14 @@ def many_blogs(db_session):
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
+    prod_group = ProductionGroup(title="group", productions=[prod1, prod2])
+
+    db_session.add(prod_group)
+    db_session.flush()
 
     for i in range(10):
         blog = Blog(
-            productions=[prod1, prod2],
+            production_group=prod_group,
         )
         db_session.add(blog)
         db_session.flush()
@@ -468,7 +480,7 @@ def many_blogs(db_session):
         content_en = BlogContent(
             blog_id=blog.id,
             language=Languages.ENGLISH,
-            title="title",
+            title="title" if i % 2 == 0 else "other",
             content="content",
         )
         content_nl = BlogContent(

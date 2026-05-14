@@ -9,15 +9,19 @@ import {
   patchToArchive,
   postToArchive,
 } from "~/shared/services/sharedService";
+import type { Production } from "~/features/archive/types/productionTypes";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getBlogsPaginated(
-  params?: JsonPaginationRequest
+  params?: JsonPaginationRequest & {
+    blog_name?: string;
+    sort_order?: string;
+  }
 ): Promise<BlogList> {
   const apiClient = createApiClient();
 
-  const response = await apiClient.get<BlogList>(`${ARCHIVE_PATH}/blogs/`, {
+  const response = await apiClient.get<BlogList>(`${ARCHIVE_PATH}/blogs`, {
     params: { ...params },
   });
 
@@ -53,17 +57,45 @@ export async function deleteBlog(blogId: number): Promise<void> {
 
 export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
   try {
-    const productionId = productionUrl.split("/").pop();
-    if (!productionId) {
+    const productionId = productionUrl.split("/").pop()?.trim();
+    if (!productionId || isNaN(+productionId)) {
       return [];
     }
 
     const apiClient = createApiClient();
     const response = await apiClient.get<BlogList>(
-      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs`
     );
 
     return response.data.blogs;
+  } catch {
+    return [];
+  }
+}
+
+// Volgende interface (en eventueel ook de functie) zijn tijdelijke functies tot
+// reeksen officieel in de frontend zitten
+interface ProductionGroup {
+  id_url: string;
+  production_id_urls: string[];
+}
+
+export async function getProductionsForBlog(blog: Blog): Promise<Production[]> {
+  try {
+    const productionGroupIdUrl = blog.production_group_id_url;
+    if (!productionGroupIdUrl) return [];
+
+    const apiClient = createApiClient();
+    const response = await apiClient.get<ProductionGroup>(productionGroupIdUrl);
+    const productionIdUrls = response.data.production_id_urls;
+
+    const productions = await Promise.all(
+      productionIdUrls.map((url) =>
+        apiClient.get<Production>(url).then((res) => res.data)
+      )
+    );
+
+    return productions;
   } catch {
     return [];
   }

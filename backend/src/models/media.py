@@ -23,7 +23,7 @@ class Media(Base):
     blog_id = Column(Integer, ForeignKey("blogs.id", ondelete="CASCADE"), index=True)
     blog = relationship("Blog", back_populates="media")
 
-    # Either a production or media should exist for this image
+    # Either a production or blog should exist for this image
     __table_args__ = (
         CheckConstraint(
             "(production_id IS NOT NULL) OR (blog_id IS NOT NULL)",

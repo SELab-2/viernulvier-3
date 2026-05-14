@@ -3,26 +3,21 @@ import { createApiClient } from "./apiClient";
 
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
-function ensureTrailingSlash(url: string): string {
-  const [path, ...rest] = url.split(/(?=[?#])/);
-  return path.endsWith("/") ? url : `${path}/${rest.join("")}`;
-}
-
 function normalizeRequestUrl(url: string): string {
   const trimmedUrl = url.trim();
   if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
     try {
       const parsedUrl = new URL(trimmedUrl);
-      return ensureTrailingSlash(`${parsedUrl.pathname}${parsedUrl.search}`);
+      return `${parsedUrl.pathname}${parsedUrl.search}`;
     } catch {
-      return ensureTrailingSlash(trimmedUrl);
+      return trimmedUrl;
     }
   }
-  return ensureTrailingSlash(trimmedUrl);
+  return trimmedUrl;
 }
 
 function archivePath(url: string): string {
-  return ensureTrailingSlash(`${ARCHIVE_PATH}${url}`);
+  return `${ARCHIVE_PATH}${url}`;
 }
 
 export async function getByUrl<T>(url: string, lang?: string): Promise<T> {
@@ -58,6 +53,11 @@ export async function patchByUrl<T>(url: string, data: unknown): Promise<T> {
 export async function deleteFromArchive(url: string): Promise<void> {
   const apiClient = createApiClient();
   await apiClient.delete(archivePath(url));
+}
+
+export async function deleteByUrl(url: string): Promise<void> {
+  const apiClient = createApiClient();
+  await apiClient.delete(url);
 }
 
 export async function getFromArchiveList<T, CursorT = number>(

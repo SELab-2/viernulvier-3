@@ -2,18 +2,28 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
-import * as productionService from "~/features/archive/services/productionService";
+import * as blogService from "~/features/blogs/services/blogService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { MemoryRouter } from "react-router";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+vi.mock("react-i18next", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-i18next")>();
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
+
+vi.mock("~/features/blogs/services/blogService", () => ({
+  getProductionsForBlog: vi.fn(),
 }));
 
-vi.mock("~/features/archive/services/productionService", () => ({
-  getProductionByUrl: vi.fn(),
+vi.mock("~/features/blogs/services/mediaService", () => ({
+  getMediaForBlog: vi
+    .fn()
+    .mockResolvedValue({ media: [], pagination: { has_more: false, total_count: 0 } }),
 }));
 
 const mockBlogContentEN: BlogContent = {
@@ -32,23 +42,19 @@ const mockBlogContentNL: BlogContent = {
 
 const mockBlog: Blog = {
   id_url: "/api/v1/archive/blogs/1",
-  production_id_urls: ["/api/v1/archive/productions/1"],
+  production_group_id_url: "/api/v1/archive/production-groups/1",
   blog_contents: [mockBlogContentEN, mockBlogContentNL],
 };
 
 const mockBlogNoProductions: Blog = {
   id_url: "/api/v1/archive/blogs/2",
-  production_id_urls: [],
+  production_group_id_url: "/api/v1/archive/production-groups/2",
   blog_contents: [mockBlogContentEN],
 };
 
 const mockBlogMultipleProductions: Blog = {
   id_url: "/api/v1/archive/blogs/3",
-  production_id_urls: [
-    "/api/v1/archive/productions/1",
-    "/api/v1/archive/productions/2",
-    "/api/v1/archive/productions/3",
-  ],
+  production_group_id_url: "/api/v1/archive/production-groups/3",
   blog_contents: [mockBlogContentEN],
 };
 
@@ -70,6 +76,17 @@ const mockProductionEN: Production = {
   tags: [],
 };
 
+function makeProduction(index: number): Production {
+  return {
+    ...mockProductionEN,
+    id_url: `/api/v1/archive/productions/${index}`,
+    production_infos: mockProductionEN.production_infos.map((info) => ({
+      ...info,
+      production_id_url: `/api/v1/archive/productions/${index}`,
+    })),
+  };
+}
+
 function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
   return render(
     <MemoryRouter>
@@ -80,7 +97,7 @@ function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
 
 describe("BlogCard", () => {
   beforeEach(() => {
-    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
+    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([mockProductionEN]);
   });
 
   it("renders the given title", () => {
@@ -128,7 +145,18 @@ describe("BlogCard", () => {
     expect(blogCardText?.querySelectorAll("p")).toHaveLength(2);
   });
 
+  it("renders blog without content", () => {
+    const emptyBlog: Blog = {
+      ...mockBlog,
+      blog_contents: [],
+    };
+
+    renderBlogCard({ blog: emptyBlog });
+    expect(screen.getByText("blogs.card.noContentFound")).toBeInTheDocument();
+  });
+
   it("renders the no-production fallback text", () => {
+    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([]);
     renderBlogCard({ blog: mockBlogNoProductions });
     expect(screen.getByText("blogs.card.no_prods")).toBeInTheDocument();
   });
@@ -142,7 +170,11 @@ describe("BlogCard", () => {
   });
 
   it("renders a chip showing the first production title + overflow count", async () => {
-    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
+    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([
+      makeProduction(1),
+      makeProduction(2),
+      makeProduction(3),
+    ]);
 
     renderBlogCard({ blog: mockBlogMultipleProductions });
 
@@ -159,13 +191,14 @@ describe("BlogCard", () => {
   ])(
     "overflow count shows $expected for $count productions",
     async ({ count, expected }) => {
+      vi.mocked(blogService.getProductionsForBlog).mockResolvedValue(
+        Array.from({ length: count }, (_, i) => makeProduction(i + 1))
+      );
+
       const blog: Blog = {
         ...mockBlog,
         blog_contents: [mockBlogContentEN],
-        production_id_urls: Array.from(
-          { length: count },
-          (_, i) => `/api/v1/archive/productions/${i + 1}`
-        ),
+        production_group_id_url: "/api/v1/archive/production-groups/1",
       };
 
       renderBlogCard({ blog });
@@ -184,13 +217,13 @@ describe("BlogCard", () => {
 
 describe("BlogCardList", () => {
   beforeEach(() => {
-    vi.mocked(productionService.getProductionByUrl).mockResolvedValue(mockProductionEN);
+    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([mockProductionEN]);
   });
 
   it("renders a card for every blog in the list", () => {
     const blog2: Blog = {
       id_url: "/api/v1/archive/blogs/2",
-      production_id_urls: [],
+      production_group_id_url: "/api/v1/archive/production-groups/2",
       blog_contents: [
         {
           blog_id_url: "/api/v1/archive/blogs/2",
@@ -202,13 +235,9 @@ describe("BlogCardList", () => {
     };
 
     render(
-      <div>
-        {[mockBlog, blog2].map((blog) => (
-          <MemoryRouter>
-            <BlogCard key={blog.id_url} blog={blog} preferredLanguage="en" />
-          </MemoryRouter>
-        ))}
-      </div>
+      <MemoryRouter>
+        <BlogCardList blogs={[mockBlog, blog2]} prefferedLanguage="en" />
+      </MemoryRouter>
     );
 
     expect(screen.getByText("A Blog Post Title")).toBeInTheDocument();

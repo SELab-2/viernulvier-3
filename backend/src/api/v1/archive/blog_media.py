@@ -33,7 +33,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/{blog_id}/media/",
+    "/{blog_id}/media",
     response_model=MediaListResponse,
     summary="Get media for blog",
     description="Returns paginated media linked to a blog.",
@@ -50,7 +50,7 @@ async def get_media_for_blog(
 
 
 @router.post(
-    "/{blog_id}/media/",
+    "/{blog_id}/media",
     response_model=MediaResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Upload media for blog",

@@ -1,32 +1,118 @@
-import type { Blog } from "../types/blogTypes";
+import type { BlogList } from "../types/blogTypes";
 import { useEffect, useState } from "react";
 import { BlogCardList } from "../components/BlogCard";
 import { getBlogsPaginated } from "../services/blogService";
+import { useTranslation } from "react-i18next";
+import { Divider } from "@mui/material";
+import {
+  SortOrderEnum,
+  SortOrderSelection,
+} from "~/shared/components/SortOrderSelection";
+import { ShowMoreButton } from "../components/ShowMoreButton";
+import { useDebouncedState } from "~/features/archive/utils/debouncedState";
+import { frontendSortOrderToBackendSortOrder } from "~/shared/utils/orderMapping";
 import { CreateBlogButton } from "../components/CreateBlogButton";
 import { useNavigate } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 
+function SearchBar({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="relative flex-1">
+      <svg
+        className="text-archive-ink pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 opacity-40"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
+      </svg>
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={t("blogs.searchPlaceholder")}
+        className="border-archive-ink/15 text-archive-ink placeholder:text-archive-ink/40 focus:border-archive-ink/40 w-full rounded-lg border bg-transparent py-2 pr-4 pl-9 text-sm transition outline-none"
+      />
+    </div>
+  );
+}
+
 export default function BlogPage() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogList, setBlogList] = useState<BlogList | null>(null);
+  const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
+  const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
+
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
 
   useEffect(() => {
     async function fetchBlogs() {
-      const result = await getBlogsPaginated();
-      setBlogs(result.blogs);
+      const result = await getBlogsPaginated({
+        blog_name: debouncedSearch || undefined,
+        sort_order: frontendSortOrderToBackendSortOrder[sortOrder],
+      });
+      setBlogList(result);
     }
     fetchBlogs();
-  }, []);
+  }, [debouncedSearch, sortOrder]);
+
+  const blogs = blogList?.blogs ?? [];
 
   const openCreateBlogPage = () => {
     navigate(lp("/blogs/create"));
   };
 
   return (
-    <div>
-      <CreateBlogButton onClick={openCreateBlogPage} />
-      <BlogCardList blogs={blogs} />
-    </div>
+    <>
+      <title>{`${t("nav.blogs")} | VIERNULVIER`}</title>
+      <div className="mx-6 md:mx-10">
+        <div className="mb-10 md:mb-16">
+          <h1 className="mt-10 h-20 font-serif text-5xl italic md:text-7xl">
+            {t("blogs.title")}
+          </h1>
+        </div>
+
+        <div className="mb-4 flex flex-row items-center justify-between gap-3">
+          <CreateBlogButton onClick={openCreateBlogPage} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SortOrderSelection sortOrder={sortOrder} setSortOrder={setSortOrder} />
+        </div>
+
+        <Divider className="bg-archive-ink/5" />
+
+        <div className="mt-6 md:mt-10">
+          {blogs && blogs.length > 0 ? (
+            <BlogCardList blogs={blogs} />
+          ) : (
+            <div className="flex min-h-[50vh] w-full flex-col items-center justify-center">
+              <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+                {t("blogs.noResults.header")}
+              </p>
+              <p className="opacity-35">{t("blogs.noResults.subtext")}</p>
+            </div>
+          )}
+        </div>
+
+        {blogList?.pagination.has_more && (
+          <ShowMoreButton
+            blogList={blogList}
+            setBlogList={setBlogList}
+            sortOrder={sortOrder}
+            blog_name={debouncedSearch || undefined}
+          />
+        )}
+      </div>
+    </>
   );
 }

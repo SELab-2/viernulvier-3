@@ -34,6 +34,13 @@ export default function BlogContentRoute() {
     let isCancelled = false;
 
     const loadBlog = async () => {
+      if (decodedBlogId.trim().length === 0) {
+        setBlog(null);
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setHasError(false);
 
@@ -68,13 +75,6 @@ export default function BlogContentRoute() {
         }
       }
     };
-
-    if (decodedBlogId.trim().length === 0) {
-      // setBlog(null);
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
 
     void loadBlog();
 

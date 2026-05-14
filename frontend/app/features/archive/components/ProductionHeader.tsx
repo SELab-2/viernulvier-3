@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { ProductionInfo } from "../types/productionTypes";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 function getTextOrDefault(value: string | null | undefined, fallback: string): string {
   if (typeof value !== "string") {
@@ -18,6 +19,7 @@ function isFieldModified(
 }
 
 type ProductionHeaderProps = {
+  isCreateHeader: boolean;
   production_info: ProductionInfo | null;
   image_url: string;
   isEditing: boolean;
@@ -27,7 +29,8 @@ type ProductionHeaderProps = {
 };
 
 /* ProductionHeader contains main image, supertitle, title and artist */
-export default function ProductionHeader({
+export function ProductionHeader({
+  isCreateHeader,
   production_info,
   image_url,
   isEditing,
@@ -36,6 +39,11 @@ export default function ProductionHeader({
   setDraftInfo,
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
+
+  const effectiveIsEditing = isCreateHeader || isEditing;
+
+  const modified = (orig: string | undefined, draft: string | undefined) =>
+    !isCreateHeader && isFieldModified(orig, draft);
 
   return (
     <section
@@ -52,8 +60,9 @@ export default function ProductionHeader({
         <SimpleEditableField
           label={t("productionPage.edit.supertitle")}
           value={draftInfo?.supertitle ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.supertitle, draftInfo?.supertitle)}
+          placeholder={t("archive.add_info.supertitle")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.supertitle, draftInfo?.supertitle)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               // Overwrite supertitle
@@ -70,12 +79,14 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
         <SimpleEditableField
           label={t("productionPage.edit.title")}
           value={draftInfo?.title ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.title, draftInfo?.title)}
+          placeholder={t("archive.add_info.title")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.title, draftInfo?.title)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               // Overwrite title
@@ -91,12 +102,14 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
         <SimpleEditableField
           label={t("productionPage.edit.artist")}
           value={draftInfo?.artist ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.artist, draftInfo?.artist)}
+          placeholder={t("archive.add_info.artist")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.artist, draftInfo?.artist)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               if (prev) return { ...prev, artist: newValue };
@@ -111,6 +124,7 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
+          permissions={[ARCHIVE_PERMISSIONS.update]}
         />
       </div>
     </section>

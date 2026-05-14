@@ -38,7 +38,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
     token = login_response.json()["access_token"]
     if language is not None:
@@ -60,7 +60,7 @@ def test_upload_media_success(
     test_file = ("test.jpg", io.BytesIO(b"fake image data"), content_type)
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{production_with_no_media.id}/media",
         files={"file": test_file},
         headers=headers,
     )
@@ -76,7 +76,7 @@ def test_upload_media_success(
 
     # Verify production relationship
     assert f"productions/{production_with_no_media.id}" in data["production_id_url"]
-    assert f"productions/{production_with_no_media.id}/media/" in data["id_url"]
+    assert f"productions/{production_with_no_media.id}/media" in data["id_url"]
 
 
 def test_upload_media_unsupported_type(
@@ -89,7 +89,7 @@ def test_upload_media_unsupported_type(
     test_file = ("test.pdf", io.BytesIO(b"fake pdf"), "application/pdf")
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{production_with_no_media.id}/media",
         files={"file": test_file},
         headers=headers,
     )
@@ -105,7 +105,7 @@ def test_upload_media_no_permission(
     test_file = ("test.jpg", io.BytesIO(b"fake"), "image/jpeg")
 
     response = client.post(
-        f"{BASE_URL}/{production_with_no_media.id}/media/",
+        f"{BASE_URL}/{production_with_no_media.id}/media",
         files={"file": test_file},
         headers=headers,
     )
@@ -114,7 +114,7 @@ def test_upload_media_no_permission(
 
 def test_list_media(client: TestClient, media_items_for_production):
     prod_id = media_items_for_production[0].production_id
-    response = client.get(f"{BASE_URL}/{prod_id}/media/")
+    response = client.get(f"{BASE_URL}/{prod_id}/media")
     assert response.status_code == 200
     data = response.json()
 

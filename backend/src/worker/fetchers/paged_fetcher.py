@@ -22,7 +22,7 @@ class PagedFetcher:
         self.logger = logging.getLogger(__name__)
         self._paged_data: list | None = None
 
-    def get_new_items_after(last_timestamp):
+    def get_new_items_after(self, last_timestamp):
         """
         Abstract method that should be overwritten by every class inhereting
         from this class.

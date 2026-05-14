@@ -39,7 +39,7 @@ describe("resourceService", () => {
   it("getResourceList returns a list of data", async () => {
     const mockResources: IResource[] = [{ id: 1, someData: "testData" }];
     mockAdapter
-      .onGet("/api/v1/archive/resource/", { params: { limit: 10 } })
+      .onGet("/api/v1/archive/resource", { params: { limit: 10 } })
       .reply(200, mockResources);
 
     const result = await getResourceList(10);
@@ -48,7 +48,7 @@ describe("resourceService", () => {
 
   it("getResourceById returns data of specific resource", async () => {
     mockAdapter
-      .onGet("/api/v1/archive/resource/1/")
+      .onGet("/api/v1/archive/resource/1")
       .reply(200, { id: 1, someData: "testData" });
 
     const result = await getResourceById(1);
@@ -58,7 +58,7 @@ describe("resourceService", () => {
   it("createResource posts data", async () => {
     const request: ICreateResource = { someData: "testData" };
     mockAdapter
-      .onPost("/api/v1/archive/resource/", request)
+      .onPost("/api/v1/archive/resource", request)
       .reply(201, { id: 1, someData: request.someData });
 
     const result = await createResource(request);
@@ -68,7 +68,7 @@ describe("resourceService", () => {
   it("editResource edits data", async () => {
     const request: IUpdateResource = { someData: "testData" };
     mockAdapter
-      .onPatch("/api/v1/archive/resource/1/", request)
+      .onPatch("/api/v1/archive/resource/1", request)
       .reply(201, { id: 1, someData: request.someData });
 
     const result = await editResource(1, request);
@@ -77,19 +77,19 @@ describe("resourceService", () => {
 
   it("editResource throws when trying to patch non-existent data", async () => {
     const request: IUpdateResource = { someData: "testData" };
-    mockAdapter.onPatch("/api/v1/archive/resource/999/", request).reply(404);
+    mockAdapter.onPatch("/api/v1/archive/resource/999", request).reply(404);
 
     await expect(editResource(999, request)).rejects.toThrow("404");
   });
 
   it("deleteResource deletes data", async () => {
-    mockAdapter.onDelete("/api/v1/archive/resource/1/").reply(204);
+    mockAdapter.onDelete("/api/v1/archive/resource/1").reply(204);
     const result = await deleteResource(1);
     expect(result).toBeUndefined();
   });
 
   it("deleteResource throws when trying to delete non-existent data", async () => {
-    mockAdapter.onDelete("/api/v1/archive/resource/999/").reply(404);
+    mockAdapter.onDelete("/api/v1/archive/resource/999").reply(404);
 
     await expect(deleteResource(999)).rejects.toThrow("404");
   });

@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     MINIO_ROOT_PASSWORD: str
     MINIO_ENDPOINT: str = "minio:9000"
     MINIO_BUCKET: str = "media"
+    MINIO_VISUALS_BUCKET: str = "visuals"
 
     @computed_field
     def database_url(self) -> str:
