@@ -275,10 +275,10 @@ function useUnsavedChangesBlocker(when: boolean) {
   }, [blocker.state]);
 }
 
-type TagProps = React.LiHTMLAttributes<HTMLLIElement> & {
+type TagListItemProps = React.LiHTMLAttributes<HTMLLIElement> & {
   children: ReactNode;
 };
-function Tag({ className, children, ...props }: TagProps) {
+function TagListItem({ className, children, ...props }: TagListItemProps) {
   return (
     <li
       className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[--archive-tracking-label] uppercase ${className}`}
@@ -299,32 +299,23 @@ type TagsProps = {
 };
 
 function TagDropdown({
-  isEditing,
-  tagList,
-  setTagList,
+  allTags,
+  selectedTags,
+  setSelectedTags,
   setIsOpen,
   language,
 }: {
-  isEditing?: boolean;
-  tagList: Tag[];
-  setTagList: React.Dispatch<React.SetStateAction<Tag[]>>;
+  allTags: Tag[];
+  selectedTags: Tag[];
+  setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   language: string;
 }) {
   const { t } = useTranslation();
 
   const [search, setSearch] = useState("");
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  useEffect(() => {
-    if (!isEditing) return;
-
-    getAllTags()
-      .then(setAllTags)
-      .catch(() => setAllTags([]));
-  }, [isEditing]);
-
   function addTag(tag: Tag) {
-    setTagList((prev) => {
+    setSelectedTags((prev) => {
       const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
 
       if (alreadyExists) {
@@ -346,7 +337,9 @@ function TagDropdown({
 
     const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
 
-    const alreadySelected = tagList.some((draftTag) => draftTag.id_url === tag.id_url);
+    const alreadySelected = selectedTags.some(
+      (draftTag) => draftTag.id_url === tag.id_url
+    );
 
     return matchesSearch && !alreadySelected;
   });
@@ -403,33 +396,48 @@ export function Tags({
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  useEffect(() => {
+    if (!isEditing) return;
+
+    getAllTags()
+      .then(setAllTags)
+      .catch(() => setAllTags([]));
+  }, [isEditing]);
+
   function removeTag(id_url: string) {
     setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
   }
 
   return (
     <section id="production-tags" aria-label="Production tags">
+      {isEditing && (
+        <div className="flex items-center gap-2">
+          <p className="font-bold underline">Tags</p>
+        </div>
+      )}
+
       <ul className="mt-6 flex flex-wrap gap-2">
         {/* Performer type badge */}
         {performer_type && (
-          <Tag
+          <TagListItem
             id="tag-performer-type"
             aria-label="Performer type"
             className="font-semibold"
           >
             {performer_type}
-          </Tag>
+          </TagListItem>
         )}
 
         {/* existing tags */}
         {!isEditing
           ? originalTags.map((tag) => (
-              <Tag key={tag.id_url} aria-label="Tag">
+              <TagListItem key={tag.id_url} aria-label="Tag">
                 {getTagNameByLanguage(tag, language)}
-              </Tag>
+              </TagListItem>
             ))
           : draftTags.map((tag) => (
-              <Tag key={tag.id_url}>
+              <TagListItem key={tag.id_url}>
                 {getTagNameByLanguage(tag, language)}
                 <Close
                   aria-label={`remove-${getTagNameByLanguage(tag, language)}`}
@@ -437,25 +445,25 @@ export function Tags({
                   className="cursor-pointer text-red-500"
                   onClick={() => removeTag(tag.id_url)}
                 />
-              </Tag>
+              </TagListItem>
             ))}
 
         {/* Add tag button */}
         {isEditing && (
-          <Tag
+          <TagListItem
             key="add-tag"
             aria-label="Add Tag"
             className="cursor-pointer"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
           >
             <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
-          </Tag>
+          </TagListItem>
         )}
         {isDropdownOpen && (
           <TagDropdown
-            isEditing={isEditing}
-            tagList={draftTags}
-            setTagList={setDraftTags}
+            allTags={allTags}
+            selectedTags={draftTags}
+            setSelectedTags={setDraftTags}
             setIsOpen={setIsDropdownOpen}
             language={language}
           />
