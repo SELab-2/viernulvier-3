@@ -359,13 +359,17 @@
       },
       "form": {
         "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsEditHint": "Kies de permissies die aan deze rol gekoppeld moeten blijven.",
         "permissionsLoading": "Beschikbare permissies worden geladen.",
         "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
+        "edit": "Rol bewerken",
         "create": "Rol aanmaken",
         "creating": "Rol wordt aangemaakt",
+        "update": "Wijzigingen opslaan",
+        "updating": "Wijzigingen worden opgeslagen",
         "delete": "Rol verwijderen",
         "deleting": "Rol wordt verwijderd"
       },
@@ -373,6 +377,7 @@
         "loadFailed": "De rollen konden nu niet geladen worden.",
         "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "updateFailed": "De rol kon nu niet worden bijgewerkt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
       },
@@ -380,6 +385,10 @@
         "create": {
           "title": "Rol toevoegen",
           "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
+        },
+        "edit": {
+          "title": "Rol bewerken",
+          "description": "Werk deze rol bij en houd de toegewezen permissies in sync."
         },
         "delete": {
           "title": "Rol verwijderen",
