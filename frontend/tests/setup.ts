@@ -79,6 +79,7 @@ const translationMap: Record<string, TranslationValue> = {
   "blogs.createBlogPage.media.title": "I18N_Media_Title",
   "blogs.createBlogPage.series.searchSeries": "I18N_Search_Series",
   "blogs.createBlogPage.save.save": "I18N_Save_Blog",
+  "blogs.createBlogPage.accessDenied.description": "I18N_Blog_AccessDenied_Description",
   "notFound.title": "I18N_NotFound_Title",
   "notFound.description": "I18N_NotFound_Description",
   "notFound.buttons.explore": "I18N_NotFound_Button_Explore",

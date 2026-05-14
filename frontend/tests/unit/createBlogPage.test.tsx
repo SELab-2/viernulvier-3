@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CreateBlogPage } from "~/features/blogs/pages/CreateBlogPage";
+import { CreateBlogAccessDenied, CreateBlogPage } from "~/features/blogs/pages/CreateBlogPage";
 import { AuthSessionProvider } from "~/features/auth";
 import { createBlog } from "~/features/blogs/services/blogService";
 import { uploadMediaForBlog } from "~/features/blogs/services/mediaService";
@@ -35,11 +35,13 @@ vi.mock("~/shared/components/ComplexEditableField", () => ({
   default: ({
     html,
     isEditing,
+    onStartEdit,
     onSave,
     onCancel,
   }: {
     html?: string;
     isEditing: boolean;
+    onStartEdit: () => void;
     onSave: (html: string) => void;
     onCancel: () => void;
     fallback?: React.ReactNode;
@@ -61,7 +63,11 @@ vi.mock("~/shared/components/ComplexEditableField", () => ({
         </button>
       </div>
     ) : (
-      <div data-testid="content-preview" dangerouslySetInnerHTML={{ __html: html ?? "" }} />
+      <div
+        data-testid="content-preview"
+        onClick={onStartEdit}
+        dangerouslySetInnerHTML={{ __html: html ?? "" }}
+      />
     ),
 }));
 
@@ -182,6 +188,29 @@ describe("CreateBlogPage", () => {
       screen.getByPlaceholderText("I18N_Search_Series")
     ).toBeInTheDocument();
   });
+
+  it("switches back to editing mode when the content cancel editor is clicked", async () => {
+  const { user } = renderPage();
+
+  await user.click(screen.getByTestId("save-content-btn"));
+  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+
+  await user.click(screen.getByTestId("content-preview"));
+  expect(screen.getByTestId("content-editor")).toBeInTheDocument();
+});
+
+it("switches back to preview mode when the content cancel button is clicked", async () => {
+  const { user } = renderPage();
+
+  await user.click(screen.getByTestId("save-content-btn"));
+  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+
+  await user.click(screen.getByTestId("content-preview"));
+  expect(screen.getByTestId("content-editor")).toBeInTheDocument();
+
+  await user.click(screen.getByTestId("cancel-content-btn"));
+  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+});
 
   describe("save button state", () => {
     it("renders the save button", () => {
@@ -323,6 +352,26 @@ describe("CreateBlogPage", () => {
     });
   });
 
+  it("calls uploadMediaForBlog for each attached file after the blog is created", async () => {
+  const { user } = renderPage();
+
+  const fileA = new File(["a"], "a.jpg", { type: "image/jpeg" });
+  const fileB = new File(["b"], "b.jpg", { type: "image/jpeg" });
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  await user.upload(fileInput, [fileA, fileB]);
+
+  const titleInput = screen.getByPlaceholderText(/I18N_Title_Placeholder/i);
+  await user.type(titleInput, "Blog With Media");
+  await user.click(screen.getByTestId("save-content-btn"));
+  await user.click(screen.getByRole("button", { name: /I18N_Save/i }));
+
+  await waitFor(() => {
+    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileA);
+    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileB);
+  });
+});
+
   it("applies dragging styles when a file is dragged over the drop zone", async () => {
   renderPage();
 
@@ -451,4 +500,19 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
       expect(searchInput).toBeInTheDocument();
     });
   });
+
+it("renders the CreateBlogAccessDenied section with heading and description", () => {
+  const router = createMemoryRouter(
+    [{ path: "/", element: <CreateBlogAccessDenied /> }],
+    { initialEntries: ["/"] }
+  );
+  render(
+    <AuthSessionProvider>
+      <RouterProvider router={router} />
+    </AuthSessionProvider>
+  );
+
+  expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  expect(screen.getByText("I18N_Blog_AccessDenied_Description")).toBeInTheDocument();
+});
 });
