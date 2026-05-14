@@ -1,26 +1,24 @@
 # Configuratie van integratietesten
 import os
+import sqlite3
+from datetime import datetime, timezone
+from unittest.mock import Mock
 
 import pytest
-from datetime import datetime, timezone
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
-from src.models.production import ProdInfo, Production
-from src.models.event import Event
-from src.models.tag import Tag, TagName
-from src.models.blogs import Blog, BlogContent
-from src.models.production_group import ProductionGroup
-from src.services.language import Languages
 from src.models import Media
-
-from unittest.mock import Mock
+from src.models.blogs import Blog, BlogContent
+from src.models.event import Event
+from src.models.production import ProdInfo, Production
+from src.models.production_group import ProductionGroup
+from src.models.tag import Tag, TagName
+from src.services.language import Languages
 from src.services.media import get_minio_client
-
 
 # Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
 # via omgevingsvariabelen.
@@ -34,6 +32,15 @@ if TEST_DATABASE_URL.startswith("sqlite"):
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # SQLite forceert foreign keys standaard niet.
+    # Activeer dit expliciet zodat lokale tests dichter bij PostgreSQL gedrag zitten.
+    @event.listens_for(test_engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        if isinstance(dbapi_connection, sqlite3.Connection):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON;")
+            cursor.close()
 else:
     # Voor PostgreSQL hebben we de SQLite-specifieke argumenten niet nodig
     if TEST_DATABASE_URL.startswith("postgresql://"):
