@@ -10,22 +10,4 @@ class ProductionFetcher(PagedFetcher):
     productions.
     """
 
-    def get_new_items_after(self, timestamp) -> list:
-        """
-        Get all productions after the given timestamp.
-
-        The timestamp is used **inclusive**, meaning that it probably returns
-        a production that already exists in the database.
-
-        When calling the API fails this will throw an error. However,
-        if there was already data fetched (f.e. when paging and hitting a
-        rate limit), the object will have stored the results which you can
-        query with `.has_partial_data()` and `.get_partial_data()`.
-
-        ---
-
-        :param timestamp: used to get new productions after (inclusive)
-        """
-
-        parameters = {"created_at[after]": timestamp}
-        return self.fetch_all("/productions", parameters)
+    endpoint = "/productions"
