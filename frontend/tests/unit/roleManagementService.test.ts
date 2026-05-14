@@ -8,6 +8,7 @@ import {
   createRole,
   deleteRole,
   listRoles,
+  updateRole,
 } from "~/features/users/services/roleManagementService";
 
 describe("roleManagementService", () => {
@@ -89,6 +90,33 @@ describe("roleManagementService", () => {
     await expect(createRole({ name: "editor" })).rejects.toMatchObject({
       response: { status: 409 },
     });
+  });
+
+  it("updates a role and returns the mapped result", async () => {
+    mockAdapter.onPut("/api/v1/auth/roles/7").reply(200, {
+      id_url: "http://localhost/api/v1/auth/roles/7",
+      name: "editor-in-chief",
+      permissions: ["users:read", "users:update"],
+    });
+
+    await expect(
+      updateRole(7, {
+        name: "editor-in-chief",
+        permissions: ["users:read", "users:update"],
+      })
+    ).resolves.toEqual({
+      id: 7,
+      name: "editor-in-chief",
+      permissions: ["users:read", "users:update"],
+    });
+
+    expect(mockAdapter.history.put[0].url).toBe("/api/v1/auth/roles/7");
+    expect(mockAdapter.history.put[0].data).toBe(
+      JSON.stringify({
+        name: "editor-in-chief",
+        permissions: ["users:read", "users:update"],
+      })
+    );
   });
 
   it("deletes a role", async () => {
