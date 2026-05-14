@@ -96,7 +96,7 @@ async def post_visual(
     title: str | None = Query(None),
     description: str | None = Query(None),
     visual_type: VisualType | None = Query(
-        None, description="Category of visual: poster, timetable, programme, other"
+        VisualType.OTHER, description="Category of visual: poster, timetable, programme, other"
     ),
     db: Session = Depends(get_db),
     minio: Minio = Depends(get_minio_client),

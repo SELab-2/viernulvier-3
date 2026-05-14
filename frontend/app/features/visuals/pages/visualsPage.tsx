@@ -143,6 +143,10 @@ export default function VisualsPage() {
     return item.content_type.startsWith("image/");
   }
 
+  function isVideoItem(item: VisualItem): boolean {
+    return item.content_type.startsWith("video/");
+  }
+
   function renderMain() {
     return (
       <>
@@ -311,11 +315,16 @@ export default function VisualsPage() {
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
+          ) : isVideoItem(visual) ? (
+            <video
+              src={visual.url}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              muted
+              preload="metadata"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <span className="font-serif text-4xl opacity-20">
-                {visual.content_type.startsWith("video/") ? "▶" : "📄"}
-              </span>
+              <span className="font-serif text-4xl opacity-20">📄</span>
             </div>
           )}
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
@@ -424,11 +433,16 @@ export default function VisualsPage() {
                 alt={lightboxVisual.title || t("visuals.card.noTitle")}
                 className="max-h-[70vh] w-full object-contain"
               />
+            ) : isVideoItem(lightboxVisual) ? (
+              <video
+                src={lightboxVisual.url}
+                className="max-h-[70vh] w-full"
+                controls
+                autoPlay
+              />
             ) : (
               <div className="flex min-h-[40vh] items-center justify-center">
-                <span className="font-serif text-6xl opacity-30">
-                  {lightboxVisual.content_type.startsWith("video/") ? "▶" : "📄"}
-                </span>
+                <span className="font-serif text-6xl opacity-30">📄</span>
               </div>
             )}
           </div>
@@ -530,7 +544,7 @@ function UploadDialog({
     const selected = e.target.files?.[0] ?? null;
     setFile(selected);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (selected && selected.type.startsWith("image/")) {
+    if (selected && (selected.type.startsWith("image/") || selected.type.startsWith("video/"))) {
       setPreviewUrl(URL.createObjectURL(selected));
     } else {
       setPreviewUrl(null);
@@ -542,7 +556,7 @@ function UploadDialog({
     const dropped = e.dataTransfer.files[0] ?? null;
     setFile(dropped);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (dropped && dropped.type.startsWith("image/")) {
+    if (dropped && (dropped.type.startsWith("image/") || dropped.type.startsWith("video/"))) {
       setPreviewUrl(URL.createObjectURL(dropped));
     } else {
       setPreviewUrl(null);
@@ -622,17 +636,22 @@ function UploadDialog({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            {previewUrl ? (
+            {previewUrl && file?.type.startsWith("image/") ? (
               <img
                 src={previewUrl}
                 alt="Preview"
                 className="max-h-48 rounded object-contain"
               />
+            ) : previewUrl && file?.type.startsWith("video/") ? (
+              <video
+                src={previewUrl}
+                className="max-h-48 rounded object-contain"
+                muted
+                preload="metadata"
+              />
             ) : file ? (
               <div className="flex items-center gap-2">
-                <span className="font-serif text-3xl opacity-20">
-                  {file.type.startsWith("video/") ? "▶" : "📄"}
-                </span>
+                <span className="font-serif text-3xl opacity-20">📄</span>
                 <span className="text-sm opacity-60">{file.name}</span>
               </div>
             ) : (
