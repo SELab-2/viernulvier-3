@@ -159,7 +159,9 @@ export default function VisualsPage() {
             visualTypes={visualTypes}
             onClose={() => setIsUploadDialogOpen(false)}
             onUploaded={(item) => {
-              setVisuals((prev) => [item, ...prev]);
+              if (!selectedType || item.visual_type === selectedType) {
+                setVisuals((prev) => [item, ...prev]);
+              }
               setTotalCount((prev) => prev + 1);
             }}
           />
