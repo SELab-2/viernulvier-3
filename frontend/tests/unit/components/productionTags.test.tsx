@@ -36,6 +36,7 @@ function TagsTestWrapper({
   isEditing?: boolean;
 }) {
   const [draftTags, setDraftTags] = useState(initialTags);
+  vi.mocked(getAllTags).mockResolvedValue(mockTags);
 
   return (
     <Tags
@@ -80,7 +81,6 @@ describe("Tags", () => {
 
   it("filters tags based on search", async () => {
     const user = userEvent.setup();
-    vi.mocked(getAllTags).mockResolvedValue(mockTags);
     render(<TagsTestWrapper initialTags={[]} />);
 
     await user.click(screen.getByLabelText("Add Tag"));
