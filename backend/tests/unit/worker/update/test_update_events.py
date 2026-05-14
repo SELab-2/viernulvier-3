@@ -83,6 +83,9 @@ def test_store_updated_events_normal(db_session: Session, caplog):
     infos = [r.message for r in caplog.records if r.levelno == logging.INFO]
     assert len(infos) == 2  # Changed starts_at and order_url
 
+    # NOTE: this order is implementation-dependant but should be deterministic
+    #       if order changes in src/worker/sync/update/event.py:113,
+    #       this might need to change as well
     assert infos[0].startswith("[UPDATE] starts_at changed from '")
     assert infos[0].endswith("' for Event(viernulvier_id=6169)")
 

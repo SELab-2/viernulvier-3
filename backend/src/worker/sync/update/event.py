@@ -50,7 +50,8 @@ def store_updated_events(db_session: Session, events: list[dict]):
 
             # Check if the event is tied to a valid production, else we would get a
             # ForeignKey violation
-            if not viernulvier_prod_id or viernulvier_prod_id not in prod_map:
+            internal_prod_id = prod_map.get(viernulvier_prod_id)
+            if not viernulvier_prod_id or not internal_prod_id:
                 logger.warning(
                     f"[UPDATE] Deleting stored event (viernulvier_id="
                     f"{updated_event.viernulvier_id}) because its link to a production "
@@ -61,7 +62,6 @@ def store_updated_events(db_session: Session, events: list[dict]):
                 continue
 
             # Update production if needed
-            internal_prod_id = prod_map.get(viernulvier_prod_id)
             if internal_prod_id != existing_event.production_id:
                 logger.info(
                     f"[UPDATE] viernulvier_production_id changed from "
