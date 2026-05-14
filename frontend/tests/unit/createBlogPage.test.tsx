@@ -2,7 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CreateBlogAccessDenied, CreateBlogPage } from "~/features/blogs/pages/CreateBlogPage";
+import {
+  CreateBlogAccessDenied,
+  CreateBlogPage,
+} from "~/features/blogs/pages/CreateBlogPage";
 import { AuthSessionProvider } from "~/features/auth";
 import { createBlog } from "~/features/blogs/services/blogService";
 import { uploadMediaForBlog } from "~/features/blogs/services/mediaService";
@@ -90,27 +93,27 @@ const mockCreatedBlog: Blog = {
 
 const mockProductionGroups: ProductionGroup[] = [
   {
-      id_url: "http://localhost/api/v1/archive/production-groups/1",
-      title: "Seizoen 2024",
-      is_public_filter: true,
-      production_id_urls: []
+    id_url: "http://localhost/api/v1/archive/production-groups/1",
+    title: "Seizoen 2024",
+    is_public_filter: true,
+    production_id_urls: [],
   },
   {
-      id_url: "http://localhost/api/v1/archive/production-groups/2",
-      title: "Zomerprogramma",
-      is_public_filter: true,
-      production_id_urls: []
+    id_url: "http://localhost/api/v1/archive/production-groups/2",
+    title: "Zomerprogramma",
+    is_public_filter: true,
+    production_id_urls: [],
   },
 ];
 
 const mockMediaItem: MediaItem = {
-    id_url: "/api/v1/archive/productions/1/media/1",
-    url: "http://localhost/media/poster.jpg",
-    production_id_url: "/api/v1/archive/productions/1",
-    blog_id_url: null,
-    content_type: "image/jpeg",
-    uploaded_at: "2026-03-29T14:00:00",
-  };
+  id_url: "/api/v1/archive/productions/1/media/1",
+  url: "http://localhost/media/poster.jpg",
+  production_id_url: "/api/v1/archive/productions/1",
+  blog_id_url: null,
+  content_type: "image/jpeg",
+  uploaded_at: "2026-03-29T14:00:00",
+};
 
 function renderPage(lang: string = "nl") {
   const router = createMemoryRouter(
@@ -164,9 +167,7 @@ describe("CreateBlogPage", () => {
   it("renders the title input", () => {
     renderPage();
 
-    expect(
-      screen.getByPlaceholderText("I18N_Title_Placeholder")
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("I18N_Title_Placeholder")).toBeInTheDocument();
   });
 
   it("renders the content editor", () => {
@@ -184,33 +185,31 @@ describe("CreateBlogPage", () => {
   it("renders the series search bar", () => {
     renderPage();
 
-    expect(
-      screen.getByPlaceholderText("I18N_Search_Series")
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("I18N_Search_Series")).toBeInTheDocument();
   });
 
   it("switches back to editing mode when the content cancel editor is clicked", async () => {
-  const { user } = renderPage();
+    const { user } = renderPage();
 
-  await user.click(screen.getByTestId("save-content-btn"));
-  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+    await user.click(screen.getByTestId("save-content-btn"));
+    expect(screen.getByTestId("content-preview")).toBeInTheDocument();
 
-  await user.click(screen.getByTestId("content-preview"));
-  expect(screen.getByTestId("content-editor")).toBeInTheDocument();
-});
+    await user.click(screen.getByTestId("content-preview"));
+    expect(screen.getByTestId("content-editor")).toBeInTheDocument();
+  });
 
-it("switches back to preview mode when the content cancel button is clicked", async () => {
-  const { user } = renderPage();
+  it("switches back to preview mode when the content cancel button is clicked", async () => {
+    const { user } = renderPage();
 
-  await user.click(screen.getByTestId("save-content-btn"));
-  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+    await user.click(screen.getByTestId("save-content-btn"));
+    expect(screen.getByTestId("content-preview")).toBeInTheDocument();
 
-  await user.click(screen.getByTestId("content-preview"));
-  expect(screen.getByTestId("content-editor")).toBeInTheDocument();
+    await user.click(screen.getByTestId("content-preview"));
+    expect(screen.getByTestId("content-editor")).toBeInTheDocument();
 
-  await user.click(screen.getByTestId("cancel-content-btn"));
-  expect(screen.getByTestId("content-preview")).toBeInTheDocument();
-});
+    await user.click(screen.getByTestId("cancel-content-btn"));
+    expect(screen.getByTestId("content-preview")).toBeInTheDocument();
+  });
 
   describe("save button state", () => {
     it("renders the save button", () => {
@@ -319,18 +318,20 @@ it("switches back to preview mode when the content cancel button is clicked", as
       await user.click(screen.getByRole("button", { name: "I18N_Save_Blog" }));
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          expect.stringContaining("Save failed")
-        );
+        expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining("Save failed"));
       });
-      expect(screen.getByRole("button", { name: "I18N_Save_Blog" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "I18N_Save_Blog" })
+      ).toBeInTheDocument();
     });
 
     it("shows a preview after a file is uploaded", async () => {
       const { user } = renderPage();
 
       const file = new File(["image content"], "photo.jpg", { type: "image/jpeg" });
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       await user.upload(fileInput, file);
 
       expect(document.querySelector("img")).toBeInTheDocument();
@@ -340,7 +341,9 @@ it("switches back to preview mode when the content cancel button is clicked", as
       const { user } = renderPage();
 
       const file = new File(["image content"], "photo.jpg", { type: "image/jpeg" });
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
       await user.upload(fileInput, file);
 
       expect(document.querySelector("img")).toBeInTheDocument();
@@ -353,56 +356,56 @@ it("switches back to preview mode when the content cancel button is clicked", as
   });
 
   it("calls uploadMediaForBlog for each attached file after the blog is created", async () => {
-  const { user } = renderPage();
+    const { user } = renderPage();
 
-  const fileA = new File(["a"], "a.jpg", { type: "image/jpeg" });
-  const fileB = new File(["b"], "b.jpg", { type: "image/jpeg" });
-  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-  await user.upload(fileInput, [fileA, fileB]);
+    const fileA = new File(["a"], "a.jpg", { type: "image/jpeg" });
+    const fileB = new File(["b"], "b.jpg", { type: "image/jpeg" });
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(fileInput, [fileA, fileB]);
 
-  const titleInput = screen.getByPlaceholderText(/I18N_Title_Placeholder/i);
-  await user.type(titleInput, "Blog With Media");
-  await user.click(screen.getByTestId("save-content-btn"));
-  await user.click(screen.getByRole("button", { name: /I18N_Save/i }));
+    const titleInput = screen.getByPlaceholderText(/I18N_Title_Placeholder/i);
+    await user.type(titleInput, "Blog With Media");
+    await user.click(screen.getByTestId("save-content-btn"));
+    await user.click(screen.getByRole("button", { name: /I18N_Save/i }));
 
-  await waitFor(() => {
-    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledTimes(2);
-    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileA);
-    expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileB);
+    await waitFor(() => {
+      expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileA);
+      expect(vi.mocked(uploadMediaForBlog)).toHaveBeenCalledWith(42, fileB);
+    });
   });
-});
 
   it("applies dragging styles when a file is dragged over the drop zone", async () => {
-  renderPage();
+    renderPage();
 
-  const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
-  fireEvent.dragOver(dropZone, { preventDefault: () => {} });
+    const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
+    fireEvent.dragOver(dropZone, { preventDefault: () => {} });
 
-  expect(dropZone).toHaveClass("border-archive-accent");
-});
-
-it("removes dragging styles when the drag leaves the drop zone", async () => {
-  renderPage();
-
-  const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
-  fireEvent.dragOver(dropZone, { preventDefault: () => {} });
-  fireEvent.dragLeave(dropZone);
-
-  expect(dropZone).not.toHaveClass("border-archive-accent");
-});
-
-it("shows a preview when a file is dropped onto the drop zone", async () => {
-  renderPage();
-
-  const file = new File(["image content"], "photo.jpg", { type: "image/jpeg" });
-  const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
-  fireEvent.drop(dropZone, {
-    preventDefault: () => {},
-    dataTransfer: { files: [file] },
+    expect(dropZone).toHaveClass("border-archive-accent");
   });
 
-  expect(document.querySelector("img")).toBeInTheDocument();
-});
+  it("removes dragging styles when the drag leaves the drop zone", async () => {
+    renderPage();
+
+    const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
+    fireEvent.dragOver(dropZone, { preventDefault: () => {} });
+    fireEvent.dragLeave(dropZone);
+
+    expect(dropZone).not.toHaveClass("border-archive-accent");
+  });
+
+  it("shows a preview when a file is dropped onto the drop zone", async () => {
+    renderPage();
+
+    const file = new File(["image content"], "photo.jpg", { type: "image/jpeg" });
+    const dropZone = document.querySelector('input[type="file"]')!.parentElement!;
+    fireEvent.drop(dropZone, {
+      preventDefault: () => {},
+      dataTransfer: { files: [file] },
+    });
+
+    expect(document.querySelector("img")).toBeInTheDocument();
+  });
 
   describe("series search bar", () => {
     it("loads and displays matching production groups as the user types", async () => {
@@ -413,7 +416,7 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
       await user.type(searchInput, "Seizoen");
 
       await waitFor(() => {
-		// regex because there is an x added
+        // regex because there is an x added
         expect(screen.getByText(/Seizoen 2024/i)).toBeInTheDocument();
       });
     });
@@ -426,7 +429,7 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
       await user.type(searchInput, "Seizoen");
 
       await waitFor(() => {
-		// regex because there is an x added
+        // regex because there is an x added
         expect(screen.queryByText(/Zomerprogramma/i)).not.toBeInTheDocument();
       });
     });
@@ -441,7 +444,7 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
       await waitFor(() => screen.getByText("Seizoen 2024"));
       await user.click(screen.getByText("Seizoen 2024"));
 
-	  // regex because there is an x added
+      // regex because there is an x added
       expect(screen.getByText(/Seizoen 2024/i)).toBeInTheDocument();
     });
 
@@ -480,11 +483,13 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
       await waitFor(() => screen.getByText("Seizoen 2024"));
       await user.click(screen.getByText("Seizoen 2024"));
 
-		// regex because there is an x added
+      // regex because there is an x added
       const clearButton = screen.getByRole("button", { name: /Seizoen 2024/i });
       await user.click(clearButton);
 
-      expect(screen.queryByRole("button", { name: /Seizoen 2024/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Seizoen 2024/i })
+      ).not.toBeInTheDocument();
     });
 
     it("gracefully handles a failed production group fetch", async () => {
@@ -501,18 +506,18 @@ it("shows a preview when a file is dropped onto the drop zone", async () => {
     });
   });
 
-it("renders the CreateBlogAccessDenied section with heading and description", () => {
-  const router = createMemoryRouter(
-    [{ path: "/", element: <CreateBlogAccessDenied /> }],
-    { initialEntries: ["/"] }
-  );
-  render(
-    <AuthSessionProvider>
-      <RouterProvider router={router} />
-    </AuthSessionProvider>
-  );
+  it("renders the CreateBlogAccessDenied section with heading and description", () => {
+    const router = createMemoryRouter(
+      [{ path: "/", element: <CreateBlogAccessDenied /> }],
+      { initialEntries: ["/"] }
+    );
+    render(
+      <AuthSessionProvider>
+        <RouterProvider router={router} />
+      </AuthSessionProvider>
+    );
 
-  expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
-  expect(screen.getByText("I18N_Blog_AccessDenied_Description")).toBeInTheDocument();
-});
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    expect(screen.getByText("I18N_Blog_AccessDenied_Description")).toBeInTheDocument();
+  });
 });
