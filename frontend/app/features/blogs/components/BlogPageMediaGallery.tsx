@@ -192,7 +192,7 @@ export function BlogPageMediaGallery({
               type="button"
               onClick={handleUploadClick}
               disabled={isUploading}
-              className="flex items-center gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--archive-accent)_8%,transparent)] px-3 py-1.5 text-sm font-medium opacity-80 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex cursor-pointer items-center gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--archive-accent)_8%,transparent)] px-3 py-1.5 text-sm font-medium opacity-80 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <>
@@ -263,7 +263,7 @@ export function BlogPageMediaGallery({
                     type="button"
                     onClick={() => setConfirmDeleteImageUrl(url)}
                     aria-label={t("blogs.contentPage.deleteMedia")}
-                    className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
+                    className="absolute top-2 right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
                   >
                     <svg
                       className="h-4 w-4"
@@ -311,7 +311,7 @@ export function BlogPageMediaGallery({
                 type="button"
                 onClick={() => setConfirmDeleteImageUrl(null)}
                 disabled={isDeleting}
-                className="rounded-lg px-4 py-2 text-sm font-medium opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed"
+                className="cursor-pointer rounded-lg px-4 py-2 text-sm font-medium opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed"
               >
                 {t("blogs.contentPage.edit.cancel")}
               </button>
@@ -319,7 +319,7 @@ export function BlogPageMediaGallery({
                 type="button"
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isDeleting && (
                   <svg
