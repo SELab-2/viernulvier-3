@@ -16,6 +16,7 @@ import { getAllProductionGroups } from "~/features/archive/services/productionGr
 import type { Blog, BlogCreate } from "../types/blogTypes";
 import { createBlog } from "../services/blogService";
 import { uploadMediaForBlog } from "../services/mediaService";
+import { useUnsavedChangesBlocker } from "~/features/archive/utils/productionPageFunctions";
 
 function BackToArchiveLink() {
   const { t } = useTranslation();
@@ -307,6 +308,7 @@ export function CreateBlogPage() {
   const lp = useLocalizedPath();
 
   const isTitleEmpty = title.trim() === "";
+  const isContentEmpty = contentHtml === "" || contentHtml === "<p></p>";
   const canSave = !isTitleEmpty && !isEditing && !isSaving;
 
   const selectedLanguage = lang === "nl" ? "nl" : "en";
@@ -316,6 +318,14 @@ export function CreateBlogPage() {
     : isTitleEmpty
       ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
       : "";
+
+  useUnsavedChangesBlocker(
+    !isSaving &&
+      (!isTitleEmpty ||
+        !isContentEmpty ||
+        mediaFiles.length > 0 ||
+        productionGroup !== null)
+  );
 
   async function handleSave() {
     if (!canSave) return;
