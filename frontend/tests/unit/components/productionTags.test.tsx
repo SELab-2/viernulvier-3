@@ -66,6 +66,7 @@ describe("Tags", () => {
     await user.click(await screen.findByText("Experimental"));
     expect(screen.getByText("Experimental")).toBeInTheDocument();
   });
+  
   it("removes a tag", async () => {
     const user = userEvent.setup();
     render(<TagsTestWrapper initialTags={[mockTags[0]]} />);
@@ -76,6 +77,7 @@ describe("Tags", () => {
 
     expect(screen.queryByText("Classical")).not.toBeInTheDocument();
   });
+  
   it("filters tags based on search", async () => {
     const user = userEvent.setup();
     vi.mocked(getAllTags).mockResolvedValue(mockTags);
