@@ -194,11 +194,16 @@ function SeriesSearchBar({
   }, [productionGroup]);
 
   function normalizeProductionGroupText(value: string): string {
-    return value
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+    return (
+      value
+        // Split accented characters into their base letter and combining marks.
+        .normalize("NFKD")
+        // Drop the combining marks so query values stay ASCII-only.
+        .replace(/[\u0300-\u036f]/g, "")
+        // Make matching case-insensitive and remove accidental surrounding spaces.
+        .toLowerCase()
+        .trim()
+    );
   }
 
   function matchesProductionGroupQuery(
@@ -325,6 +330,7 @@ export function CreateBlogPage() {
     };
     try {
       const createdBlog: Blog = await createBlog(newBlog);
+      // Regex match on the url BASE_URL/blogs/{id} and ignoring any possible url arguments after ?
       const blogNumericId = createdBlog.id_url.match(/\/blogs\/(\d+)(?:[/?#]|$)/)?.[1];
       if (blogNumericId && mediaFiles.length > 0) {
         const id = parseInt(blogNumericId, 10);
