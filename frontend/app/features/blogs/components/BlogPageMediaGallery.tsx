@@ -46,7 +46,6 @@ export function BlogPageMediaGallery({
 }: BlogPageMediaGalleryProps) {
   const { t } = useTranslation();
   const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
-  // Maps image url -> media id_url, only populated in editing mode
   const [mediaIdUrlByImageUrl, setMediaIdUrlByImageUrl] = useState<Record<string, string>>({});
   const [confirmDeleteImageUrl, setConfirmDeleteImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -121,15 +120,7 @@ export function BlogPageMediaGallery({
       seen.add(url);
       return true;
     });
-    return unique.length > 0
-      ? unique
-      : [
-          FALLBACK_IMAGE_URL,
-          FALLBACK_IMAGE_URL,
-          FALLBACK_IMAGE_URL,
-          FALLBACK_IMAGE_URL,
-          FALLBACK_IMAGE_URL,
-        ];
+	return unique
   }, [mediaImageUrls, contentImageUrls]);
 
   const handleUploadClick = () => {
@@ -192,7 +183,7 @@ export function BlogPageMediaGallery({
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
-                  {t("blogs.contentPage.uploading", "Uploading…")}
+                  {t("blogs.contentPage.uploading")}
                 </>
               ) : (
                 <>
@@ -201,7 +192,7 @@ export function BlogPageMediaGallery({
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  {t("blogs.contentPage.uploadImage", "Upload image")}
+                  {t("blogs.contentPage.uploadMedia")}
                 </>
               )}
             </button>
@@ -220,7 +211,7 @@ export function BlogPageMediaGallery({
           ref={evidenceTrackRef}
           className="flex cursor-default gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin]"
         >
-          {imageUrls.map((url, index) => (
+          {imageUrls.length > 0 ? imageUrls.map((url, index) => (
             <figure
               key={`${url}-${index}`}
               className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
@@ -236,7 +227,7 @@ export function BlogPageMediaGallery({
                 <button
                   type="button"
                   onClick={() => setConfirmDeleteImageUrl(url)}
-                  aria-label={t("blogs.contentPage.deleteImage", "Delete image")}
+                  aria-label={t("blogs.contentPage.deleteMedia")}
                   className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 hover:bg-red-600/80 group-hover:opacity-100"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -249,7 +240,11 @@ export function BlogPageMediaGallery({
                 </button>
               )}
             </figure>
-          ))}
+          )) :
+              <p className="text-center font-serif text-3xl tracking-tighter opacity-50">
+                {t("blogs.contentPage.noMedia")}
+              </p>
+		  }
         </div>
       </section>
 
@@ -262,10 +257,10 @@ export function BlogPageMediaGallery({
         >
           <div className="bg-archive-surface mx-4 w-full max-w-sm rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_16%,transparent)] p-6 shadow-xl">
             <h4 id="delete-dialog-title" className="mb-2 font-serif text-xl">
-              {t("blogs.contentPage.deleteConfirmTitle", "Delete image?")}
+              {t("blogs.contentPage.edit.confirmTitle")}
             </h4>
             <p className="mb-6 text-sm opacity-60">
-              {t("blogs.contentPage.deleteConfirmBody", "This action cannot be undone.")}
+              {t("blogs.contentPage.edit.confirmBody")}
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -274,7 +269,7 @@ export function BlogPageMediaGallery({
                 disabled={isDeleting}
                 className="rounded-lg px-4 py-2 text-sm font-medium opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed"
               >
-                {t("common.cancel", "Cancel")}
+                {t("blogs.contentPage.edit.cancel")}
               </button>
               <button
                 type="button"
@@ -287,7 +282,7 @@ export function BlogPageMediaGallery({
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
                 )}
-                {t("common.delete", "Delete")}
+                {t("blogs.contentPage.edit.delete")}
               </button>
             </div>
           </div>

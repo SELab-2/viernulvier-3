@@ -240,13 +240,20 @@
       "searchProductionGroups": "Search for groups",
       "fallback": "No translation available",
       "media": "Linked media:",
+	  "uploading": "Uploading...",
+	  "uploadMedia": "Upload media",
+	  "deleteMedia": "Delete media",
+	  "noMedia": "No media for this blog",
       "edit": {
         "title": "Edit title",
         "content": "Edit content",
         "edit": "Edit blog",
         "cancel": "Cancel",
         "save": "Save",
-        "add": "Add content"
+        "add": "Add content",
+		"delete": "Delete",
+	    "confirmTitle": "Are you sure you want to delete this file?",
+	    "confirmBody": "This action cannot be undone."
       },
       "archivePhotoAlt": "{{title}} - Photo {{index}}"
     },
