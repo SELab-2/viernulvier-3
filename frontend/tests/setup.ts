@@ -28,25 +28,30 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.explore": "I18N_Home_Button_Explore",
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
-  "archive.create_production": "I18_Archive_Create_Production",
-  "archive.productionGroups.actions.create": "Create production group",
-  "archive.productionGroups.actions.creating": "Creating...",
-  "archive.productionGroups.actions.cancel": "Cancel",
-  "archive.productionGroups.dialog.title": "Create a production group",
+  "archive.create_production": "I18N_Archive_Create_Production",
+  "archive.productionGroups.actions.create":
+    "I18N_Archive_ProductionGroups_Actions_Create",
+  "archive.productionGroups.actions.creating":
+    "I18N_Archive_ProductionGroups_Actions_Creating",
+  "archive.productionGroups.actions.cancel":
+    "I18N_Archive_ProductionGroups_Actions_Cancel",
+  "archive.productionGroups.dialog.title": "I18N_Archive_ProductionGroups_Dialog_Title",
   "archive.productionGroups.dialog.description":
-    "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
-  "archive.productionGroups.dialog.selectedCount": "{{count}} selected productions",
-  "archive.productionGroups.dialog.nameLabel": "Group title",
+    "I18N_Archive_ProductionGroups_Dialog_Description",
+  "archive.productionGroups.dialog.selectedCount":
+    "I18N_Archive_ProductionGroups_Dialog_SelectedCount_{{count}}",
+  "archive.productionGroups.dialog.nameLabel":
+    "I18N_Archive_ProductionGroups_Dialog_NameLabel",
   "archive.productionGroups.dialog.publicLabel":
-    "Show this group in the public archive filters",
+    "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
   "archive.productionGroups.dialog.publicHint":
-    "When enabled, visitors can use this production group as a filter in the archive.",
+    "I18N_Archive_ProductionGroups_Dialog_PublicHint",
   "archive.productionGroups.messages.titleRequired":
-    "A production group title is required.",
+    "I18N_Archive_ProductionGroups_Messages_TitleRequired",
   "archive.productionGroups.messages.noProductionsSelected":
-    "Select at least one production before creating a production group.",
+    "I18N_Archive_ProductionGroups_Messages_NoProductionsSelected",
   "archive.productionGroups.messages.createFailed":
-    "Could not create the production group.",
+    "I18N_Archive_ProductionGroups_Messages_CreateFailed",
   "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
   "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",

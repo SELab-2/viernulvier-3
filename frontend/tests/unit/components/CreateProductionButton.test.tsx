@@ -51,14 +51,16 @@ describe("CreateProductionButton", () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(adminUser);
     await renderArchiveAndNavigate();
 
-    expect(screen.queryByText("I18_Archive_Create_Production")).toBeInTheDocument();
+    expect(screen.queryByText("I18N_Archive_Create_Production")).toBeInTheDocument();
   });
 
   it("create button is not visible without rights", async () => {
     vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(studentUser);
     await renderArchiveAndNavigate();
 
-    expect(screen.queryByText("I18_Archive_Create_Production")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("I18N_Archive_Create_Production")
+    ).not.toBeInTheDocument();
   });
 
   it("navigating with rights shows CreateProductionPage", async () => {

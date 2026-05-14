@@ -42,8 +42,15 @@ describe("CreateProductionGroupDialog", () => {
       />
     );
 
-    await user.type(screen.getByLabelText("Group title"), "  Autumn series  ");
-    await user.click(screen.getByRole("button", { name: "Create production group" }));
+    await user.type(
+      screen.getByLabelText("I18N_Archive_ProductionGroups_Dialog_NameLabel"),
+      "  Autumn series  "
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "I18N_Archive_ProductionGroups_Actions_Create",
+      })
+    );
 
     await waitFor(() => {
       expect(productionGroupServiceModule.createProductionGroup).toHaveBeenCalledWith({
@@ -78,8 +85,15 @@ describe("CreateProductionGroupDialog", () => {
       />
     );
 
-    await user.type(screen.getByLabelText("Group title"), "Autumn series");
-    await user.click(screen.getByRole("button", { name: "Create production group" }));
+    await user.type(
+      screen.getByLabelText("I18N_Archive_ProductionGroups_Dialog_NameLabel"),
+      "Autumn series"
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "I18N_Archive_ProductionGroups_Actions_Create",
+      })
+    );
 
     expect(
       await screen.findByText("A production group with this title already exists.")
