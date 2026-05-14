@@ -37,6 +37,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
                 api_event_to_model_event(json_event)
             )
 
+            # Find the event to update in our database
             existing_event: Event = db_session.scalar(
                 select(Event).where(
                     Event.viernulvier_id == updated_event.viernulvier_id
@@ -74,6 +75,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
             if viernulvier_hall_id:
                 internal_hall_id = hall_map.get(viernulvier_hall_id)
                 if not internal_hall_id:
+                    # Linked hall not in our DB, ignoring
                     logger.warning(
                         f"[UPDATE] Event "
                         f"(viernulvier_id={updated_event.viernulvier_id}) "
@@ -82,6 +84,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
                         "Not updating the hall for this event."
                     )
                 elif internal_hall_id != existing_event.hall_id:
+                    # Linked hall is different, updating event
                     old_hall_vnv_id = (
                         existing_event.hall.viernulvier_id
                         if existing_event.hall
@@ -94,6 +97,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
                     )
                     existing_event.hall_id = old_hall_vnv_id
             elif existing_event.hall_id:
+                # Hall got deleted
                 logger.info(
                     f"[UPDATE] hall for "
                     f"Event(viernulvier_id={existing_event.viernulvier_id})"
@@ -102,6 +106,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
                 )
                 existing_event.hall_id = None
 
+            # Update the simple fields that do not depend on other tables in DB
             sync_simple_fields(
                 existing_event,
                 updated_event,
@@ -112,6 +117,7 @@ def store_updated_events(db_session: Session, events: list[dict]):
             # No need to call db_session.merge(), it already is updated by
             # sqlalchemy
 
+            # Set newest_timestamp to later update sync_state DB table
             updated_at_str = json_event.get("updated_at")
             if updated_at_str:
                 updated_at = datetime.fromisoformat(updated_at_str)
