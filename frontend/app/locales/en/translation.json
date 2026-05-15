@@ -144,7 +144,9 @@
       "artist": "Artist",
       "description": "Description",
       "teaser": "Teaser",
-      "info": "Info"
+      "info": "Info",
+      "search_tags": "Search tags...",
+      "no_tags": "No tags found"
     },
     "delete": {
       "delete": "Delete",
