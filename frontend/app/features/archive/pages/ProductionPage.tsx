@@ -1,4 +1,4 @@
-import { useBlocker, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import React, {
   useCallback,
@@ -10,7 +10,12 @@ import React, {
 } from "react";
 import Add from "@mui/icons-material/Add";
 import Close from "@mui/icons-material/Close";
-import DOMPurify from "dompurify";
+import {
+  getSanitizedHtmlOrUndefined,
+  getTextOrDefault,
+  useUnsavedChangesBlocker,
+  isEmptyHtml,
+} from "../utils/productionPageFunctions";
 
 import type {
   Production,
@@ -59,30 +64,6 @@ function getProductionInfoByLanguage(
     return languageMatch;
   }
   return null;
-}
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
-
-function getSanitizedHtmlOrUndefined(
-  value: string | null | undefined
-): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmedValue = value.trim();
-  if (trimmedValue.length === 0) {
-    return undefined;
-  }
-
-  return DOMPurify.sanitize(trimmedValue);
 }
 
 function getEventTimestamp(startsAt?: string): number {
@@ -168,7 +149,7 @@ async function handleInfoSave(
   skipUnloadWarning: React.RefObject<boolean>,
   setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  if (!draftInfo || !originalInfo) return;
+  if (!draftInfo) return;
   setIsSaving(true);
   try {
     await updateProductionByUrl(production_id_url, {
@@ -247,32 +228,6 @@ async function handleInfoSave(
   } finally {
     setIsSaving(false);
   }
-}
-
-function useUnsavedChangesBlocker(when: boolean) {
-  const blocker = useBlocker(when);
-  const blockerRef = useRef(blocker);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    blockerRef.current = blocker;
-  });
-
-  const tRef = useRef(t);
-  useEffect(() => {
-    tRef.current = t;
-  });
-
-  useEffect(() => {
-    if (blockerRef.current.state === "blocked") {
-      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
-      if (confirmLeave) {
-        blockerRef.current.proceed();
-      } else {
-        blockerRef.current.reset();
-      }
-    }
-  }, [blocker.state]);
 }
 
 type TagListItemProps = React.LiHTMLAttributes<HTMLLIElement> & {
@@ -868,9 +823,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               infoHtml={infoHtml}
               isEditing={isEditing}
               onSave={(field, html) => {
-                const isEmpty = html === "<p><br></p>" || html === "";
                 setDraftInfo((prev) =>
-                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                  prev ? { ...prev, [field]: isEmptyHtml(html) ? null : html } : prev
                 );
               }}
               onQuillDirtyChange={useCallback(

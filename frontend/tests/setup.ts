@@ -29,6 +29,7 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
   "archive.create_production": "I18N_Archive_Create_Production",
+  "archive.add_info.title": "I18_Archive_addInfo_Title",
   "archive.productionGroups.actions.create":
     "I18N_Archive_ProductionGroups_Actions_Create",
   "archive.productionGroups.actions.creating":
@@ -128,6 +129,8 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.title": "I18N_ProductionInfo_Edit_Title",
   "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
+  "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
+  "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

@@ -4,14 +4,7 @@ import ComplexEditableField from "~/shared/components/ComplexEditableField";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
+import { getTextOrDefault } from "../utils/productionPageFunctions";
 
 function isFieldModified(
   original: string | undefined,

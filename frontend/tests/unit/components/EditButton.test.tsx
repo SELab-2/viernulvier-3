@@ -104,10 +104,10 @@ describe("EditButton", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "productionPage.edit.save" })
+        screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Save" })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: "productionPage.edit.cancel" })
+        screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Cancel" })
       ).toBeInTheDocument();
     });
   });
@@ -118,7 +118,7 @@ describe("EditButton", () => {
     renderEditButton({ isEditing: true });
 
     const cancelButton = await screen.findByRole("button", {
-      name: "productionPage.edit.cancel",
+      name: "I18N_ProductionPage_Edit_Cancel",
     });
 
     await user.click(cancelButton);
@@ -136,7 +136,7 @@ describe("EditButton", () => {
     renderEditButton({ isEditing: true });
 
     const saveButton = await screen.findByRole("button", {
-      name: "productionPage.edit.save",
+      name: "I18N_ProductionPage_Edit_Save",
     });
 
     await user.click(saveButton);
@@ -151,7 +151,7 @@ describe("EditButton", () => {
     });
 
     const saveButton = await screen.findByRole("button", {
-      name: "productionPage.edit.save",
+      name: "I18N_ProductionPage_Edit_Save",
     });
 
     expect(saveButton).toBeDisabled();

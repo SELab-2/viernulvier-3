@@ -52,6 +52,7 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
     "productionGroups": {
       "actions": {
         "create": "Maak productiegroep",
@@ -150,7 +151,7 @@
       "no_tags": "Geen tags gevonden"
     },
     "delete": {
-      "delete": "Verwijder",
+      "delete": "Verwijder info (nl)",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
     }

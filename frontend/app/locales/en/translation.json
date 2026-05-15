@@ -41,6 +41,7 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "create_error": "Error whilst creating production: ",
     "productionGroups": {
       "actions": {
         "create": "Create production group",
@@ -150,7 +151,7 @@
       "no_tags": "No tags found"
     },
     "delete": {
-      "delete": "Delete",
+      "delete": "Delete info (en)",
       "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
       "error": "Error: Each production should have info in at least one language."
     }
