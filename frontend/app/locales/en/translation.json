@@ -68,6 +68,8 @@
       "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
     },
     "add_info": {
+      "performer_type": "Add type performer",
+      "attendance_mode": "Add mode of attendance",
       "supertitle": "Add supertitle",
       "title": "Add title",
       "artist": "Add artist",
@@ -108,6 +110,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Not available.",
+      "unknownAttendanceMode": "Not available.",
       "unknownProduction": "Information in this language is not available.",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
@@ -141,6 +145,8 @@
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
+      "attendance_mode": "Attendance Mode",
+      "performer_type": "Type of Performer",
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",

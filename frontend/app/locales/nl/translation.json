@@ -79,6 +79,8 @@
       "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
     },
     "add_info": {
+      "performer_type": "Voeg soort artiest toe",
+      "attendance_mode": "voeg aanwezigheidsmodus toe",
       "supertitle": "Voeg een supertitel toe",
       "title": "Voeg een titel toe",
       "artist": "Voeg een artiest toe",
@@ -108,6 +110,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Niet beschikbaar.",
+      "unknownAttendanceMode": "Niet beschikbaar.",
       "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
@@ -141,6 +145,8 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
+      "attendance_mode": "Aanwezigheidsmodus",
+      "performer_type": "Soort artiest",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
