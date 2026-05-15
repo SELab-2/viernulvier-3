@@ -213,10 +213,6 @@ function SeriesSearchBar({
   ): boolean {
     const normalizedQuery = normalizeProductionGroupText(query);
 
-    if (normalizedQuery.length === 0) {
-      return false;
-    }
-
     return normalizeProductionGroupText(productionGroup.title).includes(
       normalizedQuery
     );
