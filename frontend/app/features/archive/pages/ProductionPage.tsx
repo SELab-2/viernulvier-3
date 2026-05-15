@@ -915,7 +915,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                     halls={allHalls}
                     isNewEvents={true}
                   />
-                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                  <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
                     <NewEventButton
                       onClick={() => {
                         setNewEvents((prev) => [...prev, createEmptyEvent()]);
