@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
 import { EditButton } from "~/features/archive/components/EditButton";
 import type { Tag } from "~/features/archive/types/tagTypes";
@@ -81,6 +82,7 @@ function renderEditButton(overrides = {}, user = baseUser) {
         originalAttendanceMode=""
         originalPerformerType=""
         {...overrides}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
       />
     </AuthSessionProvider>
   );

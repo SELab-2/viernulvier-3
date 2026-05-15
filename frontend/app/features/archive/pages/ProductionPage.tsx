@@ -854,7 +854,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         />
 
         <Tags
-          performer_type={production.performer_type}
+          performer_type={originalPerformerType}
           originalTags={originalTags}
           draftTags={draftTags}
           setDraftTags={setDraftTags}
@@ -971,6 +971,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
           {!isEditing ? (
             <DeleteInfoButton
@@ -1000,6 +1001,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
         </div>
       )}

@@ -38,6 +38,10 @@ export function ProductionHeader({
   const modified = (orig: string | undefined, draft: string | undefined) =>
     !isCreateHeader && isFieldModified(orig, draft);
 
+  const permissions = isCreateHeader
+    ? [ARCHIVE_PERMISSIONS.create]
+    : [ARCHIVE_PERMISSIONS.update];
+
   return (
     <section
       id="production-header"
@@ -72,7 +76,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.title")}
@@ -95,7 +99,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.artist")}
@@ -117,7 +121,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
       </div>
     </section>

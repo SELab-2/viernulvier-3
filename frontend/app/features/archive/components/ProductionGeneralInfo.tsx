@@ -37,6 +37,10 @@ export function ProductionGeneralInfo({
   const modified = (orig: string | undefined, draft: string | undefined) =>
     !isCreateGeneralInfo && isFieldModified(orig, draft);
 
+  const permissions = isCreateGeneralInfo
+    ? [ARCHIVE_PERMISSIONS.create]
+    : [ARCHIVE_PERMISSIONS.update];
+
   return (
     <div className="flex w-full gap-4">
       <div className="flex-1">
@@ -47,10 +51,8 @@ export function ProductionGeneralInfo({
           onChange={(value) => onSave("attendance_mode", value)}
           label={t("productionPage.edit.attendance_mode")}
           renderView={(value) => (
-            <p className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl">
-              <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
-                {t("productionPage.edit.attendance_mode")}:
-              </span>{" "}
+            <p className="bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none">
+              <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-4">{t("productionPage.edit.attendance_mode")}:</span>{" "}
               {getTextOrDefault(
                 value,
                 t("productionPage.fallback.unknownAttendanceMode")
@@ -58,7 +60,7 @@ export function ProductionGeneralInfo({
             </p>
           )}
           isModified={modified(originalAttendanceMode, attendanceMode)}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
       </div>
       <div className="flex-1">
@@ -69,7 +71,7 @@ export function ProductionGeneralInfo({
           onChange={(value) => onSave("performer_type", value)}
           label={t("productionPage.edit.performer_type")}
           renderView={(value) => (
-            <p className="archive-artist-chic mt-2 text-xl text-[#f0e4d3]/90 md:text-2xl">
+            <p className="bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none">
               <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
                 {t("productionPage.edit.performer_type")}:
               </span>{" "}
@@ -80,7 +82,7 @@ export function ProductionGeneralInfo({
             </p>
           )}
           isModified={modified(originalPerformerType, performerType)}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
       </div>
     </div>

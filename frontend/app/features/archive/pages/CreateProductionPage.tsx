@@ -13,6 +13,7 @@ import {
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -233,6 +234,7 @@ export function CreateProductionPage() {
             _handleSave={_handleAddProduction}
             originalTags={null}
             setDraftTags={() => {}}
+            permissions={[ARCHIVE_PERMISSIONS.create]}
           />
         </div>
       </main>

@@ -1,5 +1,4 @@
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "../types/tagTypes";
@@ -31,6 +30,7 @@ type EditButtonProps = {
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
+  permissions: string[];
 };
 
 export function EditButton({
@@ -52,6 +52,7 @@ export function EditButton({
   enable_save,
   is_saving,
   _handleSave,
+  permissions,
 }: EditButtonProps) {
   const { t } = useTranslation();
   const shared_css = `
@@ -67,7 +68,7 @@ export function EditButton({
     font-semibold text-white
   `;
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+    <Protected permissions={permissions}>
       {!isEditing ? (
         <button
           id="edit-production-button"
