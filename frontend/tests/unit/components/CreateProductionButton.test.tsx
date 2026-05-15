@@ -7,7 +7,6 @@ import * as productionService from "~/features/archive/services/productionServic
 import * as productionGroupService from "~/features/archive/services/productionGroupService";
 import * as tagService from "~/features/archive/services/tagService";
 import * as loginServiceModule from "~/features/auth/services/loginService";
-import * as productionGroupService from "~/features/archive/services/productionGroupService";
 
 vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/productionGroupService");
