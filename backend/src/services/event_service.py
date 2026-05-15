@@ -10,7 +10,7 @@ from src.api.exceptions import NotFoundError, ValidationError
 def extract_id(url: str | None) -> int | None:
     if not url:
         return None
-    return int(url.rstrip("/").split("/")[-1])
+    return int(url.split("/")[-1])
 
 
 def build_event_response(db: Session, event: Event, base_url: str) -> EventResponse:
