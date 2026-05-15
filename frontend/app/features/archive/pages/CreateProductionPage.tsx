@@ -181,9 +181,9 @@ export function CreateProductionPage() {
         />
         <section id="production-info" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            <ProductionGeneralInfo 
+            <ProductionGeneralInfo
               isCreateGeneralInfo={true}
-              isEditing={true} 
+              isEditing={true}
               attendanceMode={draftAttendanceMode}
               originalAttendanceMode={undefined}
               performerType={draftPerformerType}
@@ -225,8 +225,8 @@ export function CreateProductionPage() {
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
             enable_save={isInfoModified(draftInfo) || isQuillDirty}
-            setDraftAttendanceMode={()=>{}}
-            setDraftPerformerType={()=>{}}
+            setDraftAttendanceMode={() => {}}
+            setDraftPerformerType={() => {}}
             originalAttendanceMode=""
             originalPerformerType=""
             is_saving={isSaving}

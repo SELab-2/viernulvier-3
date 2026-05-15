@@ -39,8 +39,6 @@ describe("ProductionGeneralInfo", () => {
       screen.getByText(/productionPage.edit.attendance_mode/i)
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByText(/productionPage.edit.performer_type/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/productionPage.edit.performer_type/i)).toBeInTheDocument();
   });
 });

@@ -38,9 +38,7 @@ export function ProductionGeneralInfo({
     !isCreateGeneralInfo && isFieldModified(orig, draft);
 
   return (
-    <div
-      className="flex gap-4 w-full"
-    >
+    <div className="flex w-full gap-4">
       <div className="flex-1">
         <SimpleEditableField
           value={attendanceMode}
@@ -53,7 +51,10 @@ export function ProductionGeneralInfo({
               <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
                 {t("productionPage.edit.attendance_mode")}:
               </span>{" "}
-              {getTextOrDefault(value, t("productionPage.fallback.unknownAttendanceMode"))}
+              {getTextOrDefault(
+                value,
+                t("productionPage.fallback.unknownAttendanceMode")
+              )}
             </p>
           )}
           isModified={modified(originalAttendanceMode, attendanceMode)}
@@ -72,7 +73,10 @@ export function ProductionGeneralInfo({
               <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
                 {t("productionPage.edit.performer_type")}:
               </span>{" "}
-              {getTextOrDefault(value, t("productionPage.fallback.unknownPerformerType"))}
+              {getTextOrDefault(
+                value,
+                t("productionPage.fallback.unknownPerformerType")
+              )}
             </p>
           )}
           isModified={modified(originalPerformerType, performerType)}

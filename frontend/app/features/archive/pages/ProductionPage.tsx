@@ -555,12 +555,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
   const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
-  
+
   // General Info
-  const [draftPerformerType, setDraftPerformerType] = useState<string>(production.performer_type ?? "");
-  const [draftAttendanceMode, setDraftAttendanceMode] = useState<string>(production.attendance_mode ?? "");
-  const [originalPerformerType, setOriginalPerformerType] = useState<string>(production.performer_type ?? "");
-  const [originalAttendanceMode, setOriginalAttendanceMode] = useState<string>(production.attendance_mode ?? "");
+  const [draftPerformerType, setDraftPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [draftAttendanceMode, setDraftAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
+  const [originalPerformerType, setOriginalPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [originalAttendanceMode, setOriginalAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -607,10 +615,28 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     if (originalInfo === null) {
       return isEditing; // With add always true.
     }
-    const generalModified = originalAttendanceMode !== draftAttendanceMode || originalPerformerType !== draftPerformerType;
+    const generalModified =
+      originalAttendanceMode !== draftAttendanceMode ||
+      originalPerformerType !== draftPerformerType;
     const tagsModified = areTagsModified(originalTags, draftTags);
-    return tagsModified || generalModified || isInfoModified(originalInfo, draftInfo) || areEventsModified;
-  }, [originalInfo, draftInfo, isEditing, originalTags, draftTags, areEventsModified, originalAttendanceMode, draftAttendanceMode, originalPerformerType, draftPerformerType]);
+    return (
+      tagsModified ||
+      generalModified ||
+      isInfoModified(originalInfo, draftInfo) ||
+      areEventsModified
+    );
+  }, [
+    originalInfo,
+    draftInfo,
+    isEditing,
+    originalTags,
+    draftTags,
+    areEventsModified,
+    originalAttendanceMode,
+    draftAttendanceMode,
+    originalPerformerType,
+    draftPerformerType,
+  ]);
 
   // Helper to create an empty event when pressing new event button
   function createEmptyEvent(): EventWithResolvedRelations {
@@ -837,9 +863,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
-            <ProductionGeneralInfo 
+            <ProductionGeneralInfo
               isCreateGeneralInfo={false}
-              isEditing={isEditing} 
+              isEditing={isEditing}
               attendanceMode={draftAttendanceMode}
               originalAttendanceMode={originalAttendanceMode}
               performerType={draftPerformerType}
