@@ -263,6 +263,12 @@
       "linkedProductions": "Gelinkte producties:",
       "fallback": "Geen vertaling beschikbaar",
       "media": "Gelinkte media:",
+      "delete": {
+        "delete": "Blog verwijderen",
+        "deleting": "Bezig met verwijderen...",
+        "confirm": "Ben je zeker dat je deze blog wil verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "error": "De blog kon niet verwijderd worden. Probeer opnieuw."
+      },
       "edit": {
         "title": "Pas titel aan",
         "content": "Pas inhoud aan",
