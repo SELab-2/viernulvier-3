@@ -1,5 +1,4 @@
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
 import type { Tag } from "../types/tagTypes";
@@ -24,9 +23,14 @@ type EditButtonProps = {
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDraftAttendanceMode: React.Dispatch<React.SetStateAction<string>>;
+  setDraftPerformerType: React.Dispatch<React.SetStateAction<string>>;
+  originalAttendanceMode: string;
+  originalPerformerType: string;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
+  permissions: string[];
 };
 
 export function EditButton({
@@ -41,9 +45,14 @@ export function EditButton({
   setDraftEvents,
   setNewEvents,
   setDeletedEvents,
+  setDraftAttendanceMode,
+  setDraftPerformerType,
+  originalAttendanceMode,
+  originalPerformerType,
   enable_save,
   is_saving,
   _handleSave,
+  permissions,
 }: EditButtonProps) {
   const { t } = useTranslation();
   const shared_css = `
@@ -59,7 +68,7 @@ export function EditButton({
     font-semibold text-white
   `;
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+    <Protected permissions={permissions}>
       {!isEditing ? (
         <button
           id="edit-production-button"
@@ -82,6 +91,8 @@ export function EditButton({
               setNewEvents([]);
               setDeletedEvents([]);
               setIsEditing(false);
+              setDraftAttendanceMode(originalAttendanceMode);
+              setDraftPerformerType(originalPerformerType);
             }}
             className={`${shared_css} bg-gray-300`}
           >
