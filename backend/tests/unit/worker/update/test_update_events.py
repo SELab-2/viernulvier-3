@@ -1,9 +1,3 @@
-"""
-Dit bestand gebruikt nogal veel van tests/unit/worker/test_stores.py.
-Superveel eigenlijk. Dit omdat het logisch is om eerst een store te doen,
-en daarna de data aan te passen om te updaten
-"""
-
 import logging
 from copy import deepcopy
 from datetime import datetime

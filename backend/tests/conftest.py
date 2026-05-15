@@ -1,4 +1,3 @@
-# Configuratie van integratietesten
 import os
 import sqlite3
 from datetime import datetime, timezone
@@ -20,12 +19,12 @@ from src.models.tag import Tag, TagName
 from src.services.language import Languages
 from src.services.media import get_minio_client
 
-# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
-# via omgevingsvariabelen.
-# Val terug op in-memory SQLite voor snelle, lokale developer testen.
+# Let CI/CD pipelines inject a real PostgreSQL test database URL via
+# environment variables.
+# Fall back onto in-memory SQLite for faster local testing
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
 
-# Configureer de engine op basis van het database type
+# Config database engine depending on type of database
 if TEST_DATABASE_URL.startswith("sqlite"):
     test_engine = create_engine(
         TEST_DATABASE_URL,
@@ -33,8 +32,8 @@ if TEST_DATABASE_URL.startswith("sqlite"):
         poolclass=StaticPool,
     )
 
-    # SQLite forceert foreign keys standaard niet.
-    # Activeer dit expliciet zodat lokale tests dichter bij PostgreSQL gedrag zitten.
+    # By default SQLite does not enforce foreign key constraingst, so we activate
+    # this explicitly to behave more closely like PostgreSQL
     @event.listens_for(test_engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
         if isinstance(dbapi_connection, sqlite3.Connection):
@@ -42,7 +41,6 @@ if TEST_DATABASE_URL.startswith("sqlite"):
             cursor.execute("PRAGMA foreign_keys=ON;")
             cursor.close()
 else:
-    # Voor PostgreSQL hebben we de SQLite-specifieke argumenten niet nodig
     if TEST_DATABASE_URL.startswith("postgresql://"):
         TEST_DATABASE_URL = TEST_DATABASE_URL.replace(
             "postgresql://", "postgresql+psycopg2://"
@@ -52,7 +50,7 @@ else:
 TEST_SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
-# Overschrijf dependency
+# Overwrite dependency
 def override_get_db():
     db = TEST_SESSION_LOCAL()
     try:
@@ -63,18 +61,19 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-    # Maak tabellen aan voordat testen draaien
+    # Make the tables before starting tests
     Base.metadata.create_all(bind=test_engine)
     yield
-    # Verwijder tabellen nadat testen klaar zijn
+    # And remove them when tests are done
     Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Levert een database sessie voor unit testen.
-    Omdat setup_test_db autouse=True is, zijn de tabellen al aangemaakt.
+    Yields a database session for unit tests.
+    Because setup_test_db() has autouse=True, the tables for this db will
+    already have been created.
     """
     db = TEST_SESSION_LOCAL()
     try:
