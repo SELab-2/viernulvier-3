@@ -12,10 +12,11 @@ import {
   useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
-import { EventSection, Tags } from "./ProductionPage";
 import type { Tag } from "../types/tagTypes";
 import type { EventWithResolvedRelations } from "../components/EventCard";
 import { createEvent } from "../services/eventService";
+import Tags from "../components/TagSection";
+import EventSection from "../components/EventSection";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
