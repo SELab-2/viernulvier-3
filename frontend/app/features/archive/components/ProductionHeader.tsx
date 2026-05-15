@@ -2,14 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ProductionInfo } from "../types/productionTypes";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
+import { getTextOrDefault } from "../utils/productionPageFunctions";
 
 function isFieldModified(
   original: string | undefined,

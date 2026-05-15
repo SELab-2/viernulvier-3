@@ -105,3 +105,7 @@ def test_not_implemented_error():
     with pytest.raises(NotImplementedError):
         fetcher = PagedFetcher(None)
         fetcher.get_new_items_after(123)
+
+    with pytest.raises(NotImplementedError):
+        fetcher = PagedFetcher(None)
+        fetcher.get_updated_items_after(123)

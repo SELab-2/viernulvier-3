@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { EditButton } from "~/features/archive/components/EditButton";
+import type { Tag } from "~/features/archive/types/tagTypes";
 
 import { AuthSessionProvider } from "~/features/auth";
 import * as loginServiceModule from "~/features/auth/services/loginService";
@@ -29,11 +30,28 @@ const originalEvents = [
   },
 ];
 
+const originalTags: Tag[] = [
+  {
+    id_url: "http://id_url/tags/1",
+    names: [
+      {
+        language: "en",
+        name: "tag_name",
+      },
+      {
+        language: "nl",
+        name: "tag_naam",
+      },
+    ],
+  },
+];
+
 const setIsEditing = vi.fn();
 const setDraftInfo = vi.fn();
 const setDraftEvents = vi.fn();
 const setNewEvents = vi.fn();
 const setDeletedEvents = vi.fn();
+const setDraftTags = vi.fn();
 const handleSave = vi.fn();
 
 function renderEditButton(overrides = {}, user = baseUser) {
@@ -51,6 +69,8 @@ function renderEditButton(overrides = {}, user = baseUser) {
         setDraftEvents={setDraftEvents}
         setNewEvents={setNewEvents}
         setDeletedEvents={setDeletedEvents}
+        originalTags={originalTags}
+        setDraftTags={setDraftTags}
         enable_save={true}
         is_saving={false}
         _handleSave={handleSave}
@@ -84,10 +104,10 @@ describe("EditButton", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "productionPage.edit.save" })
+        screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Save" })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: "productionPage.edit.cancel" })
+        screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Cancel" })
       ).toBeInTheDocument();
     });
   });
@@ -98,7 +118,7 @@ describe("EditButton", () => {
     renderEditButton({ isEditing: true });
 
     const cancelButton = await screen.findByRole("button", {
-      name: "productionPage.edit.cancel",
+      name: "I18N_ProductionPage_Edit_Cancel",
     });
 
     await user.click(cancelButton);
@@ -116,7 +136,7 @@ describe("EditButton", () => {
     renderEditButton({ isEditing: true });
 
     const saveButton = await screen.findByRole("button", {
-      name: "productionPage.edit.save",
+      name: "I18N_ProductionPage_Edit_Save",
     });
 
     await user.click(saveButton);
@@ -131,7 +151,7 @@ describe("EditButton", () => {
     });
 
     const saveButton = await screen.findByRole("button", {
-      name: "productionPage.edit.save",
+      name: "I18N_ProductionPage_Edit_Save",
     });
 
     expect(saveButton).toBeDisabled();

@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import SearchIcon from "@mui/icons-material/Search";
 import PermMediaOutlinedIcon from "@mui/icons-material/PermMediaOutlined";
@@ -11,6 +11,12 @@ import Tooltip from "@mui/material/Tooltip";
 import LinearProgress from "@mui/material/LinearProgress";
 import ComplexEditableField from "~/shared/components/ComplexEditableField";
 import { BLOG_PERMISSIONS } from "../blog.constants";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
+import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
+import type { Blog, BlogCreate } from "../types/blogTypes";
+import { createBlog } from "../services/blogService";
+import { uploadMediaForBlog } from "../services/mediaService";
+import { useUnsavedChangesBlocker } from "~/features/archive/utils/productionPageFunctions";
 
 function BackToArchiveLink() {
   const { t } = useTranslation();
@@ -25,9 +31,13 @@ function BackToArchiveLink() {
   );
 }
 
-type MediaPreview = { src: string; isVideo: boolean };
+type MediaPreview = { src: string; isVideo: boolean; file: File };
 
-function MediaUploadWidget() {
+type MediaUploadWidgetProps = {
+  onFilesChange: (files: File[]) => void;
+};
+
+function MediaUploadWidget({ onFilesChange }: MediaUploadWidgetProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<MediaPreview[]>([]);
@@ -40,12 +50,21 @@ function MediaUploadWidget() {
       .map((f) => ({
         src: URL.createObjectURL(f),
         isVideo: f.type.startsWith("video/"),
+        file: f,
       }));
-    setPreviews((prev) => [...prev, ...newPreviews]);
+    setPreviews((prev) => {
+      const updated = [...prev, ...newPreviews];
+      onFilesChange(updated.map((p) => p.file));
+      return updated;
+    });
   }
 
   function removePreview(index: number) {
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      onFilesChange(updated.map((p) => p.file));
+      return updated;
+    });
   }
 
   return (
@@ -138,9 +157,77 @@ function MediaUploadWidget() {
   );
 }
 
-function SeriesSearchBar() {
+type SeriesSearchBarProps = {
+  productionGroup: ProductionGroup | null;
+  setProductionGroup: React.Dispatch<React.SetStateAction<ProductionGroup | null>>;
+};
+
+function SeriesSearchBar({
+  productionGroup,
+  setProductionGroup,
+}: SeriesSearchBarProps) {
+  const [allProductionGroups, setAllProductionGroups] = useState<ProductionGroup[]>([]);
+  const [selectedProductionGroup, setSelectedProductionGroup] =
+    useState<ProductionGroup | null>(null);
+  const [groupQuery, setGroupQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const { t } = useTranslation();
-  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadAllGroups() {
+      try {
+        const groups = await getAllProductionGroups();
+        if (!cancelled) {
+          setAllProductionGroups(groups);
+          const current =
+            groups.find((g) => g.id_url === productionGroup?.id_url) ?? null;
+          setSelectedProductionGroup(current);
+        }
+      } catch {
+        if (!cancelled) setAllProductionGroups([]);
+      }
+    }
+    void loadAllGroups();
+    return () => {
+      cancelled = true;
+    };
+  }, [productionGroup]);
+
+  function normalizeProductionGroupText(value: string): string {
+    return (
+      value
+        // Split accented characters into their base letter and combining marks.
+        .normalize("NFKD")
+        // Drop the combining marks so query values stay ASCII-only.
+        .replace(/[\u0300-\u036f]/g, "")
+        // Make matching case-insensitive and remove accidental surrounding spaces.
+        .toLowerCase()
+        .trim()
+    );
+  }
+
+  function matchesProductionGroupQuery(
+    productionGroup: ProductionGroup,
+    query: string
+  ): boolean {
+    const normalizedQuery = normalizeProductionGroupText(query);
+
+    return normalizeProductionGroupText(productionGroup.title).includes(
+      normalizedQuery
+    );
+  }
+
+  const filteredProductionGroups =
+    groupQuery.trim().length > 0
+      ? allProductionGroups.filter((pg) => matchesProductionGroupQuery(pg, groupQuery))
+      : allProductionGroups;
+
+  const selectGroup = (pg: ProductionGroup) => {
+    setSelectedProductionGroup(pg);
+    setProductionGroup(pg);
+    setGroupQuery("");
+  };
 
   return (
     <div className="mt-2">
@@ -150,27 +237,47 @@ function SeriesSearchBar() {
         </h3>
       </div>
 
-      <div className="relative flex items-center">
-        <SearchIcon
-          className="text-archive-ink/40 absolute left-3"
-          style={{ fontSize: 18 }}
-        />
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("blogs.createBlogPage.series.searchSeries")}
-          className={`bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition focus:ring-4 focus:outline-none`}
-        />
-        {query && (
-          <IconButton
-            size="small"
-            onClick={() => setQuery("")}
-            className="!absolute !right-2"
+      <div className="space-y-3" style={{ maxWidth: "min(25%, 280px)" }}>
+        {selectedProductionGroup && (
+          <button
+            onClick={() => {
+              setSelectedProductionGroup(null);
+              setProductionGroup(null);
+            }}
+            className="flex w-full items-center justify-between gap-2 rounded-lg border border-current/20 bg-white/5 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-white/10"
           >
-            <CloseIcon style={{ fontSize: 14 }} />
-          </IconButton>
+            <span>{selectedProductionGroup.title}</span>
+            <span className="text-xs opacity-40">✕</span>
+          </button>
         )}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder={t("blogs.createBlogPage.series.searchSeries")}
+            className="w-full rounded-lg border border-current/20 bg-white/5 px-3 py-2 pr-8 text-sm transition-colors outline-none placeholder:opacity-40 focus:border-current/40 focus:bg-white/10"
+            value={groupQuery}
+            onChange={(e) => setGroupQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+          <SearchIcon
+            className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 opacity-25"
+            fontSize="inherit"
+          />
+          {isFocused && filteredProductionGroups.length > 0 && (
+            <ul className="border-archive-ink/10 bg-archive-paper absolute right-0 left-0 z-10 overflow-hidden rounded-xl border shadow-lg">
+              {filteredProductionGroups.map((pg) => (
+                <li
+                  key={pg.id_url}
+                  onMouseDown={() => selectGroup(pg)}
+                  className="hover:bg-archive-accent cursor-pointer px-4 py-2 text-[11px] font-medium transition-colors hover:text-white"
+                >
+                  {pg.title}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -185,25 +292,64 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 }
 
 export function CreateBlogPage() {
-  const { t } = useTranslation();
   const [isSaving, setIsSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [contentHtml, setContentHtml] = useState("");
   const [isEditing, setIsEditing] = useState(true);
+  const [productionGroup, setProductionGroup] = useState<ProductionGroup | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const { t } = useTranslation();
+  const { lang } = useParams();
+  const navigate = useNavigate();
+  const lp = useLocalizedPath();
 
   const isTitleEmpty = title.trim() === "";
+  const isContentEmpty = contentHtml === "" || contentHtml === "<p></p>";
   const canSave = !isTitleEmpty && !isEditing && !isSaving;
 
-  const saveTooltip = isTitleEmpty
-    ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
-    : isEditing
-      ? t("blogs.createBlogPage.save.saveDisabledReasonEditing")
+  const selectedLanguage = lang === "nl" ? "nl" : "en";
+
+  const saveTooltip = isEditing
+    ? t("blogs.createBlogPage.save.saveDisabledReasonEditing")
+    : isTitleEmpty
+      ? t("blogs.createBlogPage.save.saveDisabledReasonTitle")
       : "";
 
-  function handleSave() {
+  useUnsavedChangesBlocker(
+    !isSaving &&
+      (!isTitleEmpty ||
+        !isContentEmpty ||
+        mediaFiles.length > 0 ||
+        productionGroup !== null)
+  );
+
+  async function handleSave() {
     if (!canSave) return;
     setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1500);
+    const newBlog: BlogCreate = {
+      blog_content: {
+        language: selectedLanguage,
+        title: title,
+        content: contentHtml,
+      },
+      production_group_id_url: productionGroup?.id_url,
+    };
+    try {
+      const createdBlog: Blog = await createBlog(newBlog);
+      // Regex match on the url BASE_URL/blogs/{id} and ignoring any possible url arguments after ?
+      const blogNumericId = createdBlog.id_url.match(/\/blogs\/(\d+)(?:[/?#]|$)/)?.[1];
+      if (blogNumericId && mediaFiles.length > 0) {
+        const id = parseInt(blogNumericId, 10);
+        await Promise.allSettled(
+          mediaFiles.map((file) => uploadMediaForBlog(id, file))
+        );
+      }
+      navigate(lp("/blogs"));
+    } catch (err) {
+      window.alert(`Save failed: ${err}`);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -263,11 +409,14 @@ export function CreateBlogPage() {
           </SectionCard>
 
           <SectionCard>
-            <MediaUploadWidget />
+            <MediaUploadWidget onFilesChange={setMediaFiles} />
           </SectionCard>
 
           <SectionCard>
-            <SeriesSearchBar />
+            <SeriesSearchBar
+              productionGroup={productionGroup}
+              setProductionGroup={setProductionGroup}
+            />
           </SectionCard>
         </main>
 

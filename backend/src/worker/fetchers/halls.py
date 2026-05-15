@@ -10,6 +10,10 @@ class HallFetcher(PagedFetcher):
     halls.
     """
 
+    endpoint = "/locations"
+
+    # This class needs extra logic to get all the items, thus cannot fully
+    # use the PagedFetcher method
     def get_new_items_after(self, timestamp) -> list:
         """
         Get all halls after the given timestamp.
@@ -27,8 +31,7 @@ class HallFetcher(PagedFetcher):
         :param timestamp: used to get new halls after (inclusive)
         """
 
-        parameters = {"created_at[after]": timestamp}
-        locations = self.fetch_all("/locations", parameters)
+        locations = super().get_new_items_after(timestamp)
         return self.resolve_locations(locations)
 
     def get_and_clear_partial_data(self) -> list[dict]:

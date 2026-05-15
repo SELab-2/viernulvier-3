@@ -7,6 +7,7 @@ import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { BlogPageMediaGallery } from "~/features/blogs/components/BlogPageMediaGallery";
+import { DeleteBlogButton } from "~/features/blogs/components/DeleteBlogButton";
 import { getProductionInfoByLanguage } from "~/features/archive/components/ProductionCard";
 import { Divider } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -444,6 +445,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
 
   const language = preferredLanguage ?? lang!;
   const blogContent = getBlogContentByLanguage(blog.blog_contents, language);
+  const blogNumericId = blog.id_url.match(/\/blogs\/(\d+)(?:[/?#]|$)/)?.[1];
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [originalContent, setOriginalContent] = useState<BlogContent | null>(
@@ -570,6 +572,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
           />
           {originalContent !== null ? (
             <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+              {blogNumericId && <DeleteBlogButton blogId={Number(blogNumericId)} />}
               <BlogEditButton
                 action={t("blogs.contentPage.edit.edit")}
                 isEditing={isEditing}
@@ -589,6 +592,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             </div>
           ) : (
             <div className="fixed right-6 bottom-6 z-50 flex gap-3">
+              {blogNumericId && <DeleteBlogButton blogId={Number(blogNumericId)} />}
               <BlogEditButton
                 action={t("blogs.contentPage.edit.add")}
                 isEditing={isEditing}
