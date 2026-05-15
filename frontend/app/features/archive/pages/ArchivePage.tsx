@@ -6,7 +6,8 @@ import { Outlet, useSearchParams } from "react-router";
 
 import { ProductionTimeline } from "~/features/archive/components/ProductionTimeline";
 import { getAllProductionGroups } from "~/features/archive/services/productionGroupService";
-import { Button, Divider } from "@mui/material";
+import { Button, Divider, IconButton, Tooltip } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { getProductionsPaginated } from "~/features/archive/services/productionService";
 import type { ProductionList } from "~/features/archive/types/productionTypes";
 import FilterSidebar from "../components/FilterSidebar";
@@ -384,30 +385,56 @@ export default function ArchivePage() {
                   </Button>
                 </Protected>
                 <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
-                  {selectedProductionGroupForDeletion ? (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() =>
-                        setProductionGroupToDelete(selectedProductionGroupForDeletion)
-                      }
-                      sx={{
-                        "borderColor": "rgba(192, 57, 43, 0.4)",
-                        "color": "#c0392b",
-                        "fontFamily": "var(--font-sans)",
-                        "textTransform": "uppercase",
-                        "letterSpacing": "0.08em",
-                        "fontSize": "0.72rem",
-                        "fontWeight": 600,
-                        "&:hover": {
-                          borderColor: "rgba(192, 57, 43, 0.55)",
-                          backgroundColor: "rgba(192, 57, 43, 0.08)",
-                        },
-                      }}
+                  <div className="flex items-center gap-1.5">
+                    <Tooltip
+                      title={t("archive.productionGroups.deleteInfo.tooltip")}
+                      arrow
                     >
-                      {t("archive.productionGroups.actions.delete")}
-                    </Button>
-                  ) : null}
+                      <IconButton
+                        type="button"
+                        size="small"
+                        aria-label={t("archive.productionGroups.deleteInfo.ariaLabel")}
+                        sx={{
+                          "color": "var(--color-archive-ink)",
+                          "opacity": 0.55,
+                          "padding": 0.5,
+                          "transition":
+                            "opacity 150ms ease, background-color 150ms ease",
+                          "&:hover": {
+                            opacity: 1,
+                            backgroundColor:
+                              "color-mix(in srgb, var(--color-archive-accent) 10%, transparent)",
+                          },
+                        }}
+                      >
+                        <InfoOutlinedIcon fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
+                    {selectedProductionGroupForDeletion ? (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          setProductionGroupToDelete(selectedProductionGroupForDeletion)
+                        }
+                        sx={{
+                          "borderColor": "rgba(192, 57, 43, 0.4)",
+                          "color": "#c0392b",
+                          "fontFamily": "var(--font-sans)",
+                          "textTransform": "uppercase",
+                          "letterSpacing": "0.08em",
+                          "fontSize": "0.72rem",
+                          "fontWeight": 600,
+                          "&:hover": {
+                            borderColor: "rgba(192, 57, 43, 0.55)",
+                            backgroundColor: "rgba(192, 57, 43, 0.08)",
+                          },
+                        }}
+                      >
+                        {t("archive.productionGroups.actions.delete")}
+                      </Button>
+                    ) : null}
+                  </div>
                 </Protected>
                 <Button
                   variant="outlined"

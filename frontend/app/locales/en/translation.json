@@ -49,6 +49,10 @@
         "deleting": "Deleting...",
         "cancel": "Cancel"
       },
+      "deleteInfo": {
+        "ariaLabel": "How to delete a production group",
+        "tooltip": "To delete a production group, first select that group in the filters and then select every production from it. Once the full group is selected, the delete button will appear."
+      },
       "dialog": {
         "title": "Create a production group",
         "description": "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",

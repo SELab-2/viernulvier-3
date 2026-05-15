@@ -60,6 +60,10 @@
         "deleting": "Bezig met verwijderen...",
         "cancel": "Annuleer"
       },
+      "deleteInfo": {
+        "ariaLabel": "Hoe je een productiegroep verwijdert",
+        "tooltip": "Om een productiegroep te verwijderen, selecteer je eerst die groep in de filters en daarna alle producties uit die groep. Zodra de volledige groep geselecteerd is, verschijnt de verwijderknop."
+      },
       "dialog": {
         "title": "Maak een productiegroep",
         "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",

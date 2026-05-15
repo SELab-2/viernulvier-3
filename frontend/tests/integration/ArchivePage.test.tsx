@@ -163,6 +163,12 @@ describe("Archive", () => {
 
     const user = await selectAllVisibleProductions();
 
+    expect(
+      await screen.findByRole("button", {
+        name: "I18N_Archive_ProductionGroups_DeleteInfo_AriaLabel",
+      })
+    ).toBeInTheDocument();
+
     await user.click(
       await screen.findByRole("button", {
         name: "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",

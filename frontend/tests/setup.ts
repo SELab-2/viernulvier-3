@@ -37,6 +37,10 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
   "archive.productionGroups.actions.deleting":
     "I18N_Archive_ProductionGroups_Actions_Deleting",
+  "archive.productionGroups.deleteInfo.ariaLabel":
+    "I18N_Archive_ProductionGroups_DeleteInfo_AriaLabel",
+  "archive.productionGroups.deleteInfo.tooltip":
+    "I18N_Archive_ProductionGroups_DeleteInfo_Tooltip",
   "archive.productionGroups.actions.cancel":
     "I18N_Archive_ProductionGroups_Actions_Cancel",
   "archive.productionGroups.dialog.title": "I18N_Archive_ProductionGroups_Dialog_Title",
