@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { isEmptyHtml, getSanitizedHtmlOrUndefined, getTextOrDefault, useUnsavedChangesBlocker } from "~/features/archive/utils/productionPageFunctions";
+import {
+  isEmptyHtml,
+  getSanitizedHtmlOrUndefined,
+  getTextOrDefault,
+  useUnsavedChangesBlocker,
+} from "~/features/archive/utils/productionPageFunctions";
 import { renderHook } from "@testing-library/react";
 
 vi.mock("dompurify", () => ({
@@ -15,8 +20,6 @@ vi.mock("react-router", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-
-
 
 describe("isEmptyHtml", () => {
   it("gives true for empty string", () => {
@@ -117,17 +120,17 @@ describe("useUnsavedChangesBlocker", () => {
     const { useBlocker } = await import("react-router");
 
     vi.mocked(useBlocker).mockReturnValue({
-        state: "blocked",
-        proceed,
-        reset,
-        location: {
-            pathname: "/test",
-            search: "",
-            hash: "",
-            state: null,
-            key: "default",
-            unstable_mask: undefined
-        },
+      state: "blocked",
+      proceed,
+      reset,
+      location: {
+        pathname: "/test",
+        search: "",
+        hash: "",
+        state: null,
+        key: "default",
+        unstable_mask: undefined,
+      },
     });
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
@@ -144,17 +147,17 @@ describe("useUnsavedChangesBlocker", () => {
     const { useBlocker } = await import("react-router");
 
     vi.mocked(useBlocker).mockReturnValue({
-        state: "blocked",
-        proceed,
-        reset,
-        location: {
-            pathname: "/test",
-            search: "",
-            hash: "",
-            state: null,
-            key: "default",
-            unstable_mask: undefined
-        },
+      state: "blocked",
+      proceed,
+      reset,
+      location: {
+        pathname: "/test",
+        search: "",
+        hash: "",
+        state: null,
+        key: "default",
+        unstable_mask: undefined,
+      },
     });
     vi.spyOn(window, "confirm").mockReturnValue(false);
 
