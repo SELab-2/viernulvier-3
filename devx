@@ -331,7 +331,10 @@ function test_cmd() {
 			ci)
 				run docker compose -f docker-compose.ci.yml \
 					--project-name viernulvier-ci \
-					exec -T backend pytest tests/
+					up --build -d --wait
+				run docker compose -f docker-compose.ci.yml \
+					--project-name viernulvier-ci \
+					exec -T backend pytest "${3:-tests/}"
 				;;
 			esac
 	fi

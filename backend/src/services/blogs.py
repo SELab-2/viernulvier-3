@@ -1,7 +1,10 @@
+from minio import Minio
 from sqlalchemy import asc, desc
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
+from src.config import settings
 from src.models import Blog, BlogContent
+from src.models.media import Media
 from src.models.production import Production
 from src.models.production_group import ProductionGroup
 from src.schemas.pagination import Pagination
@@ -16,6 +19,7 @@ from src.schemas.blogs import (
 )
 from src.api.exceptions import NotFoundError, ValidationError
 from src.services.production import SortOrder
+from typing import Optional
 
 
 def build_blog_content_response(
@@ -58,10 +62,10 @@ def build_blog_response(
 
 def get_production_group_for_blog(
     db: Session, blog_id: int, base_url: str
-) -> list[str]:
+) -> Optional[str]:
     blog = db.get(Blog, blog_id)
     if not blog or not blog.production_group:
-        return ""
+        return None
 
     return f"{base_url}/production-groups/{blog.production_group.id}"
 
@@ -167,7 +171,7 @@ def create_blog(db: Session, blog_in: BlogCreate, base_url: str) -> BlogResponse
 
     production_group = None
     if production_group_id_url is not None:
-        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+        production_group_id = int(production_group_id_url.split("/")[-1])
         production_group = (
             db.query(ProductionGroup)
             .filter(ProductionGroup.id == production_group_id)
@@ -199,18 +203,22 @@ def update_blog_by_id(
         raise NotFoundError("Blog", blog_id)
 
     if blog_in.production_group_id_url is not None:
-        production_group_id_url = blog_in.production_group_id_url
-        production_group_id = int(production_group_id_url.rstrip("/").split("/")[-1])
+        # unlink the production
+        if blog_in.production_group_id_url == "":
+            blog.production_group = None
+        else:
+            production_group_id_url = blog_in.production_group_id_url
+            production_group_id = int(production_group_id_url.split("/")[-1])
 
-        production_group = (
-            db.query(ProductionGroup)
-            .filter(ProductionGroup.id == production_group_id)
-            .first()
-        )
+            production_group = (
+                db.query(ProductionGroup)
+                .filter(ProductionGroup.id == production_group_id)
+                .first()
+            )
 
-        if production_group is None:
-            raise NotFoundError("production group", production_group_id)
-        blog.production_group = production_group
+            if production_group is None:
+                raise NotFoundError("production group", production_group_id)
+            blog.production_group = production_group
 
     if blog_in.blog_contents:
         for blog_content_in in blog_in.blog_contents:
@@ -246,10 +254,18 @@ def update_blog_by_id(
     return build_blog_response(db, blog, base_url)
 
 
-def delete_blog_by_id(db: Session, blog_id: int) -> bool:
+def delete_blog_by_id(db: Session, blog_id: int, minio_client: Minio) -> bool:
     blog = db.query(Blog).filter(Blog.id == blog_id).first()
     if not blog:
         raise NotFoundError("Blog", blog_id)
+
+    media_items = db.query(Media).filter(Media.blog_id == blog_id).all()
+    for media in media_items:
+        try:
+            minio_client.remove_object(settings.MINIO_BUCKET, media.object_key)
+        except Exception:
+            pass
+        db.delete(media)
 
     db.query(BlogContent).filter(BlogContent.blog_id == blog_id).delete()
     db.delete(blog)

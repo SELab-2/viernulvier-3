@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { getMediaForBlog } from "~/features/blogs/services/mediaService";
 
 const FALLBACK_IMAGE_URL =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
+  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit/crop";
 
 function extractImageSrcs(html: string): string[] {
   const imgRegex = /<img[^>]*\/?>/gi;
@@ -15,23 +17,93 @@ function extractImageSrcs(html: string): string[] {
   return srcs;
 }
 
+function getBlogNumericIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/blogs\/(\d+)(?:[/?#]|$)/);
+  if (!match) return undefined;
+  const parsedId = Number(match[1]);
+  return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : undefined;
+}
+
 type BlogPageMediaGalleryProps = {
   contentHtml: string;
   title: string;
+  blog_id_url: string;
 };
 
 export function BlogPageMediaGallery({
   contentHtml,
   title,
+  blog_id_url,
 }: BlogPageMediaGalleryProps) {
   const { t } = useTranslation();
+  const [mediaImageUrls, setMediaImageUrls] = useState<string[]>([]);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
 
+  const blogNumericId = useMemo(
+    () => getBlogNumericIdFromUrl(blog_id_url),
+    [blog_id_url]
+  );
+
+  useEffect(() => {
+    if (!blogNumericId) return;
+
+    let isCancelled = false;
+
+    const loadAllMediaImages = async () => {
+      try {
+        const imageUrlsSet = new Set<string>();
+        let cursor: number | undefined;
+        let hasMore = true;
+
+        while (hasMore) {
+          const response = await getMediaForBlog(blogNumericId, {
+            cursor,
+            limit: 50,
+          });
+
+          for (const media of response.media) {
+            if (!media.content_type.startsWith("image/")) {
+              continue;
+            }
+
+            imageUrlsSet.add(media.url);
+          }
+
+          cursor = response.pagination.next_cursor;
+          hasMore =
+            response.pagination.has_more &&
+            response.pagination.next_cursor !== undefined;
+        }
+
+        if (!isCancelled) {
+          setMediaImageUrls(Array.from(imageUrlsSet));
+        }
+      } catch {
+        if (!isCancelled) {
+          setMediaImageUrls([]);
+        }
+      }
+    };
+
+    void loadAllMediaImages();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [blogNumericId]);
+
+  const contentImageUrls = useMemo(() => extractImageSrcs(contentHtml), [contentHtml]);
+
   const imageUrls = useMemo(() => {
-    const extracted = extractImageSrcs(contentHtml);
-    // TODO: remove fallback array before production mirrors ProductionPageMediaGallery placeholder behaviour
-    return extracted.length > 0
-      ? extracted
+    const allUrls = [...mediaImageUrls, ...contentImageUrls];
+    const seen = new Set<string>();
+    const unique = allUrls.filter((url) => {
+      if (seen.has(url)) return false;
+      seen.add(url);
+      return true;
+    });
+    return unique.length > 0
+      ? unique
       : [
           FALLBACK_IMAGE_URL,
           FALLBACK_IMAGE_URL,
@@ -39,7 +111,7 @@ export function BlogPageMediaGallery({
           FALLBACK_IMAGE_URL,
           FALLBACK_IMAGE_URL,
         ];
-  }, [contentHtml]);
+  }, [mediaImageUrls, contentImageUrls]);
 
   return (
     <section
@@ -63,7 +135,7 @@ export function BlogPageMediaGallery({
           >
             <img
               src={url}
-              alt={t("blogPage.archivePhotoAlt", { title, index: index + 1 })}
+              alt={t("blogs.contentPage.archivePhotoAlt", { title, index: index + 1 })}
               loading="lazy"
               className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />

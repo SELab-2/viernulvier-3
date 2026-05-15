@@ -1,8 +1,21 @@
-import { Link, useBlocker, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Add from "@mui/icons-material/Add";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DOMPurify from "dompurify";
+import Close from "@mui/icons-material/Close";
+import {
+  getSanitizedHtmlOrUndefined,
+  getTextOrDefault,
+  useUnsavedChangesBlocker,
+  isEmptyHtml,
+} from "../utils/productionPageFunctions";
 
 import type {
   Production,
@@ -10,7 +23,6 @@ import type {
 } from "~/features/archive/types/productionTypes";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
-import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import {
   createEvent,
   getEventByUrl,
@@ -28,12 +40,16 @@ import { getMediaForProduction } from "~/features/archive/services/mediaService"
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
-
-import DeleteInfoButton from "../components/DeleteInfoButton";
-import EditButton from "../components/EditButton";
-import ProductionHeader from "../components/ProductionHeader";
+import type { Tag } from "../types/tagTypes";
+import { getAllTags } from "../services/tagService";
+import { BackToCollectionLink } from "../components/BackToCollectionLink";
+import { DeleteInfoButton } from "../components/DeleteInfoButton";
+import { EditButton } from "../components/EditButton";
+import { ProductionHeader } from "../components/ProductionHeader";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { useClickOutside } from "~/shared/hooks/useClickOutside";
+import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 
 interface ProductionPageProps {
   production: Production;
@@ -51,30 +67,6 @@ function getProductionInfoByLanguage(
   return null;
 }
 
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
-
-function getSanitizedHtmlOrUndefined(
-  value: string | null | undefined
-): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmedValue = value.trim();
-  if (trimmedValue.length === 0) {
-    return undefined;
-  }
-
-  return DOMPurify.sanitize(trimmedValue);
-}
-
 function getEventTimestamp(startsAt?: string): number {
   if (!startsAt) {
     return Number.POSITIVE_INFINITY;
@@ -89,22 +81,13 @@ function getEventTimestamp(startsAt?: string): number {
 }
 
 // prefer active language, then dutch, then first available tag name
-function getTagNamesByLanguage(production: Production, language: string): string[] {
-  if (!production.tags || production.tags.length === 0) {
-    return [];
+function getTagNameByLanguage(tag: Tag, language: string) {
+  let fallback = tag.names[0]?.name;
+  for (const name of tag.names) {
+    if (name.language === language) return name.name;
+    if (name.language === "nl") fallback = name.name;
   }
-
-  return production.tags
-    .map((tag) => {
-      const languageMatch = tag.names.find((name) => name.language === language);
-      if (languageMatch?.name) {
-        return languageMatch.name;
-      }
-
-      const defaultMatch = tag.names.find((name) => name.language === "nl");
-      return defaultMatch?.name ?? tag.names[0]?.name;
-    })
-    .filter((name): name is string => typeof name === "string" && name.length > 0);
+  return fallback;
 }
 
 function isInfoModified(
@@ -123,6 +106,17 @@ function isInfoModified(
     originalInfo.info !== draftInfo.info
   );
 }
+function areTagsModified(originalTags: Tag[], draftTags: Tag[]): boolean {
+  if (originalTags.length !== draftTags.length) {
+    return true;
+  }
+
+  const originalIds = originalTags.map((tag) => tag.id_url).sort();
+
+  const draftIds = draftTags.map((tag) => tag.id_url).sort();
+
+  return originalIds.some((id, index) => id !== draftIds[index]);
+}
 
 function isEventModified(original?: Event, draft?: Event): boolean {
   if (!original || !draft) return false;
@@ -136,10 +130,16 @@ function isEventModified(original?: Event, draft?: Event): boolean {
 }
 
 async function handleInfoSave(
-  production_id_url: string,
+  production: Production,
+  attendance_mode: string,
+  setOriginalAttendanceMode: React.Dispatch<React.SetStateAction<string>>,
+  performer_type: string,
+  setOriginalPerformerType: React.Dispatch<React.SetStateAction<string>>,
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
+  draftTags: Tag[],
+  setOriginalTags: React.Dispatch<React.SetStateAction<Tag[]>>,
   draftEvents: EventWithResolvedRelations[],
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   originalEvents: EventWithResolvedRelations[],
@@ -154,10 +154,14 @@ async function handleInfoSave(
   skipUnloadWarning: React.RefObject<boolean>,
   setSkipWarning: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  if (!draftInfo || !originalInfo) return;
+  if (!draftInfo) return;
   setIsSaving(true);
+
+  const production_id_url = production.id_url;
   try {
     await updateProductionByUrl(production_id_url, {
+      attendance_mode: attendance_mode,
+      performer_type: performer_type,
       production_infos: [
         {
           language: language,
@@ -170,6 +174,7 @@ async function handleInfoSave(
           info: draftInfo.info,
         },
       ],
+      tag_id_urls: draftTags.map((tag) => tag.id_url),
     });
 
     // Find and patch edited events
@@ -214,6 +219,9 @@ async function handleInfoSave(
     }
 
     // sync local "source of truth"
+    setOriginalAttendanceMode(attendance_mode);
+    setOriginalPerformerType(performer_type);
+    setOriginalTags(draftTags);
     setOriginalInfo(draftInfo);
     setOriginalEvents([...draftEvents, ...createdEvents]);
     setDraftEvents([...draftEvents, ...createdEvents]);
@@ -233,76 +241,202 @@ async function handleInfoSave(
   }
 }
 
-function useUnsavedChangesBlocker(when: boolean) {
-  const blocker = useBlocker(when);
-  const blockerRef = useRef(blocker);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    blockerRef.current = blocker;
-  });
-
-  const tRef = useRef(t);
-  useEffect(() => {
-    tRef.current = t;
-  });
-
-  useEffect(() => {
-    if (blockerRef.current.state === "blocked") {
-      const confirmLeave = window.confirm(tRef.current("notSaveChanges"));
-      if (confirmLeave) {
-        blockerRef.current.proceed();
-      } else {
-        blockerRef.current.reset();
-      }
-    }
-  }, [blocker.state]);
-}
-
-function BackToCollectionLink() {
-  const { t } = useTranslation();
-  const lp = useLocalizedPath();
+type TagListItemProps = React.LiHTMLAttributes<HTMLLIElement> & {
+  children: ReactNode;
+};
+function TagListItem({ className, children, ...props }: TagListItemProps) {
   return (
-    <Link
-      id="back-to-collection"
-      to={lp("/archive")}
-      className="font-sans text-[0.68rem] tracking-[0.24em] uppercase no-underline opacity-70 transition hover:opacity-100"
+    <li
+      className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[--archive-tracking-label] uppercase ${className}`}
+      {...props}
     >
-      {t("productionPage.backToCollection")}
-    </Link>
+      {children}
+    </li>
   );
 }
 
 type TagsProps = {
-  performer_type?: string | undefined;
-  tags: string[];
+  performer_type?: string;
+  originalTags: Tag[];
+  isEditing?: boolean;
+  draftTags: Tag[];
+  preferredLanguage?: string;
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
 };
 
-function Tags({ performer_type, tags }: TagsProps) {
+function TagDropdown({
+  allTags,
+  selectedTags,
+  setSelectedTags,
+  setIsOpen,
+  language,
+}: {
+  allTags: Tag[];
+  selectedTags: Tag[];
+  setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  language: string;
+}) {
+  const { t } = useTranslation();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [search, setSearch] = useState("");
+  function addTag(tag: Tag) {
+    setSelectedTags((prev) => {
+      const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
+
+      if (alreadyExists) {
+        return prev;
+      }
+
+      return [...prev, tag];
+    });
+
+    setSearch("");
+    setIsOpen(false);
+  }
+  const filteredTags = allTags.filter((tag) => {
+    const localizedName = getTagNameByLanguage(tag, language);
+
+    if (!localizedName) {
+      return false;
+    }
+
+    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
+
+    const alreadySelected = selectedTags.some(
+      (draftTag) => draftTag.id_url === tag.id_url
+    );
+
+    return matchesSearch && !alreadySelected;
+  });
+
+  useClickOutside(dropdownRef, () => {
+    setIsOpen(false);
+    setSearch("");
+  });
+
+  return (
+    <div
+      ref={dropdownRef}
+      data-testid="tag-dropdown"
+      className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl"
+    >
+      <input
+        type="text"
+        placeholder={t("productionPage.edit.search_tags")}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
+        autoFocus
+      />
+
+      <ul className="max-h-64 overflow-y-auto">
+        {filteredTags.map((tag) => (
+          <li key={tag.id_url}>
+            <button
+              className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
+              onClick={() => addTag(tag)}
+            >
+              {getTagNameByLanguage(tag, language)}
+            </button>
+          </li>
+        ))}
+
+        {filteredTags.length === 0 && (
+          <li className="px-3 py-2 text-sm opacity-60">
+            {t("productionPage.edit.no_tags")}
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
+export function Tags({
+  performer_type,
+  originalTags,
+  draftTags,
+  setDraftTags,
+  isEditing,
+  preferredLanguage,
+}: TagsProps) {
+  const { lang } = useParams();
+  const language = preferredLanguage ?? lang!;
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  useEffect(() => {
+    if (!isEditing) return;
+
+    getAllTags()
+      .then(setAllTags)
+      .catch(() => setAllTags([]));
+  }, [isEditing]);
+
+  function removeTag(id_url: string) {
+    setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
+  }
+
   return (
     <section id="production-tags" aria-label="Production tags">
+      {isEditing && (
+        <div className="flex items-center gap-2">
+          <p className="font-bold underline">Tags</p>
+        </div>
+      )}
+
       <ul className="mt-6 flex flex-wrap gap-2">
         {/* Performer type badge */}
         {performer_type && (
-          <li
+          <TagListItem
             id="tag-performer-type"
             aria-label="Performer type"
-            className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] px-4 py-1.5 text-[0.68rem] font-semibold tracking-[var(--archive-tracking-label)] uppercase opacity-90"
+            className="font-semibold"
           >
             {performer_type}
-          </li>
+          </TagListItem>
         )}
 
         {/* existing tags */}
-        {tags.map((tag) => (
-          <li
-            key={tag}
-            aria-label="Tag"
-            className="bg-archive-control rounded-full border border-[color:color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[var(--archive-tracking-label)] uppercase"
+        {!isEditing
+          ? originalTags.map((tag) => (
+              <TagListItem key={tag.id_url} aria-label="Tag">
+                {getTagNameByLanguage(tag, language)}
+              </TagListItem>
+            ))
+          : draftTags.map((tag) => (
+              <TagListItem key={tag.id_url}>
+                {getTagNameByLanguage(tag, language)}
+                <Close
+                  aria-label={`remove-${getTagNameByLanguage(tag, language)}`}
+                  sx={{ fontSize: "1rem" }}
+                  className="cursor-pointer text-red-500"
+                  onClick={() => removeTag(tag.id_url)}
+                />
+              </TagListItem>
+            ))}
+
+        {/* Add tag button */}
+        {isEditing && (
+          <button
+            className="cursor-pointer"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
           >
-            {tag}
-          </li>
-        ))}
+            <TagListItem key="add-tag" aria-label="Add Tag">
+              <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
+            </TagListItem>
+          </button>
+        )}
+        {isDropdownOpen && (
+          <TagDropdown
+            allTags={allTags}
+            selectedTags={draftTags}
+            setSelectedTags={setDraftTags}
+            setIsOpen={setIsDropdownOpen}
+            language={language}
+          />
+        )}
       </ul>
     </section>
   );
@@ -419,6 +553,23 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
     ...productionInfo!,
   });
+  const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
+  const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
+
+  // General Info
+  const [draftPerformerType, setDraftPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [draftAttendanceMode, setDraftAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
+  const [originalPerformerType, setOriginalPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [originalAttendanceMode, setOriginalAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
+
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // State containing all halls so that editable event cards don't have to each fetch all the halls themselves for every event
@@ -426,10 +577,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
   const _handleSave = () =>
     handleInfoSave(
-      production.id_url,
+      production,
+      draftAttendanceMode,
+      setOriginalAttendanceMode,
+      draftPerformerType,
+      setOriginalPerformerType,
       originalInfo,
       draftInfo,
       setOriginalInfo,
+      draftTags,
+      setOriginalTags,
       draftEvents,
       setDraftEvents,
       originalEvents,
@@ -458,8 +615,28 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     if (originalInfo === null) {
       return isEditing; // With add always true.
     }
-    return isInfoModified(originalInfo, draftInfo) || areEventsModified;
-  }, [originalInfo, draftInfo, areEventsModified, isEditing]);
+    const generalModified =
+      originalAttendanceMode !== draftAttendanceMode ||
+      originalPerformerType !== draftPerformerType;
+    const tagsModified = areTagsModified(originalTags, draftTags);
+    return (
+      tagsModified ||
+      generalModified ||
+      isInfoModified(originalInfo, draftInfo) ||
+      areEventsModified
+    );
+  }, [
+    originalInfo,
+    draftInfo,
+    isEditing,
+    originalTags,
+    draftTags,
+    areEventsModified,
+    originalAttendanceMode,
+    draftAttendanceMode,
+    originalPerformerType,
+    draftPerformerType,
+  ]);
 
   // Helper to create an empty event when pressing new event button
   function createEmptyEvent(): EventWithResolvedRelations {
@@ -518,7 +695,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     productionInfo?.title,
     t("productionPage.fallback.unknownProduction")
   );
-  const tagline = getTextOrDefault(productionInfo?.tagline, "");
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
@@ -528,7 +704,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
   const imageUrl = firstImageUrl ?? fallbackImageUrl;
-  const tags = getTagNamesByLanguage(production, language);
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
@@ -669,28 +844,47 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader
-          production_info={productionInfo}
           image_url={imageUrl}
           isEditing={isEditing}
           originalInfo={originalInfo}
           draftInfo={draftInfo}
           setDraftInfo={setDraftInfo}
+          isCreateHeader={false}
         />
 
-        <Tags performer_type={production.performer_type} tags={tags} />
+        <Tags
+          performer_type={originalPerformerType}
+          originalTags={originalTags}
+          draftTags={draftTags}
+          setDraftTags={setDraftTags}
+          isEditing={isEditing}
+        />
 
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+            <ProductionGeneralInfo
+              isCreateGeneralInfo={false}
+              isEditing={isEditing}
+              attendanceMode={draftAttendanceMode}
+              originalAttendanceMode={originalAttendanceMode}
+              performerType={draftPerformerType}
+              originalPerformerType={originalPerformerType}
+              onSave={(field, value) => {
+                if (field === "attendance_mode") setDraftAttendanceMode(value);
+                if (field === "performer_type") setDraftPerformerType(value);
+              }}
+            />
             <ProductionInfoSection
-              tagline={tagline}
+              isCreateInfo={false}
+              tagline={draftInfo?.tagline ?? ""}
+              originalTagline={originalInfo?.tagline ?? undefined}
               teaserHtml={teaserHtml}
               descriptionHtml={descriptionHtml}
               infoHtml={infoHtml}
               isEditing={isEditing}
               onSave={(field, html) => {
-                const isEmpty = html === "<p><br></p>" || html === "";
                 setDraftInfo((prev) =>
-                  prev ? { ...prev, [field]: isEmpty ? null : html } : prev
+                  prev ? { ...prev, [field]: isEmptyHtml(html) ? null : html } : prev
                 );
               }}
               onQuillDirtyChange={useCallback(
@@ -720,7 +914,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
                     halls={allHalls}
                     isNewEvents={true}
                   />
-                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+                  <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
                     <NewEventButton
                       onClick={() => {
                         setNewEvents((prev) => [...prev, createEmptyEvent()]);
@@ -763,13 +957,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setIsEditing={setIsEditing}
             originalInfo={originalInfo}
             setDraftInfo={setDraftInfo}
+            originalTags={originalTags}
+            setDraftTags={setDraftTags}
             originalEvents={originalEvents}
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setDraftAttendanceMode={setDraftAttendanceMode}
+            setDraftPerformerType={setDraftPerformerType}
+            originalAttendanceMode={originalAttendanceMode}
+            originalPerformerType={originalPerformerType}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
           {!isEditing ? (
             <DeleteInfoButton
@@ -786,13 +987,20 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setIsEditing={setIsEditing}
             originalInfo={null}
             setDraftInfo={setDraftInfo}
+            originalTags={originalTags}
+            setDraftTags={setDraftTags}
             originalEvents={originalEvents}
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setDraftAttendanceMode={setDraftAttendanceMode}
+            setDraftPerformerType={setDraftPerformerType}
+            originalAttendanceMode={originalAttendanceMode}
+            originalPerformerType={originalPerformerType}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
         </div>
       )}

@@ -42,6 +42,32 @@ def test_get_new_after_calls_fetch_all(fetcher_class, endpoint):
     assert result == ["data"]
 
 
+@pytest.mark.parametrize(
+    "fetcher_class, endpoint",
+    [
+        (ProductionFetcher, "/productions"),
+        (EventFetcher, "/events"),
+        (EventPriceFetcher, "/events/prices"),
+        (GenreFetcher, "/genres"),
+        (GalleryFetcher, "/media/galleries"),
+    ],
+)
+def test_get_updated_after_calls_fetch_all(fetcher_class, endpoint):
+    fetcher = fetcher_class(vnv_wrapper=MagicMock())
+
+    # Override the fetch_all() method that was inherited
+    fetcher.fetch_all = MagicMock(return_value=["data"])
+
+    result = fetcher.get_updated_items_after("2024-01-01")
+
+    # Check if the overriden method was called exactly once
+    fetcher.fetch_all.assert_called_once_with(
+        endpoint, {"updated_at[after]": "2024-01-01"}
+    )
+
+    assert result == ["data"]
+
+
 def test_hall_fetcher_resolves_locations():
     wrapper = MagicMock()
 

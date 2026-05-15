@@ -15,7 +15,7 @@ class BlogContentResponse(StrictModel):
 # The response for a blog
 class BlogResponse(StrictModel):
     id_url: str
-    production_group_id_url: str
+    production_group_id_url: Optional[str] = None
     blog_contents: list[BlogContentResponse] = Field(default_factory=list)
 
 

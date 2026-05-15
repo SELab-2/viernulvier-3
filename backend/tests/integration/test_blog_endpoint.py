@@ -206,7 +206,7 @@ def test_patch_blog_production_group_success(
     )
 
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
+    assert data["production_group_id_url"].split("/")[-1] == "1"
 
     response = client.patch(
         f"{BASE_BLOG_URL}/{id}",
@@ -216,7 +216,7 @@ def test_patch_blog_production_group_success(
 
     # Updated in response.
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
+    assert data["production_group_id_url"].split("/")[-1] == "2"
 
     response = client.get(
         BASE_BLOG_URL + f"/{id}",
@@ -224,7 +224,7 @@ def test_patch_blog_production_group_success(
 
     # Updated in database.
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
+    assert data["production_group_id_url"].split("/")[-1] == "2"
 
 
 # User with permissions can delete an existing content of an existing blog.
@@ -271,7 +271,7 @@ def test_create_blog_success(
 
     assert response.status_code == 201
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
+    assert data["production_group_id_url"].split("/")[-1] == "1"
     assert data["blog_contents"][0]["title"] == "Nieuwe blog"
 
 
@@ -291,6 +291,38 @@ def test_delete_blog_failure(client: TestClient, db_session: Session, blogs_limi
     )  # User can only create.
     response = client.delete(f"{BASE_BLOG_URL}/{blogs_limited[0].id}", headers=headers)
     assert response.status_code == 403
+
+
+# Deleting a blog that does not exist returns 404.
+def test_delete_blog_not_found(client: TestClient, db_session: Session):
+    headers = create_user_and_login(
+        client, db_session, "delete_blog_notfound_user", [Permissions.BLOG_DELETE]
+    )
+    response = client.delete(f"{BASE_BLOG_URL}/9999", headers=headers)
+    assert response.status_code == 404
+
+
+# Deleting a blog also removes its media from the database.
+def test_delete_blog_removes_media(
+    client: TestClient, db_session: Session, media_items_for_blog, blog_with_no_media
+):
+    from src.models.media import Media
+
+    headers = create_user_and_login(
+        client, db_session, "delete_blog_media_user", [Permissions.BLOG_DELETE]
+    )
+    blog_id = blog_with_no_media.id
+
+    media_count_before = (
+        db_session.query(Media).filter(Media.blog_id == blog_id).count()
+    )
+    assert media_count_before == 3
+
+    response = client.delete(f"{BASE_BLOG_URL}/{blog_id}", headers=headers)
+    assert response.status_code == 204
+
+    media_count_after = db_session.query(Media).filter(Media.blog_id == blog_id).count()
+    assert media_count_after == 0
 
 
 # Get blogs by production id returns all blogs linked to that production.

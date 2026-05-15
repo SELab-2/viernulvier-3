@@ -2,14 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ProductionInfo } from "../types/productionTypes";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
+import { getTextOrDefault } from "../utils/productionPageFunctions";
 
 function isFieldModified(
   original: string | undefined,
@@ -19,7 +12,7 @@ function isFieldModified(
 }
 
 type ProductionHeaderProps = {
-  production_info: ProductionInfo | null;
+  isCreateHeader: boolean;
   image_url: string;
   isEditing: boolean;
   originalInfo: ProductionInfo | null;
@@ -28,8 +21,8 @@ type ProductionHeaderProps = {
 };
 
 /* ProductionHeader contains main image, supertitle, title and artist */
-export default function ProductionHeader({
-  production_info,
+export function ProductionHeader({
+  isCreateHeader,
   image_url,
   isEditing,
   originalInfo,
@@ -38,6 +31,15 @@ export default function ProductionHeader({
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
 
+  const effectiveIsEditing = isCreateHeader || isEditing;
+
+  const modified = (orig: string | undefined, draft: string | undefined) =>
+    !isCreateHeader && isFieldModified(orig, draft);
+
+  const permissions = isCreateHeader
+    ? [ARCHIVE_PERMISSIONS.create]
+    : [ARCHIVE_PERMISSIONS.update];
+
   return (
     <section
       id="production-header"
@@ -45,7 +47,7 @@ export default function ProductionHeader({
     >
       <img
         src={image_url}
-        alt={production_info?.title}
+        alt={originalInfo?.title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
@@ -53,8 +55,9 @@ export default function ProductionHeader({
         <SimpleEditableField
           label={t("productionPage.edit.supertitle")}
           value={draftInfo?.supertitle ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.supertitle, draftInfo?.supertitle)}
+          placeholder={t("archive.add_info.supertitle")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.supertitle, draftInfo?.supertitle)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               // Overwrite supertitle
@@ -71,13 +74,14 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.title")}
           value={draftInfo?.title ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.title, draftInfo?.title)}
+          placeholder={t("archive.add_info.title")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.title, draftInfo?.title)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               // Overwrite title
@@ -93,13 +97,14 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.artist")}
           value={draftInfo?.artist ?? ""}
-          isEditing={isEditing}
-          isModified={isFieldModified(originalInfo?.artist, draftInfo?.artist)}
+          placeholder={t("archive.add_info.artist")}
+          isEditing={effectiveIsEditing}
+          isModified={modified(originalInfo?.artist, draftInfo?.artist)}
           onChange={(newValue) => {
             setDraftInfo((prev) => {
               if (prev) return { ...prev, artist: newValue };
@@ -114,7 +119,7 @@ export default function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
       </div>
     </section>

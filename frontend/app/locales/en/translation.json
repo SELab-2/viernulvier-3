@@ -9,12 +9,13 @@
     "blogs": "Blogs",
     "blogs_create": "Create Blog",
     "users": "Users",
-    "login": "Log in"
+    "visuals": "Visuals",
+    "login": "Log in",
+    "create_production": "Create production"
   },
   "footer": {
     "website": "Our official website"
   },
-
   "filter": {
     "search": "Search",
     "search_in_collection": "Search in our collection",
@@ -31,7 +32,6 @@
     "reset": "Reset filters",
     "toggle_menu": "Filter & Search"
   },
-
   "archive": {
     "title": "The Collection",
     "results": "results",
@@ -41,6 +41,43 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "create_error": "Error whilst creating production: ",
+    "productionGroups": {
+      "actions": {
+        "create": "Create production group",
+        "creating": "Creating...",
+        "cancel": "Cancel"
+      },
+      "dialog": {
+        "title": "Create a production group",
+        "description": "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
+        "selectedCount": "{{count}} selected productions",
+        "nameLabel": "Group title",
+        "publicLabel": "Show this group in the public archive filters",
+        "publicHint": "When enabled, visitors can use this production group as a filter in the archive."
+      },
+      "messages": {
+        "titleRequired": "A production group title is required.",
+        "noProductionsSelected": "Select at least one production before creating a production group.",
+        "createFailed": "Could not create the production group."
+      }
+    },
+    "accessDenied": {
+      "sectionLabel": "Restricted area",
+      "title": "You do not have access to the production creation page.",
+      "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
+    },
+    "add_info": {
+      "performer_type": "Add type performer",
+      "attendance_mode": "Add mode of attendance",
+      "supertitle": "Add supertitle",
+      "title": "Add title",
+      "artist": "Add artist",
+      "tagline": "Add tagline",
+      "teaser": "Add teaser",
+      "description": "Add description",
+      "info": "Add additional info"
+    },
     "selection": {
       "enter": "Select productions",
       "exit": "Done selecting",
@@ -73,6 +110,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Not available.",
+      "unknownAttendanceMode": "Not available.",
       "unknownProduction": "Information in this language is not available.",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
@@ -100,28 +139,29 @@
     "noPrice": "No price available",
     "address": "Address",
     "addressUnknown": "Address unknown",
-
     "visualEvidence": "Photos",
-
     "edit": {
       "add": "Add info",
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
+      "attendance_mode": "Attendance mode",
+      "performer_type": "Type of performer",
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",
       "description": "Description",
       "teaser": "Teaser",
-      "info": "Info"
+      "info": "Info",
+      "search_tags": "Search tags...",
+      "no_tags": "No tags found"
     },
     "delete": {
-      "delete": "Delete",
+      "delete": "Delete info (en)",
       "confirm": "Are you sure you want to delete this production info? This action cannot be undone.",
       "error": "Error: Each production should have info in at least one language."
     }
   },
-
   "home": {
     "title": "Windows to the Past",
     "description": "VIERNULVIER has always been a beacon of culture in Ghent. Our digital archive preserves these fragments of time — from the roar of underground concerts to the quiet poetry of experimental theatre.",
@@ -136,7 +176,6 @@
       "history": "Our History"
     }
   },
-
   "history": {
     "title": "The Echoes of the Building",
     "heroAlt": "A black-and-white photo of the inauguration of the Vooruit Festivities Hall in 1914, with a large crowd in front of the entrance.",
@@ -175,7 +214,6 @@
       }
     }
   },
-
   "blogs": {
     "searchPlaceholder": "Search blogs...",
     "title": "Blogs",
@@ -221,7 +259,7 @@
         "searchSeries": "Search for series"
       },
       "accessDenied": {
-        "eyebrow": "Restricted area",
+        "sectionLabel": "Restricted area",
         "title": "You do not have access to blog creation",
         "description": "This section requires the blogs:create permission. Contact an administrator if you need to create blogs."
       }
@@ -229,8 +267,15 @@
     "contentPage": {
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
+      "searchProductionGroups": "Search for groups",
       "fallback": "No translation available",
       "media": "Linked media:",
+      "delete": {
+        "delete": "Delete blog",
+        "deleting": "Deleting...",
+        "confirm": "Are you sure you want to delete this blog? This action cannot be undone.",
+        "error": "Failed to delete the blog. Please try again."
+      },
       "edit": {
         "title": "Edit title",
         "content": "Edit content",
@@ -238,14 +283,14 @@
         "cancel": "Cancel",
         "save": "Save",
         "add": "Add content"
-      }
+      },
+      "archivePhotoAlt": "{{title}} - Photo {{index}}"
     },
     "detail": {
       "title": "Blog",
       "comingSoon": "This blog page is coming soon."
     }
   },
-
   "auth": {
     "actions": {
       "login": "Login",
@@ -268,7 +313,6 @@
       }
     }
   },
-
   "users": {
     "sectionLabel": "Administration",
     "title": "User management",
@@ -413,5 +457,58 @@
       "history": "Our History"
     },
     "quote": "Minder is sometimes meer, but sometimes not"
+  },
+
+  "visuals": {
+    "title": "Visuals",
+    "subtitle": "A visual journey through the VIERNULVIER archive",
+    "heroAlt": "Archive visuals from VIERNULVIER",
+    "loading": "Loading visuals",
+    "errorTitle": "Could not load visuals",
+    "error": "The visuals could not be fetched from the server.",
+    "showMore": "Show more",
+    "count": "{{count}} items",
+    "delete": "Delete",
+    "filters": {
+      "all": "All"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Timetable",
+      "programme": "Programme",
+      "video": "Video",
+      "picture": "Picture",
+      "other": "Other"
+    },
+    "upload": {
+      "button": "Upload",
+      "uploading": "Uploading...",
+      "dialogTitle": "Upload new visual",
+      "dropOrBrowse": "Drop a file here or click to browse",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Give this visual a title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe this visual...",
+      "typeLabel": "Type",
+      "cancel": "Cancel",
+      "submit": "Upload"
+    },
+    "messages": {
+      "loadMoreFailed": "Could not load more: {{error}}",
+      "uploadFailed": "Upload failed: {{error}}",
+      "deleteFailed": "Delete failed: {{error}}",
+      "confirmDelete": "Are you sure you want to delete this visual?"
+    },
+    "card": {
+      "noTitle": "Untitled"
+    },
+    "empty": {
+      "title": "No visuals found",
+      "description": "No visuals are available for this filter yet."
+    },
+    "lightbox": {
+      "close": "Close"
+    }
   }
 }

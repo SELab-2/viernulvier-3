@@ -6,10 +6,10 @@ import { updateProductionByUrl } from "../services/productionService";
 async function handleInfoDelete(
   production_id_url: string,
   language: string,
-  confirmeMessage: string,
+  confirmMessage: string,
   errorMessage: string
 ) {
-  const confirmed = window.confirm(confirmeMessage);
+  const confirmed = window.confirm(confirmMessage);
   if (!confirmed) return;
   try {
     await updateProductionByUrl(production_id_url, {
@@ -26,7 +26,7 @@ type DeleteInfoButtonProps = {
   language: string;
 };
 
-export default function DeleteInfoButton({
+export function DeleteInfoButton({
   production_id_url,
   language,
 }: DeleteInfoButtonProps) {

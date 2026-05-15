@@ -1,11 +1,14 @@
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import type { ProductionInfo } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
+import type { Tag } from "../types/tagTypes";
 import type { EventWithResolvedRelations } from "./EventCard";
 
 const Spinner = () => (
-  <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+  <span
+    data-testid="spinner"
+    className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-white/40 border-t-white"
+  />
 );
 
 type EditButtonProps = {
@@ -14,28 +17,42 @@ type EditButtonProps = {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   originalInfo: ProductionInfo | null;
   setDraftInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>;
+  originalTags: Tag[] | null;
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   originalEvents: EventWithResolvedRelations[] | null;
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDraftAttendanceMode: React.Dispatch<React.SetStateAction<string>>;
+  setDraftPerformerType: React.Dispatch<React.SetStateAction<string>>;
+  originalAttendanceMode: string;
+  originalPerformerType: string;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
+  permissions: string[];
 };
 
-export default function EditButton({
+export function EditButton({
   action,
   isEditing,
   setIsEditing,
   originalInfo,
   setDraftInfo,
+  originalTags,
+  setDraftTags,
   originalEvents,
   setDraftEvents,
   setNewEvents,
   setDeletedEvents,
+  setDraftAttendanceMode,
+  setDraftPerformerType,
+  originalAttendanceMode,
+  originalPerformerType,
   enable_save,
   is_saving,
   _handleSave,
+  permissions,
 }: EditButtonProps) {
   const { t } = useTranslation();
   const shared_css = `
@@ -51,7 +68,7 @@ export default function EditButton({
     font-semibold text-white
   `;
   return (
-    <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+    <Protected permissions={permissions}>
       {!isEditing ? (
         <button
           id="edit-production-button"
@@ -67,12 +84,15 @@ export default function EditButton({
             onClick={() => {
               // Copy (not by reference)
               setDraftInfo(originalInfo ? { ...originalInfo } : null);
+              setDraftTags(originalTags ? [...originalTags] : []);
               setDraftEvents(
                 originalEvents ? originalEvents.map((e) => ({ ...e })) : []
               );
               setNewEvents([]);
               setDeletedEvents([]);
               setIsEditing(false);
+              setDraftAttendanceMode(originalAttendanceMode);
+              setDraftPerformerType(originalPerformerType);
             }}
             className={`${shared_css} bg-gray-300`}
           >
