@@ -9,6 +9,7 @@
     "blogs": "Blogs",
     "blogs_create": "Creëer Blog",
     "users": "Gebruikers",
+    "visuals": "Beeldmateriaal",
     "login": "Log in",
     "create_production": "Nieuwe productie"
   },
@@ -433,5 +434,58 @@
       "history": "Onze Geschiedenis"
     },
     "quote": "Less is soms more, maar soms ook niet"
+  },
+
+  "visuals": {
+    "title": "Beeldmateriaal",
+    "subtitle": "Een visuele reis door het archief van VIERNULVIER",
+    "heroAlt": "Archiefbeelden van VIERNULVIER",
+    "loading": "Beeldmateriaal wordt geladen",
+    "errorTitle": "Beeldmateriaal kon niet worden geladen",
+    "error": "Het beeldmateriaal kon niet worden opgehaald van de server.",
+    "showMore": "Toon meer",
+    "count": "{{count}} items",
+    "delete": "Verwijderen",
+    "filters": {
+      "all": "Alles"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Tijdschema",
+      "programme": "Programma",
+      "video": "Video",
+      "picture": "Foto",
+      "other": "Overig"
+    },
+    "upload": {
+      "button": "Uploaden",
+      "uploading": "Bezig met uploaden...",
+      "dialogTitle": "Nieuw beeldmateriaal uploaden",
+      "dropOrBrowse": "Sleep een bestand hierheen of klik om te bladeren",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef een titel voor dit beeldmateriaal",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf dit beeldmateriaal...",
+      "typeLabel": "Type",
+      "cancel": "Annuleren",
+      "submit": "Uploaden"
+    },
+    "messages": {
+      "loadMoreFailed": "Meer laden mislukt: {{error}}",
+      "uploadFailed": "Uploaden mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je dit beeldmateriaal wilt verwijderen?"
+    },
+    "card": {
+      "noTitle": "Zonder titel"
+    },
+    "empty": {
+      "title": "Geen beeldmateriaal gevonden",
+      "description": "Er is nog geen beeldmateriaal beschikbaar voor dit filter."
+    },
+    "lightbox": {
+      "close": "Sluiten"
+    }
   }
 }
