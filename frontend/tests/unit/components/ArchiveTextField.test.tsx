@@ -62,4 +62,17 @@ describe("ArchiveTextField", async () => {
       undefined
     );
   });
+
+  it("passes onChange to TextField", async () => {
+    const handleChange = vi.fn();
+
+    render(<ArchiveTextField onChange={handleChange} />);
+
+    expect(TextField).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onChange: handleChange,
+      }),
+      undefined
+    );
+  });
 });
