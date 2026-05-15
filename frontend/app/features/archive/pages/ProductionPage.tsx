@@ -254,12 +254,14 @@ type TagsProps = {
 };
 
 function TagDropdown({
+  isLoading,
   allTags,
   selectedTags,
   setSelectedTags,
   setIsOpen,
   language,
 }: {
+  isLoading?: boolean;
   allTags: Tag[];
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
@@ -319,24 +321,28 @@ function TagDropdown({
         autoFocus
       />
 
-      <ul className="max-h-64 overflow-y-auto">
-        {filteredTags.map((tag) => (
-          <li key={tag.id_url}>
-            <button
-              className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
-              onClick={() => addTag(tag)}
-            >
-              {getTagNameByLanguage(tag, language)}
-            </button>
-          </li>
-        ))}
+      {isLoading ? (
+        <li className="px-3 py-2 text-sm opacity-60">{t("loading")}</li>
+      ) : (
+        <ul className="max-h-64 overflow-y-auto">
+          {filteredTags.map((tag) => (
+            <li key={tag.id_url}>
+              <button
+                className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
+                onClick={() => addTag(tag)}
+              >
+                {getTagNameByLanguage(tag, language)}
+              </button>
+            </li>
+          ))}
 
-        {filteredTags.length === 0 && (
-          <li className="px-3 py-2 text-sm opacity-60">
-            {t("productionPage.edit.no_tags")}
-          </li>
-        )}
-      </ul>
+          {filteredTags.length === 0 && (
+            <li className="px-3 py-2 text-sm opacity-60">
+              {t("productionPage.edit.no_tags")}
+            </li>
+          )}
+        </ul>
+      )}
     </div>
   );
 }
@@ -355,12 +361,14 @@ export function Tags({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isEditing) return;
 
     getAllTags()
       .then(setAllTags)
-      .catch(() => setAllTags([]));
+      .catch(() => setAllTags([]))
+      .finally(() => setIsLoading(false));
   }, [isEditing]);
 
   function removeTag(id_url: string) {
@@ -419,6 +427,7 @@ export function Tags({
         )}
         {isDropdownOpen && (
           <TagDropdown
+            isLoading={isLoading}
             allTags={allTags}
             selectedTags={draftTags}
             setSelectedTags={setDraftTags}
@@ -456,6 +465,20 @@ function Events({ event_objects }: EventsProps) {
       </div>
     );
   }
+}
+
+// Helper to create an empty event when pressing new event button
+function createEmptyEvent(id_url?: string): EventWithResolvedRelations {
+  return {
+    id_url: "", // temporary ID
+    production_id_url: id_url ?? "",
+    starts_at: "",
+    ends_at: "",
+    order_url: "",
+    price_urls: [],
+    resolvedHall: undefined,
+    resolvedPrices: [],
+  };
 }
 
 function EditEvents({
@@ -498,7 +521,7 @@ function EditEvents({
   );
 }
 
-function NewEventButton({ onClick }: { onClick: () => void }) {
+export function NewEventButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
   return (
     <div className="mt-4 flex justify-center">
@@ -512,6 +535,76 @@ function NewEventButton({ onClick }: { onClick: () => void }) {
         </p>
       </button>
     </div>
+  );
+}
+
+export function EventSection({
+  isEditing,
+  production_id_url,
+  originalEvents,
+  draftEvents,
+  newEvents,
+  setNewEvents,
+  setDraftEvents,
+  setDeletedEvents,
+}: {
+  isEditing?: boolean;
+  production_id_url?: string;
+  originalEvents: EventWithResolvedRelations[];
+  draftEvents: EventWithResolvedRelations[];
+  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  newEvents: EventWithResolvedRelations[];
+  setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+}) {
+  const { t } = useTranslation();
+
+  // Load list of all halls for autocomplete in editing
+  const [allHalls, setAllHalls] = useState<Hall[]>([]);
+  useEffect(() => {
+    if (isEditing) {
+      const loadHalls = async () => {
+        const halls = await getAllHalls();
+        setAllHalls(halls);
+      };
+      loadHalls();
+    }
+  }, [isEditing]);
+
+  return (
+    <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
+      <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
+        {t("productionPage.archiveSchema")}
+      </h2>
+
+      {isEditing ? (
+        <>
+          {/* Events that are being edited */}
+          <EditEvents
+            draftEvents={draftEvents}
+            setDraftEvents={setDraftEvents}
+            setDeletedEvents={setDeletedEvents}
+            halls={allHalls}
+          />
+          {/* Events that are being newly created */}
+          <EditEvents
+            draftEvents={newEvents}
+            setDraftEvents={setNewEvents}
+            halls={allHalls}
+            isNewEvents={true}
+          />
+          <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+            <NewEventButton
+              onClick={() => {
+                setNewEvents((prev) => [...prev, createEmptyEvent(production_id_url)]);
+              }}
+            />
+          </Protected>
+        </>
+      ) : (
+        <Events event_objects={originalEvents} />
+      )}
+    </section>
   );
 }
 
@@ -545,9 +638,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
   const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-
-  // State containing all halls so that editable event cards don't have to each fetch all the halls themselves for every event
-  const [allHalls, setAllHalls] = useState<Hall[]>([]);
 
   const _handleSave = () =>
     handleInfoSave(
@@ -588,20 +678,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     const tagsModified = areTagsModified(originalTags, draftTags);
     return tagsModified || isInfoModified(originalInfo, draftInfo) || areEventsModified;
   }, [originalInfo, draftInfo, isEditing, originalTags, draftTags, areEventsModified]);
-
-  // Helper to create an empty event when pressing new event button
-  function createEmptyEvent(): EventWithResolvedRelations {
-    return {
-      id_url: "", // temporary ID
-      production_id_url: production.id_url,
-      starts_at: "",
-      ends_at: "",
-      order_url: "",
-      price_urls: [],
-      resolvedHall: undefined,
-      resolvedPrices: [],
-    };
-  }
 
   useEffect(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
@@ -755,16 +831,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
-  // Load list of all halls for autocomplete in editing
-  useEffect(() => {
-    if (isEditing) {
-      const loadHalls = async () => {
-        const halls = await getAllHalls();
-        setAllHalls(halls);
-      };
-      loadHalls();
-    }
-  }, [isEditing]);
   // Load linked blogs for this production
   useEffect(() => {
     let isCancelled = false;
@@ -833,39 +899,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               )}
             />
 
-            <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
-              <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
-                {t("productionPage.archiveSchema")}
-              </h2>
-
-              {isEditing ? (
-                <>
-                  {/* Events that are being edited */}
-                  <EditEvents
-                    draftEvents={draftEvents}
-                    setDraftEvents={setDraftEvents}
-                    setDeletedEvents={setDeletedEvents}
-                    halls={allHalls}
-                  />
-                  {/* Events that are being newly created */}
-                  <EditEvents
-                    draftEvents={newEvents}
-                    setDraftEvents={setNewEvents}
-                    halls={allHalls}
-                    isNewEvents={true}
-                  />
-                  <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
-                    <NewEventButton
-                      onClick={() => {
-                        setNewEvents((prev) => [...prev, createEmptyEvent()]);
-                      }}
-                    />
-                  </Protected>
-                </>
-              ) : (
-                <Events event_objects={eventObjects} />
-              )}
-            </section>
+            <EventSection
+              isEditing={isEditing}
+              production_id_url={production.id_url}
+              originalEvents={eventObjects}
+              draftEvents={draftEvents}
+              setDraftEvents={setDraftEvents}
+              setDeletedEvents={setDeletedEvents}
+              newEvents={newEvents}
+              setNewEvents={setNewEvents}
+            />
 
             {linkedBlogs.length > 0 && (
               <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">

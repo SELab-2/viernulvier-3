@@ -3,7 +3,7 @@ import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
 import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
@@ -12,6 +12,10 @@ import {
   useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
+import { EventSection, Tags } from "./ProductionPage";
+import type { Tag } from "../types/tagTypes";
+import type { EventWithResolvedRelations } from "../components/EventCard";
+import { createEvent } from "../services/eventService";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -30,6 +34,8 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
 async function handleAddProduction(
   language: string,
   draftInfo: ProductionInfo | null,
+  draftTags: Tag[],
+  draftEvents: EventWithResolvedRelations[],
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
@@ -51,10 +57,22 @@ async function handleAddProduction(
         description: draftInfo.description,
         info: draftInfo.info,
       },
-      tag_id_urls: [],
+      tag_id_urls: draftTags.map((tag) => tag.id_url),
     });
     skipWarning.current = true;
     setSkipWarning(true);
+
+    await Promise.all(
+      draftEvents.map((event) => {
+        createEvent({
+          production_id_url: response["id_url"],
+          hall_id_url: event.hall?.id_url,
+          starts_at: event.starts_at,
+          ends_at: event.ends_at,
+          order_url: event.order_url,
+        });
+      })
+    );
 
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
@@ -104,6 +122,9 @@ export function CreateProductionPage() {
     description: "",
     info: "",
   });
+  const [draftTags, setDraftTags] = useState<Tag[]>([]);
+  const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
+
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
@@ -113,11 +134,21 @@ export function CreateProductionPage() {
     !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
   );
   const navigate = useNavigate();
+  const isModified = useMemo(() => {
+    return (
+      draftTags.length > 0 ||
+      draftEvents.length > 0 ||
+      isInfoModified(draftInfo) ||
+      isQuillDirty
+    );
+  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
       language,
       draftInfo,
+      draftTags,
+      draftEvents,
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
@@ -138,9 +169,9 @@ export function CreateProductionPage() {
   const isQuillDirtyRef = useRef(false);
 
   useEffect(() => {
-    isModifiedRef.current = isInfoModified(draftInfo);
+    isModifiedRef.current = isModified;
     isQuillDirtyRef.current = isQuillDirty;
-  }, [draftInfo, isQuillDirty]);
+  }, [draftInfo, isQuillDirty, isModified]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -172,6 +203,12 @@ export function CreateProductionPage() {
         />
         <section id="production-info" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+            <Tags
+              originalTags={[]}
+              draftTags={draftTags}
+              setDraftTags={setDraftTags}
+              isEditing={true}
+            />
             <ProductionInfoSection
               isCreateInfo={true}
               tagline={draftInfo?.tagline ?? ""}
@@ -190,6 +227,16 @@ export function CreateProductionPage() {
                 []
               )}
             />
+            <EventSection
+              isEditing={true}
+              production_id_url={undefined}
+              originalEvents={[]}
+              draftEvents={[]}
+              setDraftEvents={() => {}}
+              setDeletedEvents={() => {}}
+              newEvents={draftEvents}
+              setNewEvents={setDraftEvents}
+            />
           </article>
         </section>
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
@@ -203,7 +250,7 @@ export function CreateProductionPage() {
             setDraftEvents={() => {}}
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
-            enable_save={isInfoModified(draftInfo) || isQuillDirty}
+            enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
             originalTags={null}
