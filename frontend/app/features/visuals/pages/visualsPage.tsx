@@ -546,7 +546,10 @@ function UploadDialog({
     const selected = e.target.files?.[0] ?? null;
     setFile(selected);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (selected && (selected.type.startsWith("image/") || selected.type.startsWith("video/"))) {
+    if (
+      selected &&
+      (selected.type.startsWith("image/") || selected.type.startsWith("video/"))
+    ) {
       setPreviewUrl(URL.createObjectURL(selected));
     } else {
       setPreviewUrl(null);
@@ -558,7 +561,10 @@ function UploadDialog({
     const dropped = e.dataTransfer.files[0] ?? null;
     setFile(dropped);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (dropped && (dropped.type.startsWith("image/") || dropped.type.startsWith("video/"))) {
+    if (
+      dropped &&
+      (dropped.type.startsWith("image/") || dropped.type.startsWith("video/"))
+    ) {
       setPreviewUrl(URL.createObjectURL(dropped));
     } else {
       setPreviewUrl(null);
