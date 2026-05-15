@@ -75,6 +75,32 @@ def test_get_blogs_paginated(db_session, many_blogs):
     assert result.pagination.next_cursor is None
 
 
+# Filter on title (half of the blogs have different name)
+def test_get_blogs_by_title(db_session, many_blogs):
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="other")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+    # Case does not affect the results
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="OTHER")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+    # Partial matches are allowed
+    result = get_blogs_paginated(db_session, BASE_URL, limit=5, blog_name="oth")
+    assert len(result.blogs) == 5
+    assert not result.pagination.has_more
+    assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
+    assert result.blogs[0].blog_contents[0].title == "other"
+
+
 # Get blog by id (no/invalid language specified): check if correct blog is returned with all correct content and events.
 # Invalid language results in all content, could be changed if desired.
 def test_get_blog_by_id_no_language(db_session, blogs_limited):
@@ -135,7 +161,7 @@ def test_create_blog_with_production_group(db_session, blogs_limited):
     result2 = get_blogs_paginated(db_session, BASE_URL)
     assert len(result2.blogs) == 3
 
-    new_id = int(response.id_url.rstrip("/").split("/")[-1])
+    new_id = int(response.id_url.split("/")[-1])
     new_blog_from_db = get_blog_by_id(db_session, new_id, BASE_URL)
     assert new_blog_from_db.production_group_id_url == f"{BASE_URL}/production-groups/2"
 

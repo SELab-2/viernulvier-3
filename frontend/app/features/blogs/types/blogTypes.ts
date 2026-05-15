@@ -3,15 +3,14 @@ import type { JsonPaginationResponse } from "~/features/archive/types/pagination
 export interface BlogContent {
   blog_id_url: string;
   language: string;
-
   title: string;
   content: string;
 }
 
 export interface Blog {
   id_url: string;
+  production_group_id_url?: string;
   blog_contents: BlogContent[];
-  production_group_id_url: string;
 }
 
 export interface BlogList {
@@ -21,7 +20,6 @@ export interface BlogList {
 
 export interface BlogContentCreate {
   language: string;
-
   title: string;
   content: string;
 }
@@ -33,9 +31,8 @@ export interface BlogCreate {
 
 export interface BlogContentUpdate {
   language: string;
-
-  title: string;
-  content: string;
+  title?: string;
+  content?: string;
 }
 
 export interface BlogUpdate {

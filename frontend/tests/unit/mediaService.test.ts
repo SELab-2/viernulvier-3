@@ -17,23 +17,21 @@ describe("mediaService", () => {
   let mockAdapter: AxiosMockAdapter;
 
   const mockMediaItem1: MediaItem = {
-    id: 1,
-    production_id: 1,
-    filename: "poster.jpg",
-    content_type: "image/jpeg",
+    id_url: "/api/v1/archive/productions/1/media/1",
     url: "http://localhost/media/poster.jpg",
-    created_at: "2026-03-29T14:00:00",
-    updated_at: "2026-03-29T14:00:00",
+    production_id_url: "/api/v1/archive/productions/1",
+    blog_id_url: null,
+    content_type: "image/jpeg",
+    uploaded_at: "2026-03-29T14:00:00",
   };
 
   const mockMediaItem2: MediaItem = {
-    id: 2,
-    production_id: 1,
-    filename: "banner.png",
-    content_type: "image/png",
+    id_url: "/api/v1/archive/productions/1/media/2",
     url: "http://localhost/media/banner.png",
-    created_at: "2026-03-29T14:00:00",
-    updated_at: "2026-03-29T14:00:00",
+    production_id_url: "/api/v1/archive/productions/1",
+    blog_id_url: null,
+    content_type: "image/png",
+    uploaded_at: "2026-03-29T15:00:00",
   };
 
   beforeEach(() => {
@@ -99,7 +97,6 @@ describe("mediaService", () => {
       const result = await uploadMedia(1, file);
 
       expect(result).toEqual(mockMediaItem1);
-      expect(result.filename).toBe("poster.jpg");
       expect(result.content_type).toBe("image/jpeg");
     });
 

@@ -75,6 +75,21 @@ def test_get_blogs_success(client: TestClient, db_session: Session, many_blogs):
     assert not data["pagination"]["has_more"]
 
 
+# Blogs can be filtered on title.
+def test_get_blogs_by_title(client: TestClient, db_session: Session, many_blogs):
+    response = client.get(
+        BASE_BLOG_URL + "/", params={"limit": 5, "blog_name": "other"}
+    )
+    assert response.status_code == 200
+
+    # Check first page.
+    data = response.json()
+    assert len(data["blogs"]) == 5
+    assert data["pagination"]["total_count"] == 5
+    assert data["pagination"]["next_cursor"] is None
+    assert not data["pagination"]["has_more"]
+
+
 # User gets empty list because no blogs in database.
 def test_get_blogs_empty(client: TestClient, db_session: Session):
     response = client.get(BASE_BLOG_URL + "/", params={"limit": 5})
@@ -191,7 +206,7 @@ def test_patch_blog_production_group_success(
     )
 
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
+    assert data["production_group_id_url"].split("/")[-1] == "1"
 
     response = client.patch(
         f"{BASE_BLOG_URL}/{id}",
@@ -201,7 +216,7 @@ def test_patch_blog_production_group_success(
 
     # Updated in response.
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
+    assert data["production_group_id_url"].split("/")[-1] == "2"
 
     response = client.get(
         BASE_BLOG_URL + f"/{id}",
@@ -209,7 +224,7 @@ def test_patch_blog_production_group_success(
 
     # Updated in database.
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "2"
+    assert data["production_group_id_url"].split("/")[-1] == "2"
 
 
 # User with permissions can delete an existing content of an existing blog.
@@ -256,7 +271,7 @@ def test_create_blog_success(
 
     assert response.status_code == 201
     data = response.json()
-    assert data["production_group_id_url"].rstrip("/").split("/")[-1] == "1"
+    assert data["production_group_id_url"].split("/")[-1] == "1"
     assert data["blog_contents"][0]["title"] == "Nieuwe blog"
 
 

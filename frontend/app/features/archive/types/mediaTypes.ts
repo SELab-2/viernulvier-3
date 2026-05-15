@@ -1,13 +1,12 @@
 import type { IdPaginationResponse } from "./paginationTypes";
 
 export interface MediaItem {
-  id: number;
-  production_id: number;
-  filename: string;
-  content_type: string;
+  id_url: string;
   url: string;
-  created_at?: string;
-  updated_at?: string;
+  production_id_url: string | null;
+  blog_id_url: string | null;
+  content_type: string;
+  uploaded_at: string;
 }
 
 export interface MediaList {
