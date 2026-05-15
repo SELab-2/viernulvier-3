@@ -12,12 +12,15 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionsForBlog } from "../services/blogService";
 import { getMediaForBlog } from "../services/mediaService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import DOMPurify from "dompurify";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -79,7 +82,8 @@ async function getProductionTitlesByLanguage(
     return [];
   }
 
-  const productions = await getProductionsForBlog(blog);
+  const productionGroup = await getProductionGroupByUrl(blog.production_group_id_url);
+  const productions = await getProductionsForGroup(productionGroup);
 
   const titles = productions.map((prod) => {
     const languageMatch = prod.production_infos.find(

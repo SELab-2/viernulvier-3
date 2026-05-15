@@ -2,14 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ProductionInfo } from "../types/productionTypes";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
+import { getTextOrDefault } from "../utils/productionPageFunctions";
 
 function isFieldModified(
   original: string | undefined,
@@ -20,7 +13,6 @@ function isFieldModified(
 
 type ProductionHeaderProps = {
   isCreateHeader: boolean;
-  production_info: ProductionInfo | null;
   image_url: string;
   isEditing: boolean;
   originalInfo: ProductionInfo | null;
@@ -31,7 +23,6 @@ type ProductionHeaderProps = {
 /* ProductionHeader contains main image, supertitle, title and artist */
 export function ProductionHeader({
   isCreateHeader,
-  production_info,
   image_url,
   isEditing,
   originalInfo,
@@ -45,6 +36,10 @@ export function ProductionHeader({
   const modified = (orig: string | undefined, draft: string | undefined) =>
     !isCreateHeader && isFieldModified(orig, draft);
 
+  const permissions = isCreateHeader
+    ? [ARCHIVE_PERMISSIONS.create]
+    : [ARCHIVE_PERMISSIONS.update];
+
   return (
     <section
       id="production-header"
@@ -52,7 +47,7 @@ export function ProductionHeader({
     >
       <img
         src={image_url}
-        alt={production_info?.title}
+        alt={originalInfo?.title}
         className="h-[280px] w-full object-cover object-center md:h-[360px]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
@@ -79,7 +74,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.archive"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.title")}
@@ -102,7 +97,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.unknownProduction"))}
             </h1>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
         <SimpleEditableField
           label={t("productionPage.edit.artist")}
@@ -124,7 +119,7 @@ export function ProductionHeader({
               {getTextOrDefault(value, t("productionPage.fallback.defaultArtist"))}
             </p>
           )}
-          permissions={[ARCHIVE_PERMISSIONS.update]}
+          permissions={permissions}
         />
       </div>
     </section>

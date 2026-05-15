@@ -13,7 +13,11 @@ vi.mock("~/features/archive/services/hallService", () => ({
 
 vi.mock("~/features/blogs/services/blogService", () => ({
   getBlogsForProduction: vi.fn(),
-  getProductionsForBlog: vi.fn(),
+}));
+
+vi.mock("~/features/archive/services/productionGroupService", () => ({
+  getProductionGroupByUrl: vi.fn(),
+  getProductionsForGroup: vi.fn(),
 }));
 
 vi.mock("~/features/archive/services/productionService", () => ({
@@ -28,16 +32,18 @@ vi.mock("~/features/archive/components/ProductionPageMediaGallery", () => ({
 
 import { getEventByUrl, getPriceByUrl } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
-import {
-  getBlogsForProduction,
-  getProductionsForBlog,
-} from "~/features/blogs/services/blogService";
+import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { getProductionByUrl } from "~/features/archive/services/productionService";
 import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 import type { Production } from "~/features/archive/types/productionTypes";
 import type { Hall, HallName } from "~/features/archive/types/hallTypes";
 import { AuthSessionProvider } from "~/features/auth";
 import type { Event, Price } from "~/features/archive/types/eventTypes";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 function renderPage(production: Production, preferredLanguage: string = "nl") {
   const router = createMemoryRouter(
@@ -122,11 +128,19 @@ const baseProductionOneInfo: Production = {
   ],
 };
 
+const baseProdGroup: ProductionGroup = {
+  id_url: "http://localhost/api/v1/production-groups/1",
+  title: "foo",
+  is_public_filter: true,
+  production_id_urls: [],
+};
+
 describe("ProductionPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.mocked(getBlogsForProduction).mockResolvedValue([]);
-    vi.mocked(getProductionsForBlog).mockResolvedValue([]);
+    vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getProductionsForGroup).mockResolvedValue([]);
     vi.mocked(getProductionByUrl).mockResolvedValue({
       id_url: "",
       event_id_urls: [],
@@ -143,7 +157,7 @@ describe("ProductionPage", () => {
     expect(screen.getByRole("heading", { name: "English Title" })).toBeInTheDocument();
     expect(screen.getByText("Artist EN")).toBeInTheDocument();
     expect(screen.getByText("English tagline")).toBeInTheDocument();
-    expect(screen.getByText("Opera")).toBeInTheDocument();
+    expect(screen.getAllByText("Opera")[0]).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
     expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
     expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(
@@ -158,7 +172,7 @@ describe("ProductionPage", () => {
     );
     expect(elements).toHaveLength(1);
     // Other information should still be visisble.
-    expect(screen.getByText("Opera")).toBeInTheDocument();
+    expect(screen.getAllByText("Opera")[0]).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
     expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
     expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(

@@ -52,6 +52,7 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
     "productionGroups": {
       "actions": {
         "create": "Maak productiegroep",
@@ -94,6 +95,8 @@
       "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
     },
     "add_info": {
+      "performer_type": "Voeg soort artiest toe",
+      "attendance_mode": "voeg aanwezigheidsmodus toe",
       "supertitle": "Voeg een supertitel toe",
       "title": "Voeg een titel toe",
       "artist": "Voeg een artiest toe",
@@ -123,6 +126,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Niet beschikbaar.",
+      "unknownAttendanceMode": "Niet beschikbaar.",
       "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
@@ -156,6 +161,8 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
+      "attendance_mode": "Aanwezigheidsmodus",
+      "performer_type": "Soort artiest",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
@@ -166,7 +173,7 @@
       "no_tags": "Geen tags gevonden"
     },
     "delete": {
-      "delete": "Verwijder",
+      "delete": "Verwijder info (nl)",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
     }
@@ -276,8 +283,15 @@
     "contentPage": {
       "backToBlogs": "Terug naar blogs",
       "linkedProductions": "Gelinkte producties:",
+      "searchProductionGroups": "Zoeken naar reeksen",
       "fallback": "Geen vertaling beschikbaar",
       "media": "Gelinkte media:",
+      "delete": {
+        "delete": "Blog verwijderen",
+        "deleting": "Bezig met verwijderen...",
+        "confirm": "Ben je zeker dat je deze blog wil verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "error": "De blog kon niet verwijderd worden. Probeer opnieuw."
+      },
       "edit": {
         "title": "Pas titel aan",
         "content": "Pas inhoud aan",
@@ -405,13 +419,17 @@
       },
       "form": {
         "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsEditHint": "Kies de permissies die aan deze rol gekoppeld moeten blijven.",
         "permissionsLoading": "Beschikbare permissies worden geladen.",
         "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
+        "edit": "Rol bewerken",
         "create": "Rol aanmaken",
         "creating": "Rol wordt aangemaakt",
+        "update": "Wijzigingen opslaan",
+        "updating": "Wijzigingen worden opgeslagen",
         "delete": "Rol verwijderen",
         "deleting": "Rol wordt verwijderd"
       },
@@ -419,6 +437,7 @@
         "loadFailed": "De rollen konden nu niet geladen worden.",
         "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "updateFailed": "De rol kon nu niet worden bijgewerkt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
       },
@@ -426,6 +445,10 @@
         "create": {
           "title": "Rol toevoegen",
           "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
+        },
+        "edit": {
+          "title": "Rol bewerken",
+          "description": "Werk deze rol bij en houd de toegewezen permissies in sync."
         },
         "delete": {
           "title": "Rol verwijderen",

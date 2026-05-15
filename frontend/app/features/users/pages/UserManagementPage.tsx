@@ -1,9 +1,8 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Alert,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -13,11 +12,11 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { useAuthSession } from "~/features/auth";
-import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
-import { UserFormDialog } from "../components/UserFormDialog";
-import { UserCard } from "../components/UserCard";
 import { RoleCard } from "../components/RoleCard";
+import { RoleFormDialog } from "../components/RoleFormDialog";
+import { UserCard } from "../components/UserCard";
+import { UserFormDialog } from "../components/UserFormDialog";
 import { USER_PERMISSIONS } from "../users.constants";
 import { listPermissions } from "../services/permissionManagementService";
 import {
@@ -26,10 +25,16 @@ import {
   listUsers,
   updateUser,
 } from "../services/userManagementService";
-import { createRole, deleteRole, listRoles } from "../services/roleManagementService";
+import {
+  createRole,
+  deleteRole,
+  listRoles,
+  updateRole,
+} from "../services/roleManagementService";
 import type {
   IRole,
   IRoleCreateRequest,
+  IRoleUpdateRequest,
   IUser,
   IUserCreateRequest,
   IUserUpdateRequest,
@@ -142,175 +147,6 @@ function DeleteUserDialog({
   );
 }
 
-function CreateRoleDialog({
-  open,
-  isSubmitting,
-  availablePermissions,
-  isLoadingPermissions,
-  permissionsErrorMessage,
-  errorMessage,
-  onClose,
-  onSubmit,
-}: {
-  open: boolean;
-  isSubmitting: boolean;
-  availablePermissions: string[];
-  isLoadingPermissions: boolean;
-  permissionsErrorMessage: string | null;
-  errorMessage: string | null;
-  onClose: () => void;
-  onSubmit: (payload: IRoleCreateRequest) => Promise<void>;
-}) {
-  const { t } = useTranslation();
-  const [name, setName] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const trimmedName = name.trim();
-
-  function resetForm() {
-    setName("");
-    setSelectedPermissions([]);
-    setValidationError(null);
-  }
-
-  function togglePermission(permissionName: string) {
-    setSelectedPermissions((currentPermissions) =>
-      currentPermissions.includes(permissionName)
-        ? currentPermissions.filter(
-            (currentPermission) => currentPermission !== permissionName
-          )
-        : [...currentPermissions, permissionName]
-    );
-  }
-
-  function handleClose() {
-    resetForm();
-    onClose();
-  }
-
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!trimmedName) {
-      setValidationError(t("users.roles.messages.nameRequired"));
-      return;
-    }
-
-    setValidationError(null);
-    await onSubmit({
-      name: trimmedName,
-      permissions: selectedPermissions,
-    });
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onClose={isSubmitting ? undefined : handleClose}
-      fullWidth
-      maxWidth="sm"
-      slotProps={{
-        paper: { sx: dialogPaperSx },
-        backdrop: { sx: dialogBackdropSx },
-      }}
-    >
-      <DialogTitle sx={dialogTitleSx}>
-        {t("users.roles.dialogs.create.title")}
-      </DialogTitle>
-      <DialogContent sx={dialogContentSx}>
-        <p className="mb-5 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
-          {t("users.roles.dialogs.create.description")}
-        </p>
-
-        <UserMutationAlert message={validationError || errorMessage} />
-
-        <form
-          id="role-form-dialog"
-          onSubmit={handleSubmit}
-          className="mt-6 flex flex-col gap-5"
-        >
-          <ArchiveTextField
-            label={t("users.roles.fields.name")}
-            name="roleName"
-            autoFocus
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              if (validationError) {
-                setValidationError(null);
-              }
-            }}
-          />
-
-          <div>
-            <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
-              {t("users.roles.fields.permissions")}
-            </div>
-            <p
-              className={`mt-2 text-sm leading-relaxed ${
-                permissionsErrorMessage ? "text-[color:#a04238]" : "opacity-65"
-              }`}
-            >
-              {permissionsErrorMessage
-                ? permissionsErrorMessage
-                : isLoadingPermissions
-                  ? t("users.roles.form.permissionsLoading")
-                  : availablePermissions.length > 0
-                    ? t("users.roles.form.permissionsHint")
-                    : t("users.roles.form.permissionsEmptyHint")}
-            </p>
-
-            {availablePermissions.length > 0 ? (
-              <div className="mt-4 grid gap-2">
-                {availablePermissions.map((permission) => {
-                  const isSelected = selectedPermissions.includes(permission);
-
-                  return (
-                    <label
-                      key={permission}
-                      className="flex cursor-pointer items-center gap-3 rounded-[1rem] px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => togglePermission(permission)}
-                        sx={roleCheckboxSx}
-                      />
-                      <span className="text-sm font-medium text-[color:var(--archive-ink)]">
-                        {permission}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-        </form>
-      </DialogContent>
-      <DialogActions sx={dialogActionsSx}>
-        <Button onClick={handleClose} disabled={isSubmitting} sx={secondaryButtonSx}>
-          {t("users.actions.cancel")}
-        </Button>
-        <Button
-          type="submit"
-          form="role-form-dialog"
-          disabled={isSubmitting || !trimmedName}
-          sx={primaryButtonSx}
-        >
-          {isSubmitting ? (
-            <>
-              <CircularProgress size={13} sx={{ color: "inherit", mr: 1 }} />
-              {t("users.roles.actions.creating")}
-            </>
-          ) : (
-            t("users.roles.actions.create")
-          )}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 function DeleteRoleDialog({
   role,
   isSubmitting,
@@ -412,6 +248,9 @@ export default function UserManagementPage() {
   const [isCreateRoleDialogOpen, setIsCreateRoleDialogOpen] = useState(false);
   const [createRoleError, setCreateRoleError] = useState<string | null>(null);
   const [isCreatingRole, setIsCreatingRole] = useState(false);
+  const [editRoleError, setEditRoleError] = useState<string | null>(null);
+  const [isEditingRole, setIsEditingRole] = useState(false);
+  const [roleIdToEdit, setRoleIdToEdit] = useState<number | null>(null);
   const [deleteRoleError, setDeleteRoleError] = useState<string | null>(null);
   const [isDeletingRole, setIsDeletingRole] = useState(false);
   const [roleIdToDelete, setRoleIdToDelete] = useState<number | null>(null);
@@ -427,6 +266,10 @@ export default function UserManagementPage() {
     userIdToEdit === null
       ? null
       : (users.find((managedUser) => managedUser.id === userIdToEdit) ?? null);
+  const roleToEdit =
+    roleIdToEdit === null
+      ? null
+      : (roles.find((managedRole) => managedRole.id === roleIdToEdit) ?? null);
   const roleToDelete =
     roleIdToDelete === null
       ? null
@@ -699,6 +542,54 @@ export default function UserManagementPage() {
     }
   }
 
+  function openEditRoleDialog(roleId: number) {
+    setEditRoleError(null);
+    setRoleIdToEdit(roleId);
+  }
+
+  function closeEditRoleDialog() {
+    if (isEditingRole) {
+      return;
+    }
+
+    setEditRoleError(null);
+    setRoleIdToEdit(null);
+  }
+
+  async function handleEditRole(payload: IRoleUpdateRequest) {
+    if (roleIdToEdit === null) {
+      return;
+    }
+
+    setIsEditingRole(true);
+    setEditRoleError(null);
+
+    try {
+      const updatedRole = await updateRole(roleIdToEdit, payload);
+      setRoles((currentRoles) =>
+        currentRoles.map((managedRole) =>
+          managedRole.id === updatedRole.id ? updatedRole : managedRole
+        )
+      );
+      setRoleIdToEdit(null);
+      refreshUsers();
+
+      try {
+        await refreshSession();
+      } catch (error) {
+        setPageError(
+          getApiErrorMessage(error, t("users.messages.sessionRefreshFailed"))
+        );
+      }
+    } catch (error) {
+      setEditRoleError(
+        getApiErrorMessage(error, t("users.roles.messages.updateFailed"))
+      );
+    } finally {
+      setIsEditingRole(false);
+    }
+  }
+
   function openDeleteRoleDialog(roleId: number) {
     setDeleteRoleError(null);
     setRoleIdToDelete(roleId);
@@ -767,12 +658,26 @@ export default function UserManagementPage() {
     USER_PERMISSIONS.update
   );
 
+  const canCreateRoles = hasPermission(
+    currentUser?.permissions,
+    currentUser?.isSuperUser,
+    USER_PERMISSIONS.create
+  );
+  const canEditRoles = hasPermission(
+    currentUser?.permissions,
+    currentUser?.isSuperUser,
+    USER_PERMISSIONS.update
+  );
   const canDeleteUsers = hasPermission(
     currentUser?.permissions,
     currentUser?.isSuperUser,
     USER_PERMISSIONS.delete
   );
-  const canDeleteRoles = canDeleteUsers;
+  const canDeleteRoles = hasPermission(
+    currentUser?.permissions,
+    currentUser?.isSuperUser,
+    USER_PERMISSIONS.delete
+  );
 
   return (
     <>
@@ -863,7 +768,7 @@ export default function UserManagementPage() {
                 {t("users.roles.title")}
               </h2>
             </div>
-            {canCreateUsers ? (
+            {canCreateRoles ? (
               <Button sx={primaryButtonSx} onClick={openCreateRoleDialog}>
                 {t("users.roles.actions.add")}
               </Button>
@@ -898,6 +803,7 @@ export default function UserManagementPage() {
                 <RoleCard
                   key={role.id}
                   role={role}
+                  onEdit={canEditRoles ? () => openEditRoleDialog(role.id) : undefined}
                   onDelete={
                     canDeleteRoles ? () => openDeleteRoleDialog(role.id) : undefined
                   }
@@ -952,7 +858,9 @@ export default function UserManagementPage() {
       />
 
       {isCreateRoleDialogOpen ? (
-        <CreateRoleDialog
+        <RoleFormDialog
+          key="create-role-dialog"
+          mode="create"
           open={true}
           isSubmitting={isCreatingRole}
           availablePermissions={availablePermissions}
@@ -961,6 +869,22 @@ export default function UserManagementPage() {
           errorMessage={createRoleError}
           onClose={closeCreateRoleDialog}
           onSubmit={handleCreateRole}
+        />
+      ) : null}
+
+      {roleToEdit ? (
+        <RoleFormDialog
+          key={roleToEdit.id}
+          mode="edit"
+          open={true}
+          role={roleToEdit}
+          isSubmitting={isEditingRole}
+          availablePermissions={availablePermissions}
+          isLoadingPermissions={isLoadingPermissions}
+          permissionsErrorMessage={permissionsError}
+          errorMessage={editRoleError}
+          onClose={closeEditRoleDialog}
+          onSubmit={handleEditRole}
         />
       ) : null}
     </>
@@ -1031,14 +955,6 @@ const dialogActionsSx = {
   pb: 3,
   gap: 1.5,
   borderTop: "1px solid var(--archive-border)",
-};
-
-const roleCheckboxSx = {
-  "color": "rgba(196, 164, 132, 0.7)",
-  "padding": 0,
-  "&.Mui-checked": {
-    color: "var(--archive-accent)",
-  },
 };
 
 const dialogPaperSx = {
