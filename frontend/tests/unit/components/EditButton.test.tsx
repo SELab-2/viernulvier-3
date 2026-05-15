@@ -52,6 +52,8 @@ const setDraftEvents = vi.fn();
 const setNewEvents = vi.fn();
 const setDeletedEvents = vi.fn();
 const setDraftTags = vi.fn();
+const setDraftAttendanceMode = vi.fn();
+const setDraftPerformerType = vi.fn();
 const handleSave = vi.fn();
 
 function renderEditButton(overrides = {}, user = baseUser) {
@@ -74,6 +76,10 @@ function renderEditButton(overrides = {}, user = baseUser) {
         enable_save={true}
         is_saving={false}
         _handleSave={handleSave}
+        setDraftAttendanceMode={setDraftAttendanceMode}
+        setDraftPerformerType={setDraftPerformerType}
+        originalAttendanceMode=""
+        originalPerformerType=""
         {...overrides}
       />
     </AuthSessionProvider>
