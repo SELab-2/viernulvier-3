@@ -19,6 +19,7 @@ from src.schemas.blogs import (
 )
 from src.api.exceptions import NotFoundError, ValidationError
 from src.services.production import SortOrder
+from typing import Optional
 
 
 def build_blog_content_response(
@@ -61,10 +62,10 @@ def build_blog_response(
 
 def get_production_group_for_blog(
     db: Session, blog_id: int, base_url: str
-) -> list[str]:
+) -> Optional[str]:
     blog = db.get(Blog, blog_id)
     if not blog or not blog.production_group:
-        return ""
+        return None
 
     return f"{base_url}/production-groups/{blog.production_group.id}"
 
@@ -202,18 +203,22 @@ def update_blog_by_id(
         raise NotFoundError("Blog", blog_id)
 
     if blog_in.production_group_id_url is not None:
-        production_group_id_url = blog_in.production_group_id_url
-        production_group_id = int(production_group_id_url.split("/")[-1])
+        # unlink the production
+        if blog_in.production_group_id_url == "":
+            blog.production_group = None
+        else:
+            production_group_id_url = blog_in.production_group_id_url
+            production_group_id = int(production_group_id_url.split("/")[-1])
 
-        production_group = (
-            db.query(ProductionGroup)
-            .filter(ProductionGroup.id == production_group_id)
-            .first()
-        )
+            production_group = (
+                db.query(ProductionGroup)
+                .filter(ProductionGroup.id == production_group_id)
+                .first()
+            )
 
-        if production_group is None:
-            raise NotFoundError("production group", production_group_id)
-        blog.production_group = production_group
+            if production_group is None:
+                raise NotFoundError("production group", production_group_id)
+            blog.production_group = production_group
 
     if blog_in.blog_contents:
         for blog_content_in in blog_in.blog_contents:

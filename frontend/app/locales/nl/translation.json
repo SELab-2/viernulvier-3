@@ -261,6 +261,7 @@
     "contentPage": {
       "backToBlogs": "Terug naar blogs",
       "linkedProductions": "Gelinkte producties:",
+      "searchProductionGroups": "Zoeken naar reeksen",
       "fallback": "Geen vertaling beschikbaar",
       "media": "Gelinkte media:",
       "delete": {

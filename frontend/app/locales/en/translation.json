@@ -261,6 +261,7 @@
     "contentPage": {
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
+      "searchProductionGroups": "Search for groups",
       "fallback": "No translation available",
       "media": "Linked media:",
       "delete": {
