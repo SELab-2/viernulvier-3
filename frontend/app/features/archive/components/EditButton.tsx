@@ -24,6 +24,10 @@ type EditButtonProps = {
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setDraftAttendanceMode: React.Dispatch<React.SetStateAction<string>>;
+  setDraftPerformerType: React.Dispatch<React.SetStateAction<string>>;
+  originalAttendanceMode: string;
+  originalPerformerType: string;
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
@@ -41,6 +45,10 @@ export function EditButton({
   setDraftEvents,
   setNewEvents,
   setDeletedEvents,
+  setDraftAttendanceMode,
+  setDraftPerformerType,
+  originalAttendanceMode,
+  originalPerformerType,
   enable_save,
   is_saving,
   _handleSave,
@@ -82,6 +90,8 @@ export function EditButton({
               setNewEvents([]);
               setDeletedEvents([]);
               setIsEditing(false);
+              setDraftAttendanceMode(originalAttendanceMode);
+              setDraftPerformerType(originalPerformerType);
             }}
             className={`${shared_css} bg-gray-300`}
           >

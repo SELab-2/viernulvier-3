@@ -12,6 +12,7 @@ import {
   useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
+import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -29,6 +30,8 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
 
 async function handleAddProduction(
   language: string,
+  attendanceMode: string,
+  performerType: string,
   draftInfo: ProductionInfo | null,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
@@ -41,6 +44,8 @@ async function handleAddProduction(
 
   try {
     const response = await createProduction({
+      attendance_mode: attendanceMode,
+      performer_type: performerType,
       production_info: {
         language: language,
         artist: draftInfo.artist,
@@ -93,6 +98,8 @@ export function CreateProductionPage() {
   const { lang } = useParams();
   const language = lang ?? "nl";
   const { t } = useTranslation();
+  const [draftAttendanceMode, setDraftAttendanceMode] = useState("");
+  const [draftPerformerType, setDraftPerformerType] = useState("");
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
     production_id_url: "",
     language: lang!,
@@ -117,6 +124,8 @@ export function CreateProductionPage() {
   const _handleAddProduction = () =>
     handleAddProduction(
       language,
+      draftAttendanceMode,
+      draftPerformerType,
       draftInfo,
       setIsSaving,
       t("archive.create_error"),
@@ -172,6 +181,18 @@ export function CreateProductionPage() {
         />
         <section id="production-info" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+            <ProductionGeneralInfo 
+              isCreateGeneralInfo={true}
+              isEditing={true} 
+              attendanceMode={draftAttendanceMode}
+              originalAttendanceMode={undefined}
+              performerType={draftPerformerType}
+              originalPerformerType={undefined}
+              onSave={(field, value) => {
+                if (field === "attendance_mode") setDraftAttendanceMode(value);
+                if (field === "performer_type") setDraftPerformerType(value);
+              }}
+            />
             <ProductionInfoSection
               isCreateInfo={true}
               tagline={draftInfo?.tagline ?? ""}
@@ -204,6 +225,10 @@ export function CreateProductionPage() {
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
             enable_save={isInfoModified(draftInfo) || isQuillDirty}
+            setDraftAttendanceMode={()=>{}}
+            setDraftPerformerType={()=>{}}
+            originalAttendanceMode=""
+            originalPerformerType=""
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
             originalTags={null}
