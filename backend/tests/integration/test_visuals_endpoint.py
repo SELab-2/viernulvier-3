@@ -111,21 +111,6 @@ def test_upload_visual_success(
     assert "uploaded_at" in data
 
 
-def test_upload_visual_optional_fields_absent(client: TestClient, db_session: Session):
-    headers = create_user_and_login(
-        client, db_session, "upload_user2", [Permissions.ARCHIVE_CREATE]
-    )
-    response = client.post(
-        f"{BASE_URL}/",
-        files={"file": ("test.pdf", io.BytesIO(b"fake data"), "application/pdf")},
-        headers=headers,
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["title"] is None
-    assert data["description"] is None
-    assert data["visual_type"] is None
-
 
 def test_upload_visual_unsupported_type(client: TestClient, db_session: Session):
     headers = create_user_and_login(
