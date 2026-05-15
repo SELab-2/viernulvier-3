@@ -46,7 +46,13 @@
       "actions": {
         "create": "Create production group",
         "creating": "Creating...",
+        "delete": "Delete production group",
+        "deleting": "Deleting...",
         "cancel": "Cancel"
+      },
+      "deleteInfo": {
+        "ariaLabel": "How to delete a production group",
+        "tooltip": "To delete a production group, first select that group in the filters and then select every production from it. Once the full group is selected, the delete button will appear."
       },
       "dialog": {
         "title": "Create a production group",
@@ -56,10 +62,20 @@
         "publicLabel": "Show this group in the public archive filters",
         "publicHint": "When enabled, visitors can use this production group as a filter in the archive."
       },
+      "deleteDialog": {
+        "title": "Delete production group",
+        "description": "You are about to remove \"{{title}}\" from the archive filters.",
+        "selectedCount": "{{count}} grouped productions",
+        "warning": "The productions themselves stay available in the archive. This action cannot be undone.",
+        "actions": {
+          "delete": "Delete"
+        }
+      },
       "messages": {
         "titleRequired": "A production group title is required.",
         "noProductionsSelected": "Select at least one production before creating a production group.",
-        "createFailed": "Could not create the production group."
+        "createFailed": "Could not create the production group.",
+        "deleteFailed": "Could not delete the production group."
       }
     },
     "accessDenied": {
