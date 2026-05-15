@@ -132,8 +132,7 @@ def test_get_productions_with_group(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.total_count == 5
     assert {
-        int(production.id_url.rstrip("/").split("/")[-1])
-        for production in result.productions
+        int(production.id_url.split("/")[-1]) for production in result.productions
     } == {production.id for production in many_productions[:5]}
 
 
@@ -390,10 +389,10 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 3
 
-    new_id = int(response.id_url.rstrip("/").split("/")[-1])
+    new_id = int(response.id_url.split("/")[-1])
     new_prod_from_db = get_production_by_id(db_session, new_id, BASE_URL)
     new_prod_tag_ids = {
-        int(tag_response.id_url.rstrip("/").split("/")[-1])
+        int(tag_response.id_url.split("/")[-1])
         for tag_response in new_prod_from_db.tags
     }
     assert new_prod_tag_ids == {tag.id for tag in valid_tags}

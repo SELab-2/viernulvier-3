@@ -10,7 +10,7 @@ import { Footer } from "./shared/components/Footer";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="nl" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" suppressHydrationWarning />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

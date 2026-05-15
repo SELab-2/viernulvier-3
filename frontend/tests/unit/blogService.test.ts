@@ -18,6 +18,7 @@ import {
   getBlogByUrl,
   getBlogsForProduction,
   getBlogsPaginated,
+  getProductionsForBlog,
   updateBlog,
   updateBlogByUrl,
 } from "~/features/blogs/services/blogService";
@@ -250,9 +251,11 @@ describe("blogService", () => {
     });
 
     it("returns empty array when production URL is invalid", async () => {
-      const result = await getBlogsForProduction("invalid-url");
+      const result1 = await getBlogsForProduction("invalid-url");
+      expect(result1).toEqual([]);
 
-      expect(result).toEqual([]);
+      const result2 = await getBlogsForProduction("");
+      expect(result2).toEqual([]);
     });
 
     it("correctly extracts production ID from URL", async () => {
@@ -266,6 +269,62 @@ describe("blogService", () => {
       const result = await getBlogsForProduction("/api/v1/archive/productions/42");
 
       expect(result).toHaveLength(1);
+    });
+  });
+
+  describe("getProductionsForBlog", () => {
+    it("returns productions for a blog", async () => {
+      const blog: Blog = {
+        id_url: "",
+        blog_contents: [],
+        production_group_id_url: "/api/v1/archive/production-groups/1",
+      };
+
+      mockAdapter.onGet("/api/v1/archive/production-groups/1").reply(200, {
+        production_id_urls: [
+          "/api/v1/archive/productions/1",
+          "/api/v1/archive/productions/2",
+        ],
+      });
+      const mockProd1 = {
+        id_url: "/api/v1/archive/productions/1",
+        production_infos: [],
+        event_id_urls: [],
+        tags: [],
+      };
+      const mockProd2 = {
+        id_url: "/api/v1/archive/productions/2",
+        production_infos: [],
+        event_id_urls: [],
+        tags: [],
+      };
+      mockAdapter.onGet("/api/v1/archive/productions/1").reply(200, mockProd1);
+      mockAdapter.onGet("/api/v1/archive/productions/2").reply(200, mockProd2);
+
+      const result = await getProductionsForBlog(blog);
+      expect(result).toHaveLength(2);
+      expect(result[0].id_url).toBe(mockProd1.id_url);
+      expect(result[1].id_url).toBe(mockProd2.id_url);
+    });
+
+    it("returns empty list when blog has no productions", async () => {
+      const blog: Blog = {
+        id_url: "",
+        blog_contents: [],
+      };
+      const result = await getProductionsForBlog(blog);
+      expect(result).toHaveLength(0);
+    });
+
+    it("returns empty list upon error", async () => {
+      const blog: Blog = {
+        id_url: "",
+        blog_contents: [],
+        production_group_id_url: "/api/v1/archive/production-groups/1",
+      };
+      mockAdapter.onGet("/api/v1/archive/production-groups/1").reply(404, {});
+      const result = await getProductionsForBlog(blog);
+      expect(result).toHaveLength(0);
     });
   });
 });
