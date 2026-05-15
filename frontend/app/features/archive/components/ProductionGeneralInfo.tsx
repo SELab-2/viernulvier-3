@@ -52,7 +52,7 @@ export function ProductionGeneralInfo({
           label={t("productionPage.edit.attendance_mode")}
           renderView={(value) => (
             <p className="bg-archive-paper border-archive-ink/10 focus:ring-archive-accent/40 focus:border-archive-accent w-full rounded-lg border px-3 py-2 text-sm focus:ring-4 focus:outline-none">
-              <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-4">
+              <span className="text-xs font-bold tracking-[0.24em] uppercase opacity-40">
                 {t("productionPage.edit.attendance_mode")}:
               </span>{" "}
               {getTextOrDefault(
