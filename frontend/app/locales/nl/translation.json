@@ -51,6 +51,26 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "productionGroups": {
+      "actions": {
+        "create": "Maak productiegroep",
+        "creating": "Bezig met aanmaken...",
+        "cancel": "Annuleer"
+      },
+      "dialog": {
+        "title": "Maak een productiegroep",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",
+        "selectedCount": "{{count}} geselecteerde producties",
+        "nameLabel": "Titel van de groep",
+        "publicLabel": "Toon deze groep in de publieke archieffilters",
+        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze productiegroep gebruiken als filter in het archief."
+      },
+      "messages": {
+        "titleRequired": "Een titel voor de productiegroep is verplicht.",
+        "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
+        "createFailed": "Kon de productiegroep niet aanmaken."
+      }
+    },
     "accessDenied": {
       "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot blogcreatie",

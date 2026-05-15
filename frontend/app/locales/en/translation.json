@@ -40,6 +40,26 @@
       "subtext": "Change your search to contain less filters or keywords"
     },
     "create_production": "Create production",
+    "productionGroups": {
+      "actions": {
+        "create": "Create production group",
+        "creating": "Creating...",
+        "cancel": "Cancel"
+      },
+      "dialog": {
+        "title": "Create a production group",
+        "description": "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
+        "selectedCount": "{{count}} selected productions",
+        "nameLabel": "Group title",
+        "publicLabel": "Show this group in the public archive filters",
+        "publicHint": "When enabled, visitors can use this production group as a filter in the archive."
+      },
+      "messages": {
+        "titleRequired": "A production group title is required.",
+        "noProductionsSelected": "Select at least one production before creating a production group.",
+        "createFailed": "Could not create the production group."
+      }
+    },
     "accessDenied": {
       "sectionLabel": "Restricted area",
       "title": "You do not have access to the production creation page.",

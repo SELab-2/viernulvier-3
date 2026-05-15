@@ -10,22 +10,4 @@ class GalleryFetcher(PagedFetcher):
     galleries.
     """
 
-    def get_new_items_after(self, timestamp) -> list:
-        """
-        Get all galleries after the given timestamp.
-
-        The timestamp is used **inclusive**, meaning that it probably returns
-        a gallery that already exists in the database.
-
-        When calling the API fails this will throw an error. However,
-        if there was already data fetched (f.e. when paging and hitting a
-        rate limit), the object will have stored the results which you can
-        query with `.has_partial_data()` and `.get_partial_data()`.
-
-        ---
-
-        :param timestamp: used to get new galleries after (inclusive)
-        """
-
-        parameters = {"created_at[after]": timestamp}
-        return self.fetch_all("/media/galleries", parameters)
+    endpoint = "/media/galleries"
