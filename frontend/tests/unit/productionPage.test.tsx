@@ -143,7 +143,7 @@ describe("ProductionPage", () => {
     expect(screen.getByRole("heading", { name: "English Title" })).toBeInTheDocument();
     expect(screen.getByText("Artist EN")).toBeInTheDocument();
     expect(screen.getByText("English tagline")).toBeInTheDocument();
-    expect(screen.getByText("Opera")).toBeInTheDocument();
+    expect(screen.getAllByText("Opera")[0]).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
     expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
     expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(
@@ -158,7 +158,7 @@ describe("ProductionPage", () => {
     );
     expect(elements).toHaveLength(1);
     // Other information should still be visisble.
-    expect(screen.getByText("Opera")).toBeInTheDocument();
+    expect(screen.getAllByText("Opera")[0]).toBeInTheDocument();
     expect(screen.getByText("Classical")).toBeInTheDocument();
     expect(screen.getByText("I18N_Production_BackToCollection")).toBeInTheDocument();
     expect(await screen.findByTestId("production-media-gallery")).toHaveTextContent(
