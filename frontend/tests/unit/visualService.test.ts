@@ -56,7 +56,7 @@ describe("visualService", () => {
         pagination,
       };
 
-      mockAdapter.onGet("/api/v1/archive/visuals").reply(200, mockVisualList);
+      mockAdapter.onGet("/api/v1/archive/visuals/").reply(200, mockVisualList);
 
       const result = await getVisuals();
 
@@ -70,7 +70,7 @@ describe("visualService", () => {
         pagination: { has_more: false, total_count: 0 },
       };
 
-      mockAdapter.onGet("/api/v1/archive/visuals").reply(200, mockVisualList);
+      mockAdapter.onGet("/api/v1/archive/visuals/").reply(200, mockVisualList);
 
       const result = await getVisuals();
 
@@ -84,7 +84,7 @@ describe("visualService", () => {
       };
 
       mockAdapter
-        .onGet("/api/v1/archive/visuals", { params: { visual_type: "poster" } })
+        .onGet("/api/v1/archive/visuals/", { params: { visual_type: "poster" } })
         .reply(200, mockVisualList);
 
       const result = await getVisuals({ visual_type: "poster" });
@@ -94,7 +94,7 @@ describe("visualService", () => {
     });
 
     it("throws when request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/visuals").reply(500);
+      mockAdapter.onGet("/api/v1/archive/visuals/").reply(500);
 
       await expect(getVisuals()).rejects.toThrow();
     });
@@ -139,7 +139,7 @@ describe("visualService", () => {
 
   describe("uploadVisual", () => {
     it("uploads a file and returns the created visual", async () => {
-      mockAdapter.onPost("/api/v1/archive/visuals").reply(201, mockVisualItem1);
+      mockAdapter.onPost("/api/v1/archive/visuals/").reply(201, mockVisualItem1);
 
       const file = new File(["dummy content"], "poster.jpg", {
         type: "image/jpeg",
@@ -162,7 +162,7 @@ describe("visualService", () => {
         uploaded_at: "2026-03-29T14:00:00",
       };
 
-      mockAdapter.onPost("/api/v1/archive/visuals").reply(201, bareVisual);
+      mockAdapter.onPost("/api/v1/archive/visuals/").reply(201, bareVisual);
 
       const file = new File(["dummy content"], "unnamed.jpg", {
         type: "image/jpeg",
@@ -175,7 +175,7 @@ describe("visualService", () => {
     });
 
     it("throws when upload fails due to unsupported media type", async () => {
-      mockAdapter.onPost("/api/v1/archive/visuals").reply(415);
+      mockAdapter.onPost("/api/v1/archive/visuals/").reply(415);
 
       const file = new File(["dummy content"], "doc.docx", {
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

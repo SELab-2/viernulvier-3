@@ -221,7 +221,7 @@ function SeriesSearchBar({
   const filteredProductionGroups =
     groupQuery.trim().length > 0
       ? allProductionGroups.filter((pg) => matchesProductionGroupQuery(pg, groupQuery))
-      : [];
+      : allProductionGroups;
 
   const selectGroup = (pg: ProductionGroup) => {
     setSelectedProductionGroup(pg);
