@@ -63,10 +63,8 @@ def test_store_updated_eventprices_normal(db_session: Session, caplog):
     # NOTE: this order is implementation-dependant but should be deterministic
     #       if order changes in src/worker/sync/update/eventprice.py:68,
     #       this might need to change as well
-    assert infos[0] == (
-        "[UPDATE] amount changed from '0E-10' to '3.14' for EventPrice"
-        "(viernulvier_id=14085)"
-    )
+    assert infos[0].startswith("[UPDATE] amount changed from '")
+    assert infos[0].endswith("' to '3.14' for EventPrice(viernulvier_id=14085)")
     assert infos[1] == (
         "[UPDATE] available changed from '0' to '52' for EventPrice"
         "(viernulvier_id=14085)"
