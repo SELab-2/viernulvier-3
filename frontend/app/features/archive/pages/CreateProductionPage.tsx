@@ -162,7 +162,6 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          production_info={null}
           image_url={imageUrl}
           isEditing={true}
           originalInfo={null}
