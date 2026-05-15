@@ -1,5 +1,6 @@
 import {
   deleteFromArchive,
+  getByUrl,
   getFromArchive,
   getFromArchiveList,
   patchToArchive,
@@ -10,6 +11,8 @@ import type {
   ProductionGroupCreate,
   ProductionGroupUpdate,
 } from "../types/productionGroupTypes";
+import type { Production } from "../types/productionTypes";
+import { createApiClient } from "~/shared/services/apiClient";
 
 const ENDPOINT = "/production-groups";
 
@@ -23,6 +26,10 @@ export async function getAllProductionGroups(
 
 export async function getProductionGroupById(id: number): Promise<ProductionGroup> {
   return getFromArchive<ProductionGroup>(`${ENDPOINT}/${id}`);
+}
+
+export async function getProductionGroupByUrl(url: string): Promise<ProductionGroup> {
+  return getByUrl<ProductionGroup>(url);
 }
 
 export async function createProductionGroup(
@@ -40,4 +47,22 @@ export async function editProductionGroup(
 
 export async function deleteProductionGroup(id: number): Promise<void> {
   return deleteFromArchive(`${ENDPOINT}/${id}`);
+}
+
+export async function getProductionsForGroup(
+  prod_group: ProductionGroup
+): Promise<Production[]> {
+  try {
+    const apiClient = createApiClient();
+    const productionIdUrls = prod_group.production_id_urls;
+    const productions = await Promise.all(
+      productionIdUrls.map((url) =>
+        apiClient.get<Production>(url).then((res) => res.data)
+      )
+    );
+
+    return productions;
+  } catch {
+    return [];
+  }
 }

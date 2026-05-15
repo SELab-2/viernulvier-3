@@ -844,7 +844,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader
-          production_info={productionInfo}
           image_url={imageUrl}
           isEditing={isEditing}
           originalInfo={originalInfo}
