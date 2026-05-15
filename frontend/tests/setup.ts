@@ -131,6 +131,8 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
   "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
   "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
+  "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
+  "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

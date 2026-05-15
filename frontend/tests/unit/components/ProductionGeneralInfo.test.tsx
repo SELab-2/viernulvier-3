@@ -2,12 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ProductionGeneralInfo } from "~/features/archive/components/ProductionGeneralInfo";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
-
 vi.mock("~/shared/components/SimpleEditableField", () => ({
   default: ({
     renderView,
@@ -32,13 +26,11 @@ describe("ProductionGeneralInfo", () => {
       />
     );
 
-    expect(screen.getByText(/Live audience/i)).toBeInTheDocument();
-    expect(screen.getByText(/Solo/i)).toBeInTheDocument();
+    expect(screen.getByText("Live audience")).toBeInTheDocument();
+    expect(screen.getByText("Solo")).toBeInTheDocument();
 
-    expect(
-      screen.getByText(/productionPage.edit.attendance_mode/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText("I18N_ProductionPage_AttendanceMode:")).toBeInTheDocument();
 
-    expect(screen.getByText(/productionPage.edit.performer_type/i)).toBeInTheDocument();
+    expect(screen.getByText("I18N_ProductionPage_PerformerType:")).toBeInTheDocument();
   });
 });
