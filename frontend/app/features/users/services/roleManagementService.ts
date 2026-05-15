@@ -3,7 +3,12 @@ import type { AxiosInstance } from "axios";
 import { createApiClient } from "~/shared/services/apiClient";
 
 import { ROLES_API_PATH } from "../users.constants";
-import type { IRole, IRoleCreateRequest, IRoleResponse } from "../users.types";
+import type {
+  IRole,
+  IRoleCreateRequest,
+  IRoleResponse,
+  IRoleUpdateRequest,
+} from "../users.types";
 
 function mapRole(response: IRoleResponse): IRole {
   const parts = response.id_url.split("/");
@@ -24,6 +29,18 @@ export async function createRole(
   apiClient: AxiosInstance = createApiClient()
 ) {
   const response = await apiClient.post<IRoleResponse>(ROLES_API_PATH, payload);
+  return mapRole(response.data);
+}
+
+export async function updateRole(
+  roleId: number,
+  payload: IRoleUpdateRequest,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  const response = await apiClient.put<IRoleResponse>(
+    `${ROLES_API_PATH}/${roleId}`,
+    payload
+  );
   return mapRole(response.data);
 }
 
