@@ -34,6 +34,14 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Actions_Create",
   "archive.productionGroups.actions.creating":
     "I18N_Archive_ProductionGroups_Actions_Creating",
+  "archive.productionGroups.actions.delete":
+    "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
+  "archive.productionGroups.actions.deleting":
+    "I18N_Archive_ProductionGroups_Actions_Deleting",
+  "archive.productionGroups.deleteInfo.ariaLabel":
+    "I18N_Archive_ProductionGroups_DeleteInfo_AriaLabel",
+  "archive.productionGroups.deleteInfo.tooltip":
+    "I18N_Archive_ProductionGroups_DeleteInfo_Tooltip",
   "archive.productionGroups.actions.cancel":
     "I18N_Archive_ProductionGroups_Actions_Cancel",
   "archive.productionGroups.dialog.title": "I18N_Archive_ProductionGroups_Dialog_Title",
@@ -47,12 +55,24 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
   "archive.productionGroups.dialog.publicHint":
     "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.deleteDialog.title":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Title",
+  "archive.productionGroups.deleteDialog.description":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Description",
+  "archive.productionGroups.deleteDialog.selectedCount":
+    "I18N_Archive_ProductionGroups_DeleteDialog_SelectedCount_{{count}}",
+  "archive.productionGroups.deleteDialog.warning":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Warning",
+  "archive.productionGroups.deleteDialog.actions.delete":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Actions_Delete",
   "archive.productionGroups.messages.titleRequired":
     "I18N_Archive_ProductionGroups_Messages_TitleRequired",
   "archive.productionGroups.messages.noProductionsSelected":
     "I18N_Archive_ProductionGroups_Messages_NoProductionsSelected",
   "archive.productionGroups.messages.createFailed":
     "I18N_Archive_ProductionGroups_Messages_CreateFailed",
+  "archive.productionGroups.messages.deleteFailed":
+    "I18N_Archive_ProductionGroups_Messages_DeleteFailed",
   "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
   "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",
@@ -142,6 +162,8 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
   "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
   "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
+  "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
+  "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

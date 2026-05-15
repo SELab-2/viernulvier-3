@@ -46,7 +46,13 @@
       "actions": {
         "create": "Create production group",
         "creating": "Creating...",
+        "delete": "Delete production group",
+        "deleting": "Deleting...",
         "cancel": "Cancel"
+      },
+      "deleteInfo": {
+        "ariaLabel": "How to delete a production group",
+        "tooltip": "To delete a production group, first select that group in the filters and then select every production from it. Once the full group is selected, the delete button will appear."
       },
       "dialog": {
         "title": "Create a production group",
@@ -56,10 +62,20 @@
         "publicLabel": "Show this group in the public archive filters",
         "publicHint": "When enabled, visitors can use this production group as a filter in the archive."
       },
+      "deleteDialog": {
+        "title": "Delete production group",
+        "description": "You are about to remove \"{{title}}\" from the archive filters.",
+        "selectedCount": "{{count}} grouped productions",
+        "warning": "The productions themselves stay available in the archive. This action cannot be undone.",
+        "actions": {
+          "delete": "Delete"
+        }
+      },
       "messages": {
         "titleRequired": "A production group title is required.",
         "noProductionsSelected": "Select at least one production before creating a production group.",
-        "createFailed": "Could not create the production group."
+        "createFailed": "Could not create the production group.",
+        "deleteFailed": "Could not delete the production group."
       }
     },
     "accessDenied": {
@@ -68,6 +84,8 @@
       "description": "This section requires the archive:create permission. Contact an administrator if you need access to create productions."
     },
     "add_info": {
+      "performer_type": "Add type performer",
+      "attendance_mode": "Add mode of attendance",
       "supertitle": "Add supertitle",
       "title": "Add title",
       "artist": "Add artist",
@@ -108,6 +126,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Not available.",
+      "unknownAttendanceMode": "Not available.",
       "unknownProduction": "Information in this language is not available.",
       "archive": "Archive",
       "defaultArtist": "viernulvier",
@@ -141,6 +161,8 @@
       "edit": "Edit",
       "save": "Save",
       "cancel": "Cancel",
+      "attendance_mode": "Attendance mode",
+      "performer_type": "Type of performer",
       "supertitle": "Supertitle",
       "title": "Title",
       "artist": "Artist",
@@ -397,13 +419,17 @@
       },
       "form": {
         "permissionsHint": "Select the permissions that should be granted as soon as this role is created.",
+        "permissionsEditHint": "Select the permissions that should remain assigned to this role.",
         "permissionsLoading": "Loading available permissions.",
         "permissionsEmptyHint": "No permissions are available right now."
       },
       "actions": {
         "add": "Add role",
+        "edit": "Edit role",
         "create": "Create role",
         "creating": "Creating role",
+        "update": "Save changes",
+        "updating": "Saving changes",
         "delete": "Delete role",
         "deleting": "Deleting role"
       },
@@ -411,6 +437,7 @@
         "loadFailed": "We could not load roles right now.",
         "permissionsLoadFailed": "We could not load available permissions right now.",
         "createFailed": "We could not create the role right now.",
+        "updateFailed": "We could not update the role right now.",
         "deleteFailed": "We could not delete the role right now.",
         "nameRequired": "A role name is required."
       },
@@ -418,6 +445,10 @@
         "create": {
           "title": "Add role",
           "description": "Create a new role and assign its permissions immediately."
+        },
+        "edit": {
+          "title": "Edit role",
+          "description": "Update this role and keep its assigned permissions in sync."
         },
         "delete": {
           "title": "Delete role",

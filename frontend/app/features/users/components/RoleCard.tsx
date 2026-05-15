@@ -5,6 +5,7 @@ import type { IRole } from "../users.types";
 
 type RoleCardProps = {
   role: IRole;
+  onEdit?: () => void;
   onDelete?: () => void;
 };
 
@@ -27,7 +28,7 @@ function TokenList({ values, emptyLabel }: { values: string[]; emptyLabel: strin
   );
 }
 
-export function RoleCard({ role, onDelete }: RoleCardProps) {
+export function RoleCard({ role, onEdit, onDelete }: RoleCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -36,7 +37,7 @@ export function RoleCard({ role, onDelete }: RoleCardProps) {
         <p className="text-xs font-bold tracking-[0.22em] uppercase opacity-40">
           {t("users.roles.card.label")}
         </p>
-        <h2 className="mt-2 font-serif text-3xl leading-tight [overflow-wrap:anywhere] italic">
+        <h2 className="mt-2 font-serif text-3xl leading-tight wrap-anywhere italic">
           {role.name}
         </h2>
       </div>
@@ -44,7 +45,7 @@ export function RoleCard({ role, onDelete }: RoleCardProps) {
       <div className="mt-auto space-y-4">
         <section>
           <h3 className="mb-2 text-xs font-bold tracking-[0.2em] uppercase opacity-45">
-            {t("users.fields.permissions")}
+            {t("users.roles.fields.permissions")}
           </h3>
           <TokenList
             values={role.permissions}
@@ -53,16 +54,38 @@ export function RoleCard({ role, onDelete }: RoleCardProps) {
         </section>
       </div>
 
-      {onDelete ? (
+      {onEdit || onDelete ? (
         <div className="border-archive-border mt-5 border-t pt-4">
-          <Button onClick={onDelete} sx={deleteButtonSx}>
-            {t("users.roles.actions.delete")}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            {onEdit ? (
+              <Button onClick={onEdit} sx={editButtonSx}>
+                {t("users.roles.actions.edit")}
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button onClick={onDelete} sx={deleteButtonSx}>
+                {t("users.roles.actions.delete")}
+              </Button>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </article>
   );
 }
+
+const editButtonSx = {
+  py: 1,
+  px: 2,
+  borderRadius: "999px",
+  textTransform: "none" as const,
+  fontFamily: "var(--font-sans)",
+  fontSize: "0.72rem",
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  color: "var(--archive-ink)",
+  border: "1px solid var(--archive-border)",
+};
 
 const deleteButtonSx = {
   py: 1,

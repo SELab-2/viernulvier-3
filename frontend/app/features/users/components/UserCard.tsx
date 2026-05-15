@@ -55,7 +55,7 @@ export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardPro
         <p className="text-xs font-bold tracking-[0.22em] uppercase opacity-40">
           {t("users.card.userLabel", { id: user.id })}
         </p>
-        <h2 className="mt-2 font-serif text-3xl leading-tight [overflow-wrap:anywhere] italic">
+        <h2 className="mt-2 font-serif text-3xl leading-tight wrap-anywhere italic">
           {user.username}
         </h2>
 

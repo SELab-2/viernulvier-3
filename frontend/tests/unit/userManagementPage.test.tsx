@@ -615,6 +615,27 @@ describe("UserManagementPage", () => {
       expect(screen.getByText("users.roles.empty.permissions")).toBeInTheDocument();
     });
 
+    it("shows role edit buttons when user has users:update permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:update"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      ).toBeInTheDocument();
+    });
+
     it("shows role delete buttons when user has users:delete permission", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
@@ -634,6 +655,27 @@ describe("UserManagementPage", () => {
           name: "users.roles.actions.delete",
         })
       ).toBeInTheDocument();
+    });
+
+    it("hides role edit buttons without users:update permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).queryByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      ).toBeNull();
     });
 
     it("hides role delete buttons without users:delete permission", async () => {
@@ -751,6 +793,63 @@ describe("UserManagementPage", () => {
       expect(screen.queryByText("users.roles.empty.title")).toBeNull();
     });
 
+    it("updates a role from the edit dialog and refreshes dependent data", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:update"],
+      };
+      vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+      vi.spyOn(roleManagementServiceModule, "listRoles")
+        .mockResolvedValueOnce(roles)
+        .mockResolvedValue([
+          { id: 1, name: "editor-in-chief", permissions: ["users:read"] },
+          roles[1],
+        ]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue([
+        "users:read",
+        "archive:write",
+      ]);
+      vi.spyOn(roleManagementServiceModule, "updateRole").mockResolvedValue({
+        id: 1,
+        name: "editor-in-chief",
+        permissions: ["users:read"],
+      });
+
+      const user = userEvent.setup();
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+      expect(editorRoleCard).not.toBeNull();
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      );
+
+      const nameInput = screen.getByLabelText(
+        "users.roles.fields.name"
+      ) as HTMLInputElement;
+      expect(nameInput.value).toBe("editor");
+      await user.clear(nameInput);
+      await user.type(nameInput, " editor-in-chief ");
+      await user.click(screen.getByRole("checkbox", { name: "archive:write" }));
+      await user.click(screen.getByRole("checkbox", { name: "users:read" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.update" })
+      );
+
+      expect(roleManagementServiceModule.updateRole).toHaveBeenCalledWith(1, {
+        name: "editor-in-chief",
+        permissions: ["users:read"],
+      });
+      expect(authSessionValue.refreshSession).toHaveBeenCalledTimes(1);
+      expect(await screen.findByText("editor-in-chief")).toBeInTheDocument();
+      expect(screen.queryByText("editor")).toBeNull();
+    });
+
     it("shows a permissions load error inside the create role dialog", async () => {
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
       vi.spyOn(permissionManagementServiceModule, "listPermissions").mockRejectedValue({
@@ -811,7 +910,7 @@ describe("UserManagementPage", () => {
       await screen.findByText("users.roles.empty.title");
       await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
 
-      const createForm = document.querySelector("#role-form-dialog");
+      const createForm = document.querySelector("#role-form-dialog-create");
       expect(createForm).not.toBeNull();
 
       fireEvent.submit(createForm as HTMLFormElement);
