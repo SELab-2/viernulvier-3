@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { getAllTags } from "~/features/archive/services/tagService";
 import type { Tag } from "~/features/archive/types/tagTypes";
-import { Tags } from "~/features/archive/pages/ProductionPage";
+import Tags from "~/features/archive/components/TagSection";
 
 vi.mock("~/features/archive/services/tagService", () => ({
   getAllTags: vi.fn(),
