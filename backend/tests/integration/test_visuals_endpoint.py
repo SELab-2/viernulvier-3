@@ -111,7 +111,6 @@ def test_upload_visual_success(
     assert "uploaded_at" in data
 
 
-
 def test_upload_visual_unsupported_type(client: TestClient, db_session: Session):
     headers = create_user_and_login(
         client, db_session, "upload_user3", [Permissions.ARCHIVE_CREATE]
