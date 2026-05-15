@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderWithRouterAndTheme } from "tests/utils/renderWithRouterAndTheme";
 import userEvent from "@testing-library/user-event";
@@ -39,6 +39,26 @@ const adminUser = {
   lastLoginAt: null,
 };
 
+const createOnlyUser = {
+  ...adminUser,
+  isSuperUser: false,
+  permissions: ["archive:create"],
+};
+
+const deleteOnlyUser = {
+  ...adminUser,
+  isSuperUser: false,
+  permissions: ["archive:delete"],
+};
+
+const FILTERED_PRODUCTIONS = mockProductions.slice(0, 2);
+const FILTERED_PRODUCTION_GROUP = {
+  id_url: "/api/v1/archive/production-groups/1",
+  title: "Vooruit Klassiek",
+  is_public_filter: true,
+  production_id_urls: FILTERED_PRODUCTIONS.map((production) => production.id_url),
+};
+
 async function renderArchiveAndNavigate() {
   renderWithRouterAndTheme({ useRealArchive: true });
   const user = userEvent.setup();
@@ -61,6 +81,30 @@ function expectEveryProductionVisible(productions: Production[]) {
 
     expect(exists).toBe(true);
   }
+}
+
+function mockFilteredProductionGroupSelection() {
+  vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([
+    FILTERED_PRODUCTION_GROUP,
+  ]);
+  mockFetchedProductions(FILTERED_PRODUCTIONS);
+}
+
+function renderArchiveWithFilteredProductionGroup() {
+  renderWithRouterAndTheme({
+    useRealArchive: true,
+    initialPath: "/archive?group=1",
+  });
+}
+
+async function selectAllVisibleProductions() {
+  const user = userEvent.setup();
+
+  await user.click(
+    await screen.findByRole("button", { name: "archive.selection.select_all" })
+  );
+
+  return user;
 }
 
 describe("Archive", () => {
@@ -109,6 +153,47 @@ describe("Archive", () => {
           `${mockProductions.length} archive.selection.selected_plural`
       )
     ).toBeInTheDocument();
+  });
+
+  it("shows the delete action for a selected production group when a user with delete permission selects every grouped production", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(deleteOnlyUser);
+    vi.mocked(productionGroupService.deleteProductionGroup).mockResolvedValue();
+    mockFilteredProductionGroupSelection();
+    renderArchiveWithFilteredProductionGroup();
+
+    const user = await selectAllVisibleProductions();
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
+      })
+    );
+
+    const dialog = await screen.findByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", {
+        name: "I18N_Archive_ProductionGroups_DeleteDialog_Actions_Delete",
+      })
+    );
+
+    await waitFor(() =>
+      expect(productionGroupService.deleteProductionGroup).toHaveBeenCalledWith(1)
+    );
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("does not show the delete action without archive delete permission", async () => {
+    vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(createOnlyUser);
+    mockFilteredProductionGroupSelection();
+    renderArchiveWithFilteredProductionGroup();
+
+    await selectAllVisibleProductions();
+
+    expect(
+      screen.queryByRole("button", {
+        name: "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
+      })
+    ).toBeNull();
   });
 
   describe("Result count", async () => {

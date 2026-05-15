@@ -14,6 +14,7 @@ import { CreateProductionButton } from "../components/CreateProductionButton";
 import { ShowMoreButton } from "../components/ShowMoreButton";
 import { MobileToggleButton } from "../components/MobileToggleButton";
 import { CreateProductionGroupDialog } from "../components/CreateProductionGroupDialog";
+import { DeleteProductionGroupDialog } from "../components/DeleteProductionGroupDialog";
 import { useDebouncedState } from "../utils/debouncedState";
 import {
   SortOrderEnum,
@@ -58,6 +59,26 @@ function buildProductionFilters({
   };
 }
 
+function matchesExactlySelectedProductionIds(
+  selectedProductionIds: string[],
+  productionIds: string[]
+): boolean {
+  const uniqueSelectedProductionIds = Array.from(new Set(selectedProductionIds));
+  const uniqueProductionIds = Array.from(new Set(productionIds));
+
+  if (
+    uniqueSelectedProductionIds.length === 0 ||
+    uniqueSelectedProductionIds.length !== uniqueProductionIds.length
+  ) {
+    return false;
+  }
+
+  const selectedProductionIdSet = new Set(uniqueSelectedProductionIds);
+  return uniqueProductionIds.every((productionId) =>
+    selectedProductionIdSet.has(productionId)
+  );
+}
+
 export default function ArchivePage() {
   const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,7 +87,11 @@ export default function ArchivePage() {
   const canCreateArchive =
     isAuthenticated &&
     !!(user?.isSuperUser || user?.permissions.includes(ARCHIVE_PERMISSIONS.create));
-  const isSelectable = canCreateArchive;
+  const canDeleteArchive =
+    isAuthenticated &&
+    !!(user?.isSuperUser || user?.permissions.includes(ARCHIVE_PERMISSIONS.delete));
+  const canManageProductionGroups = canCreateArchive || canDeleteArchive;
+  const isSelectable = canManageProductionGroups;
 
   const [sortOrder, setSortOrder] = useState<SortOrderEnum>(SortOrderEnum.NewestFirst);
 
@@ -81,6 +106,8 @@ export default function ArchivePage() {
   const [selectedProductionIds, setSelectedProductionIds] = useState<string[]>([]);
   const [isCreateProductionGroupDialogOpen, setIsCreateProductionGroupDialogOpen] =
     useState(false);
+  const [productionGroupToDelete, setProductionGroupToDelete] =
+    useState<ProductionGroup | null>(null);
 
   const selectedProductionGroupIds = useMemo(
     () => getRequestedProductionGroupIds(searchParams),
@@ -117,7 +144,7 @@ export default function ArchivePage() {
 
     async function fetchProductionGroups() {
       try {
-        const result = await getAllProductionGroups(!canCreateArchive);
+        const result = await getAllProductionGroups(!canManageProductionGroups);
 
         if (!isCancelled) {
           setProductionGroups(result);
@@ -132,7 +159,7 @@ export default function ArchivePage() {
     return () => {
       isCancelled = true;
     };
-  }, [canCreateArchive]);
+  }, [canManageProductionGroups]);
 
   const handleSelectedProductionGroupsChange = (nextGroups: ProductionGroup[]) => {
     setSearchParams(
@@ -178,6 +205,26 @@ export default function ArchivePage() {
     visibleProductionIds.length > 0 &&
     visibleProductionIds.every((id) => selectedProductionIds.includes(id));
 
+  // Only expose the delete action when the archive is filtered to exactly one
+  // production group and the current selection matches that group's full set.
+  const selectedProductionGroupForDeletion = useMemo(() => {
+    if (
+      selectedProductionGroupIds.length !== 1 ||
+      selectedProductionGroups.length !== 1
+    ) {
+      return null;
+    }
+
+    const [productionGroup] = selectedProductionGroups;
+
+    return matchesExactlySelectedProductionIds(
+      selectedProductionIds,
+      productionGroup.production_id_urls
+    )
+      ? productionGroup
+      : null;
+  }, [selectedProductionGroupIds, selectedProductionGroups, selectedProductionIds]);
+
   const toggleMobileFilters = () => {
     setShowFilters((prev) => !prev);
   };
@@ -215,6 +262,24 @@ export default function ArchivePage() {
 
     setSelectedProductionIds([]);
     setIsCreateProductionGroupDialogOpen(false);
+  };
+
+  const handleProductionGroupDeleted = (deletedProductionGroup: ProductionGroup) => {
+    setProductionGroups((currentGroups) =>
+      currentGroups.filter(
+        (currentGroup) => currentGroup.id_url !== deletedProductionGroup.id_url
+      )
+    );
+    setSelectedProductionIds([]);
+    setProductionGroupToDelete(null);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(PRODUCTION_GROUP_QUERY_PARAM);
+        return next;
+      },
+      { replace: true }
+    );
   };
 
   return (
@@ -255,7 +320,10 @@ export default function ArchivePage() {
                 {total_count === 1 ? t("archive.result") : t("archive.results")}
               </p>
               <CreateProductionButton />
-              <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+              <Protected
+                permissions={[ARCHIVE_PERMISSIONS.create, ARCHIVE_PERMISSIONS.delete]}
+                requireAllPermissions={false}
+              >
                 <Button
                   variant="text"
                   size="small"
@@ -314,6 +382,32 @@ export default function ArchivePage() {
                   >
                     {t("archive.productionGroups.actions.create")}
                   </Button>
+                </Protected>
+                <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+                  {selectedProductionGroupForDeletion ? (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() =>
+                        setProductionGroupToDelete(selectedProductionGroupForDeletion)
+                      }
+                      sx={{
+                        "borderColor": "rgba(192, 57, 43, 0.4)",
+                        "color": "#c0392b",
+                        "fontFamily": "var(--font-sans)",
+                        "textTransform": "uppercase",
+                        "letterSpacing": "0.08em",
+                        "fontSize": "0.72rem",
+                        "fontWeight": 600,
+                        "&:hover": {
+                          borderColor: "rgba(192, 57, 43, 0.55)",
+                          backgroundColor: "rgba(192, 57, 43, 0.08)",
+                        },
+                      }}
+                    >
+                      {t("archive.productionGroups.actions.delete")}
+                    </Button>
+                  ) : null}
                 </Protected>
                 <Button
                   variant="outlined"
@@ -376,6 +470,11 @@ export default function ArchivePage() {
         selectedProductionIds={selectedProductionIds}
         onClose={() => setIsCreateProductionGroupDialogOpen(false)}
         onCreated={handleProductionGroupCreated}
+      />
+      <DeleteProductionGroupDialog
+        productionGroup={productionGroupToDelete}
+        onClose={() => setProductionGroupToDelete(null)}
+        onDeleted={handleProductionGroupDeleted}
       />
       <Outlet />
     </div>
