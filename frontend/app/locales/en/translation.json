@@ -9,6 +9,7 @@
     "blogs": "Blogs",
     "blogs_create": "Create Blog",
     "users": "Users",
+    "visuals": "Visuals",
     "login": "Log in",
     "create_production": "Create production"
   },
@@ -144,7 +145,9 @@
       "artist": "Artist",
       "description": "Description",
       "teaser": "Teaser",
-      "info": "Info"
+      "info": "Info",
+      "search_tags": "Search tags...",
+      "no_tags": "No tags found"
     },
     "delete": {
       "delete": "Delete",
@@ -431,5 +434,58 @@
       "history": "Our History"
     },
     "quote": "Minder is sometimes meer, but sometimes not"
+  },
+
+  "visuals": {
+    "title": "Visuals",
+    "subtitle": "A visual journey through the VIERNULVIER archive",
+    "heroAlt": "Archive visuals from VIERNULVIER",
+    "loading": "Loading visuals",
+    "errorTitle": "Could not load visuals",
+    "error": "The visuals could not be fetched from the server.",
+    "showMore": "Show more",
+    "count": "{{count}} items",
+    "delete": "Delete",
+    "filters": {
+      "all": "All"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Timetable",
+      "programme": "Programme",
+      "video": "Video",
+      "picture": "Picture",
+      "other": "Other"
+    },
+    "upload": {
+      "button": "Upload",
+      "uploading": "Uploading...",
+      "dialogTitle": "Upload new visual",
+      "dropOrBrowse": "Drop a file here or click to browse",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Give this visual a title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe this visual...",
+      "typeLabel": "Type",
+      "cancel": "Cancel",
+      "submit": "Upload"
+    },
+    "messages": {
+      "loadMoreFailed": "Could not load more: {{error}}",
+      "uploadFailed": "Upload failed: {{error}}",
+      "deleteFailed": "Delete failed: {{error}}",
+      "confirmDelete": "Are you sure you want to delete this visual?"
+    },
+    "card": {
+      "noTitle": "Untitled"
+    },
+    "empty": {
+      "title": "No visuals found",
+      "description": "No visuals are available for this filter yet."
+    },
+    "lightbox": {
+      "close": "Close"
+    }
   }
 }

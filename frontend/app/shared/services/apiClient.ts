@@ -53,6 +53,10 @@ export function createApiClient(lang?: string) {
       config.headers["Preferred-Language"] = i18nlang;
     }
 
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+
     return config;
   });
 
