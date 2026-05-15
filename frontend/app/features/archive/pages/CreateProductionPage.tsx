@@ -3,7 +3,7 @@ import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
 import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
@@ -12,7 +12,6 @@ import {
   useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
-import type { Tag } from "../types/tagTypes";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
