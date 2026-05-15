@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { EditButton } from "~/features/archive/components/EditButton";
+import type { Tag } from "~/features/archive/types/tagTypes";
 
 import { AuthSessionProvider } from "~/features/auth";
 import * as loginServiceModule from "~/features/auth/services/loginService";
@@ -29,11 +30,28 @@ const originalEvents = [
   },
 ];
 
+const originalTags: Tag[] = [
+  {
+    id_url: "http://id_url/tags/1",
+    names: [
+      {
+        language: "en",
+        name: "tag_name",
+      },
+      {
+        language: "nl",
+        name: "tag_naam",
+      },
+    ],
+  },
+];
+
 const setIsEditing = vi.fn();
 const setDraftInfo = vi.fn();
 const setDraftEvents = vi.fn();
 const setNewEvents = vi.fn();
 const setDeletedEvents = vi.fn();
+const setDraftTags = vi.fn();
 const handleSave = vi.fn();
 
 function renderEditButton(overrides = {}, user = baseUser) {
@@ -51,6 +69,8 @@ function renderEditButton(overrides = {}, user = baseUser) {
         setDraftEvents={setDraftEvents}
         setNewEvents={setNewEvents}
         setDeletedEvents={setDeletedEvents}
+        originalTags={originalTags}
+        setDraftTags={setDraftTags}
         enable_save={true}
         is_saving={false}
         _handleSave={handleSave}
