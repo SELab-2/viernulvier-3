@@ -66,7 +66,7 @@ export function BlogPageMediaGallery({
   );
 
   useEffect(() => {
-    if (!blogNumericId || !isEditing) return;
+    if (!blogNumericId) return;
 
     let isCancelled = false;
 
