@@ -6,12 +6,14 @@ import * as artistService from "~/features/archive/services/artistService";
 import * as productionService from "~/features/archive/services/productionService";
 import * as productionGroupService from "~/features/archive/services/productionGroupService";
 import * as tagService from "~/features/archive/services/tagService";
+import * as hallService from "~/features/archive/services/hallService";
 import * as loginServiceModule from "~/features/auth/services/loginService";
 
 vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/productionGroupService");
 vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/tagService");
+vi.mock("~/features/archive/services/hallService");
 vi.mock("~/features/archive/services/productionGroupService");
 
 const adminUser = {
@@ -45,6 +47,7 @@ describe("CreateProductionButton", () => {
   beforeEach(() => {
     vi.mocked(artistService.getArtists).mockResolvedValue([]);
     vi.mocked(tagService.getAllTags).mockResolvedValue([]);
+    vi.mocked(hallService.getAllHalls).mockResolvedValue([]);
     vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([]);
     vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([]);
     vi.mocked(productionService.getProductionsPaginated).mockResolvedValue({
