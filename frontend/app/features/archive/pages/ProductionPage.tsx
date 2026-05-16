@@ -1,15 +1,6 @@
 import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import Add from "@mui/icons-material/Add";
-import Close from "@mui/icons-material/Close";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getSanitizedHtmlOrUndefined,
   getTextOrDefault,
@@ -29,26 +20,23 @@ import {
   getPriceByUrl,
   updateEventByUrl,
 } from "~/features/archive/services/eventService";
-import { getAllHalls, getHallByUrl } from "~/features/archive/services/hallService";
-import { EventCard, type EventWithResolvedRelations } from "../components/EventCard";
+import { getHallByUrl } from "~/features/archive/services/hallService";
+import { type EventWithResolvedRelations } from "../components/EventCard";
 import { ProductionPageMediaGallery } from "../components/ProductionPageMediaGallery";
 import { updateProductionByUrl } from "../services/productionService";
 import { deleteByUrl } from "~/shared/services/sharedService";
-import type { Hall } from "../types/hallTypes";
-import EditableEventCard from "../components/EditableEventCard";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 import { getBlogsForProduction } from "~/features/blogs/services/blogService";
 import { BlogCardList } from "~/features/blogs/components/BlogCard";
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import type { Tag } from "../types/tagTypes";
-import { getAllTags } from "../services/tagService";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { DeleteInfoButton } from "../components/DeleteInfoButton";
 import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
-import { Protected } from "~/features/auth";
+import EventSection from "../components/EventSection";
+import Tags from "../components/TagSection";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
-import { useClickOutside } from "~/shared/hooks/useClickOutside";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 
 interface ProductionPageProps {
@@ -78,16 +66,6 @@ function getEventTimestamp(startsAt?: string): number {
   }
 
   return parsedDate.getTime();
-}
-
-// prefer active language, then dutch, then first available tag name
-function getTagNameByLanguage(tag: Tag, language: string) {
-  let fallback = tag.names[0]?.name;
-  for (const name of tag.names) {
-    if (name.language === language) return name.name;
-    if (name.language === "nl") fallback = name.name;
-  }
-  return fallback;
 }
 
 function isInfoModified(
@@ -241,291 +219,6 @@ async function handleInfoSave(
   }
 }
 
-type TagListItemProps = React.LiHTMLAttributes<HTMLLIElement> & {
-  children: ReactNode;
-};
-function TagListItem({ className, children, ...props }: TagListItemProps) {
-  return (
-    <li
-      className={`bg-archive-control flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--archive-accent)_24%,transparent)] px-4 py-1.5 text-[0.68rem] tracking-[--archive-tracking-label] uppercase ${className}`}
-      {...props}
-    >
-      {children}
-    </li>
-  );
-}
-
-type TagsProps = {
-  performer_type?: string;
-  originalTags: Tag[];
-  isEditing?: boolean;
-  draftTags: Tag[];
-  preferredLanguage?: string;
-  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
-};
-
-function TagDropdown({
-  allTags,
-  selectedTags,
-  setSelectedTags,
-  setIsOpen,
-  language,
-}: {
-  allTags: Tag[];
-  selectedTags: Tag[];
-  setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  language: string;
-}) {
-  const { t } = useTranslation();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [search, setSearch] = useState("");
-  function addTag(tag: Tag) {
-    setSelectedTags((prev) => {
-      const alreadyExists = prev.some((t) => t.id_url === tag.id_url);
-
-      if (alreadyExists) {
-        return prev;
-      }
-
-      return [...prev, tag];
-    });
-
-    setSearch("");
-    setIsOpen(false);
-  }
-  const filteredTags = allTags.filter((tag) => {
-    const localizedName = getTagNameByLanguage(tag, language);
-
-    if (!localizedName) {
-      return false;
-    }
-
-    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
-
-    const alreadySelected = selectedTags.some(
-      (draftTag) => draftTag.id_url === tag.id_url
-    );
-
-    return matchesSearch && !alreadySelected;
-  });
-
-  useClickOutside(dropdownRef, () => {
-    setIsOpen(false);
-    setSearch("");
-  });
-
-  return (
-    <div
-      ref={dropdownRef}
-      data-testid="tag-dropdown"
-      className="bg-archive-paper absolute z-50 mt-3 w-72 rounded-xl border border-white/10 p-3 shadow-2xl"
-    >
-      <input
-        type="text"
-        placeholder={t("productionPage.edit.search_tags")}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="bg-archive-control mb-3 w-full rounded-lg px-3 py-2 text-sm outline-none"
-        autoFocus
-      />
-
-      <ul className="max-h-64 overflow-y-auto">
-        {filteredTags.map((tag) => (
-          <li key={tag.id_url}>
-            <button
-              className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
-              onClick={() => addTag(tag)}
-            >
-              {getTagNameByLanguage(tag, language)}
-            </button>
-          </li>
-        ))}
-
-        {filteredTags.length === 0 && (
-          <li className="px-3 py-2 text-sm opacity-60">
-            {t("productionPage.edit.no_tags")}
-          </li>
-        )}
-      </ul>
-    </div>
-  );
-}
-
-export function Tags({
-  performer_type,
-  originalTags,
-  draftTags,
-  setDraftTags,
-  isEditing,
-  preferredLanguage,
-}: TagsProps) {
-  const { lang } = useParams();
-  const language = preferredLanguage ?? lang!;
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  useEffect(() => {
-    if (!isEditing) return;
-
-    getAllTags()
-      .then(setAllTags)
-      .catch(() => setAllTags([]));
-  }, [isEditing]);
-
-  function removeTag(id_url: string) {
-    setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
-  }
-
-  return (
-    <section id="production-tags" aria-label="Production tags">
-      {isEditing && (
-        <div className="flex items-center gap-2">
-          <p className="font-bold underline">Tags</p>
-        </div>
-      )}
-
-      <ul className="mt-6 flex flex-wrap gap-2">
-        {/* Performer type badge */}
-        {performer_type && (
-          <TagListItem
-            id="tag-performer-type"
-            aria-label="Performer type"
-            className="font-semibold"
-          >
-            {performer_type}
-          </TagListItem>
-        )}
-
-        {/* existing tags */}
-        {!isEditing
-          ? originalTags.map((tag) => (
-              <TagListItem key={tag.id_url} aria-label="Tag">
-                {getTagNameByLanguage(tag, language)}
-              </TagListItem>
-            ))
-          : draftTags.map((tag) => (
-              <TagListItem key={tag.id_url}>
-                {getTagNameByLanguage(tag, language)}
-                <Close
-                  aria-label={`remove-${getTagNameByLanguage(tag, language)}`}
-                  sx={{ fontSize: "1rem" }}
-                  className="cursor-pointer text-red-500"
-                  onClick={() => removeTag(tag.id_url)}
-                />
-              </TagListItem>
-            ))}
-
-        {/* Add tag button */}
-        {isEditing && (
-          <button
-            className="cursor-pointer"
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-          >
-            <TagListItem key="add-tag" aria-label="Add Tag">
-              <Add sx={{ fontSize: "1rem" }} className="text-archive-accent/90" />
-            </TagListItem>
-          </button>
-        )}
-        {isDropdownOpen && (
-          <TagDropdown
-            allTags={allTags}
-            selectedTags={draftTags}
-            setSelectedTags={setDraftTags}
-            setIsOpen={setIsDropdownOpen}
-            language={language}
-          />
-        )}
-      </ul>
-    </section>
-  );
-}
-
-type EventsProps = {
-  event_objects: EventWithResolvedRelations[];
-};
-function Events({ event_objects }: EventsProps) {
-  const { t } = useTranslation();
-
-  if (event_objects.length > 0) {
-    return (
-      <div id="events-listing">
-        <ul className="mt-6 space-y-2.5">
-          {event_objects.map((event) => (
-            <EventCard event={event} key={event.id_url} />
-          ))}
-        </ul>
-      </div>
-    );
-  } else {
-    return (
-      <div id="events-listing" className="mt-6">
-        <p className="mt-1 text-sm opacity-75">
-          {t("productionPage.fallback.noEvents")}
-        </p>
-      </div>
-    );
-  }
-}
-
-function EditEvents({
-  draftEvents,
-  setDraftEvents,
-  setDeletedEvents,
-  halls,
-  isNewEvents = false,
-}: {
-  draftEvents: EventWithResolvedRelations[];
-  setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
-  setDeletedEvents?: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
-  halls: Hall[];
-  isNewEvents?: boolean;
-}) {
-  return (
-    <ul className="mt-6 space-y-2.5">
-      {draftEvents.map((event, index) => (
-        <EditableEventCard
-          key={event.id_url}
-          event={event}
-          halls={halls}
-          onChange={(updated) => {
-            setDraftEvents((prev) => {
-              const copy = [...prev];
-              copy[index] = updated;
-              return copy;
-            });
-          }}
-          onDelete={() => {
-            setDraftEvents((prev) => prev.filter((_, i) => i !== index));
-            if (setDeletedEvents !== undefined) {
-              setDeletedEvents((prev) => [...prev, event]);
-            }
-          }}
-          canDeleteWithoutPerms={isNewEvents}
-        />
-      ))}
-    </ul>
-  );
-}
-
-function NewEventButton({ onClick }: { onClick: () => void }) {
-  const { t } = useTranslation();
-  return (
-    <div className="mt-4 flex justify-center">
-      <button
-        onClick={onClick}
-        className="bg-archive-accent hover:bg-archive-accent/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all duration-100 active:scale-95"
-      >
-        <Add fontSize="small" />
-        <p className="text-sm font-medium tracking-wide uppercase">
-          {t("productionPage.newEvent")}
-        </p>
-      </button>
-    </div>
-  );
-}
-
 export function ProductionPage({ production, preferredLanguage }: ProductionPageProps) {
   const { t, i18n } = useTranslation();
   const { lang } = useParams();
@@ -571,9 +264,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
-
-  // State containing all halls so that editable event cards don't have to each fetch all the halls themselves for every event
-  const [allHalls, setAllHalls] = useState<Hall[]>([]);
 
   const _handleSave = () =>
     handleInfoSave(
@@ -637,20 +327,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     originalPerformerType,
     draftPerformerType,
   ]);
-
-  // Helper to create an empty event when pressing new event button
-  function createEmptyEvent(): EventWithResolvedRelations {
-    return {
-      id_url: "", // temporary ID
-      production_id_url: production.id_url,
-      starts_at: "",
-      ends_at: "",
-      order_url: "",
-      price_urls: [],
-      resolvedHall: undefined,
-      resolvedPrices: [],
-    };
-  }
 
   useEffect(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
@@ -804,16 +480,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     };
   }, [production.event_id_urls, i18n.resolvedLanguage]);
 
-  // Load list of all halls for autocomplete in editing
-  useEffect(() => {
-    if (isEditing) {
-      const loadHalls = async () => {
-        const halls = await getAllHalls();
-        setAllHalls(halls);
-      };
-      loadHalls();
-    }
-  }, [isEditing]);
   // Load linked blogs for this production
   useEffect(() => {
     let isCancelled = false;
@@ -893,39 +559,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               )}
             />
 
-            <section className="bg-archive-surface-strong mt-8 max-w-3xl rounded-[1.75rem] p-6">
-              <h2 className="text-[0.68rem] tracking-[0.25em] uppercase opacity-70">
-                {t("productionPage.archiveSchema")}
-              </h2>
-
-              {isEditing ? (
-                <>
-                  {/* Events that are being edited */}
-                  <EditEvents
-                    draftEvents={draftEvents}
-                    setDraftEvents={setDraftEvents}
-                    setDeletedEvents={setDeletedEvents}
-                    halls={allHalls}
-                  />
-                  {/* Events that are being newly created */}
-                  <EditEvents
-                    draftEvents={newEvents}
-                    setDraftEvents={setNewEvents}
-                    halls={allHalls}
-                    isNewEvents={true}
-                  />
-                  <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
-                    <NewEventButton
-                      onClick={() => {
-                        setNewEvents((prev) => [...prev, createEmptyEvent()]);
-                      }}
-                    />
-                  </Protected>
-                </>
-              ) : (
-                <Events event_objects={eventObjects} />
-              )}
-            </section>
+            <EventSection
+              isEditing={isEditing}
+              production_id_url={production.id_url}
+              originalEvents={eventObjects}
+              draftEvents={draftEvents}
+              setDraftEvents={setDraftEvents}
+              setDeletedEvents={setDeletedEvents}
+              newEvents={newEvents}
+              setNewEvents={setNewEvents}
+            />
 
             {linkedBlogs.length > 0 && (
               <section className="bg-archive-surface-strong mt-8 rounded-[1.75rem] p-6">
