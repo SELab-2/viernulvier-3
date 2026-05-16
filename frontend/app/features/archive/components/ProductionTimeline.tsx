@@ -72,7 +72,7 @@ function MonthDisplay({
 
   const language = preferredLanguage ?? lang;
 
-  const anySelected = selectedProductionIds ? selectedProductionIds.length > 0 : false
+  const anySelected = selectedProductionIds ? selectedProductionIds.length > 0 : false;
 
   return (
     <div>
@@ -100,7 +100,7 @@ function MonthDisplay({
             preferredLanguage={language}
             isSelectable={isSelectable}
             selected={selectedProductionIds?.includes(prod.id_url)}
-			anySelected={anySelected}
+            anySelected={anySelected}
             onToggleSelected={onToggleProductionSelection}
           />
         ))}

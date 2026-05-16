@@ -279,11 +279,19 @@ export function ProductionCard({
       }}
       elevation={0}
     >
-      <Link
-        to={lp(`/archive/productions/${productionId}`)}
-        aria-label={`Open details for ${title}`}
-        style={{ position: "absolute", inset: 0, zIndex: 1 }}
-      />
+      {anySelected ? (
+        <div
+          onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
+          aria-label={`${selected ? t("archive.selection.selected") : t("archive.selection.select")} ${title}`}
+        />
+      ) : (
+        <Link
+          to={lp(`/archive/productions/${productionId}`)}
+          aria-label={`Open details for ${title}`}
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
+        />
+      )}
       <Box sx={{ position: "relative", overflow: "hidden" }}>
         <CardMedia
           className="production-card-image"
