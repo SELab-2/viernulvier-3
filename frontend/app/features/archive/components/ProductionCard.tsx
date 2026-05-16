@@ -281,7 +281,13 @@ export function ProductionCard({
     >
       {anySelected ? (
         <div
-          onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+          onClick={(e) => handleToggleSelected(e)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleToggleSelected(e);
+            }
+          }}
           style={{ position: "absolute", inset: 0, zIndex: 1 }}
           aria-label={`${selected ? t("archive.selection.selected") : t("archive.selection.select")} ${title}`}
         />
