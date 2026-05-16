@@ -6,6 +6,9 @@ import {
   getVisualTypes,
   uploadVisual,
   deleteVisual,
+  isImageItem,
+  isVideoItem,
+  isPdfItem,
 } from "~/features/visuals/services/visualService";
 import type { VisualItem, VisualType } from "~/features/visuals/types/visualTypes";
 import { Protected } from "~/features/auth";
@@ -137,14 +140,6 @@ export default function VisualsPage() {
         })
       );
     }
-  }
-
-  function isImageItem(item: VisualItem): boolean {
-    return item.content_type.startsWith("image/");
-  }
-
-  function isVideoItem(item: VisualItem): boolean {
-    return item.content_type.startsWith("video/");
   }
 
   function renderMain() {
