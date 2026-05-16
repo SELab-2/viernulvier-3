@@ -61,7 +61,7 @@ export function CreateProductionGroupDialog({
     setIsSubmitting(false);
   }, [clearMessages]);
 
-const trimmedTitle = title.trim();
+  const trimmedTitle = title.trim();
   const isSubmitDisabled =
     isSubmitting || !trimmedTitle || selectedProductionIds.length === 0;
 
