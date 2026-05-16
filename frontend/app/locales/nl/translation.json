@@ -9,6 +9,7 @@
     "blogs": "Blogs",
     "blogs_create": "Creëer Blog",
     "users": "Gebruikers",
+    "visuals": "Beeldmateriaal",
     "login": "Log in",
     "create_production": "Nieuwe productie"
   },
@@ -51,12 +52,51 @@
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
+    "productionGroups": {
+      "actions": {
+        "create": "Maak productiegroep",
+        "creating": "Bezig met aanmaken...",
+        "delete": "Verwijder productiegroep",
+        "deleting": "Bezig met verwijderen...",
+        "cancel": "Annuleer"
+      },
+      "deleteInfo": {
+        "ariaLabel": "Hoe je een productiegroep verwijdert",
+        "tooltip": "Om een productiegroep te verwijderen, selecteer je eerst die groep in de filters en daarna alle producties uit die groep. Zodra de volledige groep geselecteerd is, verschijnt de verwijderknop."
+      },
+      "dialog": {
+        "title": "Maak een productiegroep",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",
+        "selectedCount": "{{count}} geselecteerde producties",
+        "nameLabel": "Titel van de groep",
+        "publicLabel": "Toon deze groep in de publieke archieffilters",
+        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze productiegroep gebruiken als filter in het archief."
+      },
+      "deleteDialog": {
+        "title": "Verwijder productiegroep",
+        "description": "Je staat op het punt om \"{{title}}\" uit de archieffilters te verwijderen.",
+        "selectedCount": "{{count}} gegroepeerde producties",
+        "warning": "De producties zelf blijven beschikbaar in het archief. Deze actie kan niet ongedaan worden gemaakt.",
+        "actions": {
+          "delete": "Verwijder"
+        }
+      },
+      "messages": {
+        "titleRequired": "Een titel voor de productiegroep is verplicht.",
+        "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
+        "createFailed": "Kon de productiegroep niet aanmaken.",
+        "deleteFailed": "Kon de productiegroep niet verwijderen."
+      }
+    },
     "accessDenied": {
       "sectionLabel": "Beperkt gebied",
       "title": "Je hebt geen toegang tot blogcreatie",
       "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
     },
     "add_info": {
+      "performer_type": "Voeg soort artiest toe",
+      "attendance_mode": "voeg aanwezigheidsmodus toe",
       "supertitle": "Voeg een supertitel toe",
       "title": "Voeg een titel toe",
       "artist": "Voeg een artiest toe",
@@ -86,6 +126,8 @@
   },
   "productionPage": {
     "fallback": {
+      "unknownPerformerType": "Niet beschikbaar.",
+      "unknownAttendanceMode": "Niet beschikbaar.",
       "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
@@ -119,15 +161,19 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
+      "attendance_mode": "Aanwezigheidsmodus",
+      "performer_type": "Soort artiest",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
       "description": "Beschrijving",
       "teaser": "Teaser",
-      "info": "Info"
+      "info": "Info",
+      "search_tags": "Zoek tags...",
+      "no_tags": "Geen tags gevonden"
     },
     "delete": {
-      "delete": "Verwijder",
+      "delete": "Verwijder info (nl)",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
     }
@@ -244,6 +290,12 @@
       "uploadMedia": "Upload media",
       "deleteMedia": "Verwijder media",
       "noMedia": "Geen media voor deze blog",
+      "delete": {
+        "delete": "Blog verwijderen",
+        "deleting": "Bezig met verwijderen...",
+        "confirm": "Ben je zeker dat je deze blog wil verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "error": "De blog kon niet verwijderd worden. Probeer opnieuw."
+      },
       "edit": {
         "title": "Pas titel aan",
         "content": "Pas inhoud aan",
@@ -374,13 +426,17 @@
       },
       "form": {
         "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsEditHint": "Kies de permissies die aan deze rol gekoppeld moeten blijven.",
         "permissionsLoading": "Beschikbare permissies worden geladen.",
         "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
+        "edit": "Rol bewerken",
         "create": "Rol aanmaken",
         "creating": "Rol wordt aangemaakt",
+        "update": "Wijzigingen opslaan",
+        "updating": "Wijzigingen worden opgeslagen",
         "delete": "Rol verwijderen",
         "deleting": "Rol wordt verwijderd"
       },
@@ -388,6 +444,7 @@
         "loadFailed": "De rollen konden nu niet geladen worden.",
         "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "updateFailed": "De rol kon nu niet worden bijgewerkt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
       },
@@ -395,6 +452,10 @@
         "create": {
           "title": "Rol toevoegen",
           "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
+        },
+        "edit": {
+          "title": "Rol bewerken",
+          "description": "Werk deze rol bij en houd de toegewezen permissies in sync."
         },
         "delete": {
           "title": "Rol verwijderen",
@@ -419,5 +480,58 @@
       "history": "Onze Geschiedenis"
     },
     "quote": "Less is soms more, maar soms ook niet"
+  },
+
+  "visuals": {
+    "title": "Beeldmateriaal",
+    "subtitle": "Een visuele reis door het archief van VIERNULVIER",
+    "heroAlt": "Archiefbeelden van VIERNULVIER",
+    "loading": "Beeldmateriaal wordt geladen",
+    "errorTitle": "Beeldmateriaal kon niet worden geladen",
+    "error": "Het beeldmateriaal kon niet worden opgehaald van de server.",
+    "showMore": "Toon meer",
+    "count": "{{count}} items",
+    "delete": "Verwijderen",
+    "filters": {
+      "all": "Alles"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Tijdschema",
+      "programme": "Programma",
+      "video": "Video",
+      "picture": "Foto",
+      "other": "Overig"
+    },
+    "upload": {
+      "button": "Uploaden",
+      "uploading": "Bezig met uploaden...",
+      "dialogTitle": "Nieuw beeldmateriaal uploaden",
+      "dropOrBrowse": "Sleep een bestand hierheen of klik om te bladeren",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef een titel voor dit beeldmateriaal",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf dit beeldmateriaal...",
+      "typeLabel": "Type",
+      "cancel": "Annuleren",
+      "submit": "Uploaden"
+    },
+    "messages": {
+      "loadMoreFailed": "Meer laden mislukt: {{error}}",
+      "uploadFailed": "Uploaden mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je dit beeldmateriaal wilt verwijderen?"
+    },
+    "card": {
+      "noTitle": "Zonder titel"
+    },
+    "empty": {
+      "title": "Geen beeldmateriaal gevonden",
+      "description": "Er is nog geen beeldmateriaal beschikbaar voor dit filter."
+    },
+    "lightbox": {
+      "close": "Sluiten"
+    }
   }
 }

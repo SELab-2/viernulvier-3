@@ -1,7 +1,10 @@
+from minio import Minio
 from sqlalchemy import asc, desc
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
+from src.config import settings
 from src.models import Blog, BlogContent
+from src.models.media import Media
 from src.models.production import Production
 from src.models.production_group import ProductionGroup
 from src.schemas.pagination import Pagination
@@ -251,10 +254,18 @@ def update_blog_by_id(
     return build_blog_response(db, blog, base_url)
 
 
-def delete_blog_by_id(db: Session, blog_id: int) -> bool:
+def delete_blog_by_id(db: Session, blog_id: int, minio_client: Minio) -> bool:
     blog = db.query(Blog).filter(Blog.id == blog_id).first()
     if not blog:
         raise NotFoundError("Blog", blog_id)
+
+    media_items = db.query(Media).filter(Media.blog_id == blog_id).all()
+    for media in media_items:
+        try:
+            minio_client.remove_object(settings.MINIO_BUCKET, media.object_key)
+        except Exception:
+            pass
+        db.delete(media)
 
     db.query(BlogContent).filter(BlogContent.blog_id == blog_id).delete()
     db.delete(blog)

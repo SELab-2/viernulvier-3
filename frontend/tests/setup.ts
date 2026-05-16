@@ -28,7 +28,51 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.explore": "I18N_Home_Button_Explore",
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
-  "archive.create_production": "I18_Archive_Create_Production",
+  "archive.create_production": "I18N_Archive_Create_Production",
+  "archive.add_info.title": "I18_Archive_addInfo_Title",
+  "archive.productionGroups.actions.create":
+    "I18N_Archive_ProductionGroups_Actions_Create",
+  "archive.productionGroups.actions.creating":
+    "I18N_Archive_ProductionGroups_Actions_Creating",
+  "archive.productionGroups.actions.delete":
+    "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
+  "archive.productionGroups.actions.deleting":
+    "I18N_Archive_ProductionGroups_Actions_Deleting",
+  "archive.productionGroups.deleteInfo.ariaLabel":
+    "I18N_Archive_ProductionGroups_DeleteInfo_AriaLabel",
+  "archive.productionGroups.deleteInfo.tooltip":
+    "I18N_Archive_ProductionGroups_DeleteInfo_Tooltip",
+  "archive.productionGroups.actions.cancel":
+    "I18N_Archive_ProductionGroups_Actions_Cancel",
+  "archive.productionGroups.dialog.title": "I18N_Archive_ProductionGroups_Dialog_Title",
+  "archive.productionGroups.dialog.description":
+    "I18N_Archive_ProductionGroups_Dialog_Description",
+  "archive.productionGroups.dialog.selectedCount":
+    "I18N_Archive_ProductionGroups_Dialog_SelectedCount_{{count}}",
+  "archive.productionGroups.dialog.nameLabel":
+    "I18N_Archive_ProductionGroups_Dialog_NameLabel",
+  "archive.productionGroups.dialog.publicLabel":
+    "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
+  "archive.productionGroups.dialog.publicHint":
+    "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.deleteDialog.title":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Title",
+  "archive.productionGroups.deleteDialog.description":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Description",
+  "archive.productionGroups.deleteDialog.selectedCount":
+    "I18N_Archive_ProductionGroups_DeleteDialog_SelectedCount_{{count}}",
+  "archive.productionGroups.deleteDialog.warning":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Warning",
+  "archive.productionGroups.deleteDialog.actions.delete":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Actions_Delete",
+  "archive.productionGroups.messages.titleRequired":
+    "I18N_Archive_ProductionGroups_Messages_TitleRequired",
+  "archive.productionGroups.messages.noProductionsSelected":
+    "I18N_Archive_ProductionGroups_Messages_NoProductionsSelected",
+  "archive.productionGroups.messages.createFailed":
+    "I18N_Archive_ProductionGroups_Messages_CreateFailed",
+  "archive.productionGroups.messages.deleteFailed":
+    "I18N_Archive_ProductionGroups_Messages_DeleteFailed",
   "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
   "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",
@@ -80,6 +124,17 @@ const translationMap: Record<string, TranslationValue> = {
   "blogs.contentPage.edit.confirmBody": "I18N_Confirm_Body",
   "blogs.contentPage.edit.cancel": "I18N_Edit_Cancel",
   "blogs.contentPage.edit.delete": "I18N_Edit_Delete",
+  "blogs.contentPage.delete.delete": "I18N_Blog_Delete",
+  "blogs.contentPage.delete.deleting": "I18N_Blog_Deleting",
+  "blogs.contentPage.delete.confirm": "I18N_Blog_Delete_Confirm",
+  "blogs.contentPage.delete.error": "I18N_Blog_Delete_Error",
+  "blogs.createBlogPage.backToBlogs": "I18N_Back_To_Blogs",
+  "blogs.createBlogPage.remove": "I18N_Remove",
+  "blogs.createBlogPage.title.placeholder": "I18N_Title_Placeholder",
+  "blogs.createBlogPage.media.title": "I18N_Media_Title",
+  "blogs.createBlogPage.series.searchSeries": "I18N_Search_Series",
+  "blogs.createBlogPage.save.save": "I18N_Save_Blog",
+  "blogs.createBlogPage.accessDenied.description": "I18N_Blog_AccessDenied_Description",
   "notFound.title": "I18N_NotFound_Title",
   "notFound.description": "I18N_NotFound_Description",
   "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
@@ -112,6 +167,10 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.title": "I18N_ProductionInfo_Edit_Title",
   "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
+  "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
+  "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
+  "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
+  "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {
