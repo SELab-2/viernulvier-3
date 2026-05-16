@@ -80,9 +80,7 @@ describe("DeleteProductionButton", () => {
 
     renderDeleteProductionButton(1);
 
-    expect(
-      screen.queryByText("I18N_Production_Delete")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("I18N_Production_Delete")).not.toBeInTheDocument();
   });
 
   it("calls deleteProduction and navigates on confirm", async () => {
