@@ -156,6 +156,10 @@
     "address": "Adres",
     "addressUnknown": "Adres onbekend",
     "visualEvidence": "Foto's",
+    "confirmDeleteMedia": "Weet je zeker dat je dit media-item wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "deleteMedia": "Foto verwijderen",
+    "deleteMediaFailed": "Foto verwijderen mislukt: {{error}}",
+    "archivePhotoAlt": "Archieffoto voor {{title}} {{index}}",
     "edit": {
       "add": "Voeg info toe",
       "edit": "Pas aan",

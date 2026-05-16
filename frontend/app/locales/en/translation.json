@@ -156,6 +156,10 @@
     "address": "Address",
     "addressUnknown": "Address unknown",
     "visualEvidence": "Photos",
+    "confirmDeleteMedia": "Are you sure you want to delete this media item? This action cannot be undone.",
+    "deleteMedia": "Delete photo",
+    "deleteMediaFailed": "Failed to delete photo: {{error}}",
+    "archivePhotoAlt": "Archive photo for {{title}} {{index}}",
     "edit": {
       "add": "Add info",
       "edit": "Edit",
