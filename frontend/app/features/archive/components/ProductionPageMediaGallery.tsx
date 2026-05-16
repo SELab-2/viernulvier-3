@@ -63,18 +63,7 @@ export function ProductionPageMediaGallery({
     [mediaByProductionId, production_id_url]
   );
 
-  // fall back to placeholder images while real media hasn't loaded yet
-  const fallbackItems: MediaItem[] = useMemo(
-    () =>
-      Array.from({ length: 5 }, (_, i) => ({
-        id_url: `fallback-${i}`,
-        url: FALLBACK_IMAGE_URL,
-        content_type: "image/jpeg",
-      })) as MediaItem[],
-    []
-  );
-
-  const displayItems = mediaItems.length > 0 ? mediaItems : fallbackItems;
+  const displayItems = mediaItems.length > 0 ? mediaItems : [];
 
   const productionNumericId = useMemo(
     () => getProductionNumericIdFromUrl(production_id_url),
@@ -189,32 +178,30 @@ export function ProductionPageMediaGallery({
         ref={evidenceTrackRef}
         className="flex gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin] cursor-default"
       >
-        {displayItems.map((item, index) => {
-          const isFallbackItem = isFallback || item.id_url.startsWith("fallback-");
-          const mediaId = isFallbackItem ? -1 : getMediaNumericId(item.id_url);
+        {displayItems.length > 0 ? (
+          displayItems.map((item, index) => {
+            const isFallbackItem = item.id_url.startsWith("fallback-"); // never true now
+            const mediaId = getMediaNumericId(item.id_url);
 
-          return (
-            <figure
-              key={`${production_id_url}-${item.id_url}-${index}`}
-              className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
-            >
-              <div
-                className={`relative overflow-hidden ${!isFallbackItem ? "cursor-pointer" : ""}`}
-                onClick={() => {
-                  if (!isFallbackItem) setLightboxMedia(item);
-                }}
+            return (
+              <figure
+                key={`${production_id_url}-${item.id_url}-${index}`}
+                className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
               >
-                <img
-                  src={item.url}
-                  alt={t("productionPage.archivePhotoAlt", {
-                    title,
-                    index: index + 1,
-                  })}
-                  loading="lazy"
-                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                />
-                {/* hover overlay with zoom icon */}
-                {!isFallbackItem && (
+                <div
+                  className="relative overflow-hidden cursor-pointer"
+                  onClick={() => setLightboxMedia(item)}
+                >
+                  <img
+                    src={item.url}
+                    alt={t("productionPage.archivePhotoAlt", {
+                      title,
+                      index: index + 1,
+                    })}
+                    loading="lazy"
+                    className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                  {/* hover overlay with zoom icon */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/25">
                     <span className="scale-0 text-white transition-transform group-hover:scale-100">
                       <svg
@@ -233,9 +220,7 @@ export function ProductionPageMediaGallery({
                       </svg>
                     </span>
                   </div>
-                )}
-                {/* delete button — top-right corner, visible on hover */}
-                {!isFallbackItem && (
+                  {/* delete button — top-right corner, visible on hover */}
                   <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
                     <button
                       className="absolute top-2 right-2 z-10 rounded-full bg-black/50 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
@@ -261,11 +246,16 @@ export function ProductionPageMediaGallery({
                       </svg>
                     </button>
                   </Protected>
-                )}
-              </div>
-            </figure>
-          );
-        })}
+                </div>
+              </figure>
+            );
+          })
+        ) : (
+          // fallback text instead of images
+          <div className="flex-1 min-w-full py-12 text-center text-gray-500">
+            {t("productionPage.noImagesYet")}
+          </div>
+        )}
       </div>
 
       {/* lightbox */}

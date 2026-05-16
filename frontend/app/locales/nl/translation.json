@@ -160,6 +160,7 @@
     "deleteMedia": "Foto verwijderen",
     "deleteMediaFailed": "Foto verwijderen mislukt: {{error}}",
     "archivePhotoAlt": "Archieffoto voor {{title}} {{index}}",
+    "noImagesYet": "Nog geen afbeeldingen",
     "edit": {
       "add": "Voeg info toe",
       "edit": "Pas aan",

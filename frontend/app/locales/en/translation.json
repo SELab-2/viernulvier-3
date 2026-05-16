@@ -160,6 +160,7 @@
     "deleteMedia": "Delete photo",
     "deleteMediaFailed": "Failed to delete photo: {{error}}",
     "archivePhotoAlt": "Archive photo for {{title}} {{index}}",
+    "noImagesYet": "No images yet",
     "edit": {
       "add": "Add info",
       "edit": "Edit",
