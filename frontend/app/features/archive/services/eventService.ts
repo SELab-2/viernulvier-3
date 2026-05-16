@@ -5,7 +5,6 @@ import {
   patchToArchive,
   patchByUrl,
   deleteFromArchive,
-  patchByUrl,
 } from "~/shared/services/sharedService";
 import type {
   Event,
