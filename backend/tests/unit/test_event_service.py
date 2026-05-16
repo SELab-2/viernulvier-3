@@ -1,14 +1,19 @@
-import pytest
 from datetime import datetime, timezone
 
+import pytest
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models.event import Event, EventPrice
+from src.models.hall import Hall, HallName
+from src.models.production import Production
+from src.schemas.event import EventCreate, EventUpdate
 from src.services.event_service import (
+    create_event,
+    delete_event_by_id,
     extract_id,
     get_event_by_id,
-    create_event,
-    update_event,
-    delete_event_by_id,
-    get_prices_for_event,
     get_event_price,
+    get_prices_for_event,
+    update_event,
     create_price,
     update_price,
     delete_price,
@@ -20,7 +25,6 @@ from src.models.hall import Hall
 from src.models.production import Production
 from src.api.exceptions import NotFoundError
 from src.services.production import get_production_by_id
-
 
 BASE_URL = "http://test"
 
@@ -35,7 +39,7 @@ def production(db_session):
 
 @pytest.fixture
 def hall(db_session):
-    hall = Hall(name="Hall A", address="Street A")
+    hall = Hall(address="Street A", names=[HallName(language="en", name="Hall A")])
     db_session.add(hall)
     db_session.commit()
     return hall
@@ -43,7 +47,7 @@ def hall(db_session):
 
 @pytest.fixture
 def hall2(db_session):
-    hall = Hall(name="Hall B", address="Street B")
+    hall = Hall(address="Street B", names=[HallName(language="en", name="Hall B")])
     db_session.add(hall)
     db_session.commit()
     return hall
@@ -91,6 +95,39 @@ def test_get_event_by_id_with_null_hall_returns_null_hall_id(db_session, product
 def test_get_event_by_id_not_found(db_session):
     with pytest.raises(NotFoundError):
         get_event_by_id(db_session, 999, BASE_URL)
+
+
+def test_create_event_no_prod_error(db_session, hall):
+    event = EventCreate(production_id_url="", hall_id_url=f"{BASE_URL}/halls/{hall.id}")
+
+    with pytest.raises(NotFoundError):
+        create_event(db_session, event, BASE_URL)
+
+
+def test_create_event_invalid_prod_hall_error(db_session, hall):
+    event = EventCreate(
+        production_id_url="boo", hall_id_url=f"{BASE_URL}/halls/{hall.id}"
+    )
+
+    with pytest.raises(ValidationError):
+        create_event(db_session, event, BASE_URL)
+
+    event = EventCreate(production_id_url="", hall_id_url="lls")
+
+    with pytest.raises(ValidationError):
+        create_event(db_session, event, BASE_URL)
+
+
+def test_create_event_invalid_times_error(db_session, production, hall):
+    event = EventCreate(
+        production_id_url=f"{BASE_URL}/productions/{production.id}",
+        hall_id_url=f"{BASE_URL}/halls/{hall.id}",
+        starts_at=datetime.fromtimestamp(123456),
+        ends_at=datetime.fromtimestamp(123450),
+    )
+
+    with pytest.raises(ValidationError):
+        create_event(db_session, event, BASE_URL)
 
 
 def test_make_event_with_existing_hall(db_session, production, hall):
@@ -152,12 +189,15 @@ def test_make_event_invalid_hall(db_session, production):
         create_event(db_session, event_in, BASE_URL)
 
 
-def test_update_event_success(db_session, event):
+def test_update_event_success(db_session, event, hall):
     update_data = EventUpdate(order_url="new_url")
-
     updated = update_event(db_session, event.id, update_data, BASE_URL)
-
     assert updated.order_url == "new_url"
+
+    new_hall_id_url = f"{BASE_URL}/halls/{hall.id}"
+    update_data = EventUpdate(hall_id_url=new_hall_id_url)
+    updated = update_event(db_session, event.id, update_data, BASE_URL)
+    assert updated.hall.id_url == new_hall_id_url
 
 
 def test_update_event_start_date(db_session, event, production):
@@ -182,7 +222,9 @@ def test_update_event_hall(db_session, event: Event, hall2: Hall):
     # Assert event hall is now hall 2
     assert updated.hall is not None
     assert updated.hall.id_url == update_data.hall_id_url
-    assert updated.hall.name == hall2.name
+    assert len(updated.hall.names) == len(hall2.names)
+    assert updated.hall.names[0].language == hall2.names[0].language
+    assert updated.hall.names[0].name == hall2.names[0].name
     assert updated.hall.address == hall2.address
 
 
@@ -195,8 +237,20 @@ def test_update_event_not_found(db_session):
 
 def test_update_event_invalid_hall(db_session, event):
     update_data = EventUpdate(hall_id_url=f"{BASE_URL}/halls/999")
-
     with pytest.raises(NotFoundError):
+        update_event(db_session, event.id, update_data, BASE_URL)
+
+    update_data = EventUpdate(hall_id_url="jiew;")
+    with pytest.raises(ValidationError):
+        update_event(db_session, event.id, update_data, BASE_URL)
+
+
+def test_update_event_invalid_time(db_session, event, production):
+    update_data = EventUpdate(
+        starts_at=datetime.fromtimestamp(123456),
+        ends_at=datetime.fromtimestamp(123450),
+    )
+    with pytest.raises(ValidationError):
         update_event(db_session, event.id, update_data, BASE_URL)
 
 

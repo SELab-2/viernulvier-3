@@ -1,4 +1,5 @@
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import { Link } from "react-router";
 import {
   Box,
   Card,
@@ -6,16 +7,20 @@ import {
   CardMedia,
   Chip,
   Divider,
-  Link,
   Stack,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { Blog, BlogContent } from "../types/blogTypes";
-import { getProductionByUrl } from "~/features/archive/services/productionService";
+import { getMediaForBlog } from "../services/mediaService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import DOMPurify from "dompurify";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
@@ -43,7 +48,7 @@ function colorWithOpacity(color: string, opacity: number): string {
 
 function getBlogContentByLanguage(
   blogContents: BlogContent[],
-  language: string
+  language: string = "nl"
 ): BlogContent | null {
   if (blogContents.length === 0) {
     return null;
@@ -73,21 +78,20 @@ async function getProductionTitlesByLanguage(
   blog: Blog,
   language: string
 ): Promise<string[]> {
-  if (!blog.production_id_urls || blog.production_id_urls.length === 0) {
+  if (!blog.production_group_id_url || blog.production_group_id_url === "") {
     return [];
   }
 
-  const titles = await Promise.all(
-    blog.production_id_urls.map(async (prod_id_url) => {
-      const prod = await getProductionByUrl(prod_id_url);
+  const productionGroup = await getProductionGroupByUrl(blog.production_group_id_url);
+  const productions = await getProductionsForGroup(productionGroup);
 
-      const languageMatch = prod.production_infos.find(
-        (prod_info) => prod_info.language === language
-      );
+  const titles = productions.map((prod) => {
+    const languageMatch = prod.production_infos.find(
+      (prod_info) => prod_info.language === language
+    );
 
-      return languageMatch?.title ?? prod.production_infos[0]?.title;
-    })
-  );
+    return languageMatch?.title ?? prod.production_infos[0]?.title;
+  });
 
   return titles.filter(
     (title): title is string => typeof title === "string" && title.length > 0
@@ -107,6 +111,11 @@ function getSanitizedHtmlOrUndefined(
   }
 
   return DOMPurify.sanitize(trimmedValue);
+}
+
+function getBlogNumericIdFromUrl(idUrl: string): string | undefined {
+  const match = idUrl.match(/\/blogs\/(\d+)(?:[/?#]|$)/);
+  return match?.[1];
 }
 
 function ProductionTitles({ productionTitles }: { productionTitles: string[] }) {
@@ -171,18 +180,23 @@ export function BlogCard({
   compact = false,
 }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
 
   const { t } = useTranslation();
+  const lp = useLocalizedPath();
+
   const { lang } = useParams();
   const language = preferredLanguage ?? lang!;
 
   const blog_content = getBlogContentByLanguage(blog.blog_contents, language);
 
-  const title = blog_content?.title ?? "Untitled blog";
-  const content = blog_content?.content ?? "";
-  const imageUrl = DEFAULT_IMAGE;
+  // Fallback should never happen, but just in case...
+  const title = blog_content?.title || t("blogs.card.noTitleFound");
+  const content = blog_content?.content || t("blogs.card.noContentFound");
 
   const contentHtml = getSanitizedHtmlOrUndefined(content);
+
+  const blogId = getBlogNumericIdFromUrl(blog.id_url);
 
   useEffect(() => {
     async function fetchProductionTitles() {
@@ -192,13 +206,29 @@ export function BlogCard({
     fetchProductionTitles();
   }, [blog, language]);
 
+  useEffect(() => {
+    if (!blogId) return;
+
+    async function fetchBlogImage() {
+      try {
+        const response = await getMediaForBlog(Number(blogId), { limit: 1 }, language);
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setImageUrl(first.url);
+      } catch {
+        // keep default image on error
+      }
+    }
+    fetchBlogImage();
+  }, [blogId, language]);
+
+  if (!blogId) return null;
+
   return (
     <Card
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
+      id={`blog-card-${blogId}`}
       className={className}
       sx={{
+        "position": "relative",
         "width": "100%",
         "height": compact
           ? { xs: "100px", sm: "110px", md: "120px" }
@@ -236,6 +266,11 @@ export function BlogCard({
       }}
       elevation={0}
     >
+      <Link
+        to={lp(`/blogs/${blogId}`)}
+        aria-label={`Open details for ${title}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      />
       <Box
         sx={{
           position: "relative",
@@ -342,25 +377,22 @@ export function BlogCard({
             >
               <ProductionTitles productionTitles={productionTitles} />
 
-              <Link
+              <div
                 className="blog-card-text"
-                component="span"
-                underline="none"
-                sx={{
-                  display: "flex",
+                style={{
                   alignItems: "center",
-                  gap: 0.25,
                   color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-                  fontWeight: "var(--weight-archive-bold)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-archive-label)",
-                  fontSize: "var(--text-archive-meta)",
-                  cursor: "pointer",
+                  display: "flex",
                   flexShrink: 0,
+                  fontSize: "var(--text-archive-meta)",
+                  fontWeight: "var(--weight-archive-bold)",
+                  gap: 0.25,
+                  letterSpacing: "var(--tracking-archive-label)",
+                  textTransform: "uppercase",
                 }}
               >
                 {t("blogs.card.details")} <ArrowRightAlt sx={{ fontSize: "1.1em" }} />
-              </Link>
+              </div>
             </Stack>
           </>
         )}

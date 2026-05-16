@@ -51,7 +51,7 @@ class PriceUpdate(StrictModel):
 
 class EventCreate(StrictModel):
     production_id_url: str
-    hall_id_url: str
+    hall_id_url: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None

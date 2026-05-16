@@ -28,6 +28,53 @@ const translationMap: Record<string, TranslationValue> = {
   "home.buttons.explore": "I18N_Home_Button_Explore",
   "home.buttons.history": "I18N_Home_Button_History",
   "archive.title": "I18N_Archive_Title",
+  "archive.create_production": "I18N_Archive_Create_Production",
+  "archive.add_info.title": "I18_Archive_addInfo_Title",
+  "archive.productionGroups.actions.create":
+    "I18N_Archive_ProductionGroups_Actions_Create",
+  "archive.productionGroups.actions.creating":
+    "I18N_Archive_ProductionGroups_Actions_Creating",
+  "archive.productionGroups.actions.delete":
+    "I18N_Archive_ProductionGroups_Actions_Delete_Production_Group",
+  "archive.productionGroups.actions.deleting":
+    "I18N_Archive_ProductionGroups_Actions_Deleting",
+  "archive.productionGroups.deleteInfo.ariaLabel":
+    "I18N_Archive_ProductionGroups_DeleteInfo_AriaLabel",
+  "archive.productionGroups.deleteInfo.tooltip":
+    "I18N_Archive_ProductionGroups_DeleteInfo_Tooltip",
+  "archive.productionGroups.actions.cancel":
+    "I18N_Archive_ProductionGroups_Actions_Cancel",
+  "archive.productionGroups.dialog.title": "I18N_Archive_ProductionGroups_Dialog_Title",
+  "archive.productionGroups.dialog.description":
+    "I18N_Archive_ProductionGroups_Dialog_Description",
+  "archive.productionGroups.dialog.selectedCount":
+    "I18N_Archive_ProductionGroups_Dialog_SelectedCount_{{count}}",
+  "archive.productionGroups.dialog.nameLabel":
+    "I18N_Archive_ProductionGroups_Dialog_NameLabel",
+  "archive.productionGroups.dialog.publicLabel":
+    "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
+  "archive.productionGroups.dialog.publicHint":
+    "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.deleteDialog.title":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Title",
+  "archive.productionGroups.deleteDialog.description":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Description",
+  "archive.productionGroups.deleteDialog.selectedCount":
+    "I18N_Archive_ProductionGroups_DeleteDialog_SelectedCount_{{count}}",
+  "archive.productionGroups.deleteDialog.warning":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Warning",
+  "archive.productionGroups.deleteDialog.actions.delete":
+    "I18N_Archive_ProductionGroups_DeleteDialog_Actions_Delete",
+  "archive.productionGroups.messages.titleRequired":
+    "I18N_Archive_ProductionGroups_Messages_TitleRequired",
+  "archive.productionGroups.messages.noProductionsSelected":
+    "I18N_Archive_ProductionGroups_Messages_NoProductionsSelected",
+  "archive.productionGroups.messages.createFailed":
+    "I18N_Archive_ProductionGroups_Messages_CreateFailed",
+  "archive.productionGroups.messages.deleteFailed":
+    "I18N_Archive_ProductionGroups_Messages_DeleteFailed",
+  "archive.accessDenied.title": "I18N_Archive_Access_Denied_Title",
+  "archive.accessDenied.description": "I18N_Archive_Access_Denied_Description",
   "history.title": "I18N_History_Title",
   "footer.website": "I18N_Footer_Website",
   "users.title": "I18N_Users_Title",
@@ -58,48 +105,35 @@ const translationMap: Record<string, TranslationValue> = {
   "history.messages.updateFailed": "I18N_History_Message_UpdateFailed",
   "history.messages.deleteFailed": "I18N_History_Message_DeleteFailed",
   "edit.cancel": "edit.cancel",
-  "history.entries": [
-    {
-      title: "I18N_History_Entry1_Title",
-      description: "I18N_History_Entry1_Description",
-    },
-    {
-      title: "I18N_History_Entry2_Title",
-      description: "I18N_History_Entry2_Description",
-    },
-    {
-      title: "I18N_History_Entry3_Title",
-      description: "I18N_History_Entry3_Description",
-    },
-    {
-      title: "I18N_History_Entry4_Title",
-      description: "I18N_History_Entry4_Description",
-    },
-    {
-      title: "I18N_History_Entry5_Title",
-      description: "I18N_History_Entry5_Description",
-    },
-    {
-      title: "I18N_History_Entry6_Title",
-      description: "I18N_History_Entry6_Description",
-    },
-    {
-      title: "I18N_History_Entry7_Title",
-      description: "I18N_History_Entry7_Description",
-    },
-    {
-      title: "I18N_History_Entry8_Title",
-      description: "I18N_History_Entry8_Description",
-    },
-  ],
+  "blogs.title": "I18N_Blogs_Title",
+  "blogs.searchPlaceholder": "I18N_Blogs_Search_Placeholder",
+  "blogs.showMore": "I18N_Blogs_Show_More",
+  "blogs.noResults.header": "I18N_Blogs_No_Results_Header",
+  "blogs.noResults.subtext": "I18N_Blogs_No_Results_Subtext",
   "blogs.card.other_prods": "I18N_Blog_Many_Productions",
   "blogs.card.no_prods": "I18N_Blog_No_Productions",
   "blogs.card.details": "I18N_Blog_Details",
+  "blogs.contentPage.backToBlogs": "I18N_Back_To_Blogs",
+  "blogs.contentPage.linkedProductions": "I18N_Blog_Productions",
+  "blogs.contentPage.fallback": "I18N_Blog_Fallback",
+  "blogs.contentPage.media": "I18N_Blog_Media",
+  "blogs.contentPage.delete.delete": "I18N_Blog_Delete",
+  "blogs.contentPage.delete.deleting": "I18N_Blog_Deleting",
+  "blogs.contentPage.delete.confirm": "I18N_Blog_Delete_Confirm",
+  "blogs.contentPage.delete.error": "I18N_Blog_Delete_Error",
+  "blogs.createBlogPage.backToBlogs": "I18N_Back_To_Blogs",
+  "blogs.createBlogPage.remove": "I18N_Remove",
+  "blogs.createBlogPage.title.placeholder": "I18N_Title_Placeholder",
+  "blogs.createBlogPage.media.title": "I18N_Media_Title",
+  "blogs.createBlogPage.series.searchSeries": "I18N_Search_Series",
+  "blogs.createBlogPage.save.save": "I18N_Save_Blog",
+  "blogs.createBlogPage.accessDenied.description": "I18N_Blog_AccessDenied_Description",
   "notFound.title": "I18N_NotFound_Title",
   "notFound.description": "I18N_NotFound_Description",
   "notFound.buttons.explore": "I18N_NotFound_Button_Explore",
   "notFound.buttons.history": "I18N_NotFound_Button_History",
   "notFound.quote": "I18N_NotFound_Quote",
+  "editfield.modified": "I18N_Modified",
   "productionPage.backToCollection": "I18N_Production_BackToCollection",
   "productionPage.fallback.unknownProduction":
     "I18N_Production_Fallback_UnknownProduction",
@@ -123,6 +157,13 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.infoNotAvailable": "I18N_ProductionInfo_NotAvailable",
   "productionPage.add.add": "I18N_ProductionInfo_Add",
   "productionPage.delete.delete": "I18N_ProductionInfo_Delete",
+  "productionPage.edit.title": "I18N_ProductionInfo_Edit_Title",
+  "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
+  "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
+  "productionPage.edit.save": "I18N_ProductionPage_Edit_Save",
+  "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
+  "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
+  "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

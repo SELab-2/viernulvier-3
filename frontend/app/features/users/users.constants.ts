@@ -2,9 +2,11 @@ import { AUTH_API_PATH } from "~/features/auth/auth.constants";
 
 export const USERS_API_PATH = `${AUTH_API_PATH}/users`;
 export const ROLES_API_PATH = `${AUTH_API_PATH}/roles`;
+export const PERMISSIONS_API_PATH = `${AUTH_API_PATH}/permissions`;
 
 export const USER_PERMISSIONS = {
   read: "users:read",
   create: "users:create",
+  update: "users:update",
   delete: "users:delete",
 } as const;

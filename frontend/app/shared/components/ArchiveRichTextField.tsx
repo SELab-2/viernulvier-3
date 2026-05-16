@@ -38,10 +38,13 @@ const archiveRichTextFieldSx: SxProps<Theme> = {
     fontSize: "0.875rem",
     color: "var(--archive-ink)",
     minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-editor": {
     padding: "0.75rem",
+    minHeight: "150px",
+    cursor: "text",
   },
 
   "& .ql-toolbar button": {
@@ -167,7 +170,7 @@ export function ArchiveRichTextField({
   }, [canEdit]);
 
   return (
-    <Box sx={toSxArray(sx)}>
+    <Box sx={toSxArray(sx)} onClick={() => quillRef.current?.focus()}>
       <div ref={containerRef} />
     </Box>
   );

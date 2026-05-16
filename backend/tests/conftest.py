@@ -1,40 +1,46 @@
-# Configuratie van integratietesten
 import os
+import sqlite3
+from datetime import datetime, timezone
+from unittest.mock import Mock
 
 import pytest
-from datetime import datetime, timezone
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from src.database import Base, get_db
 from src.main import app
-from src.models.production import ProdInfo, Production
-from src.models.event import Event
-from src.models.tag import Tag, TagName
-from src.models.blogs import Blog, BlogContent
-from src.services.language import Languages
 from src.models import Media
-
-from unittest.mock import Mock
+from src.models.blogs import Blog, BlogContent
+from src.models.event import Event
+from src.models.production import ProdInfo, Production
+from src.models.production_group import ProductionGroup
+from src.models.tag import Tag, TagName
+from src.services.language import Languages
 from src.services.media import get_minio_client
 
-
-# Laat CI/CD pipelines een echte PostgreSQL test database URL injecteren
-# via omgevingsvariabelen.
-# Val terug op in-memory SQLite voor snelle, lokale developer testen.
+# Let CI/CD pipelines inject a real PostgreSQL test database URL via
+# environment variables.
+# Fall back onto in-memory SQLite for faster local testing
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
 
-# Configureer de engine op basis van het database type
+# Config database engine depending on type of database
 if TEST_DATABASE_URL.startswith("sqlite"):
     test_engine = create_engine(
         TEST_DATABASE_URL,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # By default SQLite does not enforce foreign key constraingst, so we activate
+    # this explicitly to behave more closely like PostgreSQL
+    @event.listens_for(test_engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        if isinstance(dbapi_connection, sqlite3.Connection):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON;")
+            cursor.close()
 else:
-    # Voor PostgreSQL hebben we de SQLite-specifieke argumenten niet nodig
     if TEST_DATABASE_URL.startswith("postgresql://"):
         TEST_DATABASE_URL = TEST_DATABASE_URL.replace(
             "postgresql://", "postgresql+psycopg2://"
@@ -44,7 +50,7 @@ else:
 TEST_SESSION_LOCAL = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
-# Overschrijf dependency
+# Overwrite dependency
 def override_get_db():
     db = TEST_SESSION_LOCAL()
     try:
@@ -55,18 +61,19 @@ def override_get_db():
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_test_db():
-    # Maak tabellen aan voordat testen draaien
+    # Make the tables before starting tests
     Base.metadata.create_all(bind=test_engine)
     yield
-    # Verwijder tabellen nadat testen klaar zijn
+    # And remove them when tests are done
     Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Levert een database sessie voor unit testen.
-    Omdat setup_test_db autouse=True is, zijn de tabellen al aangemaakt.
+    Yields a database session for unit tests.
+    Because setup_test_db() has autouse=True, the tables for this db will
+    already have been created.
     """
     db = TEST_SESSION_LOCAL()
     try:
@@ -411,11 +418,18 @@ def blogs_limited(db_session):
     db_session.add_all([prod1, prod2])
     db_session.flush()
 
+    prod_group1 = ProductionGroup(title="group1", productions=[prod1])
+
+    prod_group2 = ProductionGroup(title="group2", productions=[prod1, prod2])
+
+    db_session.add_all([prod_group1, prod_group2])
+    db_session.flush()
+
     blog1 = Blog(
-        productions=[prod1],
+        production_group=prod_group1,
     )
     blog2 = Blog(
-        productions=[prod1, prod2],
+        production_group=prod_group2,
     )
     db_session.add_all([blog1, blog2])
     db_session.flush()
@@ -457,10 +471,14 @@ def many_blogs(db_session):
     )
     db_session.add_all([prod1, prod2])
     db_session.flush()
+    prod_group = ProductionGroup(title="group", productions=[prod1, prod2])
+
+    db_session.add(prod_group)
+    db_session.flush()
 
     for i in range(10):
         blog = Blog(
-            productions=[prod1, prod2],
+            production_group=prod_group,
         )
         db_session.add(blog)
         db_session.flush()
@@ -468,7 +486,7 @@ def many_blogs(db_session):
         content_en = BlogContent(
             blog_id=blog.id,
             language=Languages.ENGLISH,
-            title="title",
+            title="title" if i % 2 == 0 else "other",
             content="content",
         )
         content_nl = BlogContent(

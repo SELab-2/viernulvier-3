@@ -3,7 +3,6 @@ import type { Delta } from "quill";
 import { useTranslation } from "react-i18next";
 import { deltaToHtml, htmlToDelta } from "~/archive-rich-text.client";
 import { Protected } from "~/features/auth";
-import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 import { FiEdit2 } from "react-icons/fi";
 
 const ArchiveRichTextFieldLazy = lazy(() =>
@@ -46,6 +45,8 @@ type ComplexEditableFieldProps = {
   onSave: (html: string) => void;
   onCancel: () => void;
   canEdit: boolean;
+  permissions: string[];
+  onDirtyChange?: (isDirty: boolean) => void;
 };
 
 export default function ComplexEditableField({
@@ -58,9 +59,13 @@ export default function ComplexEditableField({
   onSave,
   onCancel,
   canEdit,
+  permissions,
+  onDirtyChange,
 }: ComplexEditableFieldProps) {
   const { t } = useTranslation();
   const [delta, setDelta] = useState<Delta | null>(null);
+  const [originalDelta, setOriginalDelta] = useState<Delta | null>(null);
+
   const shared_css = `
     shadow-lg
     hover:bg-archive-control-hover
@@ -76,25 +81,41 @@ export default function ComplexEditableField({
 
   useEffect(() => {
     if (isEditing && html) {
-      htmlToDelta(html).then(setDelta);
+      htmlToDelta(html).then((d) => {
+        setDelta(d);
+        setOriginalDelta(d);
+      });
     } else if (isEditing) {
-      setTimeout(() => setDelta(null), 0);
+      setTimeout(() => {
+        setDelta(null);
+        setOriginalDelta(null);
+      }, 0);
+    } else {
+      onDirtyChange?.(false);
     }
-  }, [isEditing, html]);
+  }, [isEditing, html, onDirtyChange]);
 
   if (isEditing) {
     return (
-      <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+      <Protected permissions={permissions}>
+        <div className="flex items-center gap-2">
+          <p className="font-bold underline">{field}</p>
+          <FiEdit2 />
+        </div>
         <div id={id}>
           <ArchiveRichTextFieldWrapper
             label={field}
             value={delta}
-            onChange={setDelta}
+            onChange={(newDelta) => {
+              setDelta(newDelta);
+              const dirty = JSON.stringify(newDelta) !== JSON.stringify(originalDelta);
+              onDirtyChange?.(dirty);
+            }}
             canEdit={canEdit}
           />
           <div className="mt-2 flex gap-2">
             <button className={`${shared_css} bg-gray-300`} onClick={onCancel}>
-              {t("productionPage.edit.cancel")}
+              {t("editfield.cancel")}
             </button>
             <button
               className={`${shared_css} bg-archive-accent`}
@@ -105,7 +126,7 @@ export default function ComplexEditableField({
                 }
               }}
             >
-              {t("productionPage.edit.save")}
+              {t("editfield.save")}
             </button>
           </div>
         </div>
@@ -116,7 +137,7 @@ export default function ComplexEditableField({
   return (
     <div
       id={id}
-      className={`rounded opacity-90 ${canEdit ? "className=flex hover:outline-archive-accent !cursor-pointer items-center gap-2 hover:outline hover:outline-1" : "!cursor-default"}`}
+      className={`w-full min-w-0 flex-1 overflow-x-hidden rounded opacity-90 ${canEdit ? "hover:outline-archive-accent flex !cursor-pointer flex-col hover:outline hover:outline-1" : "cursor-default"}`}
       onClick={onStartEdit}
     >
       {canEdit ? (
@@ -127,7 +148,10 @@ export default function ComplexEditableField({
       ) : null}
 
       {html ? (
-        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+        <div
+          className="prose overflow-wrap-anywhere max-w-none min-w-0 break-words whitespace-normal"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       ) : (
         fallback
       )}

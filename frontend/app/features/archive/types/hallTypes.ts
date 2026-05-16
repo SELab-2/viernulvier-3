@@ -1,15 +1,20 @@
+export interface HallName {
+  language: string;
+  name: string;
+}
+
 export interface Hall {
   id_url: string;
-  name: string;
+  names: HallName[];
   address?: string;
 }
 
 export interface HallCreate {
-  name: string;
+  names: HallName[];
   address?: string;
 }
 
 export interface HallUpdate {
-  name?: string;
+  names?: HallName[];
   address?: string;
 }

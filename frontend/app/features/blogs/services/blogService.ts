@@ -13,7 +13,10 @@ import {
 const ARCHIVE_PATH: string = "/api/v1/archive";
 
 export async function getBlogsPaginated(
-  params?: JsonPaginationRequest
+  params?: JsonPaginationRequest & {
+    blog_name?: string;
+    sort_order?: string;
+  }
 ): Promise<BlogList> {
   const apiClient = createApiClient();
 
@@ -53,14 +56,14 @@ export async function deleteBlog(blogId: number): Promise<void> {
 
 export async function getBlogsForProduction(productionUrl: string): Promise<Blog[]> {
   try {
-    const productionId = productionUrl.split("/").pop();
-    if (!productionId) {
+    const productionId = productionUrl.split("/").pop()?.trim();
+    if (!productionId || isNaN(+productionId)) {
       return [];
     }
 
     const apiClient = createApiClient();
     const response = await apiClient.get<BlogList>(
-      `${ARCHIVE_PATH}/productions/${productionId}/blogs/`
+      `${ARCHIVE_PATH}/productions/${productionId}/blogs`
     );
 
     return response.data.blogs;

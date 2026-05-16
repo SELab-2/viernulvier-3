@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=ArtistsResponse,
     summary="Get all artists",
     description="Returns lists of the artists, filtered by language",

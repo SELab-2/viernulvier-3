@@ -4,22 +4,18 @@ import { Divider } from "@mui/material";
 import type { Production } from "../types/productionTypes";
 import { useTranslation } from "react-i18next";
 import { getLongMonthName } from "~/shared/utils/dateFormatting";
+import { SortOrderEnum } from "~/shared/components/SortOrderSelection";
 
 type GroupedProductions = Map<number, Map<number, Production[]>>;
-
-export enum ArchiveSortOrder {
-  NewestFirst = "NewestFirst",
-  OldestFirst = "OldestFirst",
-}
 
 const UNKNOWN_YEAR_OR_MONTH = -1;
 
 // Returns a sorting function to sort a list of numbers based on the ArchiveSortOrder enum
-function getSortFunction(sortOrder?: ArchiveSortOrder): (list: number[]) => number[] {
+function getSortFunction(sortOrder?: SortOrderEnum): (list: number[]) => number[] {
   const direction =
-    sortOrder === ArchiveSortOrder.NewestFirst
+    sortOrder === SortOrderEnum.NewestFirst
       ? -1
-      : sortOrder === ArchiveSortOrder.OldestFirst
+      : sortOrder === SortOrderEnum.OldestFirst
         ? 1
         : 0;
 
@@ -59,11 +55,17 @@ function MonthDisplay({
   productions,
   month,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productions: Production[];
   year: number;
   month: number;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const { lang } = useParams();
   const { t } = useTranslation();
@@ -94,6 +96,9 @@ function MonthDisplay({
             production={prod}
             className=""
             preferredLanguage={language}
+            isSelectable={isSelectable}
+            selected={selectedProductionIds?.includes(prod.id_url)}
+            onToggleSelected={onToggleProductionSelection}
           />
         ))}
       </div>
@@ -106,11 +111,17 @@ function YearDisplay({
   year,
   sortOrder,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productionsPerMonth: Map<number, Production[]>;
   year: number;
-  sortOrder?: ArchiveSortOrder;
+  sortOrder?: SortOrderEnum;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const { t } = useTranslation();
   const months = [...productionsPerMonth.keys()];
@@ -132,6 +143,9 @@ function YearDisplay({
           month={month}
           year={year}
           preferredLanguage={language}
+          isSelectable={isSelectable}
+          selectedProductionIds={selectedProductionIds}
+          onToggleProductionSelection={onToggleProductionSelection}
         />
       ))}
     </div>
@@ -143,11 +157,17 @@ export function ProductionTimeline({
   className,
   sortOrder,
   preferredLanguage,
+  isSelectable,
+  selectedProductionIds,
+  onToggleProductionSelection,
 }: {
   productions: Production[];
   className?: string;
-  sortOrder?: ArchiveSortOrder;
+  sortOrder?: SortOrderEnum;
   preferredLanguage?: string;
+  isSelectable?: boolean;
+  selectedProductionIds?: string[];
+  onToggleProductionSelection?: (productionId: string) => void;
 }) {
   const groupedProductions = groupProductions(productions);
   const years = [...groupedProductions.keys()];
@@ -164,6 +184,9 @@ export function ProductionTimeline({
           year={year}
           sortOrder={sortOrder}
           preferredLanguage={language}
+          isSelectable={isSelectable}
+          selectedProductionIds={selectedProductionIds}
+          onToggleProductionSelection={onToggleProductionSelection}
         />
       ))}
     </div>

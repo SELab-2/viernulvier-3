@@ -1,16 +1,21 @@
 {
+  "notSaveChanges": "Je hebt niet opgeslagen wijzigingen. Toch doorgaan?",
   "loading": "Laden...",
   "nav": {
     "home": "Home",
     "archive": "Archief",
     "history": "Geschiedenis",
+    "blog": "Blog",
     "blogs": "Blogs",
-    "users": "Gebruikers"
+    "blogs_create": "Creëer Blog",
+    "users": "Gebruikers",
+    "visuals": "Beeldmateriaal",
+    "login": "Log in",
+    "create_production": "Nieuwe productie"
   },
   "footer": {
     "website": "Onze officiële website"
   },
-
   "filter": {
     "search": "Zoeken",
     "search_in_collection": "Zoek in de collectie",
@@ -19,23 +24,87 @@
     "to": "Tot",
     "tags": "Tags",
     "search_tags": "Zoek naar andere tags",
+    "production_groups": "Reeksen",
+    "search_production_groups": "Zoek naar reeksen",
     "halls": "Locaties",
     "artists": "Artiesten",
     "search_artists": "Zoek naar artiesten",
     "reset": "Filters resetten",
     "toggle_menu": "Filteren & Zoeken"
   },
-
   "archive": {
     "title": "De Collectie",
     "results": "resultaten",
     "result": "resultaat",
     "show_more": "Toon meer",
+    "selection": {
+      "enter": "Producties selecteren",
+      "exit": "Selectie afronden",
+      "select_all": "Alles zichtbaar selecteren",
+      "clear": "Selectie wissen",
+      "selected_singular": "geselecteerde productie",
+      "selected_plural": "geselecteerde producties",
+      "select": "Selecteer",
+      "selected": "Geselecteerd"
+    },
     "no_results": {
       "header": "Geen resultaten...",
       "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
     },
     "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
+    "productionGroups": {
+      "actions": {
+        "create": "Maak productiegroep",
+        "creating": "Bezig met aanmaken...",
+        "delete": "Verwijder productiegroep",
+        "deleting": "Bezig met verwijderen...",
+        "cancel": "Annuleer"
+      },
+      "deleteInfo": {
+        "ariaLabel": "Hoe je een productiegroep verwijdert",
+        "tooltip": "Om een productiegroep te verwijderen, selecteer je eerst die groep in de filters en daarna alle producties uit die groep. Zodra de volledige groep geselecteerd is, verschijnt de verwijderknop."
+      },
+      "dialog": {
+        "title": "Maak een productiegroep",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",
+        "selectedCount": "{{count}} geselecteerde producties",
+        "nameLabel": "Titel van de groep",
+        "publicLabel": "Toon deze groep in de publieke archieffilters",
+        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze productiegroep gebruiken als filter in het archief."
+      },
+      "deleteDialog": {
+        "title": "Verwijder productiegroep",
+        "description": "Je staat op het punt om \"{{title}}\" uit de archieffilters te verwijderen.",
+        "selectedCount": "{{count}} gegroepeerde producties",
+        "warning": "De producties zelf blijven beschikbaar in het archief. Deze actie kan niet ongedaan worden gemaakt.",
+        "actions": {
+          "delete": "Verwijder"
+        }
+      },
+      "messages": {
+        "titleRequired": "Een titel voor de productiegroep is verplicht.",
+        "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
+        "createFailed": "Kon de productiegroep niet aanmaken.",
+        "deleteFailed": "Kon de productiegroep niet verwijderen."
+      }
+    },
+    "accessDenied": {
+      "sectionLabel": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
+    },
+    "add_info": {
+      "performer_type": "Voeg soort artiest toe",
+      "attendance_mode": "voeg aanwezigheidsmodus toe",
+      "supertitle": "Voeg een supertitel toe",
+      "title": "Voeg een titel toe",
+      "artist": "Voeg een artiest toe",
+      "tagline": "Voeg een tagline toe",
+      "teaser": "Voeg een teaser toe",
+      "description": "Voeg een beschrijving toe",
+      "info": "Voeg bijkomende info toe"
+    },
     "sortBy": "Sorteer op",
     "sortOrder": {
       "newest": "Nieuwste eerst",
@@ -44,16 +113,22 @@
     "unknownDate": "Onbekende datum",
     "card": {
       "defaults": {
-        "title": "Onbekende productie",
+        "title": "Onbekende productie titel",
         "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
     }
   },
+  "editfield": {
+    "modified": "Aangepast",
+    "cancel": "Annuleren",
+    "save": "Opslaan"
+  },
   "productionPage": {
-    "infoNotAvailable": "Informatie in deze taal is niet beschikbaar.",
     "fallback": {
-      "unknownProduction": "Onbekende productie",
+      "unknownPerformerType": "Niet beschikbaar.",
+      "unknownAttendanceMode": "Niet beschikbaar.",
+      "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
       "archive": "Archief",
       "defaultArtist": "viernulvier",
       "noTeaser": "Geen teaser beschikbaar voor deze productie.",
@@ -71,29 +146,37 @@
     "archiveSchema": "Archiefschema",
     "linkedBlogs": "Gekoppelde blogs",
     "dateLabel": "Datum",
+    "newEvent": "Nieuw Evenement",
+    "startDateLabel": "Start datum",
+    "endDateLabel": "Eind datum",
     "timeLabel": "Tijd",
     "placeLabel": "Plaats",
     "priceLabel": "Prijs",
     "noPrice": "Geen prijs beschikbaar",
+    "address": "Adres",
+    "addressUnknown": "Adres onbekend",
     "visualEvidence": "Foto's",
-
     "edit": {
+      "add": "Voeg info toe",
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
-      "modified": "Aangepast",
+      "attendance_mode": "Aanwezigheidsmodus",
+      "performer_type": "Soort artiest",
       "supertitle": "Supertitel",
       "title": "Titel",
       "artist": "Artiest",
       "description": "Beschrijving",
       "teaser": "Teaser",
-      "info": "Info"
+      "info": "Info",
+      "search_tags": "Zoek tags...",
+      "no_tags": "Geen tags gevonden"
     },
     "delete": {
-      "delete": "Verwijder",
+      "delete": "Verwijder info (nl)",
       "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
       "error": "Error: Elke productie heeft info in minstens één taal."
-    },
+},
     "add": {
       "add": "Voeg productie-informatie toe"
     },
@@ -109,8 +192,8 @@
       "availableLabel": "Beschikbaar",
       "available": "beschikbaar"
     }
+    }
   },
-
   "home": {
     "title": "Vensters naar het Verleden",
     "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
@@ -125,7 +208,6 @@
       "history": "Onze Geschiedenis"
     }
   },
-
   "history": {
     "title": "De Echo's van het Gebouw",
     "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
@@ -162,55 +244,85 @@
         "title": "Geef een korte titel voor dit moment",
         "content": "Vertel het verhaal van dit moment in de geschiedenis"
       }
-    },
-    "entries": [
-      {
-        "title": "1910: De bouw van 'Feestlokaal Vooruit'",
-        "description": "In 1910 kocht Vooruit een groot herenhuis en twee aangrenzende woningen in de Sint-Pietersnieuwstraat. Daar moest een nieuw feestlokaal komen. Met de nieuwe cultuurtempel wilden de socialisten bewijzen dat ze geen cultuurbarbaren waren, dat ze zich bekommerden om de geestelijke ontwikkeling van de arbeiders. De coöperatie stelde Ferdinand Dierkens aan als architect. De arbeiders kregen een reusachtig volkshuis."
-      },
-      {
-        "title": "1946: Reprise de l’activité",
-        "description": "De coöperatie Vooruit kreeg het Feestlokaal in 1946 terug in handen. De Multatulikring, Harmonie Vooruit, de Rode Valken, ... na de oorlog maakten ze van het Feestlokaal opnieuw een ware bijenkorf. Er kwamen ook enkele nieuwe verenigingen bij. De Anseele Vrienden, De Samenwerkster (een vrouwenbond), de Leesclub Boekuil, e.a."
-      },
-      {
-        "title": "1970: Het verval van feestlokaal Vooruit",
-        "description": "Omdat er steeds minder geld was om het gebouw te onderhouden, raakten meer en meer zalen in onbruik. Er sijpelde water binnen, de brandveiligheid liet te wensen over. Heel wat verenigingen verlieten het gebouw. In de jaren 1970 was het café een van de weinige plekken waar nog volk over de vloer kwam. Een levendige plek was het toen al lang niet meer."
-      },
-      {
-        "title": "1980: Opruimactie & restauratie",
-        "description": "Overal in België waren volkshuizen in hetzelfde bedje ziek. Coöperaties konden moeilijk het hoofd boven water houden. Dat leidde tot verwaarlozing en verkrotting. Sommige volkshuizen kregen een nieuwe bestemming, andere werden afgebroken. In 1982 richtten enkele jongeren de vzw Socio-cultureel Centrum Vooruit op. Die ging het hele gebouw restaureren en het als progressief artistiek ontmoetingscentrum uitbaten. De initiatiefnemers wilden wel graag af van het rode etiket en zagen de ontzuiling van het Feestlokaal als een prioriteit."
-      },
-      {
-        "title": "1988: Kunstencentrum Vooruit",
-        "description": "In 1988 werd Socio-Cultureel Centrum Vooruit omgedoopt tot Kunstencentrum Vooruit. De eigen activiteiten moesten een geprononceerder profiel krijgen, het artistieke beleid moest de grootste prioriteit worden. Daarbij stond vernieuwend werk uit verschillende kunstdisciplines centraal. Vooruit ging niet enkel producties van anderen brengen, maar ook zelf (co)produceren. Het gebouw werd een werkplaats waar kunstenaars uit binnen- en buitenland samen aan producties konden sleutelen."
-      },
-      {
-        "title": "2013: 100 jaar Vooruit",
-        "description": "Met een 100-tal personeelsleden, jaarlijks ongeveer 2000 activiteiten en 350 000 bezoekers - groeide Kunstencentrum Vooruit in de nillies uit tot een culturele instelling van formaat. Net als zijn voorganger - het Feestlokaal van Vooruit - was het Kunstencentrum een plaats van ontmoeting, cultuur en engagement. Het opschrift ‘Kunst veredelt’, dat al een eeuw boven het podium van de Theaterzaal te lezen is, mag dan wel behoorlijk hoogdravend klinken: het bleef het motto van Vooruit. In 2013 wordt het 100 jarig bestaan van het gebouw uitgebreid gevierd tijdens 'Vooruit 100'. "
-      },
-      {
-        "title": "2017: Een Vlaamse kunstinstelling",
-        "description": "Op 1 januari 2017 wordt het kunstencentrum officieel een Vlaamse kunstinstelling. Dat vertaalt zich in onder andere een hernieuwde missie, met daaraan gekoppeld zes centrale speerpunten: support, experiment, connect, engage, reflect en celebrate. Hier kan je de volledige missie vinden."
-      },
-      {
-        "title": "2022: Een nieuwe naam",
-        "description": "In 2022 verandert Kunstencentrum Vooruit haar naam naar Kunstencentrum VIERNULVIER, nadat de Vlaamse socialistische partij in 2021 voor de nieuwe naam ‘Vooruit’ koos. Het gebouw zelf blijft De Vooruit heten. Enkel de organisatie draagt dus een nieuwe naam."
-      }
-    ]
+    }
   },
-
   "blogs": {
+    "searchPlaceholder": "Zoek naar blogs...",
+    "title": "Blogs",
+    "showMore": "Toon meer",
+    "noResults": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder trefwoorden te bevatten"
+    },
     "card": {
       "other_prods": "andere producties",
       "no_prods": "Geen gelinkte producties gevonden voor deze blog",
-      "details": "Details"
+      "details": "Details",
+      "noTitleFound": "Geen beschikbare titel gevonden",
+      "noContentFound": "Geen beschikbare inhoud gevonden"
+    },
+    "create_blog": "Nieuwe blog",
+    "createBlogPage": {
+      "backToBlogs": "Terug naar blogs",
+      "heading": "Maak een nieuwe blog aan",
+      "remove": "Verwijder",
+      "save": {
+        "save": "Opslaan",
+        "saving": "Aan het opslaan",
+        "saveDisabledReasonTitle": "Titel is verplicht",
+        "saveDisabledReasonEditing": "Inhoud is nog niet opgeslagen"
+      },
+      "title": {
+        "title": "Titel",
+        "placeholder": "Titel van de blog (verplicht)"
+      },
+      "content": {
+        "title": "Inhoud",
+        "field": "Bewerk de inhoud verder"
+      },
+      "media": {
+        "title": "Media",
+        "dropMedia": "Sleep afbeeldingen en/of video's hier of",
+        "browse": "klik om te uploaden",
+        "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
+      },
+      "series": {
+        "title": "Verbonden reeks",
+        "searchSeries": "Zoek naar reeksen"
+      },
+      "accessDenied": {
+        "sectionLabel": "Beperkt gebied",
+        "title": "Je hebt geen toegang tot blogcreatie",
+        "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
+      }
+    },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "searchProductionGroups": "Zoeken naar reeksen",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:",
+      "delete": {
+        "delete": "Blog verwijderen",
+        "deleting": "Bezig met verwijderen...",
+        "confirm": "Ben je zeker dat je deze blog wil verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "error": "De blog kon niet verwijderd worden. Probeer opnieuw."
+      },
+      "edit": {
+        "title": "Pas titel aan",
+        "content": "Pas inhoud aan",
+        "edit": "Bewerk blog",
+        "cancel": "Annuleren",
+        "save": "Opslaan",
+        "add": "Voeg inhoud toe"
+      },
+      "archivePhotoAlt": "{{title}} - Foto {{index}}"
     },
     "detail": {
       "title": "Blog",
       "comingSoon": "Deze blogpagina komt binnenkort."
     }
   },
-
   "auth": {
     "actions": {
       "login": "Aanmelden",
@@ -233,7 +345,6 @@
       }
     }
   },
-
   "users": {
     "sectionLabel": "Beheer",
     "title": "Gebruikersbeheer",
@@ -251,16 +362,21 @@
     },
     "form": {
       "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "passwordEditHint": "Laat het wachtwoord leeg om het huidige wachtwoord ongewijzigd te laten.",
       "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEditHint": "Kies de rollen die aan dit account gekoppeld moeten blijven.",
       "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
     },
     "actions": {
       "retry": "Opnieuw proberen",
       "refresh": "Herladen",
       "add": "Gebruiker toevoegen",
+      "edit": "Gebruiker bewerken",
       "cancel": "Annuleren",
       "create": "Gebruiker aanmaken",
       "creating": "Gebruiker wordt aangemaakt",
+      "update": "Wijzigingen opslaan",
+      "updating": "Wijzigingen worden opgeslagen",
       "delete": "Gebruiker verwijderen",
       "deleting": "Gebruiker wordt verwijderd"
     },
@@ -274,7 +390,9 @@
     "messages": {
       "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
       "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "updateFailed": "De gebruiker kon nu niet worden bijgewerkt.",
       "deleteFailed": "De gebruiker kon nu niet worden verwijderd.",
+      "sessionRefreshFailed": "De gebruiker is bijgewerkt, maar de actieve sessie kon niet ververst worden.",
       "usernameRequired": "Een gebruikersnaam is verplicht.",
       "passwordRequired": "Een wachtwoord is verplicht."
     },
@@ -282,6 +400,10 @@
       "create": {
         "title": "Gebruiker toevoegen",
         "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
+      },
+      "edit": {
+        "title": "Gebruiker bewerken",
+        "description": "Werk de accountgegevens of toegewezen rollen van deze gebruiker bij."
       },
       "delete": {
         "title": "Gebruiker verwijderen",
@@ -308,25 +430,41 @@
       "title": "Rollen",
       "loading": "Rollen worden geladen",
       "fields": {
-        "name": "Rolnaam"
+        "name": "Rolnaam",
+        "permissions": "Permissies"
+      },
+      "form": {
+        "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsEditHint": "Kies de permissies die aan deze rol gekoppeld moeten blijven.",
+        "permissionsLoading": "Beschikbare permissies worden geladen.",
+        "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
       },
       "actions": {
         "add": "Rol toevoegen",
+        "edit": "Rol bewerken",
         "create": "Rol aanmaken",
         "creating": "Rol wordt aangemaakt",
+        "update": "Wijzigingen opslaan",
+        "updating": "Wijzigingen worden opgeslagen",
         "delete": "Rol verwijderen",
         "deleting": "Rol wordt verwijderd"
       },
       "messages": {
         "loadFailed": "De rollen konden nu niet geladen worden.",
+        "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
         "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "updateFailed": "De rol kon nu niet worden bijgewerkt.",
         "deleteFailed": "De rol kon nu niet verwijderd worden.",
         "nameRequired": "Een rolnaam is verplicht."
       },
       "dialogs": {
         "create": {
           "title": "Rol toevoegen",
-          "description": "Maak een nieuwe rol aan. Permissies kunnen na het aanmaken worden toegewezen."
+          "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
+        },
+        "edit": {
+          "title": "Rol bewerken",
+          "description": "Werk deze rol bij en houd de toegewezen permissies in sync."
         },
         "delete": {
           "title": "Rol verwijderen",
@@ -351,5 +489,58 @@
       "history": "Onze Geschiedenis"
     },
     "quote": "Less is soms more, maar soms ook niet"
+  },
+
+  "visuals": {
+    "title": "Beeldmateriaal",
+    "subtitle": "Een visuele reis door het archief van VIERNULVIER",
+    "heroAlt": "Archiefbeelden van VIERNULVIER",
+    "loading": "Beeldmateriaal wordt geladen",
+    "errorTitle": "Beeldmateriaal kon niet worden geladen",
+    "error": "Het beeldmateriaal kon niet worden opgehaald van de server.",
+    "showMore": "Toon meer",
+    "count": "{{count}} items",
+    "delete": "Verwijderen",
+    "filters": {
+      "all": "Alles"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Tijdschema",
+      "programme": "Programma",
+      "video": "Video",
+      "picture": "Foto",
+      "other": "Overig"
+    },
+    "upload": {
+      "button": "Uploaden",
+      "uploading": "Bezig met uploaden...",
+      "dialogTitle": "Nieuw beeldmateriaal uploaden",
+      "dropOrBrowse": "Sleep een bestand hierheen of klik om te bladeren",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef een titel voor dit beeldmateriaal",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf dit beeldmateriaal...",
+      "typeLabel": "Type",
+      "cancel": "Annuleren",
+      "submit": "Uploaden"
+    },
+    "messages": {
+      "loadMoreFailed": "Meer laden mislukt: {{error}}",
+      "uploadFailed": "Uploaden mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je dit beeldmateriaal wilt verwijderen?"
+    },
+    "card": {
+      "noTitle": "Zonder titel"
+    },
+    "empty": {
+      "title": "Geen beeldmateriaal gevonden",
+      "description": "Er is nog geen beeldmateriaal beschikbaar voor dit filter."
+    },
+    "lightbox": {
+      "close": "Sluiten"
+    }
   }
 }

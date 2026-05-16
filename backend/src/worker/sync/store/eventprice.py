@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
-from src.models.event import Event
+from src.models.event import Event, EventPrice
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 
 logger = logging.getLogger(__name__)
@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 def store_new_eventprices(db_session: Session, eventprices: list[dict]):
     newest_timestamp = None
+
+    existing_vnv_ids = set(db_session.scalars(select(EventPrice.viernulvier_id)))
 
     existing_events = db_session.execute(select(Event.id, Event.viernulvier_id))
     event_map: dict[int, int] = {
@@ -25,6 +27,10 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
             eventprice, viernulvier_event_id = api_eventprice_to_model_eventprice(
                 json_price
             )
+
+            if eventprice.viernulvier_id in existing_vnv_ids:
+                continue
+            existing_vnv_ids.add(eventprice.viernulvier_id)
 
             # Check if the eventprice is tied to a valid event, else we would get a
             # ForeignKey violation
@@ -47,6 +53,8 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
                 orphans += 1
                 continue
 
+            eventprice.event_id = internal_event_id
+
             # Valid event id, so store this eventprice
             db_session.merge(eventprice)
 
@@ -57,7 +65,7 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
                     newest_timestamp = created_at_str
 
         except Exception as e:
-            logger.warn(f"Error storing genre ({json_price}):\n{e}")
+            logger.warning(f"Error storing price ({json_price}):\n{e}")
 
     if orphans > 2:
         logger.warning(f"Skipped {orphans} eventprices due to no valid event_id")

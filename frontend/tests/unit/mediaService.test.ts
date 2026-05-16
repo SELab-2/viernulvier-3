@@ -17,23 +17,21 @@ describe("mediaService", () => {
   let mockAdapter: AxiosMockAdapter;
 
   const mockMediaItem1: MediaItem = {
-    id: 1,
-    production_id: 1,
-    filename: "poster.jpg",
-    content_type: "image/jpeg",
+    id_url: "/api/v1/archive/productions/1/media/1",
     url: "http://localhost/media/poster.jpg",
-    created_at: "2026-03-29T14:00:00",
-    updated_at: "2026-03-29T14:00:00",
+    production_id_url: "/api/v1/archive/productions/1",
+    blog_id_url: null,
+    content_type: "image/jpeg",
+    uploaded_at: "2026-03-29T14:00:00",
   };
 
   const mockMediaItem2: MediaItem = {
-    id: 2,
-    production_id: 1,
-    filename: "banner.png",
-    content_type: "image/png",
+    id_url: "/api/v1/archive/productions/1/media/2",
     url: "http://localhost/media/banner.png",
-    created_at: "2026-03-29T14:00:00",
-    updated_at: "2026-03-29T14:00:00",
+    production_id_url: "/api/v1/archive/productions/1",
+    blog_id_url: null,
+    content_type: "image/png",
+    uploaded_at: "2026-03-29T15:00:00",
   };
 
   beforeEach(() => {
@@ -55,7 +53,7 @@ describe("mediaService", () => {
       };
 
       mockAdapter
-        .onGet("/api/v1/archive/productions/1/media/")
+        .onGet("/api/v1/archive/productions/1/media")
         .reply(200, mockMediaList);
 
       const result = await getMediaForProduction(1);
@@ -71,7 +69,7 @@ describe("mediaService", () => {
       };
 
       mockAdapter
-        .onGet("/api/v1/archive/productions/1/media/")
+        .onGet("/api/v1/archive/productions/1/media")
         .reply(200, mockMediaList);
 
       const result = await getMediaForProduction(1);
@@ -80,7 +78,7 @@ describe("mediaService", () => {
     });
 
     it("throws when request fails", async () => {
-      mockAdapter.onGet("/api/v1/archive/productions/1/media/").reply(404);
+      mockAdapter.onGet("/api/v1/archive/productions/1/media").reply(404);
 
       await expect(getMediaForProduction(1)).rejects.toThrow();
     });
@@ -89,7 +87,7 @@ describe("mediaService", () => {
   describe("uploadMedia", () => {
     it("uploads a file and returns the created media item", async () => {
       mockAdapter
-        .onPost("/api/v1/archive/productions/1/media/")
+        .onPost("/api/v1/archive/productions/1/media")
         .reply(201, mockMediaItem1);
 
       const file = new File(["dummy content"], "poster.jpg", {
@@ -99,12 +97,11 @@ describe("mediaService", () => {
       const result = await uploadMedia(1, file);
 
       expect(result).toEqual(mockMediaItem1);
-      expect(result.filename).toBe("poster.jpg");
       expect(result.content_type).toBe("image/jpeg");
     });
 
     it("throws when upload fails", async () => {
-      mockAdapter.onPost("/api/v1/archive/productions/1/media/").reply(415);
+      mockAdapter.onPost("/api/v1/archive/productions/1/media").reply(415);
 
       const file = new File(["dummy content"], "doc.pdf", {
         type: "application/pdf",

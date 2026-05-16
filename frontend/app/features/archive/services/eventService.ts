@@ -5,6 +5,7 @@ import {
   patchToArchive,
   patchByUrl,
   deleteFromArchive,
+  patchByUrl,
 } from "~/shared/services/sharedService";
 import type {
   Event,
@@ -27,6 +28,13 @@ export async function getEventByUrl(eventUrl: string): Promise<Event> {
 
 export async function createEvent(eventData: EventCreate): Promise<Event> {
   return postToArchive<Event>(ENDPOINT, eventData);
+}
+
+export async function updateEventByUrl(
+  eventUrl: string,
+  eventData: EventUpdate
+): Promise<Event> {
+  return patchByUrl<Event>(eventUrl, eventData);
 }
 
 export async function updateEvent(

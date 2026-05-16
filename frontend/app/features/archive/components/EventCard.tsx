@@ -59,13 +59,26 @@ function formatEventDateTimeRange(
   };
 }
 
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
+function formatPrices(prices: Price[], language: string, fallback: string): string {
+  if (prices.length === 0) {
     return fallback;
   }
 
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
+  const formatted = prices
+    .map((price) =>
+      typeof price.amount === "number"
+        ? new Intl.NumberFormat(language, {
+            style: "currency",
+            currency: "EUR",
+          }).format(price.amount)
+        : undefined
+    )
+    .filter(
+      (amount): amount is string => typeof amount === "string" && amount.length > 0
+    )
+    .join(", ");
+
+  return formatted || fallback;
 }
 
 type EventCardDetailProps = {
@@ -116,7 +129,7 @@ function EventCardSummary({
         </p>
       </div>
 
-      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
+      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition select-none group-open:rotate-180">
         {t("productionPage.eventMore")}
       </span>
     </summary>
@@ -390,17 +403,24 @@ type EventCardProps = {
 };
 
 export function EventCard({ event, onPricesChanged }: EventCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [prices, setPrices] = useState<Price[]>(event.resolvedPrices);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
+
+  const getLocalizedHallName = (hall?: Hall): string => {
+    const lang = i18n.language.startsWith("nl") ? "nl" : "en";
+    const fallback = lang === "nl" ? "en" : "nl";
+    return (
+      hall?.names.find((tn) => tn.language === lang)?.name ??
+      hall?.names.find((tn) => tn.language === fallback)?.name ??
+      t("productionPage.fallback.locationUnknown")
+    );
+  };
 
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
   const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
   const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
-  const eventLocation = getTextOrDefault(
-    event.resolvedHall?.name ?? event.hall?.name,
-    t("productionPage.fallback.locationUnknown")
-  );
+const eventLocation = getLocalizedHallName(event.resolvedHall ?? event.hall);
 
   const match = event.id_url.match(/\/events\/(\d+)/);
   const eventId = match ? Number(match[1]) : undefined;
@@ -439,7 +459,7 @@ export function EventCard({ event, onPricesChanged }: EventCardProps) {
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
           <div className="grid items-start gap-3 text-sm sm:grid-cols-2">
             <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
-            {hasPrices ? (
+{hasPrices ? (
               <div className="flex flex-col gap-2">
                 {prices.map((price) => (
                   <PriceRow
@@ -494,6 +514,14 @@ export function EventCard({ event, onPricesChanged }: EventCardProps) {
                 )}
               </div>
             )}
+            <EventCardDetail
+              label={t("productionPage.address")}
+              value={
+                event.hall?.address ??
+                event.resolvedHall?.address ??
+                t("productionPage.addressUnknown")
+              }
+            />
           </div>
         </div>
       </details>
