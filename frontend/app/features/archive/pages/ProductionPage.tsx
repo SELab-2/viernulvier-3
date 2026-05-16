@@ -559,7 +559,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               )}
             />
 
-<EventSection
+            <EventSection
               isEditing={isEditing}
               production_id_url={production.id_url}
               originalEvents={eventObjects}

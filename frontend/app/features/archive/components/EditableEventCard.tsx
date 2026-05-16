@@ -8,11 +8,7 @@ import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { useParams } from "react-router";
 import { useDebouncedState } from "../utils/debouncedState";
-import {
-  createPrice,
-  deletePrice,
-  updatePriceByUrl,
-} from "../services/eventService";
+import { createPrice, deletePrice, updatePriceByUrl } from "../services/eventService";
 
 const invalidClass = "border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]";
 
@@ -51,7 +47,12 @@ type EditablePriceRowProps = {
   onDelete: (priceUrl: string) => void;
 };
 
-function EditablePriceRow({ price, eventId, onUpdate, onDelete }: EditablePriceRowProps) {
+function EditablePriceRow({
+  price,
+  eventId,
+  onUpdate,
+  onDelete,
+}: EditablePriceRowProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -147,7 +148,7 @@ function EditablePriceRow({ price, eventId, onUpdate, onDelete }: EditablePriceR
             value={draftAmount}
             onChange={(e) => setDraftAmount(e.target.value)}
             placeholder="0.00"
-            className="w-full rounded border border-archive-ink/10 bg-archive-paper px-2 py-1 text-sm focus:border-archive-accent focus:ring-2 focus:ring-archive-accent/40 focus:outline-none"
+            className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -159,20 +160,20 @@ function EditablePriceRow({ price, eventId, onUpdate, onDelete }: EditablePriceR
             value={draftAvailable}
             onChange={(e) => setDraftAvailable(e.target.value)}
             placeholder="—"
-            className="w-full rounded border border-archive-ink/10 bg-archive-paper px-2 py-1 text-sm focus:border-archive-accent focus:ring-2 focus:ring-archive-accent/40 focus:outline-none"
+            className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
           />
         </div>
         <div className="flex gap-2 pt-1">
           <button
             onClick={cancelEditing}
-            className="rounded bg-gray-300 px-3 py-1 text-xs font-semibold text-archive-ink transition hover:bg-gray-400"
+            className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
           >
             {t("productionPage.edit.cancel")}
           </button>
           <button
             onClick={saveEditing}
             disabled={!isModified || isSaving}
-            className="rounded bg-archive-accent px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isSaving ? "…" : t("productionPage.edit.save")}
           </button>
@@ -209,7 +210,7 @@ function EditablePriceRow({ price, eventId, onUpdate, onDelete }: EditablePriceR
         <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
           <button
             onClick={handleDelete}
-            className="text-[0.62rem] tracking-[0.12em] uppercase text-red-400 opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
+            className="text-[0.62rem] tracking-[0.12em] text-red-400 uppercase opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
             aria-label={t("productionPage.price.deleteLabel")}
           >
             {t("productionPage.price.deleteLabel")}
@@ -267,7 +268,7 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
           value={draftAmount}
           onChange={(e) => setDraftAmount(e.target.value)}
           placeholder="0.00"
-          className="w-full rounded border border-archive-ink/10 bg-archive-paper px-2 py-1 text-sm focus:border-archive-accent focus:ring-2 focus:ring-archive-accent/40 focus:outline-none"
+          className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
         />
       </div>
       <div className="flex items-center gap-2">
@@ -279,21 +280,21 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
           value={draftAvailable}
           onChange={(e) => setDraftAvailable(e.target.value)}
           placeholder="—"
-          className="w-full rounded border border-archive-ink/10 bg-archive-paper px-2 py-1 text-sm focus:border-archive-accent focus:ring-2 focus:ring-archive-accent/40 focus:outline-none"
+          className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
         />
       </div>
       <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded bg-gray-300 px-3 py-1 text-xs font-semibold text-archive-ink transition hover:bg-gray-400"
+          className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
         >
           {t("productionPage.edit.cancel")}
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          className="rounded bg-archive-accent px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSaving ? "…" : t("productionPage.price.addLabel")}
         </button>
@@ -509,7 +510,9 @@ export default function EditableEventCard({
 
       <div className="flex items-center justify-between">
         <Protected
-          permissions={!canDeleteWithoutPerms ? [ARCHIVE_PERMISSIONS.delete] : undefined}
+          permissions={
+            !canDeleteWithoutPerms ? [ARCHIVE_PERMISSIONS.delete] : undefined
+          }
         >
           <button
             onClick={onDelete}
