@@ -32,6 +32,7 @@ import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import type { Tag } from "../types/tagTypes";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { DeleteInfoButton } from "../components/DeleteInfoButton";
+import { DeleteProductionButton } from "../components/DeleteProductionButton";
 import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
 import EventSection from "../components/EventSection";
@@ -328,9 +329,12 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     draftPerformerType,
   ]);
 
-  useEffect(() => {
+  const productionNumericId = useMemo(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
-    const productionNumericId = match ? Number(match[1]) : undefined;
+    return match ? Number(match[1]) : undefined;
+  }, [production.id_url]);
+
+  useEffect(() => {
     if (!productionNumericId) return;
 
     getMediaForProduction(productionNumericId, { limit: 1 })
@@ -339,7 +343,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         if (first) setFirstImageUrl(first.url);
       })
       .catch(() => {});
-  }, [production.id_url]);
+  }, [productionNumericId]);
 
   const skipUnloadWarning = useRef(false);
   const isEditingRef = useRef(false);
@@ -621,6 +625,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               language={language}
             />
           ) : null}
+          {!isEditing && productionNumericId ? (
+            <DeleteProductionButton productionId={productionNumericId} />
+          ) : null}
         </div>
       ) : (
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
@@ -645,6 +652,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             _handleSave={_handleSave}
             permissions={[ARCHIVE_PERMISSIONS.update]}
           />
+          {!isEditing && productionNumericId ? (
+            <DeleteProductionButton productionId={productionNumericId} />
+          ) : null}
         </div>
       )}
     </div>

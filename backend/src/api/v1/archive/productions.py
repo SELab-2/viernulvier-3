@@ -1,29 +1,32 @@
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from minio import Minio
 from sqlalchemy.orm import Session
+from src.api.dependencies import RequirePermissions
 from src.api.dependencies.language import get_accepted_language
-from src.database import get_db
 from src.api.exceptions import NotFoundError
+from src.database import get_db
+from src.models.user import User
+from src.schemas.blogs import BlogListResponse
 from src.schemas.production import (
     ProductionCreate,
     ProductionListResponse,
     ProductionResponse,
     ProductionUpdate,
 )
-from src.schemas.blogs import BlogListResponse
+from src.services.archive import get_base_url
+from src.services.auth.permissions import Permissions
 from src.services.blogs import get_blogs_by_production_id
+from src.services.media import get_minio_client
 from src.services.production import (
     SortOrder,
     create_production,
+    delete_production_by_id,
     get_production_by_id,
     get_productions_paginated,
     update_production_by_id,
-    delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, status, HTTPException
-from src.services.auth.permissions import Permissions
-from src.api.dependencies import RequirePermissions
-from src.models.user import User
-from src.services.archive import get_base_url
-from datetime import datetime
 
 router = APIRouter()
 
@@ -152,9 +155,10 @@ async def patch_production(
 async def delete_production(
     production_id: int,
     db: Session = Depends(get_db),
+    minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    delete_production_by_id(db, production_id)
+    delete_production_by_id(db, production_id, minio)
 
 
 @router.get(

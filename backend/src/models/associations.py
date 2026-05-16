@@ -2,13 +2,21 @@
 producties en blogs, users en rollen, rollen en permissies."""
 
 from sqlalchemy import Column, ForeignKey, Integer, Table
+
 from src.database import Base
 
 prod_tags = Table(
     "prod_tags",
     Base.metadata,
-    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
-    Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
+    Column(
+        "tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column(
+        "prod_id",
+        Integer,
+        ForeignKey("productions.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 prod_groups = Table(
@@ -17,10 +25,15 @@ prod_groups = Table(
     Column(
         "group_id",
         Integer,
-        ForeignKey("production_groups.id"),
+        ForeignKey("production_groups.id", ondelete="CASCADE"),
         primary_key=True,
     ),
-    Column("prod_id", Integer, ForeignKey("productions.id"), primary_key=True),
+    Column(
+        "prod_id",
+        Integer,
+        ForeignKey("productions.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 user_roles = Table(
