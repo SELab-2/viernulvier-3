@@ -45,21 +45,7 @@ export function CreateProductionGroupDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const trimmedTitle = title.trim();
-  const isSubmitDisabled =
-    isSubmitting || !trimmedTitle || selectedProductionIds.length === 0;
-
-  const clearMessages = useCallback(() => {
-    setValidationError(null);
-    setErrorMessage(null);
-  }, []);
-
-  const resetForm = useCallback(() => {
-    setTitle("");
-    setIsPublicFilter(true);
-    clearMessages();
-    setIsSubmitting(false);
-  }, [clearMessages]);
+  /* duplicate declarations removed */
 
   const trimmedTitle = title.trim();
   const isSubmitDisabled =

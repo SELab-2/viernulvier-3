@@ -129,7 +129,6 @@ describe("useUnsavedChangesBlocker", () => {
         hash: "",
         state: null,
         key: "default",
-        unstable_mask: undefined,
       },
     });
     vi.spyOn(window, "confirm").mockReturnValue(true);
@@ -156,7 +155,6 @@ describe("useUnsavedChangesBlocker", () => {
         hash: "",
         state: null,
         key: "default",
-        unstable_mask: undefined,
       },
     });
     vi.spyOn(window, "confirm").mockReturnValue(false);
