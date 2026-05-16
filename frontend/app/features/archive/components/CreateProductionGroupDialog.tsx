@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type SubmitEvent } from "react";
+import { useCallback, useState, type SubmitEvent } from "react";
 import {
   Button,
   Checkbox,
@@ -61,11 +61,21 @@ export function CreateProductionGroupDialog({
     setIsSubmitting(false);
   }, [clearMessages]);
 
-  useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
-  }, [open, resetForm]);
+const trimmedTitle = title.trim();
+  const isSubmitDisabled =
+    isSubmitting || !trimmedTitle || selectedProductionIds.length === 0;
+
+  const clearMessages = useCallback(() => {
+    setValidationError(null);
+    setErrorMessage(null);
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setTitle("");
+    setIsPublicFilter(true);
+    clearMessages();
+    setIsSubmitting(false);
+  }, [clearMessages]);
 
   function handleClose() {
     if (isSubmitting) {

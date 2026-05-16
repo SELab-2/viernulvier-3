@@ -320,7 +320,7 @@ export default function EditableEventCard({
   onPricesChanged?: (eventId: string, prices: Price[]) => void;
   canDeleteWithoutPerms?: boolean;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { lang } = useParams();
   const language = preferredLanguage ?? lang;
 
