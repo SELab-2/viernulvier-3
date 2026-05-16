@@ -73,10 +73,10 @@ describe("BlogPageMediaGallery", () => {
   });
 
   describe("view mode (isEditing: false)", () => {
-    it("does not fetch media from the service", () => {
+    it("fetches media from the service", () => {
       renderGallery({ isEditing: false });
 
-      expect(vi.mocked(getMediaForBlog)).not.toHaveBeenCalled();
+      expect(vi.mocked(getMediaForBlog)).toHaveBeenCalled();
     });
 
     it("does not render the upload button", () => {
