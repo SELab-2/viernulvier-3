@@ -20,7 +20,7 @@ class Media(Base):
     )
     production = relationship("Production", back_populates="media")
 
-    blog_id = Column(Integer, ForeignKey("blogs.id"), index=True)
+    blog_id = Column(Integer, ForeignKey("blogs.id", ondelete="CASCADE"), index=True)
     blog = relationship("Blog", back_populates="media")
 
     # Either a production or blog should exist for this image

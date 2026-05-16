@@ -4,14 +4,7 @@ import ComplexEditableField from "~/shared/components/ComplexEditableField";
 import SimpleEditableField from "~/shared/components/SimpleEditableField";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
-}
+import { getTextOrDefault } from "../utils/productionPageFunctions";
 
 function isFieldModified(
   original: string | undefined,
@@ -45,6 +38,9 @@ export function ProductionInfoSection({
 }: ProductionInfoSectionProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<string | null>(null);
+  const permissions = isCreateInfo
+    ? [ARCHIVE_PERMISSIONS.create]
+    : [ARCHIVE_PERMISSIONS.update];
 
   useEffect(() => {
     if (!globalIsEditing) {
@@ -76,7 +72,7 @@ export function ProductionInfoSection({
           </p>
         )}
         isModified={modified(originalTagline, tagline)}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
       />
 
       <ComplexEditableField
@@ -89,7 +85,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noTeaser")}</p>}
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -105,7 +101,7 @@ export function ProductionInfoSection({
           <p className="opacity-75">{t("productionPage.fallback.noDescription")}</p>
         }
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
 
@@ -119,7 +115,7 @@ export function ProductionInfoSection({
         onCancel={() => setEditing(null)}
         fallback={<p className="opacity-75">{t("productionPage.fallback.noInfo")}</p>}
         canEdit={globalIsEditing}
-        permissions={[ARCHIVE_PERMISSIONS.update]}
+        permissions={permissions}
         onDirtyChange={onQuillDirtyChange}
       />
     </div>

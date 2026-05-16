@@ -48,6 +48,11 @@ export interface IRoleCreateRequest {
   permissions?: string[];
 }
 
+export interface IRoleUpdateRequest {
+  name: string;
+  permissions?: string[];
+}
+
 export interface IPermissionResponse {
   name: string;
 }

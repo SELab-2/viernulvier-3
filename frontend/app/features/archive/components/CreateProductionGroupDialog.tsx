@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState, type SubmitEvent } from "react";
-import axios from "axios";
 import {
-  Alert,
   Button,
   Checkbox,
   CircularProgress,
@@ -16,37 +14,18 @@ import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
 import { createProductionGroup } from "../services/productionGroupService";
 import type { ProductionGroup } from "../types/productionGroupTypes";
-
-function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
-  if (!axios.isAxiosError(error)) {
-    return fallbackMessage;
-  }
-
-  const detail = error.response?.data;
-
-  if (
-    detail &&
-    typeof detail === "object" &&
-    "detail" in detail &&
-    typeof detail.detail === "string"
-  ) {
-    return detail.detail;
-  }
-
-  return fallbackMessage;
-}
-
-function MutationAlert({ message }: { message: string | null }) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <Alert severity="error" variant="outlined" sx={bannerSx}>
-      {message}
-    </Alert>
-  );
-}
+import {
+  getProductionGroupApiErrorMessage,
+  ProductionGroupMutationAlert,
+  productionGroupDialogActionsSx,
+  productionGroupDialogBackdropSx,
+  productionGroupDialogCheckboxSx,
+  productionGroupDialogContentSx,
+  productionGroupDialogPaperSx,
+  productionGroupDialogPrimaryButtonSx,
+  productionGroupDialogSecondaryButtonSx,
+  productionGroupDialogTitleSx,
+} from "./ProductionGroupDialog.shared";
 
 export function CreateProductionGroupDialog({
   open,
@@ -125,7 +104,10 @@ export function CreateProductionGroupDialog({
       onClose();
     } catch (error) {
       setErrorMessage(
-        getApiErrorMessage(error, t("archive.productionGroups.messages.createFailed"))
+        getProductionGroupApiErrorMessage(
+          error,
+          t("archive.productionGroups.messages.createFailed")
+        )
       );
     } finally {
       setIsSubmitting(false);
@@ -139,14 +121,14 @@ export function CreateProductionGroupDialog({
       fullWidth
       maxWidth="sm"
       slotProps={{
-        paper: { sx: dialogPaperSx },
-        backdrop: { sx: dialogBackdropSx },
+        paper: { sx: productionGroupDialogPaperSx },
+        backdrop: { sx: productionGroupDialogBackdropSx },
       }}
     >
-      <DialogTitle sx={dialogTitleSx}>
+      <DialogTitle sx={productionGroupDialogTitleSx}>
         {t("archive.productionGroups.dialog.title")}
       </DialogTitle>
-      <DialogContent sx={dialogContentSx}>
+      <DialogContent sx={productionGroupDialogContentSx}>
         <p className="mb-3 text-sm leading-relaxed text-(--archive-ink) opacity-70">
           {t("archive.productionGroups.dialog.description")}
         </p>
@@ -156,7 +138,7 @@ export function CreateProductionGroupDialog({
           })}
         </p>
 
-        <MutationAlert message={validationError || errorMessage} />
+        <ProductionGroupMutationAlert message={validationError || errorMessage} />
 
         <form
           id="create-production-group-form"
@@ -181,7 +163,7 @@ export function CreateProductionGroupDialog({
               <Checkbox
                 checked={isPublicFilter}
                 onChange={(event) => setIsPublicFilter(event.target.checked)}
-                sx={checkboxSx}
+                sx={productionGroupDialogCheckboxSx}
               />
               <span className="space-y-1 pt-0.5">
                 <span className="block text-sm font-medium text-(--archive-ink)">
@@ -195,15 +177,19 @@ export function CreateProductionGroupDialog({
           </div>
         </form>
       </DialogContent>
-      <DialogActions sx={dialogActionsSx}>
-        <Button onClick={handleClose} disabled={isSubmitting} sx={secondaryButtonSx}>
+      <DialogActions sx={productionGroupDialogActionsSx}>
+        <Button
+          onClick={handleClose}
+          disabled={isSubmitting}
+          sx={productionGroupDialogSecondaryButtonSx}
+        >
           {t("archive.productionGroups.actions.cancel")}
         </Button>
         <Button
           type="submit"
           form="create-production-group-form"
           disabled={isSubmitDisabled}
-          sx={primaryButtonSx}
+          sx={productionGroupDialogPrimaryButtonSx}
         >
           {isSubmitting ? (
             <>
@@ -218,83 +204,3 @@ export function CreateProductionGroupDialog({
     </Dialog>
   );
 }
-
-const bannerSx = {
-  "mt": 4,
-  "fontFamily": "var(--font-sans)",
-  "fontSize": "0.875rem",
-  "borderColor": "rgba(196, 164, 132, 0.4)",
-  "color": "var(--archive-ink)",
-  "& .MuiAlert-icon": { color: "var(--archive-accent)" },
-};
-
-const secondaryButtonSx = {
-  py: 1.15,
-  px: 2.35,
-  borderRadius: "999px",
-  textTransform: "none" as const,
-  fontFamily: "var(--font-sans)",
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.18em",
-  color: "var(--archive-ink)",
-  border: "1px solid var(--archive-border)",
-};
-
-const primaryButtonSx = {
-  ...secondaryButtonSx,
-  "color": "#f6f0e8",
-  "borderColor": "transparent",
-  "backgroundColor": "var(--archive-accent)",
-  "&:hover": {
-    backgroundColor: "#92653e",
-  },
-};
-
-const dialogTitleSx = {
-  fontFamily: "var(--font-serif)",
-  fontStyle: "italic",
-  fontSize: "1.9rem",
-  color: "var(--archive-ink)",
-  pb: 1,
-  px: 3,
-  pt: 3,
-};
-
-const dialogContentSx = {
-  pt: "0.25rem !important",
-  pb: 1,
-  px: 3,
-  color: "var(--archive-ink)",
-};
-
-const dialogActionsSx = {
-  px: 3,
-  pt: 2,
-  pb: 3,
-  gap: 1.5,
-  borderTop: "1px solid var(--archive-border)",
-};
-
-const checkboxSx = {
-  "color": "rgba(196, 164, 132, 0.7)",
-  "padding": 0,
-  "mt": 0.25,
-  "&.Mui-checked": {
-    color: "var(--archive-accent)",
-  },
-};
-
-const dialogPaperSx = {
-  borderRadius: "1.75rem",
-  border: "1px solid var(--archive-border)",
-  backgroundColor: "var(--archive-surface-strong)",
-  color: "var(--archive-ink)",
-  backdropFilter: "blur(18px)",
-  boxShadow: "0 28px 90px rgba(0, 0, 0, 0.24)",
-};
-
-const dialogBackdropSx = {
-  backgroundColor: "rgba(17, 16, 14, 0.48)",
-  backdropFilter: "blur(4px)",
-};

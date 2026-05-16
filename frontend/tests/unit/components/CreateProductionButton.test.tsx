@@ -12,6 +12,7 @@ vi.mock("~/features/archive/services/productionService");
 vi.mock("~/features/archive/services/productionGroupService");
 vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/tagService");
+vi.mock("~/features/archive/services/productionGroupService");
 
 const adminUser = {
   id: 1,
@@ -44,6 +45,7 @@ describe("CreateProductionButton", () => {
   beforeEach(() => {
     vi.mocked(artistService.getArtists).mockResolvedValue([]);
     vi.mocked(tagService.getAllTags).mockResolvedValue([]);
+    vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([]);
     vi.mocked(productionGroupService.getAllProductionGroups).mockResolvedValue([]);
     vi.mocked(productionService.getProductionsPaginated).mockResolvedValue({
       productions: [],
