@@ -52,3 +52,15 @@ export async function deleteVisual(visualId: number): Promise<void> {
   const apiClient = createApiClient();
   await apiClient.delete(`${ARCHIVE_PATH}/visuals/${visualId}`);
 }
+
+export function isImageItem(item: VisualItem): boolean {
+  return item.content_type.startsWith("image/");
+}
+
+export function isVideoItem(item: VisualItem): boolean {
+  return item.content_type.startsWith("video/");
+}
+
+export function isPdfItem(item: VisualItem): boolean {
+  return item.content_type === "application/pdf";
+}
