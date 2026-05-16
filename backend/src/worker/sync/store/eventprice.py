@@ -53,6 +53,8 @@ def store_new_eventprices(db_session: Session, eventprices: list[dict]):
                 orphans += 1
                 continue
 
+            eventprice.event_id = internal_event_id
+
             # Valid event id, so store this eventprice
             db_session.merge(eventprice)
 
