@@ -48,15 +48,6 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-interface ProductionCardProps {
-  production: Production;
-  preferredLanguage?: string;
-  className?: string;
-  isSelectable?: boolean;
-  selected?: boolean;
-  onToggleSelected?: (productionId: string) => void;
-}
-
 export function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
   language: string
@@ -175,12 +166,23 @@ function getProductionStartLabel(
 //   	venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
 //   </Typography>
 
+interface ProductionCardProps {
+  production: Production;
+  preferredLanguage?: string;
+  className?: string;
+  isSelectable?: boolean;
+  selected?: boolean;
+  anySelected?: boolean;
+  onToggleSelected?: (productionId: string) => void;
+}
+
 export function ProductionCard({
   production,
   preferredLanguage = "nl",
   className,
   isSelectable = false,
   selected = false,
+  anySelected = false,
   onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
