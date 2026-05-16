@@ -237,6 +237,8 @@ interface ProductionGroupCardProps {
   setSelectedProductionGroups: (nextGroups: ProductionGroup[]) => void;
 }
 
+const FEATURED_PRODUCTION_GROUPS_LIMIT = 12;
+
 const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
   productionGroups,
   selectedProductionGroups,
@@ -247,10 +249,13 @@ const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
 
   const { t } = useTranslation();
 
-  const toggleProductionGroup = (productionGroup: ProductionGroup) => {
-    const isSelected = selectedProductionGroups.some(
+  const isProductionGroupSelected = (productionGroup: ProductionGroup) =>
+    selectedProductionGroups.some(
       (selectedGroup) => selectedGroup.id_url === productionGroup.id_url
     );
+
+  const toggleProductionGroup = (productionGroup: ProductionGroup) => {
+    const isSelected = isProductionGroupSelected(productionGroup);
 
     setSelectedProductionGroups(
       isSelected
@@ -260,6 +265,22 @@ const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
         : [...selectedProductionGroups, productionGroup]
     );
   };
+
+  const featuredProductionGroups = [...productionGroups]
+    .sort((leftGroup, rightGroup) =>
+      leftGroup.title.localeCompare(rightGroup.title, undefined, {
+        sensitivity: "base",
+      })
+    )
+    .slice(0, FEATURED_PRODUCTION_GROUPS_LIMIT);
+
+  const additionalSelectedProductionGroups = selectedProductionGroups.filter(
+    (selectedProductionGroup) =>
+      !featuredProductionGroups.some(
+        (featuredProductionGroup) =>
+          featuredProductionGroup.id_url === selectedProductionGroup.id_url
+      )
+  );
 
   const filteredProductionGroups =
     groupQuery.trim().length > 0
@@ -271,9 +292,24 @@ const FilterProductionGroupCard: React.FC<ProductionGroupCardProps> = ({
   return (
     <FilterCard title={t("filter.production_groups")}>
       <div className="space-y-4">
-        {selectedProductionGroups.length > 0 && (
+        {(featuredProductionGroups.length > 0 ||
+          additionalSelectedProductionGroups.length > 0) && (
           <div className="sticky-scroll flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2 md:max-h-60">
-            {selectedProductionGroups.map((productionGroup) => (
+            {featuredProductionGroups.map((productionGroup) => (
+              <button
+                key={productionGroup.id_url}
+                onClick={() => toggleProductionGroup(productionGroup)}
+                className={`cursor-pointer rounded border px-2 py-1 text-[9px] font-medium tracking-wider whitespace-nowrap uppercase transition-all ${
+                  isProductionGroupSelected(productionGroup)
+                    ? "bg-archive-accent border-archive-accent text-white"
+                    : "border-archive-ink/10 border-archive-ink-dark/10 hover:border-archive-accent"
+                }`}
+              >
+                {productionGroup.title}
+              </button>
+            ))}
+
+            {additionalSelectedProductionGroups.map((productionGroup) => (
               <button
                 key={productionGroup.id_url}
                 onClick={() => toggleProductionGroup(productionGroup)}

@@ -410,7 +410,7 @@ async function handleBlogSave(
           content: draftContent.content,
         },
       ],
-      production_group_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : "",
+      series_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : "",
     });
 
     // sync local "source of truth"
@@ -509,11 +509,9 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   useEffect(() => {
     let cancelled = false;
     async function loadProductionGroup() {
-      if (!blog.production_group_id_url) return;
+      if (!blog.series_id_url) return;
       try {
-        const productionGroup = await getProductionGroupByUrl(
-          blog.production_group_id_url
-        );
+        const productionGroup = await getProductionGroupByUrl(blog.series_id_url);
         if (!cancelled) {
           setBlogProdGroup(productionGroup);
           setNewBlogProdGroup(productionGroup);

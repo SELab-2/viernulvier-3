@@ -1,25 +1,26 @@
+from typing import Optional
+
 from minio import Minio
 from sqlalchemy import asc, desc
-from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import select
+from src.api.dependencies.language import get_accepted_language
+from src.api.exceptions import NotFoundError, ValidationError
 from src.config import settings
 from src.models import Blog, BlogContent
 from src.models.media import Media
 from src.models.production import Production
 from src.models.production_group import ProductionGroup
-from src.schemas.pagination import Pagination
-from src.api.dependencies.language import get_accepted_language
 from src.schemas.blogs import (
-    BlogContentResponse,
-    BlogResponse,
-    BlogListResponse,
     BlogContentCreate,
+    BlogContentResponse,
     BlogCreate,
+    BlogListResponse,
+    BlogResponse,
     BlogUpdate,
 )
-from src.api.exceptions import NotFoundError, ValidationError
+from src.schemas.pagination import Pagination
 from src.services.production import SortOrder
-from typing import Optional
 
 
 def build_blog_content_response(
@@ -55,17 +56,15 @@ def build_blog_response(
 
     return BlogResponse(
         id_url=f"{base_url}/blogs/{blog.id}",
-        production_group_id_url=get_production_group_for_blog(db, blog.id, base_url),
+        series_id_url=get_series_for_blog(db, blog.id, base_url),
         blog_contents=blog_contents,
     )
 
 
-def get_production_group_for_blog(
-    db: Session, blog_id: int, base_url: str
-) -> Optional[str]:
+def get_series_for_blog(db: Session, blog_id: int, base_url: str) -> Optional[str]:
     blog = db.get(Blog, blog_id)
     if not blog or not blog.production_group:
-        return None
+        return ""
 
     return f"{base_url}/production-groups/{blog.production_group.id}"
 
@@ -167,21 +166,19 @@ def create_blog(db: Session, blog_in: BlogCreate, base_url: str) -> BlogResponse
     if lang is None:
         raise ValidationError(f"Language '{blog_content_in.language}' not supported.")
 
-    production_group_id_url = blog_in.production_group_id_url
+    series_id_url = blog_in.series_id_url
 
-    production_group = None
-    if production_group_id_url is not None:
-        production_group_id = int(production_group_id_url.split("/")[-1])
-        production_group = (
-            db.query(ProductionGroup)
-            .filter(ProductionGroup.id == production_group_id)
-            .first()
+    series = None
+    if series_id_url not in (None, ""):
+        series_id = int(series_id_url.split("/")[-1])
+        series = (
+            db.query(ProductionGroup).filter(ProductionGroup.id == series_id).first()
         )
-        if production_group is None:
-            raise NotFoundError("Production group", production_group_id)
+        if series is None:
+            raise NotFoundError("Series", series_id)
 
     db_blog = Blog(
-        production_group=production_group,
+        production_group=series,
     )
 
     db.add(db_blog)
@@ -202,23 +199,23 @@ def update_blog_by_id(
     if not blog:
         raise NotFoundError("Blog", blog_id)
 
-    if blog_in.production_group_id_url is not None:
+    if blog_in.series_id_url is not None:
         # unlink the production
-        if blog_in.production_group_id_url == "":
+        if blog_in.series_id_url == "":
             blog.production_group = None
         else:
-            production_group_id_url = blog_in.production_group_id_url
-            production_group_id = int(production_group_id_url.split("/")[-1])
+            series_id_url = blog_in.series_id_url
+            series_id = int(series_id_url.split("/")[-1])
 
-            production_group = (
+            series = (
                 db.query(ProductionGroup)
-                .filter(ProductionGroup.id == production_group_id)
+                .filter(ProductionGroup.id == series_id)
                 .first()
             )
 
-            if production_group is None:
-                raise NotFoundError("production group", production_group_id)
-            blog.production_group = production_group
+            if series is None:
+                raise NotFoundError("Series", series_id)
+            blog.production_group = series
 
     if blog_in.blog_contents:
         for blog_content_in in blog_in.blog_contents:

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.models.user import User
 from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
@@ -193,8 +193,8 @@ def test_patch_blog_failure(client: TestClient, db_session: Session, blogs_limit
     assert response.json()["detail"] == "Incorrect permissions"
 
 
-# User can change production group of a blog if it exists
-def test_patch_blog_production_group_success(
+# User can change series of a blog if it exists
+def test_patch_blog_series_success(
     client: TestClient, db_session: Session, blogs_limited
 ):
     headers = create_user_and_login(
@@ -206,17 +206,17 @@ def test_patch_blog_production_group_success(
     )
 
     data = response.json()
-    assert data["production_group_id_url"].split("/")[-1] == "1"
+    assert data["series_id_url"].split("/")[-1] == "1"
 
     response = client.patch(
         f"{BASE_BLOG_URL}/{id}",
-        json={"production_group_id_url": f"{BASE_PROD_GROUP_URL}/2"},
+        json={"series_id_url": f"{BASE_PROD_GROUP_URL}/2"},
         headers=headers,
     )
 
     # Updated in response.
     data = response.json()
-    assert data["production_group_id_url"].split("/")[-1] == "2"
+    assert data["series_id_url"].split("/")[-1] == "2"
 
     response = client.get(
         BASE_BLOG_URL + f"/{id}",
@@ -224,7 +224,7 @@ def test_patch_blog_production_group_success(
 
     # Updated in database.
     data = response.json()
-    assert data["production_group_id_url"].split("/")[-1] == "2"
+    assert data["series_id_url"].split("/")[-1] == "2"
 
 
 # User with permissions can delete an existing content of an existing blog.
@@ -247,7 +247,7 @@ def test_patch_blog_delete_content_success(
     assert len(data["blog_contents"]) == 1
 
 
-# User should be able to create a new blog with a production group.
+# User should be able to create a new blog with a series.
 def test_create_blog_success(
     client: TestClient,
     db_session: Session,
@@ -264,14 +264,14 @@ def test_create_blog_success(
                 "title": "Nieuwe blog",
                 "content": "Nieuwe content",
             },
-            "production_group_id_url": f"{BASE_PROD_GROUP_URL}/1",
+            "series_id_url": f"{BASE_PROD_GROUP_URL}/1",
         },
         headers=headers,
     )
 
     assert response.status_code == 201
     data = response.json()
-    assert data["production_group_id_url"].split("/")[-1] == "1"
+    assert data["series_id_url"].split("/")[-1] == "1"
     assert data["blog_contents"][0]["title"] == "Nieuwe blog"
 
 

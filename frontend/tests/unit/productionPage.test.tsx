@@ -256,7 +256,7 @@ describe("ProductionPage", () => {
     const mockBlogs = [
       {
         id_url: "http://localhost/api/v1/archive/blogs/1",
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/production-groups/1",
         blog_contents: [
           {
             blog_id_url: "http://localhost/api/v1/archive/blogs/1",
@@ -268,7 +268,7 @@ describe("ProductionPage", () => {
       },
       {
         id_url: "http://localhost/api/v1/archive/blogs/2",
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/2",
+        series_id_url: "http://localhost/api/v1/archive/production-groups/2",
         blog_contents: [
           {
             blog_id_url: "http://localhost/api/v1/archive/blogs/2",

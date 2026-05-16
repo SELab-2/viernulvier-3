@@ -1,6 +1,6 @@
 import type { ProductionGroup } from "../types/productionGroupTypes";
 
-export const PRODUCTION_GROUP_QUERY_PARAM = "group";
+export const PRODUCTION_GROUP_QUERY_PARAM = "series";
 
 export function getProductionGroupId(
   productionGroup: Pick<ProductionGroup, "id_url">

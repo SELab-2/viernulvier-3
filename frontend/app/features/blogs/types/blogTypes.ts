@@ -9,7 +9,7 @@ export interface BlogContent {
 
 export interface Blog {
   id_url: string;
-  production_group_id_url?: string;
+  series_id_url?: string;
   blog_contents: BlogContent[];
 }
 
@@ -26,7 +26,7 @@ export interface BlogContentCreate {
 
 export interface BlogCreate {
   blog_content: BlogContentCreate;
-  production_group_id_url?: string;
+  series_id_url?: string;
 }
 
 export interface BlogContentUpdate {
@@ -37,6 +37,6 @@ export interface BlogContentUpdate {
 
 export interface BlogUpdate {
   blog_contents: BlogContentUpdate[];
-  production_group_id_url?: string;
+  series_id_url?: string;
   remove_languages?: string[];
 }

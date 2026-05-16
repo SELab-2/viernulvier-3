@@ -47,19 +47,19 @@ const mockBlogContentNL: BlogContent = {
 
 const mockBlog: Blog = {
   id_url: "/api/v1/archive/blogs/1",
-  production_group_id_url: "/api/v1/archive/production-groups/1",
+  series_id_url: "/api/v1/archive/production-groups/1",
   blog_contents: [mockBlogContentEN, mockBlogContentNL],
 };
 
 const mockBlogNoProductions: Blog = {
   id_url: "/api/v1/archive/blogs/2",
-  production_group_id_url: "/api/v1/archive/production-groups/2",
+  series_id_url: "/api/v1/archive/production-groups/2",
   blog_contents: [mockBlogContentEN],
 };
 
 const mockBlogMultipleProductions: Blog = {
   id_url: "/api/v1/archive/blogs/3",
-  production_group_id_url: "/api/v1/archive/production-groups/3",
+  series_id_url: "/api/v1/archive/production-groups/3",
   blog_contents: [mockBlogContentEN],
 };
 
@@ -211,7 +211,7 @@ describe("BlogCard", () => {
       const blog: Blog = {
         ...mockBlog,
         blog_contents: [mockBlogContentEN],
-        production_group_id_url: "/api/v1/archive/production-groups/1",
+        series_id_url: "/api/v1/archive/production-groups/1",
       };
 
       renderBlogCard({ blog });
@@ -236,7 +236,7 @@ describe("BlogCardList", () => {
   it("renders a card for every blog in the list", () => {
     const blog2: Blog = {
       id_url: "/api/v1/archive/blogs/2",
-      production_group_id_url: "/api/v1/archive/production-groups/2",
+      series_id_url: "/api/v1/archive/production-groups/2",
       blog_contents: [
         {
           blog_id_url: "/api/v1/archive/blogs/2",

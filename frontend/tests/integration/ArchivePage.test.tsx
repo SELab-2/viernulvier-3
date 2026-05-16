@@ -93,7 +93,7 @@ function mockFilteredProductionGroupSelection() {
 function renderArchiveWithFilteredProductionGroup() {
   renderWithRouterAndTheme({
     useRealArchive: true,
-    initialPath: "/archive?group=1",
+    initialPath: "/archive?series=1",
   });
 }
 
@@ -324,7 +324,7 @@ describe("Archive", () => {
 
     renderWithRouterAndTheme({
       useRealArchive: true,
-      initialPath: "/archive?group=2",
+      initialPath: "/archive?series=2",
     });
 
     await waitFor(() =>

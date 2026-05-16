@@ -1,24 +1,24 @@
 from typing import List
-from src.models.blogs import Blog
-from src.models.media import Media
-from src.services.blogs import (
-    get_blog_by_id,
-    get_blogs_paginated,
-    get_blogs_by_production_id,
-    create_blog,
-    update_blog_by_id,
-    delete_blog_by_id,
-)
-from src.schemas.blogs import (
-    BlogCreate,
-    BlogContentCreate,
-    BlogUpdate,
-    BlogContentUpdate,
-)
-from src.services.language import Languages
-from src.api.exceptions import NotFoundError, ValidationError
 
 import pytest
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models.blogs import Blog
+from src.models.media import Media
+from src.schemas.blogs import (
+    BlogContentCreate,
+    BlogContentUpdate,
+    BlogCreate,
+    BlogUpdate,
+)
+from src.services.blogs import (
+    create_blog,
+    delete_blog_by_id,
+    get_blog_by_id,
+    get_blogs_by_production_id,
+    get_blogs_paginated,
+    update_blog_by_id,
+)
+from src.services.language import Languages
 
 
 class DummyMinioClient:
@@ -154,8 +154,8 @@ def test_create_blog_invalid_content(db_session, blogs_limited):
         _ = create_blog(db_session, new_blog, BASE_URL)
 
 
-# Create a blog with a production group.
-def test_create_blog_with_production_group(db_session, blogs_limited):
+# Create a blog with a series.
+def test_create_blog_with_series(db_session, blogs_limited):
     result = get_blogs_paginated(db_session, BASE_URL)
     assert len(result.blogs) == 2
 
@@ -163,7 +163,7 @@ def test_create_blog_with_production_group(db_session, blogs_limited):
         blog_content=BlogContentCreate(
             language=Languages.DUTCH, title="nieuwe blog", content=""
         ),
-        production_group_id_url=f"{BASE_URL}/production-groups/2",
+        series_id_url=f"{BASE_URL}/production-groups/2",
     )
 
     response = create_blog(db_session, new_blog, BASE_URL)
@@ -172,7 +172,7 @@ def test_create_blog_with_production_group(db_session, blogs_limited):
 
     new_id = int(response.id_url.split("/")[-1])
     new_blog_from_db = get_blog_by_id(db_session, new_id, BASE_URL)
-    assert new_blog_from_db.production_group_id_url == f"{BASE_URL}/production-groups/2"
+    assert new_blog_from_db.series_id_url == f"{BASE_URL}/production-groups/2"
 
 
 # Update an existing blog - basic field.
@@ -192,38 +192,38 @@ def test_update_blog_basic(db_session, blogs_limited):
     assert result.blog_contents[0].content == "content"
 
 
-# Update production group of a blog
-def test_update_blog_prod_group(db_session, blogs_limited):
+# Update series of a blog
+def test_update_blog_series(db_session, blogs_limited):
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.production_group_id_url == f"{BASE_URL}/production-groups/1"
+    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/1"
 
-    blog_update1 = BlogUpdate(production_group_id_url=f"{BASE_URL}/production-groups/2")
+    blog_update1 = BlogUpdate(series_id_url=f"{BASE_URL}/production-groups/2")
 
     # Correct responses are returned.
     result = update_blog_by_id(db_session, blog_update1, blogs_limited[0].id, BASE_URL)
 
-    assert result.production_group_id_url == f"{BASE_URL}/production-groups/2"
+    assert result.series_id_url == f"{BASE_URL}/production-groups/2"
 
     # Updated in database.
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.production_group_id_url == f"{BASE_URL}/production-groups/2"
+    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/2"
 
 
-# Unlink production group of a blog
+# Unlink series of a blog
 def test_unlink_blog_prod_group(db_session, blogs_limited):
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.production_group_id_url == f"{BASE_URL}/production-groups/1"
+    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/1"
 
-    blog_update1 = BlogUpdate(production_group_id_url="")
+    blog_update1 = BlogUpdate(series_id_url="")
 
     # Correct responses are returned.
     result = update_blog_by_id(db_session, blog_update1, blogs_limited[0].id, BASE_URL)
 
-    assert result.production_group_id_url is None
+    assert result.series_id_url == ""
 
     # Updated in database.
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.production_group_id_url is None
+    assert blog_response.series_id_url == ""
 
 
 # Update an existing blog - delete existing blog content.

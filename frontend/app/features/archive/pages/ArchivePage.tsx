@@ -495,6 +495,7 @@ export default function ArchivePage() {
       <CreateProductionGroupDialog
         open={isCreateProductionGroupDialogOpen}
         selectedProductionIds={selectedProductionIds}
+        existingProductionGroups={productionGroups}
         onClose={() => setIsCreateProductionGroupDialogOpen(false)}
         onCreated={handleProductionGroupCreated}
       />
