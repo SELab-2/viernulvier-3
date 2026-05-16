@@ -162,7 +162,7 @@ export default function EventSection({
             halls={allHalls}
             isNewEvents={true}
           />
-          <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+          <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
             <NewEventButton
               onClick={() => {
                 setNewEvents((prev) => [...prev, createEmptyEvent(production_id_url)]);

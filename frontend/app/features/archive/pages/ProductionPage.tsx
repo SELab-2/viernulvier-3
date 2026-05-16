@@ -36,6 +36,8 @@ import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
 import EventSection from "../components/EventSection";
 import Tags from "../components/TagSection";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 
 interface ProductionPageProps {
   production: Production;
@@ -106,7 +108,11 @@ function isEventModified(original?: Event, draft?: Event): boolean {
 }
 
 async function handleInfoSave(
-  production_id_url: string,
+  production: Production,
+  attendance_mode: string,
+  setOriginalAttendanceMode: React.Dispatch<React.SetStateAction<string>>,
+  performer_type: string,
+  setOriginalPerformerType: React.Dispatch<React.SetStateAction<string>>,
   originalInfo: ProductionInfo | null,
   draftInfo: ProductionInfo | null,
   setOriginalInfo: React.Dispatch<React.SetStateAction<ProductionInfo | null>>,
@@ -128,8 +134,12 @@ async function handleInfoSave(
 ) {
   if (!draftInfo) return;
   setIsSaving(true);
+
+  const production_id_url = production.id_url;
   try {
     await updateProductionByUrl(production_id_url, {
+      attendance_mode: attendance_mode,
+      performer_type: performer_type,
       production_infos: [
         {
           language: language,
@@ -187,6 +197,8 @@ async function handleInfoSave(
     }
 
     // sync local "source of truth"
+    setOriginalAttendanceMode(attendance_mode);
+    setOriginalPerformerType(performer_type);
     setOriginalTags(draftTags);
     setOriginalInfo(draftInfo);
     setOriginalEvents([...draftEvents, ...createdEvents]);
@@ -236,11 +248,30 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
   const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
+
+  // General Info
+  const [draftPerformerType, setDraftPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [draftAttendanceMode, setDraftAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
+  const [originalPerformerType, setOriginalPerformerType] = useState<string>(
+    production.performer_type ?? ""
+  );
+  const [originalAttendanceMode, setOriginalAttendanceMode] = useState<string>(
+    production.attendance_mode ?? ""
+  );
+
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const _handleSave = () =>
     handleInfoSave(
-      production.id_url,
+      production,
+      draftAttendanceMode,
+      setOriginalAttendanceMode,
+      draftPerformerType,
+      setOriginalPerformerType,
       originalInfo,
       draftInfo,
       setOriginalInfo,
@@ -274,9 +305,28 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     if (originalInfo === null) {
       return isEditing; // With add always true.
     }
+    const generalModified =
+      originalAttendanceMode !== draftAttendanceMode ||
+      originalPerformerType !== draftPerformerType;
     const tagsModified = areTagsModified(originalTags, draftTags);
-    return tagsModified || isInfoModified(originalInfo, draftInfo) || areEventsModified;
-  }, [originalInfo, draftInfo, isEditing, originalTags, draftTags, areEventsModified]);
+    return (
+      tagsModified ||
+      generalModified ||
+      isInfoModified(originalInfo, draftInfo) ||
+      areEventsModified
+    );
+  }, [
+    originalInfo,
+    draftInfo,
+    isEditing,
+    originalTags,
+    draftTags,
+    areEventsModified,
+    originalAttendanceMode,
+    draftAttendanceMode,
+    originalPerformerType,
+    draftPerformerType,
+  ]);
 
   useEffect(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
@@ -460,7 +510,6 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-4 px-6 pt-10 pb-16 md:px-12">
         <BackToCollectionLink />
         <ProductionHeader
-          production_info={productionInfo}
           image_url={imageUrl}
           isEditing={isEditing}
           originalInfo={originalInfo}
@@ -470,7 +519,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         />
 
         <Tags
-          performer_type={production.performer_type}
+          performer_type={originalPerformerType}
           originalTags={originalTags}
           draftTags={draftTags}
           setDraftTags={setDraftTags}
@@ -479,6 +528,18 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
 
         <section id="production-events" className="mt-8">
           <article className="w-full min-w-0 space-y-6 text-[1.06rem] leading-[1.62] opacity-92">
+            <ProductionGeneralInfo
+              isCreateGeneralInfo={false}
+              isEditing={isEditing}
+              attendanceMode={draftAttendanceMode}
+              originalAttendanceMode={originalAttendanceMode}
+              performerType={draftPerformerType}
+              originalPerformerType={originalPerformerType}
+              onSave={(field, value) => {
+                if (field === "attendance_mode") setDraftAttendanceMode(value);
+                if (field === "performer_type") setDraftPerformerType(value);
+              }}
+            />
             <ProductionInfoSection
               isCreateInfo={false}
               tagline={draftInfo?.tagline ?? ""}
@@ -545,9 +606,14 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setDraftAttendanceMode={setDraftAttendanceMode}
+            setDraftPerformerType={setDraftPerformerType}
+            originalAttendanceMode={originalAttendanceMode}
+            originalPerformerType={originalPerformerType}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
           {!isEditing ? (
             <DeleteInfoButton
@@ -570,9 +636,14 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setDraftAttendanceMode={setDraftAttendanceMode}
+            setDraftPerformerType={setDraftPerformerType}
+            originalAttendanceMode={originalAttendanceMode}
+            originalPerformerType={originalPerformerType}
             enable_save={isModified}
             is_saving={isSaving}
             _handleSave={_handleSave}
+            permissions={[ARCHIVE_PERMISSIONS.update]}
           />
         </div>
       )}

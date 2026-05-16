@@ -2,9 +2,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Blog, BlogContent } from "~/features/blogs/types/blogTypes";
 import { BlogCard, BlogCardList } from "~/features/blogs/components/BlogCard";
-import * as blogService from "~/features/blogs/services/blogService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { MemoryRouter } from "react-router";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
+import {
+  getProductionGroupByUrl,
+  getProductionsForGroup,
+} from "~/features/archive/services/productionGroupService";
 
 vi.mock("react-i18next", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-i18next")>();
@@ -16,8 +20,9 @@ vi.mock("react-i18next", async (importOriginal) => {
   };
 });
 
-vi.mock("~/features/blogs/services/blogService", () => ({
-  getProductionsForBlog: vi.fn(),
+vi.mock("~/features/archive/services/productionGroupService", () => ({
+  getProductionGroupByUrl: vi.fn(),
+  getProductionsForGroup: vi.fn(),
 }));
 
 vi.mock("~/features/blogs/services/mediaService", () => ({
@@ -87,6 +92,13 @@ function makeProduction(index: number): Production {
   };
 }
 
+const baseProdGroup: ProductionGroup = {
+  id_url: "http://localhost/api/v1/production-groups/1",
+  title: "foo",
+  is_public_filter: true,
+  production_id_urls: [],
+};
+
 function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
   return render(
     <MemoryRouter>
@@ -97,7 +109,8 @@ function renderBlogCard(props: Partial<Parameters<typeof BlogCard>[0]> = {}) {
 
 describe("BlogCard", () => {
   beforeEach(() => {
-    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([mockProductionEN]);
+    vi.mocked(getProductionGroupByUrl).mockResolvedValue(baseProdGroup);
+    vi.mocked(getProductionsForGroup).mockResolvedValue([]);
   });
 
   it("renders the given title", () => {
@@ -156,12 +169,12 @@ describe("BlogCard", () => {
   });
 
   it("renders the no-production fallback text", () => {
-    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([]);
     renderBlogCard({ blog: mockBlogNoProductions });
     expect(screen.getByText("blogs.card.no_prods")).toBeInTheDocument();
   });
 
   it("renders the production chip with the correct label for 1 production", async () => {
+    vi.mocked(getProductionsForGroup).mockResolvedValue([mockProductionEN]);
     renderBlogCard({ blog: mockBlog });
     await waitFor(() =>
       expect(screen.getByText("Production Title EN")).toBeInTheDocument()
@@ -170,7 +183,7 @@ describe("BlogCard", () => {
   });
 
   it("renders a chip showing the first production title + overflow count", async () => {
-    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([
+    vi.mocked(getProductionsForGroup).mockResolvedValue([
       makeProduction(1),
       makeProduction(2),
       makeProduction(3),
@@ -191,7 +204,7 @@ describe("BlogCard", () => {
   ])(
     "overflow count shows $expected for $count productions",
     async ({ count, expected }) => {
-      vi.mocked(blogService.getProductionsForBlog).mockResolvedValue(
+      vi.mocked(getProductionsForGroup).mockResolvedValue(
         Array.from({ length: count }, (_, i) => makeProduction(i + 1))
       );
 
@@ -217,7 +230,7 @@ describe("BlogCard", () => {
 
 describe("BlogCardList", () => {
   beforeEach(() => {
-    vi.mocked(blogService.getProductionsForBlog).mockResolvedValue([mockProductionEN]);
+    vi.mocked(getProductionsForGroup).mockResolvedValue([mockProductionEN]);
   });
 
   it("renders a card for every blog in the list", () => {

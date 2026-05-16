@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { ARCHIVE_PERMISSIONS } from "~/features/archive/archive.constants";
 
 import { EditButton } from "~/features/archive/components/EditButton";
 import type { Tag } from "~/features/archive/types/tagTypes";
@@ -52,6 +53,8 @@ const setDraftEvents = vi.fn();
 const setNewEvents = vi.fn();
 const setDeletedEvents = vi.fn();
 const setDraftTags = vi.fn();
+const setDraftAttendanceMode = vi.fn();
+const setDraftPerformerType = vi.fn();
 const handleSave = vi.fn();
 
 function renderEditButton(overrides = {}, user = baseUser) {
@@ -74,7 +77,12 @@ function renderEditButton(overrides = {}, user = baseUser) {
         enable_save={true}
         is_saving={false}
         _handleSave={handleSave}
+        setDraftAttendanceMode={setDraftAttendanceMode}
+        setDraftPerformerType={setDraftPerformerType}
+        originalAttendanceMode=""
+        originalPerformerType=""
         {...overrides}
+        permissions={[ARCHIVE_PERMISSIONS.update]}
       />
     </AuthSessionProvider>
   );

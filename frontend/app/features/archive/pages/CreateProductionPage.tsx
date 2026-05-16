@@ -17,6 +17,8 @@ import type { EventWithResolvedRelations } from "../components/EventCard";
 import { createEvent } from "../services/eventService";
 import Tags from "../components/TagSection";
 import EventSection from "../components/EventSection";
+import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
+import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -34,6 +36,8 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
 
 async function handleAddProduction(
   language: string,
+  attendanceMode: string,
+  performerType: string,
   draftInfo: ProductionInfo | null,
   draftTags: Tag[],
   draftEvents: EventWithResolvedRelations[],
@@ -48,6 +52,8 @@ async function handleAddProduction(
 
   try {
     const response = await createProduction({
+      attendance_mode: attendanceMode,
+      performer_type: performerType,
       production_info: {
         language: language,
         artist: draftInfo.artist,
@@ -112,6 +118,8 @@ export function CreateProductionPage() {
   const { lang } = useParams();
   const language = lang ?? "nl";
   const { t } = useTranslation();
+  const [draftAttendanceMode, setDraftAttendanceMode] = useState("");
+  const [draftPerformerType, setDraftPerformerType] = useState("");
   const [draftInfo, setDraftInfo] = useState<ProductionInfo | null>({
     production_id_url: "",
     language: lang!,
@@ -147,6 +155,8 @@ export function CreateProductionPage() {
   const _handleAddProduction = () =>
     handleAddProduction(
       language,
+      draftAttendanceMode,
+      draftPerformerType,
       draftInfo,
       draftTags,
       draftEvents,
@@ -194,7 +204,6 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          production_info={null}
           image_url={imageUrl}
           isEditing={true}
           originalInfo={null}
@@ -209,6 +218,18 @@ export function CreateProductionPage() {
               draftTags={draftTags}
               setDraftTags={setDraftTags}
               isEditing={true}
+            />
+            <ProductionGeneralInfo
+              isCreateGeneralInfo={true}
+              isEditing={true}
+              attendanceMode={draftAttendanceMode}
+              originalAttendanceMode={undefined}
+              performerType={draftPerformerType}
+              originalPerformerType={undefined}
+              onSave={(field, value) => {
+                if (field === "attendance_mode") setDraftAttendanceMode(value);
+                if (field === "performer_type") setDraftPerformerType(value);
+              }}
             />
             <ProductionInfoSection
               isCreateInfo={true}
@@ -252,10 +273,15 @@ export function CreateProductionPage() {
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
             enable_save={isModified}
+            setDraftAttendanceMode={() => {}}
+            setDraftPerformerType={() => {}}
+            originalAttendanceMode=""
+            originalPerformerType=""
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
             originalTags={null}
             setDraftTags={() => {}}
+            permissions={[ARCHIVE_PERMISSIONS.create]}
           />
         </div>
       </main>
