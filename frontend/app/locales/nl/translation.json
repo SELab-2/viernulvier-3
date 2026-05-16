@@ -156,11 +156,9 @@
     "address": "Adres",
     "addressUnknown": "Adres onbekend",
     "visualEvidence": "Foto's",
-    "confirmDeleteMedia": "Weet je zeker dat je dit media-item wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
-    "deleteMedia": "Foto verwijderen",
-    "deleteMediaFailed": "Foto verwijderen mislukt: {{error}}",
+    "deleteMedia": "Verwijder media",
+    "uploadMedia": "Upload media",
     "archivePhotoAlt": "Archieffoto voor {{title}} {{index}}",
-    "noImagesYet": "Nog geen afbeeldingen",
     "edit": {
       "add": "Voeg info toe",
       "edit": "Pas aan",
@@ -175,7 +173,10 @@
       "teaser": "Teaser",
       "info": "Info",
       "search_tags": "Zoek tags...",
-      "no_tags": "Geen tags gevonden"
+      "no_tags": "Geen tags gevonden",
+      "delete": "Verwijder",
+      "confirmDeleteTitle": "Verwijder media?",
+      "confirmDeleteBody": "Bent u zeker dat dit bestand verwijderd mag worden? Deze actie kan niet ongedaan gemaakt worden."
     },
     "delete": {
       "delete": "Verwijder info (nl)",
