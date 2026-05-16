@@ -18,7 +18,7 @@ export function ShowMoreButton({
     earliest_at?: string;
     latest_at?: string;
     tag_ids?: string[];
-    group_ids?: string[];
+    series_ids?: string[];
     artists?: string[];
   };
 }) {

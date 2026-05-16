@@ -17,7 +17,7 @@ def build_production_group_response(
         production.id for production in production_group.productions
     )
     return ProductionGroupResponse(
-        id_url=f"{base_url}/production-groups/{production_group.id}",
+        id_url=f"{base_url}/series/{production_group.id}",
         title=production_group.title,
         is_public_filter=production_group.is_public_filter,
         production_id_urls=[
@@ -101,7 +101,7 @@ def get_production_group_by_id(
         .first()
     )
     if not production_group:
-        raise NotFoundError("Production group", production_group_id)
+        raise NotFoundError("Series", production_group_id)
 
     return build_production_group_response(production_group, base_url)
 
@@ -139,7 +139,7 @@ def update_production_group(
         .first()
     )
     if not production_group:
-        raise NotFoundError("Production group", production_group_id)
+        raise NotFoundError("Series", production_group_id)
 
     update_data = production_group_in.model_dump(exclude_unset=True)
     production_id_urls = update_data.pop("production_id_urls", None)
@@ -171,7 +171,7 @@ def delete_production_group_by_id(db: Session, production_group_id: int) -> bool
         .first()
     )
     if not production_group:
-        raise NotFoundError("Production group", production_group_id)
+        raise NotFoundError("Series", production_group_id)
 
     db.delete(production_group)
     db.commit()

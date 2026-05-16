@@ -93,13 +93,13 @@ const mockCreatedBlog: Blog = {
 
 const mockProductionGroups: ProductionGroup[] = [
   {
-    id_url: "http://localhost/api/v1/archive/production-groups/1",
+    id_url: "http://localhost/api/v1/archive/series/1",
     title: "Seizoen 2024",
     is_public_filter: true,
     production_id_urls: [],
   },
   {
-    id_url: "http://localhost/api/v1/archive/production-groups/2",
+    id_url: "http://localhost/api/v1/archive/series/2",
     title: "Zomerprogramma",
     is_public_filter: true,
     production_id_urls: [],
@@ -466,7 +466,7 @@ describe("CreateBlogPage", () => {
       await waitFor(() => {
         expect(vi.mocked(createBlog)).toHaveBeenCalledWith(
           expect.objectContaining({
-            series_id_url: "http://localhost/api/v1/archive/production-groups/1",
+            series_id_url: "http://localhost/api/v1/archive/series/1",
           })
         );
       });

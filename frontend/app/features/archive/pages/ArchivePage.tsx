@@ -54,7 +54,7 @@ function buildProductionFilters({
       selectedTags.length > 0
         ? selectedTags.map((tag) => tag.id_url.split("/").pop()!)
         : undefined,
-    group_ids:
+    series_ids:
       selectedProductionGroupIds.length > 0 ? selectedProductionGroupIds : undefined,
     artists: selectedArtists.length > 0 ? selectedArtists : undefined,
   };

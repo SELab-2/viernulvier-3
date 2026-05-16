@@ -153,7 +153,7 @@ const baseBlogEmptyContent: Blog = {
 };
 
 const baseProdGroup: ProductionGroup = {
-  id_url: "http://localhost/api/v1/production-groups/1",
+  id_url: "http://localhost/api/v1/archive/series/1",
   title: "foo",
   is_public_filter: true,
   production_id_urls: [],
@@ -250,7 +250,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        series_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/series/1",
       },
       "nl"
     );
@@ -270,7 +270,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        series_id_url: "http://localhost/api/v1/archive/production-groups/99",
+        series_id_url: "http://localhost/api/v1/archive/series/99",
       },
       "nl"
     );
@@ -319,7 +319,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        series_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/series/1",
       },
       "nl"
     );
@@ -669,13 +669,13 @@ describe("BlogContentPage", () => {
     it("enables the save button when selected production is changed", async () => {
       vi.mocked(getAllProductionGroups).mockResolvedValue([
         {
-          id_url: "http://localhost/api/v1/production-groups/1",
+          id_url: "http://localhost/api/v1/archive/series/1",
           title: "foo",
           is_public_filter: true,
           production_id_urls: [],
         },
         {
-          id_url: "http://localhost/api/v1/production-groups/2",
+          id_url: "http://localhost/api/v1/archive/series/2",
           title: "bar",
           is_public_filter: true,
           production_id_urls: [],
@@ -694,13 +694,13 @@ describe("BlogContentPage", () => {
     it("calls updateBlogByUrl with the new production group on save", async () => {
       vi.mocked(getAllProductionGroups).mockResolvedValue([
         {
-          id_url: "http://localhost/api/v1/production-groups/1",
+          id_url: "http://localhost/api/v1/archive/series/1",
           title: "foo",
           is_public_filter: true,
           production_id_urls: [],
         },
         {
-          id_url: "http://localhost/api/v1/production-groups/2",
+          id_url: "http://localhost/api/v1/archive/series/2",
           title: "bar",
           is_public_filter: true,
           production_id_urls: [],

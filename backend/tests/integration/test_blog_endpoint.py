@@ -6,7 +6,7 @@ from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
 
-BASE_PROD_GROUP_URL = "/api/v1/archive/production-groups"
+BASE_PROD_GROUP_URL = "/api/v1/archive/series"
 BASE_PROD_URL = "/api/v1/archive/productions"
 BASE_BLOG_URL = "/api/v1/archive/blogs"
 

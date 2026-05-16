@@ -66,7 +66,7 @@ def get_series_for_blog(db: Session, blog_id: int, base_url: str) -> Optional[st
     if not blog or not blog.production_group:
         return ""
 
-    return f"{base_url}/production-groups/{blog.production_group.id}"
+    return f"{base_url}/series/{blog.production_group.id}"
 
 
 def get_blogs_paginated(

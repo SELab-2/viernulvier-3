@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
-
 from src.api.dependencies import RequirePermissions
 from src.database import get_db
 from src.models.user import User
@@ -27,8 +26,8 @@ router = APIRouter()
 @router.get(
     "",
     response_model=List[ProductionGroupResponse],
-    summary="Get production groups",
-    description="Returns production groups, optionally including hidden groups.",
+    summary="Get series",
+    description="Returns series, optionally including hidden series.",
 )
 async def get_production_groups(
     request: Request,
@@ -42,7 +41,7 @@ async def get_production_groups(
 @router.get(
     "/{production_group_id}",
     response_model=ProductionGroupResponse,
-    summary="Get a production group",
+    summary="Get a series",
 )
 async def get_production_group(
     production_group_id: int,
@@ -57,7 +56,7 @@ async def get_production_group(
     "",
     response_model=ProductionGroupResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a production group",
+    summary="Create a series",
 )
 async def post_production_group(
     production_group_in: ProductionGroupCreate,
@@ -72,7 +71,7 @@ async def post_production_group(
 @router.patch(
     "/{production_group_id}",
     response_model=ProductionGroupResponse,
-    summary="Update a production group",
+    summary="Update a series",
 )
 async def patch_production_group(
     production_group_id: int,
@@ -90,7 +89,7 @@ async def patch_production_group(
 @router.delete(
     "/{production_group_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete a production group",
+    summary="Delete a series",
 )
 async def delete_production_group(
     production_group_id: int,

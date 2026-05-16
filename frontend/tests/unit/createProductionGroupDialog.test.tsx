@@ -16,7 +16,7 @@ describe("CreateProductionGroupDialog", () => {
 
   it("creates a production group from the selected productions", async () => {
     const createdGroup = {
-      id_url: "/api/v1/archive/production-groups/12",
+      id_url: "/api/v1/archive/series/12",
       title: "Autumn series",
       is_public_filter: true,
       production_id_urls: [
@@ -74,7 +74,7 @@ describe("CreateProductionGroupDialog", () => {
         selectedProductionIds={["/api/v1/archive/productions/1"]}
         existingProductionGroups={[
           {
-            id_url: "/api/v1/archive/production-groups/12",
+            id_url: "/api/v1/archive/series/12",
             title: "Autumn series",
             is_public_filter: true,
             production_id_urls: ["/api/v1/archive/productions/1"],

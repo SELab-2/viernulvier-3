@@ -163,7 +163,7 @@ def test_create_blog_with_series(db_session, blogs_limited):
         blog_content=BlogContentCreate(
             language=Languages.DUTCH, title="nieuwe blog", content=""
         ),
-        series_id_url=f"{BASE_URL}/production-groups/2",
+        series_id_url=f"{BASE_URL}/series/2",
     )
 
     response = create_blog(db_session, new_blog, BASE_URL)
@@ -172,7 +172,7 @@ def test_create_blog_with_series(db_session, blogs_limited):
 
     new_id = int(response.id_url.split("/")[-1])
     new_blog_from_db = get_blog_by_id(db_session, new_id, BASE_URL)
-    assert new_blog_from_db.series_id_url == f"{BASE_URL}/production-groups/2"
+    assert new_blog_from_db.series_id_url == f"{BASE_URL}/series/2"
 
 
 # Update an existing blog - basic field.
@@ -195,24 +195,24 @@ def test_update_blog_basic(db_session, blogs_limited):
 # Update series of a blog
 def test_update_blog_series(db_session, blogs_limited):
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/1"
+    assert blog_response.series_id_url == f"{BASE_URL}/series/1"
 
-    blog_update1 = BlogUpdate(series_id_url=f"{BASE_URL}/production-groups/2")
+    blog_update1 = BlogUpdate(series_id_url=f"{BASE_URL}/series/2")
 
     # Correct responses are returned.
     result = update_blog_by_id(db_session, blog_update1, blogs_limited[0].id, BASE_URL)
 
-    assert result.series_id_url == f"{BASE_URL}/production-groups/2"
+    assert result.series_id_url == f"{BASE_URL}/series/2"
 
     # Updated in database.
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/2"
+    assert blog_response.series_id_url == f"{BASE_URL}/series/2"
 
 
 # Unlink series of a blog
 def test_unlink_blog_prod_group(db_session, blogs_limited):
     blog_response = get_blog_by_id(db_session, blogs_limited[0].id, BASE_URL)
-    assert blog_response.series_id_url == f"{BASE_URL}/production-groups/1"
+    assert blog_response.series_id_url == f"{BASE_URL}/series/1"
 
     blog_update1 = BlogUpdate(series_id_url="")
 

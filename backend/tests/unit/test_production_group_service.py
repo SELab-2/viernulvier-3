@@ -62,7 +62,7 @@ def test_get_production_group_by_id_success(db_session, productions_limited):
 
     result = get_production_group_by_id(db_session, production_group.id, BASE_URL)
 
-    assert result.id_url == f"{BASE_URL}/production-groups/{production_group.id}"
+    assert result.id_url == f"{BASE_URL}/series/{production_group.id}"
     assert result.title == "Season picks"
     assert set(result.production_id_urls) == {
         f"{BASE_URL}/productions/{production.id}" for production in productions_limited

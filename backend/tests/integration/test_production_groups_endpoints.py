@@ -7,7 +7,7 @@ from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 
-PRODUCTION_GROUPS_URL = "/api/v1/archive/production-groups"
+PRODUCTION_GROUPS_URL = "/api/v1/archive/series"
 
 
 def create_user_and_login(

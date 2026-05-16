@@ -48,13 +48,13 @@ describe("blogService", () => {
 
   const mockBlog1: Blog = {
     id_url: "/api/v1/archive/blogs/1",
-    series_id_url: "/api/v1/archive/production-groups/1",
+    series_id_url: "/api/v1/archive/series/1",
     blog_contents: [mockBlogContent1EN],
   };
 
   const mockBlog2: Blog = {
     id_url: "/api/v1/archive/blogs/2",
-    series_id_url: "/api/v1/archive/production-groups/2",
+    series_id_url: "/api/v1/archive/series/2",
     blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
   };
 
@@ -130,13 +130,13 @@ describe("blogService", () => {
       };
       const blogData: BlogCreate = {
         blog_content: blog_content,
-        series_id_url: "/api/v1/archive/production-groups/3/",
+        series_id_url: "/api/v1/archive/series/3/",
       };
 
       const mockResponse: Blog = {
         id_url: "/api/v1/archive/blogs/3/",
         blog_contents: [blog_content],
-        series_id_url: "/api/v1/archive/production-groups/3/",
+        series_id_url: "/api/v1/archive/series/3/",
       };
 
       mockAdapter.onPost("/api/v1/archive/blogs").reply(201, mockResponse);
@@ -166,13 +166,13 @@ describe("blogService", () => {
     it("updates a blog and returns updated data", async () => {
       const blogUpdate: BlogUpdate = {
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        series_id_url: "/api/v1/archive/production-groups/3",
+        series_id_url: "/api/v1/archive/series/3",
       };
 
       const mockBlog2_updated: Blog = {
         id_url: "/api/v1/archive/blogs/2/",
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        series_id_url: "/api/v1/archive/production-groups/3",
+        series_id_url: "/api/v1/archive/series/3",
       };
 
       mockAdapter.onPatch("/api/v1/archive/blogs/2").reply(200, mockBlog2_updated);
@@ -185,13 +185,13 @@ describe("blogService", () => {
     it("updates a blog and returns updated data by url", async () => {
       const blogUpdate: BlogUpdate = {
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        series_id_url: "/api/v1/archive/production-groups/3",
+        series_id_url: "/api/v1/archive/series/3",
       };
 
       const mockBlog2_updated: Blog = {
         id_url: "/api/v1/archive/blogs/2/",
         blog_contents: [mockBlogContent2EN, mockBlogContent2NL],
-        series_id_url: "/api/v1/archive/production-groups/3",
+        series_id_url: "/api/v1/archive/series/3",
       };
 
       mockAdapter.onPatch("/api/v1/archive/blogs/2").reply(200, mockBlog2_updated);
