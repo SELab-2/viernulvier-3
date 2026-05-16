@@ -279,13 +279,13 @@ export function ProductionCard({
       }}
       elevation={0}
     >
-	{ !anySelected &&
+      {!anySelected && (
         <Link
           to={lp(`/archive/productions/${productionId}`)}
           aria-label={`Open details for ${title}`}
           style={{ position: "absolute", inset: 0, zIndex: 1 }}
         />
-	}
+      )}
       <Box sx={{ position: "relative", overflow: "hidden" }}>
         <CardMedia
           className="production-card-image"
@@ -293,7 +293,7 @@ export function ProductionCard({
           height="236"
           image={imageUrl}
           alt={title}
-		  onClick={(e) => anySelected ? handleToggleSelected(e) : null}
+          onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
           sx={{
             transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
             transform: "translateY(0) scale(1)",
@@ -398,13 +398,13 @@ export function ProductionCard({
           willChange: "transform",
         }}
       >
-		{ anySelected &&
-			<Link
-			  to={lp(`/archive/productions/${productionId}`)}
-			  aria-label={`Open details for ${title}`}
-			  style={{ position: "absolute", inset: 0, zIndex: 1 }}
-			/>
-		}
+        {anySelected && (
+          <Link
+            to={lp(`/archive/productions/${productionId}`)}
+            aria-label={`Open details for ${title}`}
+            style={{ position: "absolute", inset: 0, zIndex: 1 }}
+          />
+        )}
         <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
             <Typography
