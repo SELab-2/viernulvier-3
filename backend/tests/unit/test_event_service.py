@@ -5,7 +5,7 @@ from src.api.exceptions import NotFoundError, ValidationError
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall, HallName
 from src.models.production import Production
-from src.schemas.event import EventCreate, EventUpdate
+from src.schemas.event import EventCreate, EventUpdate, PriceCreate, PriceUpdate
 from src.services.event_service import (
     create_event,
     delete_event_by_id,
@@ -18,12 +18,6 @@ from src.services.event_service import (
     update_price,
     delete_price,
 )
-
-from src.schemas.event import EventCreate, EventUpdate, PriceCreate, PriceUpdate
-from src.models.event import Event, EventPrice
-from src.models.hall import Hall
-from src.models.production import Production
-from src.api.exceptions import NotFoundError
 from src.services.production import get_production_by_id
 
 BASE_URL = "http://test"
