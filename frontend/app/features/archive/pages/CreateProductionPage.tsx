@@ -148,28 +148,29 @@ export function CreateProductionPage() {
     );
   }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
 
-  const isCancelling = useRef(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const blocker = useBlocker(
-    !isSaving && !isCancelling.current && (isInfoModified(draftInfo) || isQuillDirty)
+    !isSaving && !isCancelling && (isInfoModified(draftInfo) || isQuillDirty)
   );
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
-      const confirm = window.confirm(t("notSaveChanges"));
-      if (confirm) {
-        blocker.proceed();
-      } else {
-        blocker.reset();
-      }
+  if (blocker.state === "blocked") {
+    const confirmed = window.confirm(t("notSaveChanges"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
     }
-  }, [blocker.state]);
+  }
+}, [blocker.state]);
 
   const handleCancel = async () => {
     if (isModified) {
-      isCancelling.current = true;
+      setIsCancelling(true);
+      await new Promise((resolve) => setTimeout(resolve, 0));
       if (!window.confirm(t("notSaveChanges"))) {
-        isCancelling.current = false;
+        setIsCancelling(false);
         return;
       }
     }
