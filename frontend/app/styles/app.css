@@ -172,3 +172,15 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Give all buttons a cursor-pointer unless it is disabled */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
