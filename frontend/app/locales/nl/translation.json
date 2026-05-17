@@ -185,6 +185,7 @@
       "create_tag_description": "Voer de Nederlandse en Engelse naam van de tag in.",
       "english_tag_name": "Engelse naam",
       "dutch_tag_name": "Nederlandse naam",
+      "tag_already_exists": "Tag bestaat al",
       "no_tags": "Geen tags gevonden",
       "create": "Aanmaken"
     },

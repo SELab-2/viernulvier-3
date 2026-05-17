@@ -42,12 +42,14 @@ function CreateTagDialog({
   isOpen,
   setIsOpen,
   onSubmit,
+  allTags,
 }: {
   preferredLanguage: string;
   initialValue?: string;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: (dutchName: string, EnglishName: string) => void;
+  allTags: Tag[];
 }) {
   const { t } = useTranslation();
   const [dutchName, setDutchName] = useState(
@@ -59,6 +61,22 @@ function CreateTagDialog({
   function onClose() {
     setIsOpen(false);
   }
+
+  function normalize(value: string) {
+    return value.trim().toLowerCase();
+  }
+
+  const duplicateDutchTag = allTags.find((tag) =>
+    tag.names.some((name) => normalize(name.name) === normalize(dutchName))
+  );
+
+  const duplicateEnglishTag = allTags.find((tag) =>
+    tag.names.some((name) => normalize(name.name) === normalize(englishName))
+  );
+
+  const hasDuplicate =
+    (!!dutchName.trim() && !!duplicateDutchTag) ||
+    (!!englishName.trim() && !!duplicateEnglishTag);
 
   return (
     <Dialog
@@ -88,6 +106,10 @@ function CreateTagDialog({
             label={t("productionPage.edit.dutch_tag_name")}
             autoFocus
             value={dutchName}
+            error={!!duplicateDutchTag}
+            helperText={
+              duplicateDutchTag ? t("productionPage.edit.tag_already_exists") : ""
+            }
             onChange={(event) => {
               setDutchName(event.target.value);
             }}
@@ -96,6 +118,10 @@ function CreateTagDialog({
             label={t("productionPage.edit.english_tag_name")}
             autoFocus
             value={englishName}
+            error={!!duplicateEnglishTag}
+            helperText={
+              duplicateEnglishTag ? t("productionPage.edit.tag_already_exists") : ""
+            }
             onChange={(event) => {
               setEnglishName(event.target.value);
             }}
@@ -112,7 +138,11 @@ function CreateTagDialog({
           {t("users.actions.cancel")}
         </Button>
 
-        <Button sx={primaryButtonSx} onClick={() => onSubmit(dutchName, englishName)}>
+        <Button
+          sx={primaryButtonSx}
+          disabled={hasDuplicate}
+          onClick={() => onSubmit(dutchName, englishName)}
+        >
           {t("productionPage.edit.create")}
         </Button>
       </DialogActions>
@@ -366,6 +396,7 @@ export default function Tags({
           key={`${language}-${initalTagDialogValue}`}
           preferredLanguage={language}
           initialValue={initalTagDialogValue}
+          allTags={[...allTags, ...newTags]}
           isOpen={isCreateTagDialogOpen}
           setIsOpen={setIsCreateTagDialogOpen}
           onSubmit={(dutchName, englishName) => {
@@ -399,7 +430,7 @@ export default function Tags({
         {isDropdownOpen && (
           <TagDropdown
             isLoading={isLoading}
-            allTags={allTags}
+            allTags={[...allTags, ...newTags]}
             selectedTags={draftTags}
             setSelectedTags={setDraftTags}
             setIsCreateTagDialogOpen={setIsCreateTagDialogOpen}
