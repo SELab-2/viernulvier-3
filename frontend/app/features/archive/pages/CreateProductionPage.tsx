@@ -144,7 +144,9 @@ export function CreateProductionPage() {
       draftTags.length > 0 ||
       draftEvents.length > 0 ||
       isInfoModified(draftInfo) ||
-      isQuillDirty
+      isQuillDirty ||
+      draftAttendanceMode !== "" ||
+      draftPerformerType !== ""
     );
   }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
 
