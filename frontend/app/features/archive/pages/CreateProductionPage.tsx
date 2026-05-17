@@ -148,7 +148,14 @@ export function CreateProductionPage() {
       draftAttendanceMode !== "" ||
       draftPerformerType !== ""
     );
-  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
+  }, [
+    draftInfo,
+    draftTags,
+    isQuillDirty,
+    draftEvents,
+    draftAttendanceMode,
+    draftPerformerType,
+  ]);
 
   const [isCancelling, setIsCancelling] = useState(false);
 
