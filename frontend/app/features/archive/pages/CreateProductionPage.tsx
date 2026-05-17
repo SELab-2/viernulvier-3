@@ -144,6 +144,9 @@ export function CreateProductionPage() {
   );
   const navigate = useNavigate();
   const handleCancel = async () => {
+    if (isModified && !window.confirm(t("notSaveChanges"))) {
+      return;
+    }
     setDraftInfo({
       production_id_url: "",
       language: lang!,

@@ -88,6 +88,9 @@ export function EditButton({
                 _handleCancel();
               } else {
                 // Copy (not by reference)
+                if (enable_save && !window.confirm(t("notSaveChanges"))) {
+                  return;
+                }
                 setDraftInfo(originalInfo ? { ...originalInfo } : null);
                 setDraftTags(originalTags ? [...originalTags] : []);
                 setDraftEvents(
