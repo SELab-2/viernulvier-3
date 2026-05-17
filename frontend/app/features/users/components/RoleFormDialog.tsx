@@ -138,11 +138,11 @@ export function RoleFormDialog(props: RoleFormDialogProps) {
             : t("users.roles.dialogs.edit.description")}
         </p>
 
-        {validationError || errorMessage ? (
+        {(validationError || errorMessage) && (
           <Alert severity="error" variant="outlined" sx={bannerSx}>
             {validationError || errorMessage}
           </Alert>
-        ) : null}
+        )}
 
         <form id={formId} onSubmit={handleSubmit} className="mt-6 flex flex-col gap-5">
           <ArchiveTextField
@@ -174,7 +174,7 @@ export function RoleFormDialog(props: RoleFormDialogProps) {
                   : permissionsHint}
             </p>
 
-            {availablePermissions.length > 0 ? (
+            {availablePermissions.length > 0 && (
               <div className="mt-4 grid gap-2">
                 {availablePermissions.map((permission) => {
                   const isSelected = selectedPermissions.includes(permission);
@@ -196,7 +196,7 @@ export function RoleFormDialog(props: RoleFormDialogProps) {
                   );
                 })}
               </div>
-            ) : null}
+            )}
           </div>
         </form>
       </DialogContent>

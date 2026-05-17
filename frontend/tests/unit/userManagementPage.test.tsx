@@ -207,6 +207,10 @@ describe("UserManagementPage", () => {
   });
 
   it("creates a user from the add dialog", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      isSuperUser: true,
+    };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
     vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
     vi.spyOn(userManagementServiceModule, "createUser").mockResolvedValue({
@@ -273,6 +277,10 @@ describe("UserManagementPage", () => {
   });
 
   it("shows create API errors and resets create dialog state on close", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      isSuperUser: true,
+    };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
     vi.spyOn(userManagementServiceModule, "createUser").mockRejectedValue({
       isAxiosError: true,
@@ -322,6 +330,7 @@ describe("UserManagementPage", () => {
   it("updates a user from the edit dialog", async () => {
     authSessionValue.user = {
       ...authSessionValue.user,
+      isSuperUser: true,
       permissions: ["users:read", "users:update"],
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
@@ -438,7 +447,7 @@ describe("UserManagementPage", () => {
       name: "users.actions.delete",
     });
 
-    expect(deleteButtons).toHaveLength(users.length);
+    expect(deleteButtons).toHaveLength(1);
   });
 
   it("hides delete buttons without the users:delete permission", async () => {
@@ -465,12 +474,12 @@ describe("UserManagementPage", () => {
     renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
-    // Only one delete button — not on the current user's own card
-    const deleteButtons = screen.getAllByRole("button", {
+    // No delete buttons — the current user can't delete themselves and super users are protected.
+    const deleteButtons = screen.queryAllByRole("button", {
       name: "users.actions.delete",
     });
 
-    expect(deleteButtons).toHaveLength(users.length - 1);
+    expect(deleteButtons).toHaveLength(0);
   });
 
   it("removes the user from the list after confirming deletion", async () => {
@@ -618,6 +627,7 @@ describe("UserManagementPage", () => {
     it("shows role edit buttons when user has users:update permission", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:update"],
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
@@ -639,6 +649,7 @@ describe("UserManagementPage", () => {
     it("shows role delete buttons when user has users:delete permission", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:delete"],
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
@@ -732,6 +743,11 @@ describe("UserManagementPage", () => {
     });
 
     it("shows the add role button when user has users:create permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
       renderPage();
@@ -755,6 +771,11 @@ describe("UserManagementPage", () => {
     });
 
     it("creates a role from the add dialog and appends it to the list", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
       vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue([
         "users:read",
@@ -796,6 +817,7 @@ describe("UserManagementPage", () => {
     it("updates a role from the edit dialog and refreshes dependent data", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:update"],
       };
       vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
@@ -851,6 +873,11 @@ describe("UserManagementPage", () => {
     });
 
     it("shows a permissions load error inside the create role dialog", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
       vi.spyOn(permissionManagementServiceModule, "listPermissions").mockRejectedValue({
         isAxiosError: true,
@@ -869,6 +896,7 @@ describe("UserManagementPage", () => {
     it("removes the role from the list after confirming deletion", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:delete"],
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
@@ -902,6 +930,11 @@ describe("UserManagementPage", () => {
     });
 
     it("validates that the role name is required", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
 
       const user = userEvent.setup();
@@ -923,6 +956,7 @@ describe("UserManagementPage", () => {
     it("shows an error message when role deletion fails", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:delete"],
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
@@ -955,6 +989,7 @@ describe("UserManagementPage", () => {
     it("falls back to the generic role delete failure message for non-axios errors", async () => {
       authSessionValue.user = {
         ...authSessionValue.user,
+        isSuperUser: true,
         permissions: ["users:read", "users:delete"],
       };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
@@ -985,6 +1020,11 @@ describe("UserManagementPage", () => {
     });
 
     it("shows API errors and resets dialog state on close", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
       vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
       vi.spyOn(roleManagementServiceModule, "createRole").mockRejectedValue({
         isAxiosError: true,

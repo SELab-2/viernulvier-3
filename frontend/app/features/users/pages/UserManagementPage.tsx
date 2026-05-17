@@ -78,6 +78,10 @@ function hasPermission(
   return Boolean(isSuperUser || permissions?.includes(permission));
 }
 
+function sortRolesByName(roles: IRole[]) {
+  return [...roles].sort((left, right) => left.name.localeCompare(right.name));
+}
+
 function UserMutationAlert({ message }: { message: string | null }) {
   if (!message) {
     return null;
@@ -363,9 +367,7 @@ export default function UserManagementPage() {
           return;
         }
 
-        setAvailablePermissions(
-          [...fetchedPermissions].sort((left, right) => left.localeCompare(right))
-        );
+        setAvailablePermissions(fetchedPermissions);
       } catch (error) {
         if (isDisposed) {
           return;
@@ -406,11 +408,25 @@ export default function UserManagementPage() {
     setIsCreateDialogOpen(false);
   }
 
+  function canEditManagedUser(managedUser: IUser) {
+    return canEditUsers && (canManageSuperUsers || !managedUser.isSuperUser);
+  }
+
   function canDeleteManagedUser(managedUser: IUser) {
-    return canDeleteUsers && managedUser.id !== currentUser?.id;
+    return (
+      canDeleteUsers &&
+      managedUser.id !== currentUser?.id &&
+      (canManageSuperUsers || !managedUser.isSuperUser)
+    );
   }
 
   function openEditDialog(userId: number) {
+    const managedUser = users.find((candidate) => candidate.id === userId);
+
+    if (!managedUser || !canEditManagedUser(managedUser)) {
+      return;
+    }
+
     setEditMutationError(null);
     setUserIdToEdit(userId);
   }
@@ -425,6 +441,12 @@ export default function UserManagementPage() {
   }
 
   function openDeleteDialog(userId: number) {
+    const managedUser = users.find((candidate) => candidate.id === userId);
+
+    if (!managedUser || !canDeleteManagedUser(managedUser)) {
+      return;
+    }
+
     setDeleteMutationError(null);
     setUserIdToDelete(userId);
   }
@@ -443,7 +465,9 @@ export default function UserManagementPage() {
     setCreateMutationError(null);
 
     try {
-      const createdUser = await createUser(payload);
+      const createdUser = await createUser(
+        canAssignRoles ? payload : { ...payload, roles: undefined }
+      );
       setUsers((currentUsers) => [...currentUsers, createdUser]);
       setIsCreateDialogOpen(false);
     } catch (error) {
@@ -456,7 +480,7 @@ export default function UserManagementPage() {
   }
 
   async function handleEditUser(payload: IUserUpdateRequest) {
-    if (userIdToEdit === null) {
+    if (userIdToEdit === null || !userToEdit || !canEditManagedUser(userToEdit)) {
       return;
     }
 
@@ -464,7 +488,10 @@ export default function UserManagementPage() {
     setEditMutationError(null);
 
     try {
-      const updatedUser = await updateUser(userIdToEdit, payload);
+      const updatedUser = await updateUser(
+        userIdToEdit,
+        canAssignRoles ? payload : { ...payload, roles: undefined }
+      );
       setUsers((currentUsers) =>
         currentUsers.map((managedUser) =>
           managedUser.id === updatedUser.id ? updatedUser : managedUser
@@ -489,7 +516,11 @@ export default function UserManagementPage() {
   }
 
   async function handleDeleteUser() {
-    if (userIdToDelete === null) {
+    if (
+      userIdToDelete === null ||
+      !userToDelete ||
+      !canDeleteManagedUser(userToDelete)
+    ) {
       return;
     }
 
@@ -512,6 +543,10 @@ export default function UserManagementPage() {
   }
 
   function openCreateRoleDialog() {
+    if (!canCreateRoles) {
+      return;
+    }
+
     setCreateRoleError(null);
     setIsCreateRoleDialogOpen(true);
   }
@@ -526,12 +561,16 @@ export default function UserManagementPage() {
   }
 
   async function handleCreateRole(payload: IRoleCreateRequest) {
+    if (!canCreateRoles) {
+      return;
+    }
+
     setIsCreatingRole(true);
     setCreateRoleError(null);
 
     try {
       const createdRole = await createRole(payload);
-      setRoles((current) => [...current, createdRole]);
+      setRoles((current) => sortRolesByName([...current, createdRole]));
       setIsCreateRoleDialogOpen(false);
     } catch (error) {
       setCreateRoleError(
@@ -543,6 +582,10 @@ export default function UserManagementPage() {
   }
 
   function openEditRoleDialog(roleId: number) {
+    if (!canEditRoles) {
+      return;
+    }
+
     setEditRoleError(null);
     setRoleIdToEdit(roleId);
   }
@@ -557,7 +600,7 @@ export default function UserManagementPage() {
   }
 
   async function handleEditRole(payload: IRoleUpdateRequest) {
-    if (roleIdToEdit === null) {
+    if (roleIdToEdit === null || !canEditRoles) {
       return;
     }
 
@@ -567,8 +610,10 @@ export default function UserManagementPage() {
     try {
       const updatedRole = await updateRole(roleIdToEdit, payload);
       setRoles((currentRoles) =>
-        currentRoles.map((managedRole) =>
-          managedRole.id === updatedRole.id ? updatedRole : managedRole
+        sortRolesByName(
+          currentRoles.map((managedRole) =>
+            managedRole.id === updatedRole.id ? updatedRole : managedRole
+          )
         )
       );
       setRoleIdToEdit(null);
@@ -591,6 +636,10 @@ export default function UserManagementPage() {
   }
 
   function openDeleteRoleDialog(roleId: number) {
+    if (!canDeleteRoles) {
+      return;
+    }
+
     setDeleteRoleError(null);
     setRoleIdToDelete(roleId);
   }
@@ -605,7 +654,7 @@ export default function UserManagementPage() {
   }
 
   async function handleDeleteRole() {
-    if (roleIdToDelete === null) {
+    if (roleIdToDelete === null || !canDeleteRoles) {
       return;
     }
 
@@ -647,6 +696,7 @@ export default function UserManagementPage() {
   }
 
   const superUserCount = users.filter((managedUser) => managedUser.isSuperUser).length;
+  const canManageSuperUsers = Boolean(currentUser?.isSuperUser);
   const canCreateUsers = hasPermission(
     currentUser?.permissions,
     currentUser?.isSuperUser,
@@ -657,6 +707,7 @@ export default function UserManagementPage() {
     currentUser?.isSuperUser,
     USER_PERMISSIONS.update
   );
+  const canAssignRoles = canCreateUsers || canEditUsers;
 
   const canCreateRoles = hasPermission(
     currentUser?.permissions,
@@ -710,11 +761,11 @@ export default function UserManagementPage() {
           <Button sx={secondaryButtonSx} onClick={refreshUsers}>
             {t("users.actions.refresh")}
           </Button>
-          {canCreateUsers ? (
+          {canCreateUsers && (
             <Button sx={primaryButtonSx} onClick={openCreateDialog}>
               {t("users.actions.add")}
             </Button>
-          ) : null}
+          )}
         </div>
 
         {isLoading ? (
@@ -747,7 +798,11 @@ export default function UserManagementPage() {
                 key={managedUser.id}
                 user={managedUser}
                 formatDateTime={formatDateTime}
-                onEdit={canEditUsers ? () => openEditDialog(managedUser.id) : undefined}
+                onEdit={
+                  canEditManagedUser(managedUser)
+                    ? () => openEditDialog(managedUser.id)
+                    : undefined
+                }
                 onDelete={
                   canDeleteManagedUser(managedUser)
                     ? () => openDeleteDialog(managedUser.id)
@@ -768,11 +823,11 @@ export default function UserManagementPage() {
                 {t("users.roles.title")}
               </h2>
             </div>
-            {canCreateRoles ? (
+            {canCreateRoles && (
               <Button sx={primaryButtonSx} onClick={openCreateRoleDialog}>
                 {t("users.roles.actions.add")}
               </Button>
-            ) : null}
+            )}
           </div>
 
           {isLoadingRoles ? (
@@ -814,20 +869,21 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      {isCreateDialogOpen ? (
+      {isCreateDialogOpen && (
         <UserFormDialog
           key="create-user-dialog"
           mode="create"
           open={true}
           isSubmitting={isCreatingUser}
           availableRoles={roles}
+          canAssignRoles={canAssignRoles}
           errorMessage={createMutationError}
           onClose={closeCreateDialog}
           onSubmit={handleCreateUser}
         />
-      ) : null}
+      )}
 
-      {userToEdit ? (
+      {userToEdit && (
         <UserFormDialog
           key={userToEdit.id}
           mode="edit"
@@ -835,11 +891,12 @@ export default function UserManagementPage() {
           user={userToEdit}
           isSubmitting={isEditingUser}
           availableRoles={roles}
+          canAssignRoles={canAssignRoles}
           errorMessage={editMutationError}
           onClose={closeEditDialog}
           onSubmit={handleEditUser}
         />
-      ) : null}
+      )}
 
       <DeleteUserDialog
         user={userToDelete}
@@ -857,7 +914,7 @@ export default function UserManagementPage() {
         onConfirm={handleDeleteRole}
       />
 
-      {isCreateRoleDialogOpen ? (
+      {isCreateRoleDialogOpen && (
         <RoleFormDialog
           key="create-role-dialog"
           mode="create"
@@ -870,9 +927,9 @@ export default function UserManagementPage() {
           onClose={closeCreateRoleDialog}
           onSubmit={handleCreateRole}
         />
-      ) : null}
+      )}
 
-      {roleToEdit ? (
+      {roleToEdit && (
         <RoleFormDialog
           key={roleToEdit.id}
           mode="edit"
@@ -886,7 +943,7 @@ export default function UserManagementPage() {
           onClose={closeEditRoleDialog}
           onSubmit={handleEditRole}
         />
-      ) : null}
+      )}
     </>
   );
 }

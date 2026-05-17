@@ -61,9 +61,7 @@ export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardPro
 
         {user.isSuperUser ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            {user.isSuperUser ? (
-              <UserBadge>{t("users.badges.superUser")}</UserBadge>
-            ) : null}
+            <UserBadge>{t("users.badges.superUser")}</UserBadge>
           </div>
         ) : null}
       </div>
@@ -98,22 +96,22 @@ export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardPro
         </section>
       </div>
 
-      {onEdit || onDelete ? (
+      {(onEdit || onDelete) && (
         <div className="border-archive-border mt-5 border-t pt-4">
           <div className="flex flex-wrap gap-3">
-            {onEdit ? (
+            {onEdit && (
               <Button onClick={onEdit} sx={editButtonSx}>
                 {t("users.actions.edit")}
               </Button>
-            ) : null}
-            {onDelete ? (
+            )}
+            {onDelete && (
               <Button onClick={onDelete} sx={deleteButtonSx}>
                 {t("users.actions.delete")}
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
-      ) : null}
+      )}
     </article>
   );
 }

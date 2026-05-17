@@ -54,22 +54,22 @@ export function RoleCard({ role, onEdit, onDelete }: RoleCardProps) {
         </section>
       </div>
 
-      {onEdit || onDelete ? (
+      {(onEdit || onDelete) && (
         <div className="border-archive-border mt-5 border-t pt-4">
           <div className="flex flex-wrap gap-3">
-            {onEdit ? (
+            {onEdit && (
               <Button onClick={onEdit} sx={editButtonSx}>
                 {t("users.roles.actions.edit")}
               </Button>
-            ) : null}
-            {onDelete ? (
+            )}
+            {onDelete && (
               <Button onClick={onDelete} sx={deleteButtonSx}>
                 {t("users.roles.actions.delete")}
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
-      ) : null}
+      )}
     </article>
   );
 }
