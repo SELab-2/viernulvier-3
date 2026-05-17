@@ -16,6 +16,15 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
+import {
+  dialogActionsSx,
+  dialogBackdropSx,
+  dialogContentSx,
+  dialogPaperSx,
+  dialogTitleSx,
+  primaryButtonSx,
+  secondaryButtonSx,
+} from "~/features/users/pages/UserManagementPage";
 
 // prefer active language, then dutch, then first available tag name
 function getTagNameByLanguage(tag: Tag, language: string) {
@@ -26,20 +35,6 @@ function getTagNameByLanguage(tag: Tag, language: string) {
   }
   return fallback;
 }
-
-const dialogPaperSx = {
-  borderRadius: "1.75rem",
-  border: "1px solid var(--archive-border)",
-  backgroundColor: "var(--archive-surface-strong)",
-  color: "var(--archive-ink)",
-  backdropFilter: "blur(18px)",
-  boxShadow: "0 28px 90px rgba(0, 0, 0, 0.24)",
-};
-
-const dialogBackdropSx = {
-  backgroundColor: "rgba(17, 16, 14, 0.48)",
-  backdropFilter: "blur(4px)",
-};
 
 function CreateTagDialog({
   preferredLanguage,
@@ -77,8 +72,14 @@ function CreateTagDialog({
         backdrop: { sx: dialogBackdropSx },
       }}
     >
-      <DialogTitle>{t("productionPage.edit.create_tag")}</DialogTitle>
-      <DialogContent>
+      <DialogTitle sx={dialogTitleSx}>
+        {t("productionPage.edit.create_tag")}
+      </DialogTitle>
+      <DialogContent sx={dialogContentSx}>
+        <p className="mb-2 text-sm leading-relaxed text-[color:var(--archive-ink)] opacity-70">
+          {t("productionPage.edit.create_tag_description", { username: "" })}
+        </p>
+
         <form
           id={"create-tag-form-dialog"}
           onSubmit={() => {}}
@@ -102,8 +103,9 @@ function CreateTagDialog({
           />
         </form>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={dialogActionsSx}>
         <Button
+          sx={secondaryButtonSx}
           onClick={() => {
             setIsOpen(false);
           }}
@@ -111,7 +113,7 @@ function CreateTagDialog({
           {t("users.actions.cancel")}
         </Button>
 
-        <Button onClick={() => onSubmit(dutchName, englishName)}>
+        <Button sx={primaryButtonSx} onClick={() => onSubmit(dutchName, englishName)}>
           {t("productionPage.edit.create")}
         </Button>
       </DialogActions>

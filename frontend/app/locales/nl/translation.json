@@ -182,6 +182,7 @@
       "search_tags": "Zoek tags...",
       "create_new_tag": "Maak nieuwe tag \"{{tag}}\" aan",
       "create_tag": "Tag aanmaken",
+      "create_tag_description": "Voer de Nederlandse en Engelse naam van de tag in.",
       "english_tag_name": "Engelse naam",
       "dutch_tag_name": "Nederlandse naam",
       "no_tags": "Geen tags gevonden",
