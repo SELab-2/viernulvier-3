@@ -181,15 +181,7 @@ export function CreateProductionPage() {
 
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const blocker = useBlocker(
-    (!isSaving &&
-      !isCancelling &&
-      (isInfoModified(draftInfo) ||
-        draftAttendanceMode !== "" ||
-        draftPerformerType !== "" ||
-        isQuillDirty)) ||
-      mediaFiles.length > 0
-  );
+  const blocker = useBlocker(!isSaving && !isCancelling && isModified);
 
   useEffect(() => {
     if (blocker.state === "blocked") {
