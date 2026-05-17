@@ -118,7 +118,8 @@ function arePricesModified(originalPrices: Price[], draftPrices: Price[]): boole
   for (const original of originalPrices) {
     const draft = draftById.get(original.id_url);
     if (!draft) return true;
-    if (original.amount !== draft.amount || original.available !== draft.available) return true;
+    if (original.amount !== draft.amount || original.available !== draft.available)
+      return true;
   }
 
   for (const draft of draftPrices) {
@@ -129,7 +130,10 @@ function arePricesModified(originalPrices: Price[], draftPrices: Price[]): boole
   return false;
 }
 
-function isEventModified(original?: EventWithResolvedRelations, draft?: EventWithResolvedRelations): boolean {
+function isEventModified(
+  original?: EventWithResolvedRelations,
+  draft?: EventWithResolvedRelations
+): boolean {
   if (!original || !draft) return false;
 
   return (

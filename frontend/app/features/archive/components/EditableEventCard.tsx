@@ -45,11 +45,7 @@ type EditablePriceRowProps = {
   onDelete: () => void;
 };
 
-function EditablePriceRow({
-  price,
-  onUpdate,
-  onDelete,
-}: EditablePriceRowProps) {
+function EditablePriceRow({ price, onUpdate, onDelete }: EditablePriceRowProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [draftAmount, setDraftAmount] = useState<string>(
@@ -214,7 +210,9 @@ function AddPriceForm({ onCreated, onCancel }: AddPriceFormProps) {
     const newPrice: Price = {
       id_url: `temp-price-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       amount: isNaN(parseFloat(draftAmount)) ? undefined : parseFloat(draftAmount),
-      available: isNaN(parseInt(draftAvailable, 10)) ? undefined : parseInt(draftAvailable, 10),
+      available: isNaN(parseInt(draftAvailable, 10))
+        ? undefined
+        : parseInt(draftAvailable, 10),
     };
     onCreated(newPrice);
   }
