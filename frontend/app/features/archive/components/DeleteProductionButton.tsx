@@ -38,7 +38,7 @@ export function DeleteProductionButton({ productionId }: DeleteProductionButtonP
         id="delete-production-button"
         onClick={handleDelete}
         disabled={isDeleting}
-        className="inline-flex cursor-pointer rounded-full border border-red-700/30 bg-red-600 px-6 py-3 font-semibold text-white shadow-lg shadow-red-900/20 transition-colors duration-150 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex cursor-pointer rounded-full border border-red-950/30 bg-red-950 px-6 py-3 font-semibold text-white shadow-lg shadow-red-800/15 transition-colors duration-150 hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isDeleting
           ? t("productionPage.deleteProduction.deleting")
