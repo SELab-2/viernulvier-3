@@ -153,7 +153,12 @@ export function CreateProductionPage() {
   const [isCancelling, setIsCancelling] = useState(false);
 
   const blocker = useBlocker(
-    !isSaving && !isCancelling && (isInfoModified(draftInfo) || isQuillDirty)
+    !isSaving &&
+      !isCancelling &&
+      (isInfoModified(draftInfo) ||
+        draftAttendanceMode !== "" ||
+        draftPerformerType !== "" ||
+        isQuillDirty)
   );
 
   useEffect(() => {
