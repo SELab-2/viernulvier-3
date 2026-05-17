@@ -24,7 +24,7 @@ type BaseUserFormDialogProps = {
   open: boolean;
   isSubmitting: boolean;
   availableRoles: IRole[];
-  canManageRoles: boolean;
+  canAssignRoles: boolean;
   errorMessage: string | null;
   onClose: () => void;
 };
@@ -62,7 +62,7 @@ export function UserFormDialog(props: UserFormDialogProps) {
     open,
     isSubmitting,
     availableRoles,
-    canManageRoles,
+    canAssignRoles,
     errorMessage,
     onClose,
     mode,
@@ -162,11 +162,11 @@ export function UserFormDialog(props: UserFormDialogProps) {
             : t("users.dialogs.edit.description")}
         </p>
 
-        {validationError || errorMessage ? (
+        {(validationError || errorMessage) && (
           <Alert severity="error" variant="outlined" sx={bannerSx}>
             {validationError || errorMessage}
           </Alert>
-        ) : null}
+        )}
 
         <form id={formId} onSubmit={handleSubmit} className="mt-6 flex flex-col gap-5">
           <ArchiveTextField
@@ -206,14 +206,14 @@ export function UserFormDialog(props: UserFormDialogProps) {
             }}
           />
 
-          {canManageRoles ? (
+          {canAssignRoles && (
             <div>
               <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
                 {t("users.fields.roles")}
               </div>
               <p className="mt-2 text-sm leading-relaxed opacity-65">{roleHint}</p>
 
-              {availableRoles.length > 0 ? (
+              {availableRoles.length > 0 && (
                 <div className="mt-4 grid gap-2">
                   {availableRoles.map((role) => {
                     const isSelected = selectedRoles.includes(role.name);
@@ -235,9 +235,9 @@ export function UserFormDialog(props: UserFormDialogProps) {
                     );
                   })}
                 </div>
-              ) : null}
+              )}
             </div>
-          ) : null}
+          )}
         </form>
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
