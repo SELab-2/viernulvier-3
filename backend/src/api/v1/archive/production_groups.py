@@ -81,9 +81,7 @@ async def patch_production_group(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ):
     base_url = get_base_url(str(request.url), remove_last_segments=2)
-    return update_production_group(
-        db, series_id, production_group_in, base_url
-    )
+    return update_production_group(db, series_id, production_group_in, base_url)
 
 
 @router.delete(
