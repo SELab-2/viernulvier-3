@@ -61,9 +61,7 @@ export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardPro
 
         {user.isSuperUser ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            {user.isSuperUser ? (
-              <UserBadge>{t("users.badges.superUser")}</UserBadge>
-            ) : null}
+            <UserBadge>{t("users.badges.superUser")}</UserBadge>
           </div>
         ) : null}
       </div>

@@ -24,6 +24,7 @@ type BaseUserFormDialogProps = {
   open: boolean;
   isSubmitting: boolean;
   availableRoles: IRole[];
+  canManageRoles: boolean;
   errorMessage: string | null;
   onClose: () => void;
 };
@@ -57,7 +58,15 @@ function getInitialState(user: IUser | null | undefined): UserFormState {
 }
 
 export function UserFormDialog(props: UserFormDialogProps) {
-  const { open, isSubmitting, availableRoles, errorMessage, onClose, mode } = props;
+  const {
+    open,
+    isSubmitting,
+    availableRoles,
+    canManageRoles,
+    errorMessage,
+    onClose,
+    mode,
+  } = props;
   const { t } = useTranslation();
 
   const initialUser = props.mode === "edit" ? props.user : null;
@@ -197,36 +206,38 @@ export function UserFormDialog(props: UserFormDialogProps) {
             }}
           />
 
-          <div>
-            <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
-              {t("users.fields.roles")}
-            </div>
-            <p className="mt-2 text-sm leading-relaxed opacity-65">{roleHint}</p>
-
-            {availableRoles.length > 0 ? (
-              <div className="mt-4 grid gap-2">
-                {availableRoles.map((role) => {
-                  const isSelected = selectedRoles.includes(role.name);
-
-                  return (
-                    <label
-                      key={role.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-2xl px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => toggleRole(role.name)}
-                        sx={roleCheckboxSx}
-                      />
-                      <span className="text-sm font-medium text-(--archive-ink)">
-                        {role.name}
-                      </span>
-                    </label>
-                  );
-                })}
+          {canManageRoles ? (
+            <div>
+              <div className="text-[0.72rem] font-bold tracking-[0.18em] uppercase opacity-55">
+                {t("users.fields.roles")}
               </div>
-            ) : null}
-          </div>
+              <p className="mt-2 text-sm leading-relaxed opacity-65">{roleHint}</p>
+
+              {availableRoles.length > 0 ? (
+                <div className="mt-4 grid gap-2">
+                  {availableRoles.map((role) => {
+                    const isSelected = selectedRoles.includes(role.name);
+
+                    return (
+                      <label
+                        key={role.id}
+                        className="flex cursor-pointer items-center gap-3 rounded-2xl px-2 py-1.5 transition-colors hover:bg-[rgba(196,164,132,0.08)]"
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => toggleRole(role.name)}
+                          sx={roleCheckboxSx}
+                        />
+                        <span className="text-sm font-medium text-(--archive-ink)">
+                          {role.name}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </form>
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
