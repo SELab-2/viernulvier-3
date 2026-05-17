@@ -163,7 +163,7 @@ export function CreateProductionPage() {
         blocker.reset();
       }
     }
-  }, [blocker.state]);
+  }, [blocker, t]);
 
   const handleCancel = async () => {
     if (isModified) {
