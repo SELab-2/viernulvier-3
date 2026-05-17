@@ -55,6 +55,8 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
   "archive.productionGroups.dialog.publicHint":
     "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.messages.duplicateTitle":
+    "I18N_Archive_ProductionGroups_Messages_DuplicateTitle",
   "archive.productionGroups.deleteDialog.title":
     "I18N_Archive_ProductionGroups_DeleteDialog_Title",
   "archive.productionGroups.deleteDialog.description":
@@ -117,6 +119,15 @@ const translationMap: Record<string, TranslationValue> = {
   "blogs.contentPage.linkedProductions": "I18N_Blog_Productions",
   "blogs.contentPage.fallback": "I18N_Blog_Fallback",
   "blogs.contentPage.media": "I18N_Blog_Media",
+  "blogs.contentPage.uploadMedia": "I18N_Upload_Media",
+  "blogs.contentPage.deleteMedia": "I18N_Delete_Media",
+  "blogs.contentPage.noMedia": "I18N_No_Media",
+  "blogs.contentPage.closeLightbox": "I18N_Close_Lightbox",
+  "blogs.contentPage.blogPhoto": "I18N_Blog_Photo",
+  "blogs.contentPage.edit.confirmTitle": "I18N_Confirm_Title",
+  "blogs.contentPage.edit.confirmBody": "I18N_Confirm_Body",
+  "blogs.contentPage.edit.cancel": "I18N_Edit_Cancel",
+  "blogs.contentPage.edit.delete": "I18N_Edit_Delete",
   "blogs.contentPage.delete.delete": "I18N_Blog_Delete",
   "blogs.contentPage.delete.deleting": "I18N_Blog_Deleting",
   "blogs.contentPage.delete.confirm": "I18N_Blog_Delete_Confirm",

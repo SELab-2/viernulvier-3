@@ -43,7 +43,7 @@ async def get_productions(
     cursor: str | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
     tag_ids: str | None = Query(None),
-    group_ids: str | None = Query(None),
+    series_ids: str | None = Query(None),
     artists: str | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
@@ -51,34 +51,38 @@ async def get_productions(
     sort_order: SortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
+    parsed_tag_ids: list[int] | None = None
+    parsed_series_ids: list[int] | None = None
+    parsed_artists: list[str] | None = None
+
     if tag_ids:
         try:
-            tag_ids = [int(t) for t in tag_ids.split(",")]
+            parsed_tag_ids = [int(tag_id) for tag_id in tag_ids.split(",")]
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="tag_ids must be a comma-separated list of integers.",
             )
 
-    if group_ids:
+    if series_ids:
         try:
-            group_ids = [int(group_id) for group_id in group_ids.split(",")]
+            parsed_series_ids = [int(series_id) for series_id in series_ids.split(",")]
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                detail="group_ids must be a comma-separated list of integers.",
+                detail="series_ids must be a comma-separated list of integers.",
             )
 
     if artists:
-        artists = artists.split(",")
+        parsed_artists = artists.split(",")
     return get_productions_paginated(
         db,
         base_url,
         cursor,
         limit,
-        tags=tag_ids,
-        groups=group_ids,
-        artists=artists,
+        tags=parsed_tag_ids,
+        groups=parsed_series_ids,
+        artists=parsed_artists,
         production_name=production_name,
         earliest_at=earliest_at,
         latest_at=latest_at,

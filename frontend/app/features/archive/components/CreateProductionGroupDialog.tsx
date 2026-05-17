@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type SubmitEvent } from "react";
+import { useCallback, useState, type SubmitEvent } from "react";
 import {
   Button,
   Checkbox,
@@ -27,14 +27,20 @@ import {
   productionGroupDialogTitleSx,
 } from "./ProductionGroupDialog.shared";
 
+function normalizeProductionGroupTitle(title: string): string {
+  return title.trim().toLocaleLowerCase();
+}
+
 export function CreateProductionGroupDialog({
   open,
   selectedProductionIds,
+  existingProductionGroups,
   onClose,
   onCreated,
 }: {
   open: boolean;
   selectedProductionIds: string[];
+  existingProductionGroups: ProductionGroup[];
   onClose: () => void;
   onCreated: (productionGroup: ProductionGroup) => void;
 }) {
@@ -45,7 +51,10 @@ export function CreateProductionGroupDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* duplicate declarations removed */
+
   const trimmedTitle = title.trim();
+  const normalizedTitle = normalizeProductionGroupTitle(title);
   const isSubmitDisabled =
     isSubmitting || !trimmedTitle || selectedProductionIds.length === 0;
 
@@ -60,12 +69,6 @@ export function CreateProductionGroupDialog({
     clearMessages();
     setIsSubmitting(false);
   }, [clearMessages]);
-
-  useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
-  }, [open, resetForm]);
 
   function handleClose() {
     if (isSubmitting) {
@@ -86,6 +89,16 @@ export function CreateProductionGroupDialog({
 
     if (!trimmedTitle) {
       setValidationError(t("archive.productionGroups.messages.titleRequired"));
+      return;
+    }
+
+    const hasDuplicateTitle = existingProductionGroups.some(
+      (productionGroup) =>
+        normalizeProductionGroupTitle(productionGroup.title) === normalizedTitle
+    );
+
+    if (hasDuplicateTitle) {
+      setValidationError(t("archive.productionGroups.messages.duplicateTitle"));
       return;
     }
 

@@ -130,3 +130,20 @@ de stappen orchestreren:
 - converteren van json api response naar databank objecten (`converters/*`)
 - databank objecten opslaan in de databank (`sync/store/*`)
 - nieuwe laatste timestamp in databank opslaan (`sync/db_sync.py`)
+
+
+## Update regels
+Bij het updaten van verschillende items uit de API zijn er een paar regels die
+gevolgd worden:
+- als het aangepaste item uit de API andere vertalingen heeft, dan worden
+    de talen die niet gespecifieerd zijn in de API behouden in onze databank,
+    als bijvoorbeeld een tag een naam in het nederlands en in het engels heeft,
+    maar de geupdatete tag uit de API enkel meer een engelse naam heeft, dan
+    zal die engelse naam in onze databank aangepast worden, maar de nederlandse
+    naam zal behouden worden
+- voor producties zullen tags altijd volledig vervangen worden door de lijst
+    van tags uit de API
+
+Elke aanpassing van data uit onze databank zal gelogd worden op niveau `INFO`
+via Python's logger interface. Op die manier zou het mogelijk moeten zijn om
+ongewenste aanpassingen terug te vinden in de logs.

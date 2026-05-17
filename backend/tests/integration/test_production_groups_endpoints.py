@@ -1,14 +1,13 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-
 from src.models.production_group import ProductionGroup
 from src.models.role import Role
 from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 
-PRODUCTION_GROUPS_URL = "/api/v1/archive/production-groups"
+PRODUCTION_GROUPS_URL = "/api/v1/archive/series"
 
 
 def create_user_and_login(
@@ -60,9 +59,12 @@ def test_create_production_group(
     response = client.post(
         PRODUCTION_GROUPS_URL,
         json={
-            "title": "Weekend picks",
+            "title": "  Weekend picks  ",
             "is_public_filter": False,
-            "production_id_urls": [f"/productions/{productions_limited[0].id}"],
+            "production_id_urls": [
+                f"/productions/{productions_limited[0].id}",
+                f"/productions/{productions_limited[0].id}",
+            ],
         },
         headers=create_headers,
     )
@@ -86,6 +88,25 @@ def test_create_production_group_unauthorized(client: TestClient, productions_li
     )
 
     assert response.status_code == 401
+
+
+def test_create_production_group_duplicate_title(
+    client: TestClient, db_session: Session, create_headers, productions_limited
+):
+    db_session.add(ProductionGroup(title="Autumn series"))
+    db_session.commit()
+
+    response = client.post(
+        PRODUCTION_GROUPS_URL,
+        json={
+            "title": "  autumn SERIES  ",
+            "production_id_urls": [f"/productions/{productions_limited[0].id}"],
+        },
+        headers=create_headers,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "A series with this title already exists."
 
 
 def test_get_production_groups_public_only_by_default(
@@ -137,7 +158,7 @@ def test_patch_production_group(
     response = client.patch(
         f"{PRODUCTION_GROUPS_URL}/{production_group.id}",
         json={
-            "title": "New title",
+            "title": "  New title  ",
             "is_public_filter": False,
             "production_id_urls": [f"/productions/{productions_limited[1].id}"],
         },
@@ -151,6 +172,39 @@ def test_patch_production_group(
     assert data["production_id_urls"] == [
         f"http://testserver/api/v1/archive/productions/{productions_limited[1].id}"
     ]
+
+
+def test_patch_production_group_duplicate_title(
+    client: TestClient, db_session: Session
+):
+    db_session.add_all(
+        [
+            ProductionGroup(title="Spring series"),
+            ProductionGroup(title="Summer series"),
+        ]
+    )
+    db_session.commit()
+
+    duplicate_group = (
+        db_session.query(ProductionGroup)
+        .filter(ProductionGroup.title == "Summer series")
+        .first()
+    )
+    patch_headers = create_user_and_login(
+        client,
+        db_session,
+        "patch_production_group_duplicate_title_user",
+        permissions=[Permissions.ARCHIVE_UPDATE],
+    )
+
+    response = client.patch(
+        f"{PRODUCTION_GROUPS_URL}/{duplicate_group.id}",
+        json={"title": " spring SERIES "},
+        headers=patch_headers,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "A series with this title already exists."
 
 
 def test_delete_production_group(

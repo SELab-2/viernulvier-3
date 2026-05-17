@@ -332,7 +332,7 @@ export function CreateBlogPage() {
         title: title,
         content: contentHtml,
       },
-      production_group_id_url: productionGroup?.id_url,
+      series_id_url: productionGroup?.id_url,
     };
     try {
       const createdBlog: Blog = await createBlog(newBlog);

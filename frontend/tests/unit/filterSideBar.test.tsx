@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterSidebar from "~/features/archive/components/FilterSidebar";
 import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
@@ -198,12 +198,22 @@ describe("FilterSidebar – artists filter", () => {
 });
 
 describe("FilterSidebar – production groups filter", () => {
+  it("shows a set of production groups without searching", () => {
+    render(<FilterSidebar {...defaultProps()} />);
+
+    expect(screen.getByText("Vooruit Klassiek")).toBeInTheDocument();
+    expect(screen.getByText("Club Wintercircus")).toBeInTheDocument();
+    expect(screen.getByText("Café Concerten")).toBeInTheDocument();
+  });
+
   it("shows production group search dropdown when query matches", async () => {
     render(<FilterSidebar {...defaultProps()} />);
     await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
     const input = screen.getByPlaceholderText("filter.search_production_groups");
     await userEvent.type(input, "winter");
-    expect(screen.getByText("Club Wintercircus")).toBeInTheDocument();
+
+    const dropdown = screen.getByRole("list");
+    expect(within(dropdown).getByText("Club Wintercircus")).toBeInTheDocument();
   });
 
   it("selecting a production group calls setSelectedProductionGroups", async () => {
@@ -212,7 +222,8 @@ describe("FilterSidebar – production groups filter", () => {
     await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
     const input = screen.getByPlaceholderText("filter.search_production_groups");
     await userEvent.type(input, "vooruit");
-    fireEvent.mouseDown(screen.getByText("Vooruit Klassiek"));
+    const dropdown = screen.getByRole("list");
+    fireEvent.mouseDown(within(dropdown).getByText("Vooruit Klassiek"));
     expect(props.setSelectedProductionGroups).toHaveBeenCalled();
     expect(input).toHaveValue("");
   });
@@ -222,7 +233,9 @@ describe("FilterSidebar – production groups filter", () => {
     await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
     const input = screen.getByPlaceholderText("filter.search_production_groups");
     await userEvent.type(input, "cafe");
-    expect(screen.getByText("Café Concerten")).toBeInTheDocument();
+
+    const dropdown = screen.getByRole("list");
+    expect(within(dropdown).getByText("Café Concerten")).toBeInTheDocument();
   });
 });
 

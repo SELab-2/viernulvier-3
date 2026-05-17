@@ -16,7 +16,7 @@ export async function getMediaForBlog(
   const apiClient = createApiClient(lang);
 
   const response = await apiClient.get<MediaListResponse>(
-    `${ARCHIVE_PATH}/blogs/${blogId}/media/`,
+    `${ARCHIVE_PATH}/blogs/${blogId}/media`,
     { params }
   );
 
