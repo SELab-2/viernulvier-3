@@ -290,6 +290,8 @@
       "uploadMedia": "Upload media",
       "deleteMedia": "Verwijder media",
       "noMedia": "Geen media voor deze blog",
+      "closeLightbox": "Sluit afbeelding popup",
+      "blogPhoto": "Blog foto",
       "delete": {
         "delete": "Blog verwijderen",
         "deleting": "Bezig met verwijderen...",

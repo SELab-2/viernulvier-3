@@ -290,6 +290,8 @@
       "uploadMedia": "Upload media",
       "deleteMedia": "Delete media",
       "noMedia": "No media for this blog",
+      "closeLightbox": "Close image viewer",
+      "blogPhoto": "Blog photo",
       "delete": {
         "delete": "Delete blog",
         "deleting": "Deleting...",

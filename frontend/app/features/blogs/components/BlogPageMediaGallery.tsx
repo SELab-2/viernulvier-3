@@ -57,6 +57,7 @@ export function BlogPageMediaGallery({
   );
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -64,6 +65,24 @@ export function BlogPageMediaGallery({
     () => getBlogNumericIdFromUrl(blog_id_url),
     [blog_id_url]
   );
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setLightboxImageUrl(null);
+      }
+    }
+
+    if (lightboxImageUrl) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxImageUrl]);
 
   useEffect(() => {
     if (!blogNumericId) return;
@@ -256,6 +275,7 @@ export function BlogPageMediaGallery({
                   })}
                   loading="lazy"
                   className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  onClick={() => setLightboxImageUrl(url)}
                 />
 
                 {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
@@ -335,6 +355,45 @@ export function BlogPageMediaGallery({
                 {t("blogs.contentPage.edit.delete")}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {lightboxImageUrl && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImageUrl(null)}
+        >
+          <div
+            className="relative mx-4 max-h-[90vh] max-w-6xl overflow-hidden rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImageUrl(null)}
+              aria-label={t("blogs.contentPage.closeLightbox")}
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <img
+              src={lightboxImageUrl}
+              alt={t("blogs.contentPage.blogPhoto")}
+              className="max-h-[90vh] max-w-full object-contain"
+            />
           </div>
         </div>
       )}

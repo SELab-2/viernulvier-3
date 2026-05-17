@@ -329,4 +329,45 @@ describe("BlogPageMediaGallery", () => {
       });
     });
   });
+
+  describe("lightbox", () => {
+    it("opens the lightbox when an image is clicked", async () => {
+      const { user } = renderGallery({ isEditing: true });
+
+      const images = await screen.findAllByRole("img");
+      await user.click(images[0]);
+
+      expect(
+        screen.getByRole("button", { name: "I18N_Close_Lightbox" })
+      ).toBeInTheDocument();
+      expect(screen.getByAltText("I18N_Blog_Photo")).toHaveAttribute(
+        "src",
+        "https://example.com/image1.jpg"
+      );
+    });
+
+    it("closes the lightbox when the close button is clicked", async () => {
+      const { user } = renderGallery({ isEditing: true });
+
+      const images = await screen.findAllByRole("img");
+      await user.click(images[0]);
+      await user.click(screen.getByRole("button", { name: "I18N_Close_Lightbox" }));
+
+      expect(
+        screen.queryByRole("dialog", { name: "I18N_Close_Lightbox" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("closes the lightbox when escape is pressed", async () => {
+      const { user } = renderGallery({ isEditing: true });
+
+      const images = await screen.findAllByRole("img");
+      await user.click(images[0]);
+      await user.keyboard("{Escape}");
+
+      expect(
+        screen.queryByRole("dialog", { name: "I18N_Close_Lightbox" })
+      ).not.toBeInTheDocument();
+    });
+  });
 });

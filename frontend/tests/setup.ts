@@ -120,6 +120,8 @@ const translationMap: Record<string, TranslationValue> = {
   "blogs.contentPage.uploadMedia": "I18N_Upload_Media",
   "blogs.contentPage.deleteMedia": "I18N_Delete_Media",
   "blogs.contentPage.noMedia": "I18N_No_Media",
+  "blogs.contentPage.closeLightbox": "I18N_Close_Lightbox",
+  "blogs.contentPage.blogPhoto": "I18N_Blog_Photo",
   "blogs.contentPage.edit.confirmTitle": "I18N_Confirm_Title",
   "blogs.contentPage.edit.confirmBody": "I18N_Confirm_Body",
   "blogs.contentPage.edit.cancel": "I18N_Edit_Cancel",
