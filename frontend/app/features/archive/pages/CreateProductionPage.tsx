@@ -157,6 +157,8 @@ export function CreateProductionPage() {
     if (isModified && !window.confirm(t("notSaveChanges"))) {
       return;
     }
+    skipWarning.current = true;
+    setSkipWarningState(true);
     setDraftInfo({
       production_id_url: "",
       language: lang!,
