@@ -117,6 +117,16 @@
         "dateLabel": "Onbekende datum",
         "venueLabel": "Onbekend"
       }
+    },
+    "media": {
+      "title": "Media",
+      "bannerHint": "★ markeert de bannerafbeelding",
+      "dropMedia": "Sleep bestanden hierheen of",
+      "browse": "bladeren",
+      "acceptedFormats": "JPEG, PNG, WebP, GIF",
+      "isBanner": "Bannerafbeelding",
+      "setBanner": "Instellen als banner",
+      "remove": "Verwijderen"
     }
   },
   "editfield": {
