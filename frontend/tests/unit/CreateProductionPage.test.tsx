@@ -245,8 +245,9 @@ describe("CreateProductionPage", () => {
     await user.click(cancelButton);
 
     await waitFor(() => {
-      expect(screen.queryByText("I18N_ProductionPage_Edit_Cancel")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("I18N_ProductionPage_Edit_Cancel")
+      ).not.toBeInTheDocument();
     });
   });
-
 });
