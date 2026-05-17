@@ -56,7 +56,10 @@ type MediaUploadWidgetProps = {
  * with a star toggle — selecting a new banner moves that file to index 0 while
  * keeping the relative order of the rest.
  */
-function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUploadWidgetProps) {
+function MediaUploadWidget({
+  onFilesChange,
+  onBannerUrlChange,
+}: MediaUploadWidgetProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<MediaPreview[]>([]);
@@ -109,9 +112,7 @@ function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUploadWidg
           {t("archive.media.title")}
         </h3>
         {previews.length > 0 && (
-          <p className="text-archive-ink/40 text-xs">
-            {t("archive.media.bannerHint")}
-          </p>
+          <p className="text-archive-ink/40 text-xs">{t("archive.media.bannerHint")}</p>
         )}
       </div>
 
@@ -183,9 +184,7 @@ function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUploadWidg
               {/* Banner toggle */}
               <Tooltip
                 title={
-                  i === 0
-                    ? t("archive.media.isBanner")
-                    : t("archive.media.setBanner")
+                  i === 0 ? t("archive.media.isBanner") : t("archive.media.setBanner")
                 }
               >
                 <IconButton
@@ -291,8 +290,7 @@ async function handleAddProduction(
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
     const responseParts = response["id_url"].split("/");
-    currentParts[currentParts.length - 1] =
-      responseParts[responseParts.length - 1];
+    currentParts[currentParts.length - 1] = responseParts[responseParts.length - 1];
     navigate(currentParts.join("/"));
   } catch (e) {
     window.alert(`${errorMessage}: ${e}`);
@@ -346,7 +344,9 @@ export function CreateProductionPage() {
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(undefined);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(
+    undefined
+  );
 
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -417,7 +417,10 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          image_url={bannerPreviewUrl ?? "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"}
+          image_url={
+            bannerPreviewUrl ??
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          }
           isEditing={true}
           originalInfo={null}
           draftInfo={draftInfo}
