@@ -173,6 +173,7 @@ async function handleInfoSave(
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   deletedEvents: EventWithResolvedRelations[],
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  setMediaEdited: React.Dispatch<React.SetStateAction<boolean>>,
   newTags: Tag[],
   setNewTags: React.Dispatch<React.SetStateAction<Tag[]>>,
   setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>,
@@ -375,6 +376,7 @@ async function handleInfoSave(
     setDraftEvents([...finalDraftEvents, ...finalCreatedEvents]);
     setNewEvents([]);
     setDeletedEvents([]);
+    setMediaEdited(false);
 
     setIsEditing(false);
     if (!originalInfo) {
@@ -435,6 +437,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [mediaEdited, setMediaEdited] = useState<boolean>(false);
 
   const _handleSave = () =>
     handleInfoSave(
@@ -456,6 +459,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setNewEvents,
       deletedEvents,
       setDeletedEvents,
+      setMediaEdited,
       newTags,
       setNewTags,
       setDraftTags,
@@ -491,7 +495,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       tagsModified ||
       generalModified ||
       isInfoModified(originalInfo, draftInfo) ||
-      areEventsModified
+      areEventsModified ||
+      mediaEdited
     );
   }, [
     originalInfo,
@@ -504,6 +509,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     draftAttendanceMode,
     originalPerformerType,
     draftPerformerType,
+    mediaEdited,
     newTags,
   ]);
 
@@ -773,6 +779,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <ProductionPageMediaGallery
           production_id_url={production.id_url}
           title={title}
+          isEditing={isEditing}
+          setMediaEdited={setMediaEdited}
         />
       </main>
 

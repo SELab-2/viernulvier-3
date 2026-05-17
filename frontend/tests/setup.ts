@@ -181,6 +181,14 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
   "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
   "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
+  "productionPage.deleteMedia": "I18N_Production_DeleteMedia",
+  "productionPage.uploadMedia": "I18N_Production_UploadMedia",
+  "productionPage.noImagesYet": "I18N_Production_NoImagesYet",
+  "productionPage.closeLightbox": "I18N_Production_CloseLightbox",
+  "productionPage.archivePhoto": "I18N_Production_ArchivePhoto",
+  "productionPage.edit.confirmDeleteTitle": "I18N_Production_ConfirmDeleteTitle",
+  "productionPage.edit.confirmDeleteBody": "I18N_Production_ConfirmDeleteBody",
+  "productionPage.edit.delete": "I18N_Production_Edit_Delete",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {
