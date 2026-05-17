@@ -48,15 +48,6 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-interface ProductionCardProps {
-  production: Production;
-  preferredLanguage?: string;
-  className?: string;
-  isSelectable?: boolean;
-  selected?: boolean;
-  onToggleSelected?: (productionId: string) => void;
-}
-
 export function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
   language: string
@@ -175,12 +166,23 @@ function getProductionStartLabel(
 //   	venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
 //   </Typography>
 
+interface ProductionCardProps {
+  production: Production;
+  preferredLanguage?: string;
+  className?: string;
+  isSelectable?: boolean;
+  selected?: boolean;
+  anySelected?: boolean;
+  onToggleSelected?: (productionId: string) => void;
+}
+
 export function ProductionCard({
   production,
   preferredLanguage = "nl",
   className,
   isSelectable = false,
   selected = false,
+  anySelected = false,
   onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
@@ -277,11 +279,13 @@ export function ProductionCard({
       }}
       elevation={0}
     >
-      <Link
-        to={lp(`/archive/productions/${productionId}`)}
-        aria-label={`Open details for ${title}`}
-        style={{ position: "absolute", inset: 0, zIndex: 1 }}
-      />
+      {!anySelected && (
+        <Link
+          to={lp(`/archive/productions/${productionId}`)}
+          aria-label={`Open details for ${title}`}
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
+        />
+      )}
       <Box sx={{ position: "relative", overflow: "hidden" }}>
         <CardMedia
           className="production-card-image"
@@ -289,6 +293,7 @@ export function ProductionCard({
           height="236"
           image={imageUrl}
           alt={title}
+          onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
           sx={{
             transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
             transform: "translateY(0) scale(1)",
@@ -393,6 +398,13 @@ export function ProductionCard({
           willChange: "transform",
         }}
       >
+        {anySelected && (
+          <Link
+            to={lp(`/archive/productions/${productionId}`)}
+            aria-label={`Open details for ${title}`}
+            style={{ position: "absolute", inset: 0, zIndex: 1 }}
+          />
+        )}
         <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
             <Typography
