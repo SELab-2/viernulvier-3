@@ -31,6 +31,7 @@ type EditButtonProps = {
   enable_save: boolean;
   is_saving: boolean;
   _handleSave: () => Promise<void>;
+  _handleCancel?: () => void | Promise<void>;
   permissions: string[];
 };
 
@@ -54,6 +55,7 @@ export function EditButton({
   enable_save,
   is_saving,
   _handleSave,
+  _handleCancel,
   permissions,
 }: EditButtonProps) {
   const { t } = useTranslation();
@@ -84,18 +86,25 @@ export function EditButton({
           <button
             id="cancel-edit-production-button"
             onClick={() => {
-              // Copy (not by reference)
-              setDraftInfo(originalInfo ? { ...originalInfo } : null);
-              setDraftTags(originalTags ? [...originalTags] : []);
-              setDraftEvents(
-                originalEvents ? originalEvents.map((e) => ({ ...e })) : []
-              );
-              setNewEvents([]);
-              setDeletedEvents([]);
-              setNewTags([]);
-              setIsEditing(false);
-              setDraftAttendanceMode(originalAttendanceMode);
-              setDraftPerformerType(originalPerformerType);
+              if (_handleCancel) {
+                _handleCancel();
+              } else {
+                if (enable_save && !window.confirm(t("notSaveChanges"))) {
+                  return;
+                }
+                // Copy (not by reference)
+                setDraftInfo(originalInfo ? { ...originalInfo } : null);
+                setDraftTags(originalTags ? [...originalTags] : []);
+                setDraftEvents(
+                  originalEvents ? originalEvents.map((e) => ({ ...e })) : []
+                );
+                setNewEvents([]);
+                setDeletedEvents([]);
+                setNewTags([]);
+                setIsEditing(false);
+                setDraftAttendanceMode(originalAttendanceMode);
+                setDraftPerformerType(originalPerformerType);
+              }
             }}
             className={`${shared_css} bg-gray-300`}
           >

@@ -1,7 +1,7 @@
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
-import { useNavigate, useParams } from "react-router";
+import { useBlocker, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
@@ -9,7 +9,6 @@ import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
 import {
   getSanitizedHtmlOrUndefined,
-  useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
 import type { Tag } from "../types/tagTypes";
@@ -36,8 +35,6 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
     !!draftInfo.info
   );
 }
-
-// ─── Save handler ──────────────────────────────────────────────────────────
 
 async function handleAddProduction(
   language: string,
@@ -123,8 +120,6 @@ async function handleAddProduction(
   }
 }
 
-// ─── Access denied ─────────────────────────────────────────────────────────
-
 export function CreateProductionPageAccessDenied() {
   const { t } = useTranslation();
 
@@ -145,8 +140,6 @@ export function CreateProductionPageAccessDenied() {
     </section>
   );
 }
-
-// ─── Page ──────────────────────────────────────────────────────────────────
 
 export function CreateProductionPage() {
   const { lang } = useParams();
@@ -176,14 +169,9 @@ export function CreateProductionPage() {
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
-  const [skipWarningState, setSkipWarningState] = useState(false);
 
-  useUnsavedChangesBlocker(
-    !skipWarningState &&
-      !isSaving &&
-      (isInfoModified(draftInfo) || isQuillDirty || mediaFiles.length > 0)
-  );
   const navigate = useNavigate();
+
   const isModified = useMemo(() => {
     return (
       draftTags.length > 0 ||
@@ -191,9 +179,52 @@ export function CreateProductionPage() {
       newTags.length > 0 ||
       mediaFiles.length > 0 ||
       isInfoModified(draftInfo) ||
-      isQuillDirty
+      isQuillDirty ||
+      draftAttendanceMode !== "" ||
+      draftPerformerType !== ""
     );
-  }, [draftInfo, draftTags, isQuillDirty, draftEvents, newTags, mediaFiles]);
+  }, [
+    draftInfo,
+    draftTags,
+    isQuillDirty,
+    draftEvents,
+    draftAttendanceMode,
+    draftPerformerType,
+    mediaFiles,
+    newTags,
+  ]);
+
+  const [isCancelling, setIsCancelling] = useState(false);
+  const blocker = useBlocker(!isSaving && !isCancelling && isModified);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirmed = window.confirm(t("notSaveChanges"));
+      if (confirmed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, t]);
+
+  const handleCancel = () => {
+    if (isModified) {
+      setIsCancelling(true);
+      queueMicrotask(() => {
+        const confirmed = window.confirm(t("notSaveChanges"));
+        if (confirmed) {
+          skipWarning.current = true;
+          navigate("/archive");
+        } else {
+          setIsCancelling(false);
+        }
+      });
+    } else {
+      skipWarning.current = true;
+      navigate("/archive");
+    }
+  };
 
   const _handleAddProduction = () =>
     handleAddProduction(
@@ -208,7 +239,7 @@ export function CreateProductionPage() {
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
-      setSkipWarningState,
+      () => {},
       navigate
     );
 
@@ -329,6 +360,7 @@ export function CreateProductionPage() {
             originalPerformerType=""
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
+            _handleCancel={handleCancel}
             originalTags={null}
             setDraftTags={() => {}}
             permissions={[ARCHIVE_PERMISSIONS.create]}

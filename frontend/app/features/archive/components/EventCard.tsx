@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+
 import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Hall } from "~/features/archive/types/hallTypes";
 
@@ -160,7 +161,7 @@ export function EventCard({ event }: EventCardProps) {
         />
 
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
-          <div className="grid gap-3 text-sm sm:grid-cols-2">
+          <div className="grid items-start gap-3 text-sm sm:grid-cols-2">
             <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
             <EventCardDetail
               label={t("productionPage.priceLabel")}

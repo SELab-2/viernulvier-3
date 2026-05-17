@@ -3,12 +3,23 @@ import json
 from datetime import datetime
 from typing import Literal
 
-from sqlalchemy import and_, asc, desc, or_
+from minio import Minio
+from sqlalchemy import and_, asc, delete, desc, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
 from src.api.exceptions import NotFoundError, ValidationError
-from src.models import Event, ProdInfo, Production, ProductionGroup, Tag
+from src.config import settings
+from src.models import (
+    Event,
+    EventPrice,
+    Media,
+    ProdInfo,
+    Production,
+    ProductionGroup,
+    Tag,
+)
+from src.models.associations import prod_groups, prod_tags
 from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
@@ -409,14 +420,38 @@ def update_production_by_id(
     return build_production_response(db, production, base_url)
 
 
-# Deletes the production and all related production infos/events and returns success or failure.
-def delete_production_by_id(db: Session, production_id: int) -> bool:
-    production = db.query(Production).filter(Production.id == production_id).first()
-    if not production:
+# Deletes the production and all related data and returns success or failure.
+def delete_production_by_id(
+    db: Session, production_id: int, minio_client: Minio
+) -> bool:
+    production_exists = (
+        db.query(Production.id).filter(Production.id == production_id).first()
+    )
+    if not production_exists:
         raise NotFoundError("Production", production_id)
 
-    db.query(ProdInfo).filter(ProdInfo.production_id == production_id).delete()
-    db.query(Event).filter(Event.production_id == production_id).delete()
-    db.delete(production)
+    media_items = db.query(Media).filter(Media.production_id == production_id).all()
+    for media in media_items:
+        try:
+            minio_client.remove_object(settings.MINIO_BUCKET, media.object_key)
+        except Exception:
+            pass
+
+    event_ids = [
+        event_id
+        for (event_id,) in db.query(Event.id)
+        .filter(Event.production_id == production_id)
+        .all()
+    ]
+
+    if event_ids:
+        db.execute(delete(EventPrice).where(EventPrice.event_id.in_(event_ids)))
+
+    db.execute(delete(ProdInfo).where(ProdInfo.production_id == production_id))
+    db.execute(delete(Event).where(Event.production_id == production_id))
+    db.execute(delete(Media).where(Media.production_id == production_id))
+    db.execute(delete(prod_tags).where(prod_tags.c.prod_id == production_id))
+    db.execute(delete(prod_groups).where(prod_groups.c.prod_id == production_id))
+    db.execute(delete(Production).where(Production.id == production_id))
     db.commit()
     return True

@@ -1,28 +1,40 @@
+from datetime import datetime
 from typing import List
-from src.models.production import Production
+
+import pytest
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models.associations import prod_groups, prod_tags
+from src.models.event import Event, EventPrice
+from src.models.media import Media
+from src.models.production import ProdInfo, Production
 from src.models.production_group import ProductionGroup
-from src.services.production import (
-    get_production_by_id,
-    get_productions_paginated,
-    get_event_urls_for_production,
-    get_tags_for_production,
-    create_production,
-    update_production_by_id,
-    delete_production_by_id,
-)
-from src.services.tag import get_existing_tags
+from src.models.tag import Tag, TagName
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
-    ProductionUpdate,
     ProductionInfoUpdate,
+    ProductionUpdate,
 )
 from src.services.language import Languages
+from src.services.production import (
+    create_production,
+    delete_production_by_id,
+    get_event_urls_for_production,
+    get_production_by_id,
+    get_productions_paginated,
+    get_tags_for_production,
+    update_production_by_id,
+)
+from src.services.tag import get_existing_tags
 
-from src.api.exceptions import NotFoundError, ValidationError
-from datetime import datetime
 
-import pytest
+class DummyMinioClient:
+    def __init__(self):
+        self.remove_calls = []
+
+    def remove_object(self, bucket, object_key):
+        self.remove_calls.append((bucket, object_key))
+
 
 BASE_URL = "http://test"
 
@@ -643,12 +655,120 @@ def test_delete_production(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2
 
-    success = delete_production_by_id(db_session, productions_limited[0].id)
+    success = delete_production_by_id(
+        db_session, productions_limited[0].id, DummyMinioClient()
+    )
     assert success
 
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 1
     assert result.productions[0].performer_type == "concert"
+
+
+def test_delete_production_removes_related_data(
+    db_session, production_with_no_media, media_items_for_production
+):
+    minio_client = DummyMinioClient()
+    production = production_with_no_media
+
+    prod_info = ProdInfo(
+        production_id=production.id,
+        language=Languages.ENGLISH,
+        title="linked production",
+    )
+    tag = Tag(names=[TagName(language=Languages.ENGLISH, name="linked tag")])
+    production_group = ProductionGroup(title="linked group")
+    event = Event(production_id=production.id, starts_at=datetime.fromtimestamp(123123))
+
+    db_session.add_all([prod_info, tag, production_group, event])
+    db_session.flush()
+
+    db_session.execute(prod_tags.insert().values(tag_id=tag.id, prod_id=production.id))
+    db_session.execute(
+        prod_groups.insert().values(group_id=production_group.id, prod_id=production.id)
+    )
+
+    event_price = EventPrice(event_id=event.id, amount=10, available=1)
+    db_session.add(event_price)
+    db_session.commit()
+    event_price_id = event_price.id
+
+    assert (
+        db_session.query(Media).filter(Media.production_id == production.id).count()
+        == 3
+    )
+    assert (
+        db_session.query(ProdInfo)
+        .filter(ProdInfo.production_id == production.id)
+        .count()
+        == 1
+    )
+    assert (
+        db_session.query(Event).filter(Event.production_id == production.id).count()
+        == 1
+    )
+    assert (
+        db_session.query(EventPrice).filter(EventPrice.event_id == event.id).count()
+        == 1
+    )
+    assert (
+        db_session.execute(
+            prod_tags.select().where(prod_tags.c.prod_id == production.id)
+        ).first()
+        is not None
+    )
+    assert (
+        db_session.execute(
+            prod_groups.select().where(prod_groups.c.prod_id == production.id)
+        ).first()
+        is not None
+    )
+
+    success = delete_production_by_id(db_session, production.id, minio_client)
+    assert success
+
+    assert (
+        db_session.query(Production).filter(Production.id == production.id).first()
+        is None
+    )
+    assert (
+        db_session.query(ProdInfo)
+        .filter(ProdInfo.production_id == production.id)
+        .count()
+        == 0
+    )
+    assert (
+        db_session.query(Event).filter(Event.production_id == production.id).count()
+        == 0
+    )
+    assert (
+        db_session.query(EventPrice).filter(EventPrice.id == event_price_id).count()
+        == 0
+    )
+    assert (
+        db_session.query(Media).filter(Media.production_id == production.id).count()
+        == 0
+    )
+    assert (
+        db_session.execute(
+            prod_tags.select().where(prod_tags.c.prod_id == production.id)
+        ).first()
+        is None
+    )
+    assert (
+        db_session.execute(
+            prod_groups.select().where(prod_groups.c.prod_id == production.id)
+        ).first()
+        is None
+    )
+    assert db_session.query(Tag).filter(Tag.id == tag.id).first() is not None
+    assert (
+        db_session.query(ProductionGroup)
+        .filter(ProductionGroup.id == production_group.id)
+        .first()
+        is not None
+    )
+    assert len(minio_client.remove_calls) == 3
 
 
 # Delete a not existing production (does nothing).
@@ -658,7 +778,7 @@ def test_delete_production_invalid(db_session, productions_limited):
 
     # Give a non-existing production id.
     with pytest.raises(NotFoundError):
-        delete_production_by_id(db_session, 4)
+        delete_production_by_id(db_session, 4, DummyMinioClient())
 
     new_result = get_productions_paginated(db_session, BASE_URL)
     assert len(new_result.productions) == 2

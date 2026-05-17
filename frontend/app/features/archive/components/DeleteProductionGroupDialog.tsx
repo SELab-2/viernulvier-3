@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Button,
   CircularProgress,
@@ -42,10 +42,14 @@ export function DeleteProductionGroupDialog({
     setIsSubmitting(false);
   }, []);
 
+  const prevGroupRef = useRef<ProductionGroup | null>(productionGroup);
+
   useEffect(() => {
-    if (!productionGroup) {
+    if (prevGroupRef.current && !productionGroup) {
       resetState();
     }
+
+    prevGroupRef.current = productionGroup;
   }, [productionGroup, resetState]);
 
   function handleClose() {

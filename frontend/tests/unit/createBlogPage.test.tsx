@@ -80,7 +80,7 @@ vi.mock("~/features/archive/utils/productionPageFunctions", () => ({
 
 const mockCreatedBlog: Blog = {
   id_url: "http://localhost/api/v1/blogs/42",
-  production_group_id_url: "",
+  series_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -93,13 +93,13 @@ const mockCreatedBlog: Blog = {
 
 const mockProductionGroups: ProductionGroup[] = [
   {
-    id_url: "http://localhost/api/v1/archive/production-groups/1",
+    id_url: "http://localhost/api/v1/archive/series/1",
     title: "Seizoen 2024",
     is_public_filter: true,
     production_id_urls: [],
   },
   {
-    id_url: "http://localhost/api/v1/archive/production-groups/2",
+    id_url: "http://localhost/api/v1/archive/series/2",
     title: "Zomerprogramma",
     is_public_filter: true,
     production_id_urls: [],
@@ -448,7 +448,7 @@ describe("CreateBlogPage", () => {
       expect(screen.getByText(/Seizoen 2024/i)).toBeInTheDocument();
     });
 
-    it("includes the production group id in the createBlog call when a series is selected", async () => {
+    it("includes the series id in the createBlog call when a series is selected", async () => {
       const { user } = renderPage();
 
       const searchInput = screen.getByPlaceholderText("I18N_Search_Series");
@@ -466,8 +466,7 @@ describe("CreateBlogPage", () => {
       await waitFor(() => {
         expect(vi.mocked(createBlog)).toHaveBeenCalledWith(
           expect.objectContaining({
-            production_group_id_url:
-              "http://localhost/api/v1/archive/production-groups/1",
+            series_id_url: "http://localhost/api/v1/archive/series/1",
           })
         );
       });

@@ -1,19 +1,18 @@
 from fastapi import APIRouter
 from src.api.v1.archive import (
-    events,
-    productions,
-    production_groups,
-    halls,
-    tags,
-    prod_media,
-    blog_media,
-    statistics,
     artists,
+    blog_media,
     blogs,
+    events,
+    halls,
     history,
+    prod_media,
+    production_groups,
+    productions,
+    statistics,
+    tags,
     visuals,
 )
-
 
 router = APIRouter()
 
@@ -23,8 +22,8 @@ router.include_router(productions.router, prefix="/productions", tags=["Producti
 
 router.include_router(
     production_groups.router,
-    prefix="/production-groups",
-    tags=["Production Groups"],
+    prefix="/series",
+    tags=["Series"],
 )
 
 router.include_router(halls.router, prefix="/halls", tags=["Halls"])
