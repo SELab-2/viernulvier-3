@@ -1,14 +1,13 @@
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { useTranslation } from "react-i18next";
 import type { Hall } from "../types/hallTypes";
-import type { Price, PriceCreate, PriceUpdate } from "../types/eventTypes";
+import type { Price } from "../types/eventTypes";
 import type { EventWithResolvedRelations } from "./EventCard";
 import { useEffect, useMemo, useState } from "react";
 import { Protected } from "~/features/auth";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { useParams } from "react-router";
 import { useDebouncedState } from "../utils/debouncedState";
-import { createPrice, deletePrice, updatePriceByUrl } from "../services/eventService";
 
 const invalidClass = "border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]";
 
@@ -42,20 +41,17 @@ function HallDropdown({
 
 type EditablePriceRowProps = {
   price: Price;
-  eventId: number;
-  onUpdate: (priceUrl: string, updated: Price) => void;
-  onDelete: (priceUrl: string) => void;
+  onUpdate: (updatedPrice: Price) => void;
+  onDelete: () => void;
 };
 
 function EditablePriceRow({
   price,
-  eventId,
   onUpdate,
   onDelete,
 }: EditablePriceRowProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [draftAmount, setDraftAmount] = useState<string>(
     price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
   );
@@ -99,40 +95,22 @@ function EditablePriceRow({
     setIsEditing(false);
   }
 
-  async function saveEditing() {
-    setIsSaving(true);
-    try {
-      const updateData: PriceUpdate = {};
-      const parsedAmount = parseFloat(draftAmount);
-      updateData.amount = isNaN(parsedAmount) ? undefined : parsedAmount;
+  function saveEditing() {
+    const updated: Price = { ...price };
+    const parsedAmount = parseFloat(draftAmount);
+    updated.amount = isNaN(parsedAmount) ? undefined : parsedAmount;
 
-      const parsedAvailable = parseInt(draftAvailable, 10);
-      updateData.available = isNaN(parsedAvailable) ? undefined : parsedAvailable;
+    const parsedAvailable = parseInt(draftAvailable, 10);
+    updated.available = isNaN(parsedAvailable) ? undefined : parsedAvailable;
 
-      const updated = await updatePriceByUrl(price.id_url, updateData);
-      onUpdate(price.id_url, updated);
-      setIsEditing(false);
-    } catch {
-      window.alert(t("productionPage.price.saveError"));
-    } finally {
-      setIsSaving(false);
-    }
+    onUpdate(updated);
+    setIsEditing(false);
   }
 
-  async function handleDelete() {
+  function handleDelete() {
     const confirmed = window.confirm(t("productionPage.price.deleteConfirm"));
     if (!confirmed) return;
-
-    const match = price.id_url.match(/\/prices\/(\d+)/);
-    const priceId = match ? Number(match[1]) : undefined;
-    if (!priceId) return;
-
-    try {
-      await deletePrice(eventId, priceId);
-      onDelete(price.id_url);
-    } catch {
-      window.alert(t("productionPage.price.deleteError"));
-    }
+    onDelete();
   }
 
   if (isEditing) {
@@ -172,10 +150,10 @@ function EditablePriceRow({
           </button>
           <button
             onClick={saveEditing}
-            disabled={!isModified || isSaving}
+            disabled={!isModified}
             className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {isSaving ? "…" : t("productionPage.edit.save")}
+            {t("productionPage.edit.save")}
           </button>
         </div>
       </div>
@@ -222,35 +200,23 @@ function EditablePriceRow({
 }
 
 type AddPriceFormProps = {
-  eventId: number;
   onCreated: (price: Price) => void;
   onCancel: () => void;
 };
 
-function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
+function AddPriceForm({ onCreated, onCancel }: AddPriceFormProps) {
   const { t } = useTranslation();
-  const [isSaving, setIsSaving] = useState(false);
   const [draftAmount, setDraftAmount] = useState("");
   const [draftAvailable, setDraftAvailable] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsSaving(true);
-    try {
-      const priceData: PriceCreate = {};
-      const parsedAmount = parseFloat(draftAmount);
-      if (!isNaN(parsedAmount)) priceData.amount = parsedAmount;
-
-      const parsedAvailable = parseInt(draftAvailable, 10);
-      if (!isNaN(parsedAvailable)) priceData.available = parsedAvailable;
-
-      const created = await createPrice(eventId, priceData);
-      onCreated(created);
-    } catch {
-      window.alert(t("productionPage.price.createError"));
-    } finally {
-      setIsSaving(false);
-    }
+    const newPrice: Price = {
+      id_url: `temp-price-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      amount: isNaN(parseFloat(draftAmount)) ? undefined : parseFloat(draftAmount),
+      available: isNaN(parseInt(draftAvailable, 10)) ? undefined : parseInt(draftAvailable, 10),
+    };
+    onCreated(newPrice);
   }
 
   return (
@@ -293,10 +259,9 @@ function AddPriceForm({ eventId, onCreated, onCancel }: AddPriceFormProps) {
         </button>
         <button
           type="submit"
-          disabled={isSaving}
           className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {isSaving ? "…" : t("productionPage.price.addLabel")}
+          {t("productionPage.price.addLabel")}
         </button>
       </div>
     </form>
@@ -309,7 +274,6 @@ export default function EditableEventCard({
   preferredLanguage,
   onChange,
   onDelete,
-  onPricesChanged,
   canDeleteWithoutPerms = false,
 }: {
   event: EventWithResolvedRelations;
@@ -317,14 +281,12 @@ export default function EditableEventCard({
   preferredLanguage?: string;
   onChange: (updated: EventWithResolvedRelations) => void;
   onDelete: () => void;
-  onPricesChanged?: (eventId: string, prices: Price[]) => void;
   canDeleteWithoutPerms?: boolean;
 }) {
   const { t } = useTranslation();
   const { lang } = useParams();
   const language = preferredLanguage ?? lang;
 
-  const [prices, setPrices] = useState<Price[]>(event.resolvedPrices);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
 
   const [hallName, debouncedHallName, setHallname] = useDebouncedState<string>(
@@ -378,26 +340,22 @@ export default function EditableEventCard({
 
   const dateTimeStyle = `border-archive-accent/95 w-full rounded-md border px-2 py-1 text-sm font-semibold opacity-95 md:text-base ${isInvalidDate && invalidClass}`;
 
-  const match = event.id_url.match(/\/events\/(\d+)/);
-  const eventId = match ? Number(match[1]) : undefined;
-
-  function handlePriceUpdate(_priceUrl: string, updated: Price) {
-    setPrices((prev) => prev.map((p) => (p.id_url === updated.id_url ? updated : p)));
-    const updatedList = prices.map((p) => (p.id_url === updated.id_url ? updated : p));
-    onPricesChanged?.(event.id_url, updatedList);
+  function handlePriceUpdate(updatedPrice: Price) {
+    const updatedPrices = event.resolvedPrices.map((p) =>
+      p.id_url === updatedPrice.id_url ? updatedPrice : p
+    );
+    onChange({ ...event, resolvedPrices: updatedPrices });
   }
 
-  function handlePriceDelete(priceUrl: string) {
-    const updatedList = prices.filter((p) => p.id_url !== priceUrl);
-    setPrices(updatedList);
-    onPricesChanged?.(event.id_url, updatedList);
+  function handlePriceDelete(priceIdUrl: string) {
+    const updatedPrices = event.resolvedPrices.filter((p) => p.id_url !== priceIdUrl);
+    onChange({ ...event, resolvedPrices: updatedPrices });
   }
 
-  function handlePriceCreated(created: Price) {
-    const updatedList = [...prices, created];
-    setPrices(updatedList);
+  function handlePriceCreated(newPrice: Price) {
+    const updatedPrices = [...event.resolvedPrices, newPrice];
+    onChange({ ...event, resolvedPrices: updatedPrices });
     setIsAddingPrice(false);
-    onPricesChanged?.(event.id_url, updatedList);
   }
 
   return (
@@ -479,19 +437,17 @@ export default function EditableEventCard({
         <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
           {t("productionPage.priceLabel")}
         </p>
-        {prices.length > 0 &&
-          prices.map((price) => (
+        {event.resolvedPrices.length > 0 &&
+          event.resolvedPrices.map((price) => (
             <EditablePriceRow
               key={price.id_url}
               price={price}
-              eventId={eventId!}
               onUpdate={handlePriceUpdate}
-              onDelete={handlePriceDelete}
+              onDelete={() => handlePriceDelete(price.id_url)}
             />
           ))}
-        {isAddingPrice && eventId && (
+        {isAddingPrice && (
           <AddPriceForm
-            eventId={eventId}
             onCreated={handlePriceCreated}
             onCancel={() => setIsAddingPrice(false)}
           />
