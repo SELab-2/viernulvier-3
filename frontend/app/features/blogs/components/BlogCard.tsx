@@ -22,9 +22,6 @@ import {
   getProductionsForGroup,
 } from "~/features/archive/services/productionGroupService";
 
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-
 const CARD_COLORS = {
   surfaceStart: "var(--color-archive-surface-strong)",
   surfaceEnd: "var(--color-archive-surface)",
