@@ -17,13 +17,17 @@ import {
 } from "./tokenStorage";
 import { refreshAccessToken } from "./tokenRefresh";
 
+function sortNames(values: string[]) {
+  return [...values].sort((left, right) => left.localeCompare(right));
+}
+
 function mapAuthUser(response: IAuthUserResponse): IAuthUser {
   return {
     id: response.id,
     username: response.username,
     isSuperUser: response.super_user,
-    roles: response.roles,
-    permissions: response.permissions,
+    roles: sortNames(response.roles),
+    permissions: sortNames(response.permissions),
     createdAt: response.created_at,
     lastLoginAt: response.last_login_at,
   };

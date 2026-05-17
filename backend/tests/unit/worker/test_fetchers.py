@@ -62,7 +62,7 @@ def test_get_updated_after_calls_fetch_all(fetcher_class, endpoint):
 
     # Check if the overriden method was called exactly once
     fetcher.fetch_all.assert_called_once_with(
-        endpoint, {"updated_at[after]": "2024-01-01"}
+        endpoint, {"updated_at[strictly_after]": "2024-01-01"}
     )
 
     assert result == ["data"]

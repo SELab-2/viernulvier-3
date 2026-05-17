@@ -7,5 +7,7 @@ import type { IPermissionResponse } from "../users.types";
 
 export async function listPermissions(apiClient: AxiosInstance = createApiClient()) {
   const response = await apiClient.get<IPermissionResponse[]>(PERMISSIONS_API_PATH);
-  return response.data.map((permission) => permission.name);
+  return response.data
+    .map((permission) => permission.name)
+    .sort((left, right) => left.localeCompare(right));
 }

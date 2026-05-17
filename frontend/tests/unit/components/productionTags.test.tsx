@@ -36,6 +36,7 @@ function TagsTestWrapper({
   isEditing?: boolean;
 }) {
   const [draftTags, setDraftTags] = useState(initialTags);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
   vi.mocked(getAllTags).mockResolvedValue(mockTags);
 
   return (
@@ -44,6 +45,8 @@ function TagsTestWrapper({
       originalTags={initialTags}
       draftTags={draftTags}
       setDraftTags={setDraftTags}
+      newTags={newTags}
+      setNewTags={setNewTags}
       isEditing={isEditing}
       preferredLanguage="en"
     />
@@ -92,15 +95,96 @@ describe("Tags", () => {
     expect(screen.queryByText("Classical")).not.toBeInTheDocument();
   });
 
-  it("does not show already selected tags", async () => {
+  it("shows already selected tags with a checkmark", async () => {
     const user = userEvent.setup();
     vi.mocked(getAllTags).mockResolvedValue(mockTags);
+
     render(<TagsTestWrapper initialTags={[mockTags[0]]} />);
 
     await user.click(screen.getByLabelText("Add Tag"));
-
     const dropdown = screen.getByTestId("tag-dropdown");
-    expect(within(dropdown).queryByText("Classical")).not.toBeInTheDocument();
+
+    expect(within(dropdown).getByText("Classical")).toBeInTheDocument();
     expect(within(dropdown).getByText("Experimental")).toBeInTheDocument();
+
+    const classicalButton = within(dropdown).getByText("Classical").closest("button");
+
+    expect(
+      within(classicalButton as HTMLElement).getByTestId("CheckIcon")
+    ).toBeInTheDocument();
+  });
+
+  it("creates a new tag from the dropdown search", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "TagName");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const dutchInput = screen.getByLabelText(/dutch_tag_name/i);
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
+
+    // english should already be prefilled because preferredLanguage="en"
+    expect(englishInput).toHaveValue("TagName");
+
+    await user.type(dutchInput, "TagName NL");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /create/i,
+      })
+    );
+
+    // newly created tag should appear
+    expect(screen.getByText("TagName")).toBeInTheDocument();
+  });
+
+  it("creates a tag with only one language filled in", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "Noise");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
+    expect(englishInput).toHaveValue("Noise");
+    await user.click(
+      screen.getByRole("button", {
+        name: /create/i,
+      })
+    );
+
+    expect(screen.getByText("Noise")).toBeInTheDocument();
+  });
+
+  it("shows an error and disables submit when creating a duplicate tag", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "Classical");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
+    expect(englishInput).toHaveValue("Classical");
+
+    // duplicate validation message should appear
+    expect(screen.getByText(/tag_already_exists/i)).toBeInTheDocument();
+
+    const createButton = screen.getByRole("button", {
+      name: /create/i,
+    });
+    expect(createButton).toBeDisabled();
   });
 });

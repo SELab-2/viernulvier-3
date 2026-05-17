@@ -10,13 +10,17 @@ import type {
   IUserUpdateRequest,
 } from "../users.types";
 
+function sortNames(values: string[]) {
+  return [...values].sort((left, right) => left.localeCompare(right));
+}
+
 function mapUser(response: IUserResponse): IUser {
   return {
     id: response.id,
     username: response.username,
     isSuperUser: response.super_user,
-    roles: response.roles,
-    permissions: response.permissions,
+    roles: sortNames(response.roles),
+    permissions: sortNames(response.permissions),
     createdAt: response.created_at,
     lastLoginAt: response.last_login_at,
   };

@@ -24,7 +24,7 @@ describe("permissionManagementService", () => {
       .onGet("/api/v1/auth/permissions")
       .reply(200, [{ name: "users:read" }, { name: "archive:create" }]);
 
-    await expect(listPermissions()).resolves.toEqual(["users:read", "archive:create"]);
+    await expect(listPermissions()).resolves.toEqual(["archive:create", "users:read"]);
   });
 
   it("rejects when the server returns an error", async () => {

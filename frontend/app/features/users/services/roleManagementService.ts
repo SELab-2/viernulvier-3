@@ -10,18 +10,24 @@ import type {
   IRoleUpdateRequest,
 } from "../users.types";
 
+function sortNames(values: string[]) {
+  return [...values].sort((left, right) => left.localeCompare(right));
+}
+
 function mapRole(response: IRoleResponse): IRole {
   const parts = response.id_url.split("/");
   return {
     id: parseInt(parts[parts.length - 1], 10),
     name: response.name,
-    permissions: response.permissions,
+    permissions: sortNames(response.permissions),
   };
 }
 
 export async function listRoles(apiClient: AxiosInstance = createApiClient()) {
   const response = await apiClient.get<IRoleResponse[]>(ROLES_API_PATH);
-  return response.data.map(mapRole);
+  return response.data
+    .map(mapRole)
+    .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 export async function createRole(
