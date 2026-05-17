@@ -179,9 +179,12 @@ export function CreateProductionPage() {
     }
   }, [blocker, t]);
 
+  const isCancellingRef = useRef(false);
+
   const handleCancel = () => {
     if (isModified) {
-      setIsCancelling(true); // triggert re-render → blocker uit → useEffect hieronder
+      isCancellingRef.current = true;
+      setIsCancelling(true);
     } else {
       skipWarning.current = true;
       navigate("/archive");
@@ -190,13 +193,17 @@ export function CreateProductionPage() {
 
   useEffect(() => {
     if (!isCancelling) return;
+    if (!isCancellingRef.current) return;
+    isCancellingRef.current = false;
+
     const confirmed = window.confirm(t("notSaveChanges"));
     if (confirmed) {
       skipWarning.current = true;
       navigate("/archive");
+    } else {
+      setIsCancelling(false);
     }
-    setIsCancelling(false);
-  }, [isCancelling]);
+  }, [isCancelling, t, navigate]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
