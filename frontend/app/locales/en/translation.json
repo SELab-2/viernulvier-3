@@ -117,6 +117,16 @@
         "dateLabel": "Unknown date",
         "venueLabel": "Unknown"
       }
+    },
+    "media": {
+      "title": "Media",
+      "bannerHint": "★ marks the banner image",
+      "dropMedia": "Drop files here or",
+      "browse": "browse",
+      "acceptedFormats": "Images & videos",
+      "isBanner": "Banner image",
+      "setBanner": "Set as banner",
+      "remove": "Remove"
     }
   },
   "editfield": {
