@@ -190,7 +190,7 @@
       "no_tags": "Geen tags gevonden",
       "delete": "Verwijder",
       "confirmDeleteTitle": "Verwijder media?",
-      "confirmDeleteBody": "Bent u zeker dat dit bestand verwijderd mag worden? Deze actie kan niet ongedaan gemaakt worden."
+      "confirmDeleteBody": "Bent u zeker dat dit bestand verwijderd mag worden? Deze actie kan niet ongedaan gemaakt worden.",
       "create_new_tag": "Maak nieuwe tag \"{{tag}}\" aan",
       "create_tag": "Tag aanmaken",
       "create_tag_description": "Voer de Nederlandse en Engelse naam van de tag in.",
