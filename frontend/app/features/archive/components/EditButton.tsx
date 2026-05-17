@@ -23,6 +23,7 @@ type EditButtonProps = {
   setDraftEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>;
+  setNewTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   setDraftAttendanceMode: React.Dispatch<React.SetStateAction<string>>;
   setDraftPerformerType: React.Dispatch<React.SetStateAction<string>>;
   originalAttendanceMode: string;
@@ -46,6 +47,7 @@ export function EditButton({
   setDraftEvents,
   setNewEvents,
   setDeletedEvents,
+  setNewTags,
   setDraftAttendanceMode,
   setDraftPerformerType,
   originalAttendanceMode,
@@ -87,10 +89,10 @@ export function EditButton({
               if (_handleCancel) {
                 _handleCancel();
               } else {
-                // Copy (not by reference)
                 if (enable_save && !window.confirm(t("notSaveChanges"))) {
                   return;
                 }
+                // Copy (not by reference)
                 setDraftInfo(originalInfo ? { ...originalInfo } : null);
                 setDraftTags(originalTags ? [...originalTags] : []);
                 setDraftEvents(
@@ -98,6 +100,7 @@ export function EditButton({
                 );
                 setNewEvents([]);
                 setDeletedEvents([]);
+                setNewTags([]);
                 setIsEditing(false);
                 setDraftAttendanceMode(originalAttendanceMode);
                 setDraftPerformerType(originalPerformerType);

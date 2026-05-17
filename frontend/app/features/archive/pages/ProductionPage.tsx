@@ -42,6 +42,7 @@ import EventSection from "../components/EventSection";
 import Tags from "../components/TagSection";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
+import { createTag } from "../services/tagService";
 
 interface ProductionPageProps {
   production: Production;
@@ -172,6 +173,9 @@ async function handleInfoSave(
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   deletedEvents: EventWithResolvedRelations[],
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  newTags: Tag[],
+  setNewTags: React.Dispatch<React.SetStateAction<Tag[]>>,
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
@@ -241,6 +245,35 @@ async function handleInfoSave(
 
       await deleteByUrl(event.id_url);
     }
+
+    const createdTags: Tag[] = [];
+    for (const tag of newTags) {
+      const createdTag = await createTag({
+        names: tag.names,
+      });
+
+      createdTags.push(createdTag);
+    }
+
+    const persistedTags = [...draftTags, ...createdTags];
+
+    await updateProductionByUrl(production_id_url, {
+      attendance_mode: attendance_mode,
+      performer_type: performer_type,
+      production_infos: [
+        {
+          language: language,
+          title: draftInfo.title,
+          supertitle: draftInfo.supertitle,
+          artist: draftInfo.artist,
+          tagline: draftInfo.tagline,
+          teaser: draftInfo.teaser,
+          description: draftInfo.description,
+          info: draftInfo.info,
+        },
+      ],
+      tag_id_urls: persistedTags.map((tag) => tag.id_url),
+    });
 
     // Handle price changes for existing events
     const finalDraftEvents = [...draftEvents];
@@ -334,7 +367,9 @@ async function handleInfoSave(
     // sync local "source of truth"
     setOriginalAttendanceMode(attendance_mode);
     setOriginalPerformerType(performer_type);
-    setOriginalTags(draftTags);
+    setOriginalTags(persistedTags);
+    setDraftTags(persistedTags);
+    setNewTags([]);
     setOriginalInfo(draftInfo);
     setOriginalEvents([...finalDraftEvents, ...finalCreatedEvents]);
     setDraftEvents([...finalDraftEvents, ...finalCreatedEvents]);
@@ -383,6 +418,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
   const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
 
   // General Info
   const [draftPerformerType, setDraftPerformerType] = useState<string>(
@@ -420,6 +456,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setNewEvents,
       deletedEvents,
       setDeletedEvents,
+      newTags,
+      setNewTags,
+      setDraftTags,
       setIsEditing,
       setIsSaving,
       language,
@@ -447,7 +486,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     const generalModified =
       originalAttendanceMode !== draftAttendanceMode ||
       originalPerformerType !== draftPerformerType;
-    const tagsModified = areTagsModified(originalTags, draftTags);
+    const tagsModified = areTagsModified(originalTags, draftTags) || newTags.length > 0;
     return (
       tagsModified ||
       generalModified ||
@@ -465,6 +504,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     draftAttendanceMode,
     originalPerformerType,
     draftPerformerType,
+    newTags,
   ]);
 
   const productionNumericId = useMemo(() => {
@@ -665,6 +705,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           originalTags={originalTags}
           draftTags={draftTags}
           setDraftTags={setDraftTags}
+          newTags={newTags}
+          setNewTags={setNewTags}
           isEditing={isEditing}
         />
 
@@ -748,6 +790,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setNewTags={setNewTags}
             setDraftAttendanceMode={setDraftAttendanceMode}
             setDraftPerformerType={setDraftPerformerType}
             originalAttendanceMode={originalAttendanceMode}
@@ -781,6 +824,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setNewTags={setNewTags}
             setDraftAttendanceMode={setDraftAttendanceMode}
             setDraftPerformerType={setDraftPerformerType}
             originalAttendanceMode={originalAttendanceMode}

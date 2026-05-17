@@ -18,6 +18,7 @@ import Tags from "../components/TagSection";
 import EventSection from "../components/EventSection";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { createTag } from "../services/tagService";
 import { uploadMedia } from "../services/mediaService";
 import { MediaUploadWidget } from "../components/MediaUploadWidget";
 
@@ -42,6 +43,7 @@ async function handleAddProduction(
   draftInfo: ProductionInfo | null,
   draftTags: Tag[],
   draftEvents: EventWithResolvedRelations[],
+  newTags: Tag[],
   mediaFiles: File[],
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
@@ -53,6 +55,16 @@ async function handleAddProduction(
   setIsSaving(true);
 
   try {
+    const newCreatedTags = await Promise.all(
+      newTags.map(async (event) => {
+        return await createTag({
+          names: event.names,
+        });
+      })
+    );
+
+    const allTags = [...draftTags, ...newCreatedTags];
+
     const response = await createProduction({
       attendance_mode: attendanceMode,
       performer_type: performerType,
@@ -66,7 +78,7 @@ async function handleAddProduction(
         description: draftInfo.description,
         info: draftInfo.info,
       },
-      tag_id_urls: draftTags.map((tag) => tag.id_url),
+      tag_id_urls: allTags.map((tag) => tag.id_url),
     });
     skipWarning.current = true;
     setSkipWarning(true);
@@ -147,6 +159,7 @@ export function CreateProductionPage() {
     info: "",
   });
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(
@@ -163,6 +176,7 @@ export function CreateProductionPage() {
     return (
       draftTags.length > 0 ||
       draftEvents.length > 0 ||
+      newTags.length > 0 ||
       mediaFiles.length > 0 ||
       isInfoModified(draftInfo) ||
       isQuillDirty ||
@@ -177,6 +191,7 @@ export function CreateProductionPage() {
     draftAttendanceMode,
     draftPerformerType,
     mediaFiles,
+    newTags,
   ]);
 
   const [isCancelling, setIsCancelling] = useState(false);
@@ -219,6 +234,7 @@ export function CreateProductionPage() {
       draftInfo,
       draftTags,
       draftEvents,
+      newTags,
       mediaFiles,
       setIsSaving,
       t("archive.create_error"),
@@ -275,6 +291,8 @@ export function CreateProductionPage() {
               originalTags={[]}
               draftTags={draftTags}
               setDraftTags={setDraftTags}
+              newTags={newTags}
+              setNewTags={setNewTags}
               isEditing={true}
             />
             <ProductionGeneralInfo
@@ -334,6 +352,7 @@ export function CreateProductionPage() {
             setDraftEvents={() => {}}
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
+            setNewTags={() => {}}
             enable_save={isModified}
             setDraftAttendanceMode={() => {}}
             setDraftPerformerType={() => {}}

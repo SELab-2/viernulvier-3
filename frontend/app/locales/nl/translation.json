@@ -181,7 +181,14 @@
       "teaser": "Teaser",
       "info": "Info",
       "search_tags": "Zoek tags...",
-      "no_tags": "Geen tags gevonden"
+      "create_new_tag": "Maak nieuwe tag \"{{tag}}\" aan",
+      "create_tag": "Tag aanmaken",
+      "create_tag_description": "Voer de Nederlandse en Engelse naam van de tag in.",
+      "english_tag_name": "Engelse naam",
+      "dutch_tag_name": "Nederlandse naam",
+      "tag_already_exists": "Tag bestaat al",
+      "no_tags": "Geen tags gevonden",
+      "create": "Aanmaken"
     },
     "delete": {
       "delete": "Verwijder info (nl)",

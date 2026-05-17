@@ -900,7 +900,7 @@ const bannerSx = {
   "& .MuiAlert-icon": { color: "var(--archive-accent)" },
 };
 
-const secondaryButtonSx = {
+export const secondaryButtonSx = {
   py: 1.15,
   px: 2.35,
   borderRadius: "999px",
@@ -913,7 +913,7 @@ const secondaryButtonSx = {
   border: "1px solid var(--archive-border)",
 };
 
-const primaryButtonSx = {
+export const primaryButtonSx = {
   ...secondaryButtonSx,
   "color": "#f6f0e8",
   "borderColor": "transparent",
@@ -932,7 +932,7 @@ const dangerButtonSx = {
   },
 };
 
-const dialogTitleSx = {
+export const dialogTitleSx = {
   fontFamily: "var(--font-serif)",
   fontStyle: "italic",
   fontSize: "1.9rem",
@@ -942,14 +942,14 @@ const dialogTitleSx = {
   pt: 3,
 };
 
-const dialogContentSx = {
+export const dialogContentSx = {
   pt: "0.25rem !important",
   pb: 1,
   px: 3,
   color: "var(--archive-ink)",
 };
 
-const dialogActionsSx = {
+export const dialogActionsSx = {
   px: 3,
   pt: 2,
   pb: 3,
@@ -957,7 +957,7 @@ const dialogActionsSx = {
   borderTop: "1px solid var(--archive-border)",
 };
 
-const dialogPaperSx = {
+export const dialogPaperSx = {
   borderRadius: "1.75rem",
   border: "1px solid var(--archive-border)",
   backgroundColor: "var(--archive-surface-strong)",
@@ -966,7 +966,7 @@ const dialogPaperSx = {
   boxShadow: "0 28px 90px rgba(0, 0, 0, 0.24)",
 };
 
-const dialogBackdropSx = {
+export const dialogBackdropSx = {
   backgroundColor: "rgba(17, 16, 14, 0.48)",
   backdropFilter: "blur(4px)",
 };

@@ -180,8 +180,15 @@
       "description": "Description",
       "teaser": "Teaser",
       "info": "Info",
+      "english_tag_name": "English name",
+      "dutch_tag_name": "Dutch name",
       "search_tags": "Search tags...",
-      "no_tags": "No tags found"
+      "create_new_tag": "Create new tag \"{{tag}}\"",
+      "create_tag": "Create tag",
+      "create_tag_description": "Enter the Dutch and English names for the tag.",
+      "tag_already_exists": "Tag already exists",
+      "no_tags": "No tags found",
+      "create": "Create"
     },
     "delete": {
       "delete": "Delete info (en)",
