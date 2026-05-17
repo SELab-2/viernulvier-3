@@ -37,7 +37,7 @@ describe("roleManagementService", () => {
       {
         id: 3,
         name: "editor",
-        permissions: ["users:read", "archive:write"],
+        permissions: ["archive:write", "users:read"],
       },
     ]);
   });
@@ -71,7 +71,7 @@ describe("roleManagementService", () => {
     ).resolves.toEqual({
       id: 7,
       name: "moderator",
-      permissions: ["users:read", "archive:create"],
+      permissions: ["archive:create", "users:read"],
     });
 
     expect(mockAdapter.history.post[0].data).toBe(
