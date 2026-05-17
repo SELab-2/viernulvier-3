@@ -71,7 +71,7 @@ export function MediaUploadWidget({
   }
 
   return (
-    <div className="mt-2">
+    <div id="media-upload-widget" className="mt-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-archive-ink/70 text-xs font-bold tracking-[0.2em] uppercase">
           {t("archive.media.title")}
