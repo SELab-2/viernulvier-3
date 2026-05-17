@@ -52,7 +52,9 @@ const baseProps = {
 function renderGallery(props: Partial<typeof baseProps & { isEditing: boolean }> = {}) {
   return {
     user: userEvent.setup(),
-    ...render(<ProductionPageMediaGallery {...baseProps} isEditing={false} {...props} />),
+    ...render(
+      <ProductionPageMediaGallery {...baseProps} isEditing={false} {...props} />
+    ),
   };
 }
 
@@ -177,8 +179,12 @@ describe("ProductionPageMediaGallery", () => {
       await user.click(deleteButtons[0]);
 
       expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(screen.getByText("productionPage.edit.confirmDeleteTitle")).toBeInTheDocument();
-      expect(screen.getByText("productionPage.edit.confirmDeleteBody")).toBeInTheDocument();
+      expect(
+        screen.getByText("productionPage.edit.confirmDeleteTitle")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("productionPage.edit.confirmDeleteBody")
+      ).toBeInTheDocument();
     });
 
     it("closes the dialog without deleting when cancel is clicked", async () => {
@@ -188,9 +194,13 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Cancel" }));
+      await user.click(
+        screen.getByRole("button", { name: "I18N_ProductionPage_Edit_Cancel" })
+      );
 
-      expect(screen.queryByText("productionPage.edit.confirmDeleteTitle")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("productionPage.edit.confirmDeleteTitle")
+      ).not.toBeInTheDocument();
       expect(vi.mocked(deleteMedia)).not.toHaveBeenCalled();
     });
 
@@ -201,7 +211,9 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       await waitFor(() => {
         expect(vi.mocked(deleteMedia)).toHaveBeenCalledWith(1, 10);
@@ -216,7 +228,9 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       await waitFor(() => {
         expect(screen.getAllByRole("img")).toHaveLength(1);
@@ -230,10 +244,14 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       await waitFor(() => {
-        expect(screen.queryByText("productionPage.edit.confirmDeleteTitle")).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("productionPage.edit.confirmDeleteTitle")
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -245,7 +263,9 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       await waitFor(() => {
         expect(setMediaEdited).toHaveBeenCalledWith(true);
@@ -265,9 +285,13 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
-      expect(screen.getByRole("button", { name: "productionPage.edit.delete" })).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      ).toBeDisabled();
 
       resolveDelete();
     });
@@ -284,7 +308,9 @@ describe("ProductionPageMediaGallery", () => {
         name: "productionPage.deleteMedia",
       });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       expect(await screen.findByText("productionPage.noImagesYet")).toBeInTheDocument();
     });
@@ -374,7 +400,9 @@ describe("ProductionPageMediaGallery", () => {
 
       const images = await screen.findAllByRole("img");
       await user.click(images[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.closeLightbox" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.closeLightbox" })
+      );
 
       expect(
         screen.queryByRole("button", { name: "productionPage.closeLightbox" })
@@ -426,9 +454,13 @@ describe("ProductionPageMediaGallery", () => {
       await user.click(images[0]);
 
       // delete from within the lightbox (or gallery card — either triggers same flow)
-      const deleteButtons = screen.getAllByRole("button", { name: "productionPage.deleteMedia" });
+      const deleteButtons = screen.getAllByRole("button", {
+        name: "productionPage.deleteMedia",
+      });
       await user.click(deleteButtons[0]);
-      await user.click(screen.getByRole("button", { name: "productionPage.edit.delete" }));
+      await user.click(
+        screen.getByRole("button", { name: "productionPage.edit.delete" })
+      );
 
       await waitFor(() => {
         expect(
