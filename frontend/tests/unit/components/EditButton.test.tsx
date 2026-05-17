@@ -121,6 +121,7 @@ describe("EditButton", () => {
   });
 
   it("restores original values when cancel is clicked", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
     const user = userEvent.setup();
 
     renderEditButton({ isEditing: true });

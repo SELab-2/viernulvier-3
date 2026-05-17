@@ -1,7 +1,7 @@
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
-import { useNavigate, useParams } from "react-router";
+import { useBlocker, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
@@ -9,7 +9,6 @@ import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
 import {
   getSanitizedHtmlOrUndefined,
-  useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
 import type { Tag } from "../types/tagTypes";
@@ -19,6 +18,8 @@ import Tags from "../components/TagSection";
 import EventSection from "../components/EventSection";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { uploadMedia } from "../services/mediaService";
+import { MediaUploadWidget } from "../components/MediaUploadWidget";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -41,6 +42,7 @@ async function handleAddProduction(
   draftInfo: ProductionInfo | null,
   draftTags: Tag[],
   draftEvents: EventWithResolvedRelations[],
+  mediaFiles: File[],
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
@@ -70,16 +72,29 @@ async function handleAddProduction(
     setSkipWarning(true);
 
     await Promise.all(
-      draftEvents.map((event) => {
+      draftEvents.map((event) =>
         createEvent({
           production_id_url: response["id_url"],
           hall_id_url: event.hall?.id_url,
           starts_at: event.starts_at,
           ends_at: event.ends_at,
           order_url: event.order_url,
-        });
-      })
+        })
+      )
     );
+
+    // Upload media sequentially so the first file (banner) always lands first.
+    if (mediaFiles.length > 0) {
+      const productionNumericId = response["id_url"].match(
+        /\/productions\/(\d+)(?:[/?#]|$)/
+      )?.[1];
+      if (productionNumericId) {
+        const id = parseInt(productionNumericId, 10);
+        for (const file of mediaFiles) {
+          await uploadMedia(id, file);
+        }
+      }
+    }
 
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
@@ -133,24 +148,68 @@ export function CreateProductionPage() {
   });
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(
+    undefined
+  );
 
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
-  const [skipWarningState, setSkipWarningState] = useState(false);
 
-  useUnsavedChangesBlocker(
-    !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
-  );
   const navigate = useNavigate();
+
   const isModified = useMemo(() => {
     return (
       draftTags.length > 0 ||
       draftEvents.length > 0 ||
+      mediaFiles.length > 0 ||
       isInfoModified(draftInfo) ||
-      isQuillDirty
+      isQuillDirty ||
+      draftAttendanceMode !== "" ||
+      draftPerformerType !== ""
     );
-  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
+  }, [
+    draftInfo,
+    draftTags,
+    isQuillDirty,
+    draftEvents,
+    draftAttendanceMode,
+    draftPerformerType,
+    mediaFiles,
+  ]);
+
+  const [isCancelling, setIsCancelling] = useState(false);
+  const blocker = useBlocker(!isSaving && !isCancelling && isModified);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirmed = window.confirm(t("notSaveChanges"));
+      if (confirmed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, t]);
+
+  const handleCancel = () => {
+    if (isModified) {
+      setIsCancelling(true);
+      queueMicrotask(() => {
+        const confirmed = window.confirm(t("notSaveChanges"));
+        if (confirmed) {
+          skipWarning.current = true;
+          navigate("/archive");
+        } else {
+          setIsCancelling(false);
+        }
+      });
+    } else {
+      skipWarning.current = true;
+      navigate("/archive");
+    }
+  };
 
   const _handleAddProduction = () =>
     handleAddProduction(
@@ -160,22 +219,18 @@ export function CreateProductionPage() {
       draftInfo,
       draftTags,
       draftEvents,
+      mediaFiles,
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
-      setSkipWarningState,
+      () => {},
       navigate
     );
-  // TODO
-  const fallbackImageUrl =
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrl = fallbackImageUrl;
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
-  // warning if going to another url when edits are not saved.
   const isModifiedRef = useRef(false);
   const isQuillDirtyRef = useRef(false);
 
@@ -204,7 +259,10 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          image_url={imageUrl}
+          image_url={
+            bannerPreviewUrl ??
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          }
           isEditing={true}
           originalInfo={null}
           draftInfo={draftInfo}
@@ -259,6 +317,10 @@ export function CreateProductionPage() {
               newEvents={draftEvents}
               setNewEvents={setDraftEvents}
             />
+            <MediaUploadWidget
+              onFilesChange={setMediaFiles}
+              onBannerUrlChange={setBannerPreviewUrl}
+            />
           </article>
         </section>
         <div className="fixed right-6 bottom-6 z-50 flex gap-3">
@@ -279,6 +341,7 @@ export function CreateProductionPage() {
             originalPerformerType=""
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
+            _handleCancel={handleCancel}
             originalTags={null}
             setDraftTags={() => {}}
             permissions={[ARCHIVE_PERMISSIONS.create]}

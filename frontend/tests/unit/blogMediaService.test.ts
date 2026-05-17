@@ -57,7 +57,7 @@ describe("blog mediaService", () => {
         pagination,
       };
 
-      mockAdapter.onGet("/api/v1/archive/blogs/1/media/").reply(200, mockMediaList);
+      mockAdapter.onGet("/api/v1/archive/blogs/1/media").reply(200, mockMediaList);
 
       const result = await getMediaForBlog(1);
 
@@ -71,7 +71,7 @@ describe("blog mediaService", () => {
         pagination: { has_more: false, total_count: 0 },
       };
 
-      mockAdapter.onGet("/api/v1/archive/blogs/1/media/").reply(200, mockMediaList);
+      mockAdapter.onGet("/api/v1/archive/blogs/1/media").reply(200, mockMediaList);
 
       const result = await getMediaForBlog(1);
 

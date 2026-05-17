@@ -109,7 +109,7 @@ function renderPage(blog: Blog, preferredLanguage: string = "nl") {
 
 const baseBlog: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_group_id_url: "",
+  series_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -128,7 +128,7 @@ const baseBlog: Blog = {
 
 const baseBlogOneLanguage: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_group_id_url: "",
+  series_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -141,7 +141,7 @@ const baseBlogOneLanguage: Blog = {
 
 const baseBlogEmptyContent: Blog = {
   id_url: "http://localhost/api/v1/blogs/1",
-  production_group_id_url: "",
+  series_id_url: "",
   blog_contents: [
     {
       language: "nl",
@@ -153,7 +153,7 @@ const baseBlogEmptyContent: Blog = {
 };
 
 const baseProdGroup: ProductionGroup = {
-  id_url: "http://localhost/api/v1/production-groups/1",
+  id_url: "http://localhost/api/v1/archive/series/1",
   title: "foo",
   is_public_filter: true,
   production_id_urls: [],
@@ -228,7 +228,7 @@ describe("BlogContentPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("loads and renders linked productions via production group", async () => {
+  it("loads and renders linked productions via series", async () => {
     const getProductionsForGroupMock = vi.mocked(getProductionsForGroup);
     const mockProduction: Production = {
       id_url: "http://localhost/api/v1/archive/productions/1",
@@ -250,7 +250,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/series/1",
       },
       "nl"
     );
@@ -270,7 +270,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/99",
+        series_id_url: "http://localhost/api/v1/archive/series/99",
       },
       "nl"
     );
@@ -319,7 +319,7 @@ describe("BlogContentPage", () => {
     renderPage(
       {
         ...baseBlog,
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/series/1",
       },
       "nl"
     );
@@ -669,13 +669,13 @@ describe("BlogContentPage", () => {
     it("enables the save button when selected production is changed", async () => {
       vi.mocked(getAllProductionGroups).mockResolvedValue([
         {
-          id_url: "http://localhost/api/v1/production-groups/1",
+          id_url: "http://localhost/api/v1/archive/series/1",
           title: "foo",
           is_public_filter: true,
           production_id_urls: [],
         },
         {
-          id_url: "http://localhost/api/v1/production-groups/2",
+          id_url: "http://localhost/api/v1/archive/series/2",
           title: "bar",
           is_public_filter: true,
           production_id_urls: [],
@@ -694,13 +694,13 @@ describe("BlogContentPage", () => {
     it("calls updateBlogByUrl with the new production group on save", async () => {
       vi.mocked(getAllProductionGroups).mockResolvedValue([
         {
-          id_url: "http://localhost/api/v1/production-groups/1",
+          id_url: "http://localhost/api/v1/archive/series/1",
           title: "foo",
           is_public_filter: true,
           production_id_urls: [],
         },
         {
-          id_url: "http://localhost/api/v1/production-groups/2",
+          id_url: "http://localhost/api/v1/archive/series/2",
           title: "bar",
           is_public_filter: true,
           production_id_urls: [],

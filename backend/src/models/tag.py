@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from src.database import Base
 from src.models.associations import prod_tags
 
@@ -13,7 +14,12 @@ class Tag(Base):
     viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
     names = relationship("TagName", back_populates="tag")
-    productions = relationship("Production", secondary=prod_tags, back_populates="tags")
+    productions = relationship(
+        "Production",
+        secondary=prod_tags,
+        back_populates="tags",
+        passive_deletes=True,
+    )
 
 
 class TagName(Base):

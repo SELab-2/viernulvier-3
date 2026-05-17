@@ -1,6 +1,7 @@
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { useTranslation } from "react-i18next";
 import type { Hall } from "../types/hallTypes";
+import type { Price } from "../types/eventTypes";
 import type { EventWithResolvedRelations } from "./EventCard";
 import { useEffect, useMemo, useState } from "react";
 import { Protected } from "~/features/auth";
@@ -38,6 +39,258 @@ function HallDropdown({
   );
 }
 
+const INPUT_CLASS =
+  "border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none";
+
+function PriceForm({
+  isNewPrice,
+  draftAmount,
+  setDraftAmount,
+  draftAvailable,
+  setDraftAvailable,
+  onCancel,
+  onSave,
+  saveDisabled,
+}: {
+  isNewPrice: boolean;
+  draftAmount: string;
+  setDraftAmount: (v: string) => void;
+  draftAvailable: string;
+  setDraftAvailable: (v: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+  saveDisabled: boolean;
+}) {
+  const { t } = useTranslation();
+
+  const formFields = (
+    <>
+      <div className="flex items-center gap-2">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+          {t("productionPage.price.amountLabel")}
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          value={draftAmount}
+          onChange={(e) => setDraftAmount(e.target.value)}
+          placeholder="0.00"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+          {t("productionPage.price.availableLabel")}
+        </label>
+        <input
+          type="number"
+          value={draftAvailable}
+          onChange={(e) => setDraftAvailable(e.target.value)}
+          placeholder="—"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
+        >
+          {t("productionPage.edit.cancel")}
+        </button>
+        <button
+          type={isNewPrice ? "submit" : "button"}
+          onClick={isNewPrice ? undefined : onSave}
+          disabled={saveDisabled}
+          className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {isNewPrice
+            ? t("productionPage.price.addLabel")
+            : t("productionPage.edit.save")}
+        </button>
+      </div>
+    </>
+  );
+
+  const containerClass = isNewPrice
+    ? "flex flex-col gap-2 rounded-lg border border-dashed border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] p-2"
+    : "flex flex-col gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] p-2";
+
+  if (isNewPrice) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave();
+        }}
+        className={containerClass}
+      >
+        {formFields}
+      </form>
+    );
+  }
+
+  return <div className={containerClass}>{formFields}</div>;
+}
+
+type EditablePriceRowProps = {
+  price: Price;
+  onUpdate: (updatedPrice: Price) => void;
+  onDelete: () => void;
+};
+
+function EditablePriceRow({ price, onUpdate, onDelete }: EditablePriceRowProps) {
+  const { t } = useTranslation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftAmount, setDraftAmount] = useState<string>(
+    price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
+  );
+  const [draftAvailable, setDraftAvailable] = useState<string>(
+    price.available !== null && price.available !== undefined
+      ? String(price.available)
+      : ""
+  );
+
+  const isModified =
+    draftAmount !==
+      (price.amount !== null && price.amount !== undefined
+        ? String(price.amount)
+        : "") ||
+    draftAvailable !==
+      (price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : "");
+
+  function startEditing() {
+    setDraftAmount(
+      price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
+    );
+    setDraftAvailable(
+      price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : ""
+    );
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setDraftAmount(
+      price.amount !== null && price.amount !== undefined ? String(price.amount) : ""
+    );
+    setDraftAvailable(
+      price.available !== null && price.available !== undefined
+        ? String(price.available)
+        : ""
+    );
+    setIsEditing(false);
+  }
+
+  function saveEditing() {
+    const updated: Price = { ...price };
+    const parsedAmount = parseFloat(draftAmount);
+    updated.amount = isNaN(parsedAmount) ? undefined : parsedAmount;
+
+    const parsedAvailable = parseInt(draftAvailable, 10);
+    updated.available = isNaN(parsedAvailable) ? undefined : parsedAvailable;
+
+    onUpdate(updated);
+    setIsEditing(false);
+  }
+
+  function handleDelete() {
+    const confirmed = window.confirm(t("productionPage.price.deleteConfirm"));
+    if (!confirmed) return;
+    onDelete();
+  }
+
+  if (isEditing) {
+    return (
+      <PriceForm
+        isNewPrice={false}
+        draftAmount={draftAmount}
+        setDraftAmount={setDraftAmount}
+        draftAvailable={draftAvailable}
+        setDraftAvailable={setDraftAvailable}
+        onCancel={cancelEditing}
+        onSave={saveEditing}
+        saveDisabled={!isModified}
+      />
+    );
+  }
+
+  return (
+    <div className="group/price flex items-center justify-between gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] p-2">
+      <div className="text-sm">
+        {price.amount !== null && price.amount !== undefined
+          ? new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "EUR",
+            }).format(price.amount)
+          : t("productionPage.noPrice")}
+        {price.available !== null && price.available !== undefined && (
+          <span className="ml-2 text-xs opacity-60">
+            ({price.available} {t("productionPage.price.available")})
+          </span>
+        )}
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
+          <button
+            onClick={startEditing}
+            className="text-[0.62rem] tracking-[0.12em] uppercase opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
+            aria-label={t("productionPage.price.edit")}
+          >
+            {t("productionPage.price.edit")}
+          </button>
+        </Protected>
+        <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+          <button
+            onClick={handleDelete}
+            className="text-[0.62rem] tracking-[0.12em] text-red-400 uppercase opacity-0 transition group-hover/price:opacity-60 hover:!opacity-100"
+            aria-label={t("productionPage.price.deleteLabel")}
+          >
+            {t("productionPage.price.deleteLabel")}
+          </button>
+        </Protected>
+      </div>
+    </div>
+  );
+}
+
+type AddPriceFormProps = {
+  onCreated: (price: Price) => void;
+  onCancel: () => void;
+};
+
+function AddPriceForm({ onCreated, onCancel }: AddPriceFormProps) {
+  const [draftAmount, setDraftAmount] = useState("");
+  const [draftAvailable, setDraftAvailable] = useState("");
+
+  function handleSave() {
+    const newPrice: Price = {
+      id_url: `temp-price-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      amount: isNaN(parseFloat(draftAmount)) ? undefined : parseFloat(draftAmount),
+      available: isNaN(parseInt(draftAvailable, 10))
+        ? undefined
+        : parseInt(draftAvailable, 10),
+    };
+    onCreated(newPrice);
+  }
+
+  return (
+    <PriceForm
+      isNewPrice
+      draftAmount={draftAmount}
+      setDraftAmount={setDraftAmount}
+      draftAvailable={draftAvailable}
+      setDraftAvailable={setDraftAvailable}
+      onCancel={onCancel}
+      onSave={handleSave}
+      saveDisabled={false}
+    />
+  );
+}
+
 export default function EditableEventCard({
   event,
   halls,
@@ -56,6 +309,8 @@ export default function EditableEventCard({
   const { t } = useTranslation();
   const { lang } = useParams();
   const language = preferredLanguage ?? lang;
+
+  const [isAddingPrice, setIsAddingPrice] = useState(false);
 
   const [hallName, debouncedHallName, setHallname] = useDebouncedState<string>(
     event.hall ? getHallNameForLang(event.hall, language) : ""
@@ -78,7 +333,6 @@ export default function EditableEventCard({
   );
 
   const isValidHall = debouncedHallName.trim() === "" || matchingHall !== undefined;
-
   // When typing input check if input matches hall
   useEffect(() => {
     const normalizedInput = debouncedHallName.trim();
@@ -91,7 +345,6 @@ export default function EditableEventCard({
     const currentHallId = event.hall?.id_url;
     const nextHallId = nextHall?.id_url;
 
-    // Prevent unnecessary updates
     if (currentHallId === nextHallId) {
       return;
     }
@@ -110,8 +363,26 @@ export default function EditableEventCard({
 
   const dateTimeStyle = `border-archive-accent/95 w-full rounded-md border px-2 py-1 text-sm font-semibold opacity-95 md:text-base ${isInvalidDate && invalidClass}`;
 
+  function handlePriceUpdate(updatedPrice: Price) {
+    const updatedPrices = event.resolvedPrices.map((p) =>
+      p.id_url === updatedPrice.id_url ? updatedPrice : p
+    );
+    onChange({ ...event, resolvedPrices: updatedPrices });
+  }
+
+  function handlePriceDelete(priceIdUrl: string) {
+    const updatedPrices = event.resolvedPrices.filter((p) => p.id_url !== priceIdUrl);
+    onChange({ ...event, resolvedPrices: updatedPrices });
+  }
+
+  function handlePriceCreated(newPrice: Price) {
+    const updatedPrices = [...event.resolvedPrices, newPrice];
+    onChange({ ...event, resolvedPrices: updatedPrices });
+    setIsAddingPrice(false);
+  }
+
   return (
-    <li className="bg-archive-surface flex justify-between rounded-xl border border-[color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
+    <li className="bg-archive-surface flex flex-col gap-3 rounded-xl border border-[color:color-mix(in_srgb,var(--archive-accent)_15%,transparent)] p-3">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr]">
         {/* Start at Input */}
         <div>
@@ -183,17 +454,54 @@ export default function EditableEventCard({
           </div>
         </div>
       </div>
-      <Protected
-        permissions={!canDeleteWithoutPerms ? [ARCHIVE_PERMISSIONS.delete] : undefined}
-      >
-        <button
-          onClick={onDelete}
-          className="text-red-500 hover:text-red-700"
-          aria-label="Delete Event"
+
+      {/* Prices section */}
+      <div className="flex flex-col gap-2">
+        <p className="text-[0.62rem] tracking-[0.18em] uppercase opacity-55">
+          {t("productionPage.priceLabel")}
+        </p>
+        {event.resolvedPrices.length > 0 &&
+          event.resolvedPrices.map((price) => (
+            <EditablePriceRow
+              key={price.id_url}
+              price={price}
+              onUpdate={handlePriceUpdate}
+              onDelete={() => handlePriceDelete(price.id_url)}
+            />
+          ))}
+        {isAddingPrice && (
+          <AddPriceForm
+            onCreated={handlePriceCreated}
+            onCancel={() => setIsAddingPrice(false)}
+          />
+        )}
+        <Protected permissions={[ARCHIVE_PERMISSIONS.create]}>
+          {!isAddingPrice && (
+            <button
+              onClick={() => setIsAddingPrice(true)}
+              className="text-archive-accent text-[0.62rem] tracking-[0.14em] uppercase opacity-70 transition hover:opacity-100"
+            >
+              + {t("productionPage.price.addLabel")}
+            </button>
+          )}
+        </Protected>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Protected
+          permissions={
+            !canDeleteWithoutPerms ? [ARCHIVE_PERMISSIONS.delete] : undefined
+          }
         >
-          <DeleteOutlined />
-        </button>
-      </Protected>
+          <button
+            onClick={onDelete}
+            className="text-red-500 hover:text-red-700"
+            aria-label="Delete Event"
+          >
+            <DeleteOutlined />
+          </button>
+        </Protected>
+      </div>
     </li>
   );
 }

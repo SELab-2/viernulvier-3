@@ -5,7 +5,7 @@ from src.api.exceptions import NotFoundError, ValidationError
 from src.models.event import Event, EventPrice
 from src.models.hall import Hall, HallName
 from src.models.production import Production
-from src.schemas.event import EventCreate, EventUpdate
+from src.schemas.event import EventCreate, EventUpdate, PriceCreate, PriceUpdate
 from src.services.event_service import (
     create_event,
     delete_event_by_id,
@@ -14,6 +14,9 @@ from src.services.event_service import (
     get_event_price,
     get_prices_for_event,
     update_event,
+    create_price,
+    update_price,
+    delete_price,
 )
 from src.services.production import get_production_by_id
 
@@ -302,3 +305,91 @@ def test_get_event_price_success(db_session, event):
 def test_get_event_price_not_found(db_session, event):
     with pytest.raises(NotFoundError):
         get_event_price(db_session, event.id, 999, BASE_URL)
+
+
+def test_create_price_success(db_session, event):
+    price_in = PriceCreate(amount=15.0, available=100)
+
+    result = create_price(db_session, event.id, price_in, BASE_URL)
+
+    assert result.amount == 15.0
+    assert result.available == 100
+    assert result.id_url == f"{BASE_URL}/events/{event.id}/prices/1"
+
+
+def test_create_price_event_not_found(db_session):
+    price_in = PriceCreate(amount=10.0)
+
+    with pytest.raises(NotFoundError):
+        create_price(db_session, 999, price_in, BASE_URL)
+
+
+def test_create_price_with_optional_fields(db_session, event):
+    price_in = PriceCreate()
+
+    result = create_price(db_session, event.id, price_in, BASE_URL)
+
+    assert result.amount is None
+    assert result.available is None
+    assert result.expires_at is None
+
+
+def test_update_price_success(db_session, event):
+    price = EventPrice(event_id=event.id, amount=10.0, available=50)
+    db_session.add(price)
+    db_session.commit()
+
+    price_in = PriceUpdate(amount=25.0, available=75)
+
+    result = update_price(db_session, event.id, price.id, price_in, BASE_URL)
+
+    assert result.amount == 25.0
+    assert result.available == 75
+
+
+def test_update_price_partial(db_session, event):
+    price = EventPrice(event_id=event.id, amount=10.0, available=50)
+    db_session.add(price)
+    db_session.commit()
+
+    price_in = PriceUpdate(amount=20.0)
+
+    result = update_price(db_session, event.id, price.id, price_in, BASE_URL)
+
+    assert result.amount == 20.0
+    assert result.available == 50
+
+
+def test_update_price_not_found(db_session, event):
+    price_in = PriceUpdate(amount=20.0)
+
+    with pytest.raises(NotFoundError):
+        update_price(db_session, event.id, 999, price_in, BASE_URL)
+
+
+def test_update_price_event_not_found(db_session):
+    price_in = PriceUpdate(amount=20.0)
+
+    with pytest.raises(NotFoundError):
+        update_price(db_session, 999, 1, price_in, BASE_URL)
+
+
+def test_delete_price_success(db_session, event):
+    price = EventPrice(event_id=event.id, amount=10.0, available=50)
+    db_session.add(price)
+    db_session.commit()
+
+    result = delete_price(db_session, event.id, price.id)
+
+    assert result is True
+    assert db_session.query(EventPrice).filter_by(id=price.id).first() is None
+
+
+def test_delete_price_not_found(db_session, event):
+    with pytest.raises(NotFoundError):
+        delete_price(db_session, event.id, 999)
+
+
+def test_delete_price_event_not_found(db_session):
+    with pytest.raises(NotFoundError):
+        delete_price(db_session, 999, 1)

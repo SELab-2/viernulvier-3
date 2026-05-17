@@ -78,11 +78,11 @@ async function getProductionTitlesByLanguage(
   blog: Blog,
   language: string
 ): Promise<string[]> {
-  if (!blog.production_group_id_url || blog.production_group_id_url === "") {
+  if (!blog.series_id_url || blog.series_id_url === "") {
     return [];
   }
 
-  const productionGroup = await getProductionGroupByUrl(blog.production_group_id_url);
+  const productionGroup = await getProductionGroupByUrl(blog.series_id_url);
   const productions = await getProductionsForGroup(productionGroup);
 
   const titles = productions.map((prod) => {

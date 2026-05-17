@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import Optional
+
+from pydantic import Field
 from src.schemas.base_schema import StrictModel
 from src.schemas.pagination import Pagination
 
@@ -15,7 +16,7 @@ class BlogContentResponse(StrictModel):
 # The response for a blog
 class BlogResponse(StrictModel):
     id_url: str
-    production_group_id_url: Optional[str] = None
+    series_id_url: Optional[str] = None
     blog_contents: list[BlogContentResponse] = Field(default_factory=list)
 
 
@@ -35,7 +36,7 @@ class BlogContentCreate(StrictModel):
 # The model for creating a blog
 class BlogCreate(StrictModel):
     blog_content: BlogContentCreate
-    production_group_id_url: Optional[str] = None
+    series_id_url: Optional[str] = None
 
 
 # The model for updating content of a blog in a specific language
@@ -48,5 +49,5 @@ class BlogContentUpdate(StrictModel):
 # The model for updating a blog
 class BlogUpdate(StrictModel):
     blog_contents: list[BlogContentUpdate] = []
-    production_group_id_url: Optional[str] = None
+    series_id_url: Optional[str] = None
     remove_languages: list[str] | None = None
