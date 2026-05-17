@@ -19,6 +19,7 @@ import Tags from "../components/TagSection";
 import EventSection from "../components/EventSection";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { createTag } from "../services/tagService";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -41,6 +42,7 @@ async function handleAddProduction(
   draftInfo: ProductionInfo | null,
   draftTags: Tag[],
   draftEvents: EventWithResolvedRelations[],
+  newTags: Tag[],
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
@@ -51,6 +53,16 @@ async function handleAddProduction(
   setIsSaving(true);
 
   try {
+    const newCreatedTags = await Promise.all(
+      newTags.map(async (event) => {
+        return await createTag({
+          names: event.names,
+        });
+      })
+    );
+
+    const allTags = [...draftTags, ...newCreatedTags];
+
     const response = await createProduction({
       attendance_mode: attendanceMode,
       performer_type: performerType,
@@ -64,7 +76,7 @@ async function handleAddProduction(
         description: draftInfo.description,
         info: draftInfo.info,
       },
-      tag_id_urls: draftTags.map((tag) => tag.id_url),
+      tag_id_urls: allTags.map((tag) => tag.id_url),
     });
     skipWarning.current = true;
     setSkipWarning(true);
@@ -132,6 +144,7 @@ export function CreateProductionPage() {
     info: "",
   });
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
 
   const [isQuillDirty, setIsQuillDirty] = useState(false);
@@ -147,10 +160,11 @@ export function CreateProductionPage() {
     return (
       draftTags.length > 0 ||
       draftEvents.length > 0 ||
+      newTags.length > 0 ||
       isInfoModified(draftInfo) ||
       isQuillDirty
     );
-  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
+  }, [draftInfo, draftTags, isQuillDirty, draftEvents, newTags]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
@@ -160,6 +174,7 @@ export function CreateProductionPage() {
       draftInfo,
       draftTags,
       draftEvents,
+      newTags,
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
@@ -217,6 +232,8 @@ export function CreateProductionPage() {
               originalTags={[]}
               draftTags={draftTags}
               setDraftTags={setDraftTags}
+              newTags={newTags}
+              setNewTags={setNewTags}
               isEditing={true}
             />
             <ProductionGeneralInfo
@@ -272,6 +289,7 @@ export function CreateProductionPage() {
             setDraftEvents={() => {}}
             setNewEvents={() => {}}
             setDeletedEvents={() => {}}
+            setNewTags={() => {}}
             enable_save={isModified}
             setDraftAttendanceMode={() => {}}
             setDraftPerformerType={() => {}}

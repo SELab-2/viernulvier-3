@@ -7,6 +7,14 @@ import { useClickOutside } from "~/shared/hooks/useClickOutside";
 
 import Add from "@mui/icons-material/Add";
 import Close from "@mui/icons-material/Close";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
+import { ArchiveTextField } from "~/shared/components/ArchiveTextField";
 
 // prefer active language, then dutch, then first available tag name
 function getTagNameByLanguage(tag: Tag, language: string) {
@@ -16,6 +24,98 @@ function getTagNameByLanguage(tag: Tag, language: string) {
     if (name.language === "nl") fallback = name.name;
   }
   return fallback;
+}
+
+const dialogPaperSx = {
+  borderRadius: "1.75rem",
+  border: "1px solid var(--archive-border)",
+  backgroundColor: "var(--archive-surface-strong)",
+  color: "var(--archive-ink)",
+  backdropFilter: "blur(18px)",
+  boxShadow: "0 28px 90px rgba(0, 0, 0, 0.24)",
+};
+
+const dialogBackdropSx = {
+  backgroundColor: "rgba(17, 16, 14, 0.48)",
+  backdropFilter: "blur(4px)",
+};
+
+function CreateTagDialog({
+  preferredLanguage,
+  initialValue,
+  isOpen,
+  setIsOpen,
+  onSubmit,
+}: {
+  preferredLanguage: string;
+  initialValue?: string;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onSubmit: (dutchName: string, EnglishName: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [dutchName, setDutchName] = useState(
+    preferredLanguage === "nl" ? (initialValue ?? "") : ""
+  );
+  const [englishName, setEnglishName] = useState(
+    preferredLanguage === "en" ? (initialValue ?? "") : ""
+  );
+  function onClose() {
+    setDutchName("");
+    setEnglishName("");
+  }
+
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        paper: { sx: dialogPaperSx },
+        backdrop: { sx: dialogBackdropSx },
+      }}
+    >
+      <DialogTitle>{t("productionPage.edit.create_tag")}</DialogTitle>
+      <DialogContent>
+        <form
+          id={"create-tag-form-dialog"}
+          onSubmit={() => {}}
+          className="mt-6 flex flex-col gap-5"
+        >
+          <ArchiveTextField
+            label={t("Dutch Name")}
+            autoFocus
+            value={dutchName}
+            onChange={(event) => {
+              setDutchName(event.target.value);
+            }}
+          />
+          <ArchiveTextField
+            label={t("English Name")}
+            autoFocus
+            value={englishName}
+            onChange={(event) => {
+              setEnglishName(event.target.value);
+            }}
+          />
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            setIsOpen(false);
+          }}
+        >
+          {t("users.actions.cancel")}
+        </Button>
+
+        <Button onClick={() => onSubmit(dutchName, englishName)}>
+          {t("productionPage.edit.create")}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 type TagListItemProps = React.LiHTMLAttributes<HTMLLIElement> & {
@@ -37,8 +137,10 @@ type TagsProps = {
   originalTags: Tag[];
   isEditing?: boolean;
   draftTags: Tag[];
+  newTags: Tag[];
   preferredLanguage?: string;
   setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  setNewTags: React.Dispatch<React.SetStateAction<Tag[]>>;
 };
 
 function TagDropdown({
@@ -46,6 +148,8 @@ function TagDropdown({
   allTags,
   selectedTags,
   setSelectedTags,
+  setIsCreateTagDialogOpen,
+  setInitialTagDialogValue,
   setIsOpen,
   language,
 }: {
@@ -54,6 +158,8 @@ function TagDropdown({
   selectedTags: Tag[];
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsCreateTagDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setInitialTagDialogValue: React.Dispatch<React.SetStateAction<string>>;
   language: string;
 }) {
   const { t } = useTranslation();
@@ -124,6 +230,21 @@ function TagDropdown({
             </li>
           ))}
 
+          {search.length > 0 && (
+            <li>
+              <button
+                className="hover:bg-archive-control text-archive-accent flex w-full cursor-pointer items-center rounded-lg px-3 py-2 text-left text-sm transition"
+                onClick={() => {
+                  setInitialTagDialogValue(search);
+                  setIsCreateTagDialogOpen(true);
+                }}
+              >
+                <Add />
+                {t("productionPage.edit.create_new_tag", { tag: search })}
+              </button>
+            </li>
+          )}
+
           {filteredTags.length === 0 && (
             <li className="px-3 py-2 text-sm opacity-60">
               {t("productionPage.edit.no_tags")}
@@ -140,6 +261,8 @@ export default function Tags({
   originalTags,
   draftTags,
   setDraftTags,
+  newTags,
+  setNewTags,
   isEditing,
   preferredLanguage,
 }: TagsProps) {
@@ -147,6 +270,8 @@ export default function Tags({
   const language = preferredLanguage ?? lang!;
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCreateTagDialogOpen, setIsCreateTagDialogOpen] = useState(false);
+  const [initalTagDialogValue, setInitialTagDialogValue] = useState("");
 
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -161,6 +286,9 @@ export default function Tags({
 
   function removeTag(id_url: string) {
     setDraftTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
+  }
+  function removeNewTag(id_url: string) {
+    setNewTags((prev) => prev.filter((tag) => tag.id_url !== id_url));
   }
 
   return (
@@ -202,6 +330,20 @@ export default function Tags({
               </TagListItem>
             ))}
 
+        {isEditing &&
+          newTags &&
+          newTags.map((tag) => (
+            <TagListItem key={tag.id_url}>
+              {getTagNameByLanguage(tag, language)}
+              <Close
+                aria-label={`remove-${getTagNameByLanguage(tag, language)}`}
+                sx={{ fontSize: "1rem" }}
+                className="cursor-pointer text-red-500"
+                onClick={() => removeNewTag(tag.id_url)}
+              />
+            </TagListItem>
+          ))}
+
         {/* Add tag button */}
         {isEditing && (
           <button
@@ -213,12 +355,49 @@ export default function Tags({
             </TagListItem>
           </button>
         )}
+
+        <CreateTagDialog
+          key={`${language}-${initalTagDialogValue}`}
+          preferredLanguage={language}
+          initialValue={initalTagDialogValue}
+          isOpen={isCreateTagDialogOpen}
+          setIsOpen={setIsCreateTagDialogOpen}
+          onSubmit={(dutchName, englishName) => {
+            const names = [];
+
+            if (dutchName.trim()) {
+              names.push({
+                language: "nl",
+                name: dutchName.trim(),
+              });
+            }
+
+            if (englishName.trim()) {
+              names.push({
+                language: "en",
+                name: englishName.trim(),
+              });
+            }
+
+            const newTag: Tag = {
+              id_url: Math.random().toString(36),
+              names,
+            };
+
+            setNewTags((prev) => [...prev, newTag]);
+            setIsCreateTagDialogOpen(false);
+            setInitialTagDialogValue("");
+          }}
+        />
+
         {isDropdownOpen && (
           <TagDropdown
             isLoading={isLoading}
             allTags={allTags}
             selectedTags={draftTags}
             setSelectedTags={setDraftTags}
+            setIsCreateTagDialogOpen={setIsCreateTagDialogOpen}
+            setInitialTagDialogValue={setInitialTagDialogValue}
             setIsOpen={setIsDropdownOpen}
             language={language}
           />

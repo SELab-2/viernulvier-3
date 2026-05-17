@@ -170,7 +170,10 @@
       "teaser": "Teaser",
       "info": "Info",
       "search_tags": "Search tags...",
-      "no_tags": "No tags found"
+      "create_new_tag": "Create new tag \"{{tag}}\"",
+      "create_tag": "Create tag",
+      "no_tags": "No tags found",
+      "create": "Create"
     },
     "delete": {
       "delete": "Delete info (en)",

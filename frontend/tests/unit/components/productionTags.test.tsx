@@ -36,6 +36,7 @@ function TagsTestWrapper({
   isEditing?: boolean;
 }) {
   const [draftTags, setDraftTags] = useState(initialTags);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
   vi.mocked(getAllTags).mockResolvedValue(mockTags);
 
   return (
@@ -44,6 +45,8 @@ function TagsTestWrapper({
       originalTags={initialTags}
       draftTags={draftTags}
       setDraftTags={setDraftTags}
+      newTags={newTags}
+      setNewTags={setNewTags}
       isEditing={isEditing}
       preferredLanguage="en"
     />
@@ -102,5 +105,56 @@ describe("Tags", () => {
     const dropdown = screen.getByTestId("tag-dropdown");
     expect(within(dropdown).queryByText("Classical")).not.toBeInTheDocument();
     expect(within(dropdown).getByText("Experimental")).toBeInTheDocument();
+  });
+
+  it("creates a new tag from the dropdown search", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "TagName");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const dutchInput = screen.getByLabelText("Dutch Name");
+    const englishInput = screen.getByLabelText("English Name");
+
+    // english should already be prefilled because preferredLanguage="en"
+    expect(englishInput).toHaveValue("TagName");
+
+    await user.type(dutchInput, "TagName NL");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /create/i,
+      })
+    );
+
+    // newly created tag should appear
+    expect(screen.getByText("TagName")).toBeInTheDocument();
+  });
+
+  it("creates a tag with only one language filled in", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "Noise");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const englishInput = screen.getByLabelText("English Name");
+    expect(englishInput).toHaveValue("Noise");
+    await user.click(
+      screen.getByRole("button", {
+        name: /create/i,
+      })
+    );
+
+    expect(screen.getByText("Noise")).toBeInTheDocument();
   });
 });
