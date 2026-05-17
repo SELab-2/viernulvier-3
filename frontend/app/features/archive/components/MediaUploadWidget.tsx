@@ -7,7 +7,7 @@ import StarIcon from "@mui/icons-material/Star";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
-type MediaPreview = { src: string; isVideo: boolean; file: File };
+type MediaPreview = { src: string; file: File };
 
 export type MediaUploadWidgetProps = {
   onFilesChange: (files: File[]) => void;
@@ -28,16 +28,15 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
 
   function notify(updated: MediaPreview[]) {
     onFilesChange(updated.map((p) => p.file));
-    onBannerUrlChange(updated[0]?.isVideo ? undefined : updated[0]?.src);
+    onBannerUrlChange(updated[0]?.src);
   }
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
     const incoming = Array.from(files)
-      .filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"))
+      .filter((f) => ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(f.type))
       .map((f) => ({
         src: URL.createObjectURL(f),
-        isVideo: f.type.startsWith("video/"),
         file: f,
       }));
     setPreviews((prev) => {
@@ -67,7 +66,7 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
   }
 
   return (
-    <div id="media-upload-widget" className="mt-2">
+    <div className="mt-2">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-archive-ink/70 text-xs font-bold tracking-[0.2em] uppercase">
           {t("archive.media.title")}
@@ -108,12 +107,12 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
           </span>
         </p>
         <p className="text-archive-ink/35 text-xs">
-          {t("archive.media.acceptedFormats")}
+          {t("archive.media.acceptedFormats")} {/* JPEG, PNG, WebP, GIF */}
         </p>
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*,video/*"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           multiple
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
@@ -129,20 +128,11 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
                 i === 0 ? "ring-archive-accent ring-2" : ""
               }`}
             >
-              {item.isVideo ? (
-                <video
-                  src={item.src}
-                  className="h-full w-full object-cover"
-                  muted
-                  preload="metadata"
-                />
-              ) : (
-                <img
-                  src={item.src}
-                  alt=""
-                  className="h-full w-full object-cover transition hover:scale-105"
-                />
-              )}
+              <img
+                src={item.src}
+                alt=""
+                className="h-full w-full object-cover transition hover:scale-105"
+              />
 
               {/* Banner toggle */}
               <Tooltip

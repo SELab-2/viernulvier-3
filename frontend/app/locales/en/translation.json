@@ -123,7 +123,7 @@
       "bannerHint": "★ marks the banner image",
       "dropMedia": "Drop files here or",
       "browse": "browse",
-      "acceptedFormats": "Images & videos",
+      "acceptedFormats": "JPEG, PNG, WebP, GIF",
       "isBanner": "Banner image",
       "setBanner": "Set as banner",
       "remove": "Remove"
