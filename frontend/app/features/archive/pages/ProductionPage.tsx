@@ -16,9 +16,12 @@ import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import {
   createEvent,
+  createPrice,
+  deletePrice,
   getEventByUrl,
   getPriceByUrl,
   updateEventByUrl,
+  updatePriceByUrl,
 } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { type EventWithResolvedRelations } from "../components/EventCard";
@@ -96,7 +99,7 @@ function areTagsModified(originalTags: Tag[], draftTags: Tag[]): boolean {
   return originalIds.some((id, index) => id !== draftIds[index]);
 }
 
-function isEventModified(original?: Event, draft?: Event): boolean {
+function areEventFieldsModified(original?: Event, draft?: Event): boolean {
   if (!original || !draft) return false;
 
   return (
@@ -105,6 +108,48 @@ function isEventModified(original?: Event, draft?: Event): boolean {
     original.order_url !== draft.order_url ||
     original.hall?.id_url !== draft.hall?.id_url
   );
+}
+
+function arePricesModified(originalPrices: Price[], draftPrices: Price[]): boolean {
+  if (originalPrices.length !== draftPrices.length) return true;
+
+  const draftById = new Map(draftPrices.map((p) => [p.id_url, p]));
+
+  for (const original of originalPrices) {
+    const draft = draftById.get(original.id_url);
+    if (!draft) return true;
+    if (original.amount !== draft.amount || original.available !== draft.available)
+      return true;
+  }
+
+  for (const draft of draftPrices) {
+    if (draft.id_url.startsWith("temp-")) return true;
+    if (!draftById.has(draft.id_url)) return true;
+  }
+
+  return false;
+}
+
+function isEventModified(
+  original?: EventWithResolvedRelations,
+  draft?: EventWithResolvedRelations
+): boolean {
+  if (!original || !draft) return false;
+
+  return (
+    areEventFieldsModified(original, draft) ||
+    arePricesModified(original.resolvedPrices, draft.resolvedPrices)
+  );
+}
+
+function getEventIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/events\/(\d+)/);
+  return match ? Number(match[1]) : undefined;
+}
+
+function getPriceIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/prices\/(\d+)/);
+  return match ? Number(match[1]) : undefined;
 }
 
 async function handleInfoSave(
@@ -161,7 +206,7 @@ async function handleInfoSave(
       if (!draft.id_url) return false;
       const original = originalMap.get(draft.id_url);
       if (!original) return false;
-      return isEventModified(original, draft);
+      return areEventFieldsModified(original, draft);
     });
     for (const event of updatedEvents) {
       await updateEventByUrl(event.id_url, {
@@ -196,13 +241,102 @@ async function handleInfoSave(
       await deleteByUrl(event.id_url);
     }
 
+    // Handle price changes for existing events
+    const finalDraftEvents = [...draftEvents];
+    for (let i = 0; i < finalDraftEvents.length; i++) {
+      const draftEvent = finalDraftEvents[i];
+      if (!draftEvent.id_url) continue;
+
+      const originalEvent = originalMap.get(draftEvent.id_url);
+      if (!originalEvent) continue;
+
+      const originalPrices = originalEvent.resolvedPrices;
+      const draftPrices = draftEvent.resolvedPrices;
+
+      if (!arePricesModified(originalPrices, draftPrices)) continue;
+
+      const eventId = getEventIdFromUrl(draftEvent.id_url);
+      if (!eventId) continue;
+
+      // Delete removed prices
+      const draftPriceUrls = new Set(
+        draftPrices.filter((p) => !p.id_url.startsWith("temp-")).map((p) => p.id_url)
+      );
+      for (const originalPrice of originalPrices) {
+        if (!draftPriceUrls.has(originalPrice.id_url)) {
+          const priceId = getPriceIdFromUrl(originalPrice.id_url);
+          if (priceId !== undefined) {
+            await deletePrice(eventId, priceId);
+          }
+        }
+      }
+
+      // Create new prices and update modified prices
+      const newResolvedPrices: Price[] = [];
+      for (const draftPrice of draftPrices) {
+        if (draftPrice.id_url.startsWith("temp-")) {
+          const created = await createPrice(eventId, {
+            amount: draftPrice.amount,
+            available: draftPrice.available,
+          });
+          newResolvedPrices.push(created);
+        } else {
+          const originalPrice = originalPrices.find(
+            (p) => p.id_url === draftPrice.id_url
+          );
+          if (
+            originalPrice &&
+            (originalPrice.amount !== draftPrice.amount ||
+              originalPrice.available !== draftPrice.available)
+          ) {
+            const updated = await updatePriceByUrl(draftPrice.id_url, {
+              amount: draftPrice.amount,
+              available: draftPrice.available,
+            });
+            newResolvedPrices.push(updated);
+          } else {
+            newResolvedPrices.push(draftPrice);
+          }
+        }
+      }
+
+      finalDraftEvents[i] = {
+        ...draftEvent,
+        resolvedPrices: newResolvedPrices,
+        price_urls: newResolvedPrices.map((p) => p.id_url),
+      };
+    }
+
+    // Create prices for newly created events
+    const finalCreatedEvents = [...createdEvents];
+    for (let i = 0; i < newEvents.length; i++) {
+      const createdEvent = finalCreatedEvents[i];
+      const eventId = getEventIdFromUrl(createdEvent.id_url);
+      if (!eventId) continue;
+
+      const newResolvedPrices: Price[] = [];
+      for (const price of newEvents[i].resolvedPrices) {
+        const created = await createPrice(eventId, {
+          amount: price.amount,
+          available: price.available,
+        });
+        newResolvedPrices.push(created);
+      }
+
+      finalCreatedEvents[i] = {
+        ...createdEvent,
+        resolvedPrices: newResolvedPrices,
+        price_urls: newResolvedPrices.map((p) => p.id_url),
+      };
+    }
+
     // sync local "source of truth"
     setOriginalAttendanceMode(attendance_mode);
     setOriginalPerformerType(performer_type);
     setOriginalTags(draftTags);
     setOriginalInfo(draftInfo);
-    setOriginalEvents([...draftEvents, ...createdEvents]);
-    setDraftEvents([...draftEvents, ...createdEvents]);
+    setOriginalEvents([...finalDraftEvents, ...finalCreatedEvents]);
+    setDraftEvents([...finalDraftEvents, ...finalCreatedEvents]);
     setNewEvents([]);
     setDeletedEvents([]);
 
@@ -295,7 +429,11 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     return (
       newEvents.length > 0 ||
       deletedEvents.length > 0 ||
-      draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft))
+      draftEvents.some((draft) => {
+        if (!draft.id_url) return true;
+        const original = originalEvents.find((e) => e.id_url === draft.id_url);
+        return isEventModified(original, draft);
+      })
     );
   }, [draftEvents, originalEvents, newEvents, deletedEvents]);
 

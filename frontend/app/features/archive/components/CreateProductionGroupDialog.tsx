@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type SubmitEvent } from "react";
+import { useCallback, useState, type SubmitEvent } from "react";
 import {
   Button,
   Checkbox,
@@ -51,6 +51,8 @@ export function CreateProductionGroupDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* duplicate declarations removed */
+
   const trimmedTitle = title.trim();
   const normalizedTitle = normalizeProductionGroupTitle(title);
   const isSubmitDisabled =
@@ -67,12 +69,6 @@ export function CreateProductionGroupDialog({
     clearMessages();
     setIsSubmitting(false);
   }, [clearMessages]);
-
-  useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
-  }, [open, resetForm]);
 
   function handleClose() {
     if (isSubmitting) {
