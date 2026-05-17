@@ -27,14 +27,20 @@ import {
   productionGroupDialogTitleSx,
 } from "./ProductionGroupDialog.shared";
 
+function normalizeProductionGroupTitle(title: string): string {
+  return title.trim().toLocaleLowerCase();
+}
+
 export function CreateProductionGroupDialog({
   open,
   selectedProductionIds,
+  existingProductionGroups,
   onClose,
   onCreated,
 }: {
   open: boolean;
   selectedProductionIds: string[];
+  existingProductionGroups: ProductionGroup[];
   onClose: () => void;
   onCreated: (productionGroup: ProductionGroup) => void;
 }) {
@@ -46,6 +52,7 @@ export function CreateProductionGroupDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedTitle = title.trim();
+  const normalizedTitle = normalizeProductionGroupTitle(title);
   const isSubmitDisabled =
     isSubmitting || !trimmedTitle || selectedProductionIds.length === 0;
 
@@ -86,6 +93,16 @@ export function CreateProductionGroupDialog({
 
     if (!trimmedTitle) {
       setValidationError(t("archive.productionGroups.messages.titleRequired"));
+      return;
+    }
+
+    const hasDuplicateTitle = existingProductionGroups.some(
+      (productionGroup) =>
+        normalizeProductionGroupTitle(productionGroup.title) === normalizedTitle
+    );
+
+    if (hasDuplicateTitle) {
+      setValidationError(t("archive.productionGroups.messages.duplicateTitle"));
       return;
     }
 

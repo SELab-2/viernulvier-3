@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.models.user import User
 from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
@@ -121,13 +121,13 @@ def test_get_productions_with_tag(
     assert not data["pagination"]["has_more"]
 
 
-def test_get_productions_with_invalid_group_ids(client: TestClient):
-    response = client.get(BASE_PROD_URL + "/", params={"group_ids": "a,b"})
+def test_get_productions_with_invalid_series_ids(client: TestClient):
+    response = client.get(BASE_PROD_URL + "/", params={"series_ids": "a,b"})
 
     assert response.status_code == 422
     assert (
         response.json()["detail"]
-        == "group_ids must be a comma-separated list of integers."
+        == "series_ids must be a comma-separated list of integers."
     )
 
 
@@ -672,9 +672,9 @@ def test_delete_production_not_found(
 
 
 def test_production_urls_contain_full_path(client: TestClient, db_session: Session):
-    from src.models.production import Production
     from src.models.event import Event
     from src.models.hall import Hall, HallName
+    from src.models.production import Production
 
     hall = Hall(address="Test Street")
     hall.names.append(HallName(language="en", name="Test Hall"))

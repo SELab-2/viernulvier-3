@@ -20,7 +20,7 @@ const ARCHIVE_PATH: string = "/api/v1/archive";
 export async function getProductionsPaginated(
   params?: JsonPaginationRequest & {
     tag_ids?: string[];
-    group_ids?: string[];
+    series_ids?: string[];
     artists?: string[];
     production_name?: string;
     earliest_at?: string;
@@ -34,7 +34,7 @@ export async function getProductionsPaginated(
     params: {
       ...params,
       tag_ids: params?.tag_ids?.join(","),
-      group_ids: params?.group_ids?.join(","),
+      series_ids: params?.series_ids?.join(","),
       artists: params?.artists?.join(","),
     },
   });
