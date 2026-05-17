@@ -50,8 +50,7 @@ def sync_all():
             with VNV_Wrapper() as wrapper:
                 fetcher = fetcher_class(wrapper)
                 sync_new_items(db, fetcher, resource_type)
-                # And later:
-                # sync_updated_items(db, lang_map, fetcher, resource_type)
+                sync_updated_items(db, fetcher, resource_type)
 
         logger.info("Starting media sync")
         with VNV_Wrapper() as wrapper:
