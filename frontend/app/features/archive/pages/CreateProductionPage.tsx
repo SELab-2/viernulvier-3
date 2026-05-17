@@ -139,6 +139,25 @@ export function CreateProductionPage() {
   const skipWarning = useRef(false);
   const [skipWarningState, setSkipWarningState] = useState(false);
 
+  const handleCancel = () => {
+    setDraftInfo({
+      production_id_url: "",
+      language: lang!,
+      title: "",
+      supertitle: "",
+      artist: "",
+      tagline: "",
+      teaser: "",
+      description: "",
+      info: "",
+    });
+    setDraftTags([]);
+    setDraftEvents([]);
+    setDraftAttendanceMode("");
+    setDraftPerformerType("");
+    setIsQuillDirty(false);
+  };
+
   useUnsavedChangesBlocker(
     !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
   );
@@ -279,6 +298,7 @@ export function CreateProductionPage() {
             originalPerformerType=""
             is_saving={isSaving}
             _handleSave={_handleAddProduction}
+            _handleCancel={handleCancel}
             originalTags={null}
             setDraftTags={() => {}}
             permissions={[ARCHIVE_PERMISSIONS.create]}
