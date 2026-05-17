@@ -3,17 +3,15 @@ import logging
 from src.database import SESSION_LOCAL
 from src.models.sync_state import ResourceType
 from src.worker.fetchers.event import EventFetcher
-from src.worker.fetchers.halls import HallFetcher
 from src.worker.fetchers.eventprice import EventPriceFetcher
+from src.worker.fetchers.genres import GenreFetcher
+from src.worker.fetchers.halls import HallFetcher
 from src.worker.fetchers.paged_fetcher import PagedFetcher
 from src.worker.fetchers.production import ProductionFetcher
-from src.worker.fetchers.genres import GenreFetcher
-from src.worker.sync.sync_new import sync_new_items
-from src.worker.vnv_wrapper import VNV_Wrapper
-
-from src.worker.sync.store.production import store_new_productions
 from src.worker.sync.store.media import sync_all_media
-
+from src.worker.sync.sync_new import sync_new_items
+from src.worker.sync.sync_updated import sync_updated_items
+from src.worker.vnv_wrapper import VNV_Wrapper
 
 # Logging is used in the other classes, but seeing as this file is the main
 # one, setting the config here feels appropriate.
@@ -50,8 +48,7 @@ def sync_all():
             with VNV_Wrapper() as wrapper:
                 fetcher = fetcher_class(wrapper)
                 sync_new_items(db, fetcher, resource_type)
-                # And later:
-                # sync_updated_items(db, lang_map, fetcher, resource_type)
+                sync_updated_items(db, fetcher, resource_type)
 
         logger.info("Starting media sync")
         with VNV_Wrapper() as wrapper:
@@ -64,6 +61,10 @@ def sync_all():
 
 
 def sync_one_production(production_id: int):
+    # This import should rarely be used, only for short development, thus is
+    # placed here instead of at the top of the file
+    from src.worker.sync.store.production import store_new_productions
+
     db = SESSION_LOCAL()
     logger.info(f"Syncing single production vnv_id={production_id}")
     try:
