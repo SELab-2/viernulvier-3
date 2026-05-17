@@ -1,5 +1,4 @@
 import pytest
-
 from src.api.exceptions import NotFoundError, ValidationError
 from src.models.production_group import ProductionGroup
 from src.schemas.production_group import ProductionGroupCreate, ProductionGroupUpdate
@@ -63,7 +62,7 @@ def test_get_production_group_by_id_success(db_session, productions_limited):
 
     result = get_production_group_by_id(db_session, production_group.id, BASE_URL)
 
-    assert result.id_url == f"{BASE_URL}/production-groups/{production_group.id}"
+    assert result.id_url == f"{BASE_URL}/series/{production_group.id}"
     assert result.title == "Season picks"
     assert set(result.production_id_urls) == {
         f"{BASE_URL}/productions/{production.id}" for production in productions_limited
@@ -77,11 +76,12 @@ def test_get_production_group_by_id_not_found(db_session):
 
 def test_create_production_group(db_session, productions_limited):
     production_group_in = ProductionGroupCreate(
-        title="Fresh arrivals",
+        title="  Fresh arrivals  ",
         is_public_filter=False,
         production_id_urls=[
             f"/productions/{productions_limited[0].id}",
             f"/productions/{productions_limited[1].id}",
+            f"/productions/{productions_limited[0].id}",
         ],
     )
 
@@ -89,9 +89,10 @@ def test_create_production_group(db_session, productions_limited):
 
     assert result.title == "Fresh arrivals"
     assert result.is_public_filter is False
-    assert set(result.production_id_urls) == {
-        f"{BASE_URL}/productions/{production.id}" for production in productions_limited
-    }
+    assert result.production_id_urls == [
+        f"{BASE_URL}/productions/{productions_limited[0].id}",
+        f"{BASE_URL}/productions/{productions_limited[1].id}",
+    ]
 
 
 def test_create_production_group_invalid_productions(db_session):
@@ -101,6 +102,21 @@ def test_create_production_group_invalid_productions(db_session):
     )
 
     with pytest.raises(ValidationError, match="Productions do not exist"):
+        create_production_group(db_session, production_group_in, BASE_URL)
+
+
+def test_create_production_group_duplicate_title(db_session, productions_limited):
+    db_session.add(ProductionGroup(title=" Autumn series "))
+    db_session.commit()
+
+    production_group_in = ProductionGroupCreate(
+        title="autumn series",
+        production_id_urls=[f"/productions/{productions_limited[0].id}"],
+    )
+
+    with pytest.raises(
+        ValidationError, match="A series with this title already exists."
+    ):
         create_production_group(db_session, production_group_in, BASE_URL)
 
 
@@ -116,7 +132,7 @@ def test_update_production_group(db_session, productions_limited):
         db_session,
         production_group.id,
         ProductionGroupUpdate(
-            title="New title",
+            title="  New title  ",
             is_public_filter=False,
             production_id_urls=[f"/productions/{productions_limited[1].id}"],
         ),
@@ -128,6 +144,32 @@ def test_update_production_group(db_session, productions_limited):
     assert result.production_id_urls == [
         f"{BASE_URL}/productions/{productions_limited[1].id}"
     ]
+
+
+def test_update_production_group_duplicate_title(db_session):
+    db_session.add_all(
+        [
+            ProductionGroup(title="Spring series"),
+            ProductionGroup(title="Summer series"),
+        ]
+    )
+    db_session.commit()
+
+    duplicate_group = (
+        db_session.query(ProductionGroup)
+        .filter(ProductionGroup.title == "Summer series")
+        .first()
+    )
+
+    with pytest.raises(
+        ValidationError, match="A series with this title already exists."
+    ):
+        update_production_group(
+            db_session,
+            duplicate_group.id,
+            ProductionGroupUpdate(title="  spring SERIES  "),
+            BASE_URL,
+        )
 
 
 def test_delete_production_group_success(db_session):

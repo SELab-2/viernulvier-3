@@ -18,6 +18,8 @@ import Tags from "../components/TagSection";
 import EventSection from "../components/EventSection";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
+import { uploadMedia } from "../services/mediaService";
+import { MediaUploadWidget } from "../components/MediaUploadWidget";
 
 function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   if (!draftInfo) return false;
@@ -33,6 +35,8 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   );
 }
 
+// ─── Save handler ──────────────────────────────────────────────────────────
+
 async function handleAddProduction(
   language: string,
   attendanceMode: string,
@@ -40,6 +44,7 @@ async function handleAddProduction(
   draftInfo: ProductionInfo | null,
   draftTags: Tag[],
   draftEvents: EventWithResolvedRelations[],
+  mediaFiles: File[],
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   skipWarning: React.RefObject<boolean>,
@@ -69,16 +74,29 @@ async function handleAddProduction(
     setSkipWarning(true);
 
     await Promise.all(
-      draftEvents.map((event) => {
+      draftEvents.map((event) =>
         createEvent({
           production_id_url: response["id_url"],
           hall_id_url: event.hall?.id_url,
           starts_at: event.starts_at,
           ends_at: event.ends_at,
           order_url: event.order_url,
-        });
-      })
+        })
+      )
     );
+
+    // Upload media sequentially so the first file (banner) always lands first.
+    if (mediaFiles.length > 0) {
+      const productionNumericId = response["id_url"].match(
+        /\/productions\/(\d+)(?:[/?#]|$)/
+      )?.[1];
+      if (productionNumericId) {
+        const id = parseInt(productionNumericId, 10);
+        for (const file of mediaFiles) {
+          await uploadMedia(id, file);
+        }
+      }
+    }
 
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
@@ -91,6 +109,8 @@ async function handleAddProduction(
     setIsSaving(false);
   }
 }
+
+// ─── Access denied ─────────────────────────────────────────────────────────
 
 export function CreateProductionPageAccessDenied() {
   const { t } = useTranslation();
@@ -113,6 +133,8 @@ export function CreateProductionPageAccessDenied() {
   );
 }
 
+// ─── Page ──────────────────────────────────────────────────────────────────
+
 export function CreateProductionPage() {
   const { lang } = useParams();
   const language = lang ?? "nl";
@@ -132,6 +154,10 @@ export function CreateProductionPage() {
   });
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(
+    undefined
+  );
 
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -143,6 +169,7 @@ export function CreateProductionPage() {
     return (
       draftTags.length > 0 ||
       draftEvents.length > 0 ||
+      mediaFiles.length > 0 ||
       isInfoModified(draftInfo) ||
       isQuillDirty ||
       draftAttendanceMode !== "" ||
@@ -213,22 +240,18 @@ export function CreateProductionPage() {
       draftInfo,
       draftTags,
       draftEvents,
+      mediaFiles,
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
       () => {},
       navigate
     );
-  // TODO
-  const fallbackImageUrl =
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
 
-  const imageUrl = fallbackImageUrl;
   const teaserHtml = getSanitizedHtmlOrUndefined(draftInfo?.teaser);
   const descriptionHtml = getSanitizedHtmlOrUndefined(draftInfo?.description);
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
-  // warning if going to another url when edits are not saved.
   const isModifiedRef = useRef(false);
   const isQuillDirtyRef = useRef(false);
 
@@ -257,7 +280,10 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          image_url={imageUrl}
+          image_url={
+            bannerPreviewUrl ??
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          }
           isEditing={true}
           originalInfo={null}
           draftInfo={draftInfo}
@@ -311,6 +337,10 @@ export function CreateProductionPage() {
               setDeletedEvents={() => {}}
               newEvents={draftEvents}
               setNewEvents={setDraftEvents}
+            />
+            <MediaUploadWidget
+              onFilesChange={setMediaFiles}
+              onBannerUrlChange={setBannerPreviewUrl}
             />
           </article>
         </section>

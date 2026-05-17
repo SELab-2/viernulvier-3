@@ -14,7 +14,7 @@ import type {
 import type { Production } from "../types/productionTypes";
 import { createApiClient } from "~/shared/services/apiClient";
 
-const ENDPOINT = "/production-groups";
+const ENDPOINT = "/series";
 
 export async function getAllProductionGroups(
   publicOnly = true

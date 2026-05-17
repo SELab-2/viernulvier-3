@@ -393,6 +393,7 @@ async function handleBlogSave(
   setOriginalContent: React.Dispatch<React.SetStateAction<BlogContent | null>>,
   newBlogProdGroup: ProductionGroup | null,
   setBlogProdGroup: React.Dispatch<React.SetStateAction<ProductionGroup | null>>,
+  setMediaEdited: React.Dispatch<React.SetStateAction<boolean>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
@@ -410,13 +411,15 @@ async function handleBlogSave(
           content: draftContent.content,
         },
       ],
-      production_group_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : "",
+      series_id_url: newBlogProdGroup ? newBlogProdGroup.id_url : "",
     });
 
     // sync local "source of truth"
     setOriginalContent(draftContent);
 
     setBlogProdGroup(newBlogProdGroup);
+
+    setMediaEdited(false);
 
     setIsEditing(false);
     if (!originalContent) {
@@ -455,8 +458,10 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
     ...blogContent!,
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [mediaEdited, setMediaEdited] = useState<boolean>(false);
 
   const blogProdModified = useCallback(() => {
+    if (mediaEdited) return true;
     return (
       (blogProdGroup &&
         newBlogProdGroup &&
@@ -464,7 +469,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       (!blogProdGroup && newBlogProdGroup) ||
       (blogProdGroup && !newBlogProdGroup)
     );
-  }, [blogProdGroup, newBlogProdGroup]);
+  }, [blogProdGroup, newBlogProdGroup, mediaEdited]);
 
   const _handleSave = () =>
     handleBlogSave(
@@ -474,6 +479,7 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
       setOriginalContent,
       newBlogProdGroup,
       setBlogProdGroup,
+      setMediaEdited,
       setIsEditing,
       setIsSaving,
       language,
@@ -509,11 +515,9 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
   useEffect(() => {
     let cancelled = false;
     async function loadProductionGroup() {
-      if (!blog.production_group_id_url) return;
+      if (!blog.series_id_url) return;
       try {
-        const productionGroup = await getProductionGroupByUrl(
-          blog.production_group_id_url
-        );
+        const productionGroup = await getProductionGroupByUrl(blog.series_id_url);
         if (!cancelled) {
           setBlogProdGroup(productionGroup);
           setNewBlogProdGroup(productionGroup);
@@ -563,6 +567,8 @@ export function BlogContentPage({ blog, preferredLanguage }: BlogPageProps) {
             contentHtml={contentHtml ?? ""}
             title={title}
             blog_id_url={blog.id_url}
+            isEditing={isEditing}
+            setMediaEdited={setMediaEdited}
           />
 
           <LinkedProductions

@@ -129,7 +129,7 @@ const baseProductionOneInfo: Production = {
 };
 
 const baseProdGroup: ProductionGroup = {
-  id_url: "http://localhost/api/v1/production-groups/1",
+  id_url: "http://localhost/api/v1/archive/series/1",
   title: "foo",
   is_public_filter: true,
   production_id_urls: [],
@@ -256,7 +256,7 @@ describe("ProductionPage", () => {
     const mockBlogs = [
       {
         id_url: "http://localhost/api/v1/archive/blogs/1",
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/1",
+        series_id_url: "http://localhost/api/v1/archive/series/1",
         blog_contents: [
           {
             blog_id_url: "http://localhost/api/v1/archive/blogs/1",
@@ -268,7 +268,7 @@ describe("ProductionPage", () => {
       },
       {
         id_url: "http://localhost/api/v1/archive/blogs/2",
-        production_group_id_url: "http://localhost/api/v1/archive/production-groups/2",
+        series_id_url: "http://localhost/api/v1/archive/series/2",
         blog_contents: [
           {
             blog_id_url: "http://localhost/api/v1/archive/blogs/2",

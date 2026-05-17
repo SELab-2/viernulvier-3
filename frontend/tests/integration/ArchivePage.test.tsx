@@ -17,13 +17,13 @@ vi.mock("~/features/archive/services/tagService");
 
 const PRODUCTION_GROUPS = [
   {
-    id_url: "/api/v1/archive/production-groups/1",
+    id_url: "/api/v1/archive/series/1",
     title: "Vooruit Klassiek",
     is_public_filter: true,
     production_id_urls: [],
   },
   {
-    id_url: "/api/v1/archive/production-groups/2",
+    id_url: "/api/v1/archive/series/2",
     title: "Club Wintercircus",
     is_public_filter: true,
     production_id_urls: [],
@@ -53,7 +53,7 @@ const deleteOnlyUser = {
 
 const FILTERED_PRODUCTIONS = mockProductions.slice(0, 2);
 const FILTERED_PRODUCTION_GROUP = {
-  id_url: "/api/v1/archive/production-groups/1",
+  id_url: "/api/v1/archive/series/1",
   title: "Vooruit Klassiek",
   is_public_filter: true,
   production_id_urls: FILTERED_PRODUCTIONS.map((production) => production.id_url),
@@ -93,7 +93,7 @@ function mockFilteredProductionGroupSelection() {
 function renderArchiveWithFilteredProductionGroup() {
   renderWithRouterAndTheme({
     useRealArchive: true,
-    initialPath: "/archive?group=1",
+    initialPath: "/archive?series=1",
   });
 }
 
@@ -261,7 +261,7 @@ describe("Archive", () => {
       expect(productionService.getProductionsPaginated).toHaveBeenNthCalledWith(1, {
         artists: undefined,
         earliest_at: undefined,
-        group_ids: undefined,
+        series_ids: undefined,
         latest_at: undefined,
         production_name: undefined,
         sort_order: "Descending",
@@ -277,7 +277,7 @@ describe("Archive", () => {
         cursor: "test_cursor",
         artists: undefined,
         earliest_at: undefined,
-        group_ids: undefined,
+        series_ids: undefined,
         latest_at: undefined,
         sort_order: "Descending",
         production_name: undefined,
@@ -310,7 +310,7 @@ describe("Archive", () => {
       expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
         artists: undefined,
         earliest_at: undefined,
-        group_ids: undefined,
+        series_ids: undefined,
         latest_at: undefined,
         production_name: undefined,
         sort_order: "Descending",
@@ -324,14 +324,14 @@ describe("Archive", () => {
 
     renderWithRouterAndTheme({
       useRealArchive: true,
-      initialPath: "/archive?group=2",
+      initialPath: "/archive?series=2",
     });
 
     await waitFor(() =>
       expect(productionService.getProductionsPaginated).toHaveBeenCalledWith({
         artists: undefined,
         earliest_at: undefined,
-        group_ids: ["2"],
+        series_ids: ["2"],
         latest_at: undefined,
         production_name: undefined,
         sort_order: "Descending",
