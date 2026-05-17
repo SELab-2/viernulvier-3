@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from minio import Minio
 from sqlalchemy.orm import Session
 from src.api.dependencies import RequirePermissions
 from src.api.dependencies.language import get_accepted_language
@@ -17,6 +18,7 @@ from src.schemas.production import (
 from src.services.archive import get_base_url
 from src.services.auth.permissions import Permissions
 from src.services.blogs import get_blogs_by_production_id
+from src.services.media import get_minio_client
 from src.services.production import (
     SortOrder,
     create_production,
@@ -157,9 +159,10 @@ async def patch_production(
 async def delete_production(
     production_id: int,
     db: Session = Depends(get_db),
+    minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    delete_production_by_id(db, production_id)
+    delete_production_by_id(db, production_id, minio)
 
 
 @router.get(

@@ -24,6 +24,7 @@ class ProductionGroup(Base):
         "Production",
         secondary=prod_groups,
         back_populates="groups",
+        passive_deletes=True,
     )
 
     blogs = relationship("Blog", back_populates="production_group")
