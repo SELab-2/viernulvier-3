@@ -170,6 +170,7 @@ export function ProductionPageMediaGallery({
     try {
       await deleteMedia(productionNumericId, mediaNumericId);
       setMediaImageUrls((prev) => prev.filter((url) => url !== confirmDeleteImageUrl));
+      if (lightboxImageUrl === confirmDeleteImageUrl) setLightboxImageUrl(null);
       setMediaIdUrlByImageUrl((prev) => {
         const next = { ...prev };
         delete next[confirmDeleteImageUrl];
@@ -359,6 +360,8 @@ export function ProductionPageMediaGallery({
       )}
       {lightboxImageUrl && (
         <div
+          role="dialog"
+          aria-modal="true"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={() => setLightboxImageUrl(null)}
         >
