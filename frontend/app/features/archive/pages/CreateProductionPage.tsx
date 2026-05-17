@@ -35,8 +35,6 @@ function isInfoModified(draftInfo: ProductionInfo | null): boolean {
   );
 }
 
-// ─── Save handler ──────────────────────────────────────────────────────────
-
 async function handleAddProduction(
   language: string,
   attendanceMode: string,
@@ -110,8 +108,6 @@ async function handleAddProduction(
   }
 }
 
-// ─── Access denied ─────────────────────────────────────────────────────────
-
 export function CreateProductionPageAccessDenied() {
   const { t } = useTranslation();
 
@@ -132,8 +128,6 @@ export function CreateProductionPageAccessDenied() {
     </section>
   );
 }
-
-// ─── Page ──────────────────────────────────────────────────────────────────
 
 export function CreateProductionPage() {
   const { lang } = useParams();
@@ -182,17 +176,19 @@ export function CreateProductionPage() {
     draftEvents,
     draftAttendanceMode,
     draftPerformerType,
+    mediaFiles,
   ]);
 
   const [isCancelling, setIsCancelling] = useState(false);
 
   const blocker = useBlocker(
-    !isSaving &&
+    (!isSaving &&
       !isCancelling &&
       (isInfoModified(draftInfo) ||
         draftAttendanceMode !== "" ||
         draftPerformerType !== "" ||
-        isQuillDirty)
+        isQuillDirty)) ||
+      mediaFiles.length > 0
   );
 
   useEffect(() => {
