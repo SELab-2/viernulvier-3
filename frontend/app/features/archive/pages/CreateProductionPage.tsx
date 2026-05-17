@@ -143,6 +143,16 @@ export function CreateProductionPage() {
     !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
   );
   const navigate = useNavigate();
+
+  const isModified = useMemo(() => {
+    return (
+      draftTags.length > 0 ||
+      draftEvents.length > 0 ||
+      isInfoModified(draftInfo) ||
+      isQuillDirty
+    );
+  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
+
   const handleCancel = async () => {
     if (isModified && !window.confirm(t("notSaveChanges"))) {
       return;
@@ -166,14 +176,6 @@ export function CreateProductionPage() {
     skipWarning.current = true;
     navigate("/archive");
   };
-  const isModified = useMemo(() => {
-    return (
-      draftTags.length > 0 ||
-      draftEvents.length > 0 ||
-      isInfoModified(draftInfo) ||
-      isQuillDirty
-    );
-  }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
