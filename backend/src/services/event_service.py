@@ -203,7 +203,7 @@ def build_price_response(
 ) -> PriceResponse:
     return PriceResponse(
         id_url=f"{base_url}/events/{event_id}/prices/{price.id}",
-        amount=float(price.amount) if price.amount else None,
+        amount=float(price.amount) if price.amount is not None else None,
         available=price.available,
         expires_at=price.expires_at,
         created_at=price.created_at,
