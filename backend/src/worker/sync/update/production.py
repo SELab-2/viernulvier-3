@@ -129,6 +129,8 @@ def _store_updated_tags_for_prod(
                 f"does not exist in the database, skipping this tag for "
                 f"Production(viernulvier_id={existing_prod.viernulvier_id})"
             )
+            # If the invalid tag was inside set of tags to add, remove
+            # it (would generate a Foreign Key Violation otherwise)
             if updated_vnv_tag_id in tag_vnv_ids_to_add:
                 tag_vnv_ids_to_add.remove(updated_vnv_tag_id)
         else:
