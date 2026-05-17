@@ -39,6 +39,100 @@ function HallDropdown({
   );
 }
 
+const INPUT_CLASS =
+  "border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none";
+
+function PriceForm({
+  isNewPrice,
+  draftAmount,
+  setDraftAmount,
+  draftAvailable,
+  setDraftAvailable,
+  onCancel,
+  onSave,
+  saveDisabled,
+}: {
+  isNewPrice: boolean;
+  draftAmount: string;
+  setDraftAmount: (v: string) => void;
+  draftAvailable: string;
+  setDraftAvailable: (v: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+  saveDisabled: boolean;
+}) {
+  const { t } = useTranslation();
+
+  const formFields = (
+    <>
+      <div className="flex items-center gap-2">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+          {t("productionPage.price.amountLabel")}
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          value={draftAmount}
+          onChange={(e) => setDraftAmount(e.target.value)}
+          placeholder="0.00"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
+          {t("productionPage.price.availableLabel")}
+        </label>
+        <input
+          type="number"
+          value={draftAvailable}
+          onChange={(e) => setDraftAvailable(e.target.value)}
+          placeholder="—"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
+        >
+          {t("productionPage.edit.cancel")}
+        </button>
+        <button
+          type={isNewPrice ? "submit" : "button"}
+          onClick={isNewPrice ? undefined : onSave}
+          disabled={saveDisabled}
+          className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {isNewPrice
+            ? t("productionPage.price.addLabel")
+            : t("productionPage.edit.save")}
+        </button>
+      </div>
+    </>
+  );
+
+  const containerClass = isNewPrice
+    ? "flex flex-col gap-2 rounded-lg border border-dashed border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] p-2"
+    : "flex flex-col gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] p-2";
+
+  if (isNewPrice) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave();
+        }}
+        className={containerClass}
+      >
+        {formFields}
+      </form>
+    );
+  }
+
+  return <div className={containerClass}>{formFields}</div>;
+}
+
 type EditablePriceRowProps = {
   price: Price;
   onUpdate: (updatedPrice: Price) => void;
@@ -111,48 +205,16 @@ function EditablePriceRow({ price, onUpdate, onDelete }: EditablePriceRowProps) 
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-2 rounded-lg border border-[color:color-mix(in_srgb,var(--archive-accent)_30%,transparent)] p-2">
-        <div className="flex items-center gap-2">
-          <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-            {t("productionPage.price.amountLabel")}
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            value={draftAmount}
-            onChange={(e) => setDraftAmount(e.target.value)}
-            placeholder="0.00"
-            className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-            {t("productionPage.price.availableLabel")}
-          </label>
-          <input
-            type="number"
-            value={draftAvailable}
-            onChange={(e) => setDraftAvailable(e.target.value)}
-            placeholder="—"
-            className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
-          />
-        </div>
-        <div className="flex gap-2 pt-1">
-          <button
-            onClick={cancelEditing}
-            className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
-          >
-            {t("productionPage.edit.cancel")}
-          </button>
-          <button
-            onClick={saveEditing}
-            disabled={!isModified}
-            className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {t("productionPage.edit.save")}
-          </button>
-        </div>
-      </div>
+      <PriceForm
+        isNewPrice={false}
+        draftAmount={draftAmount}
+        setDraftAmount={setDraftAmount}
+        draftAvailable={draftAvailable}
+        setDraftAvailable={setDraftAvailable}
+        onCancel={cancelEditing}
+        onSave={saveEditing}
+        saveDisabled={!isModified}
+      />
     );
   }
 
@@ -201,12 +263,10 @@ type AddPriceFormProps = {
 };
 
 function AddPriceForm({ onCreated, onCancel }: AddPriceFormProps) {
-  const { t } = useTranslation();
   const [draftAmount, setDraftAmount] = useState("");
   const [draftAvailable, setDraftAvailable] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleSave() {
     const newPrice: Price = {
       id_url: `temp-price-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       amount: isNaN(parseFloat(draftAmount)) ? undefined : parseFloat(draftAmount),
@@ -218,51 +278,16 @@ function AddPriceForm({ onCreated, onCancel }: AddPriceFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-2 rounded-lg border border-dashed border-[color:color-mix(in_srgb,var(--archive-accent)_40%,transparent)] p-2"
-    >
-      <div className="flex items-center gap-2">
-        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-          {t("productionPage.price.amountLabel")}
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          value={draftAmount}
-          onChange={(e) => setDraftAmount(e.target.value)}
-          placeholder="0.00"
-          className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="min-w-[60px] text-[0.6rem] tracking-[0.16em] uppercase opacity-55">
-          {t("productionPage.price.availableLabel")}
-        </label>
-        <input
-          type="number"
-          value={draftAvailable}
-          onChange={(e) => setDraftAvailable(e.target.value)}
-          placeholder="—"
-          className="border-archive-ink/10 bg-archive-paper focus:border-archive-accent focus:ring-archive-accent/40 w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none"
-        />
-      </div>
-      <div className="flex gap-2 pt-1">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="text-archive-ink rounded bg-gray-300 px-3 py-1 text-xs font-semibold transition hover:bg-gray-400"
-        >
-          {t("productionPage.edit.cancel")}
-        </button>
-        <button
-          type="submit"
-          className="bg-archive-accent rounded px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {t("productionPage.price.addLabel")}
-        </button>
-      </div>
-    </form>
+    <PriceForm
+      isNewPrice
+      draftAmount={draftAmount}
+      setDraftAmount={setDraftAmount}
+      draftAvailable={draftAvailable}
+      setDraftAvailable={setDraftAvailable}
+      onCancel={onCancel}
+      onSave={handleSave}
+      saveDisabled={false}
+    />
   );
 }
 
@@ -308,7 +333,7 @@ export default function EditableEventCard({
   );
 
   const isValidHall = debouncedHallName.trim() === "" || matchingHall !== undefined;
-
+  // When typing input check if input matches hall
   useEffect(() => {
     const normalizedInput = debouncedHallName.trim();
     let nextHall: Hall | undefined;
