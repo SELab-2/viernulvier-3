@@ -161,8 +161,7 @@ export function CreateProductionPage() {
     setDraftPerformerType("");
     setIsQuillDirty(false);
     skipWarning.current = true;
-    const currentParts = window.location.pathname.split("/");
-    navigate(currentParts[currentParts.length - 1]);
+    navigate("../..");
   };
   const isModified = useMemo(() => {
     return (
