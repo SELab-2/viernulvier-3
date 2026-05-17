@@ -161,7 +161,7 @@ export function CreateProductionPage() {
     setDraftPerformerType("");
     setIsQuillDirty(false);
     skipWarning.current = true;
-    navigate("../..");
+    navigate("/archive");
   };
   const isModified = useMemo(() => {
     return (
