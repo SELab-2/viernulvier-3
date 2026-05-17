@@ -13,7 +13,7 @@ function isFieldModified(
 
 type ProductionHeaderProps = {
   isCreateHeader: boolean;
-  image_url: string;
+  image_url: string | undefined;
   isEditing: boolean;
   originalInfo: ProductionInfo | null;
   draftInfo: ProductionInfo | null;
