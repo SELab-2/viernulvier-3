@@ -159,6 +159,9 @@
     "deleteMedia": "Delete media",
     "uploadMedia": "Upload media",
     "archivePhotoAlt": "Archive photo for {{title}} {{index}}",
+    "noImagesYet": "No images yet",
+    "closeLightbox": "Close image viewer",
+    "archivePhoto": "Archive photo",
     "edit": {
       "add": "Add info",
       "edit": "Edit",

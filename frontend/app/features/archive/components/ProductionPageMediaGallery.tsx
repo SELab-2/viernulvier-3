@@ -49,30 +49,34 @@ export function ProductionPageMediaGallery({
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fallbackImageUrl =
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-
   const evidenceTrackRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
 
-  const imageUrls = useMemo(
-    () =>
-      mediaImageUrls.length > 0
-        ? mediaImageUrls
-        : [
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-            fallbackImageUrl,
-          ],
-    [fallbackImageUrl, mediaImageUrls]
-  );
+  const imageUrls = mediaImageUrls;
 
   const productionNumericId = useMemo(
     () => getProductionNumericIdFromUrl(production_id_url),
     [production_id_url]
   );
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setLightboxImageUrl(null);
+      }
+    }
+
+    if (lightboxImageUrl) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxImageUrl]);
 
   useEffect(() => {
     // skip media fetching if the production id cannot be parsed
@@ -247,15 +251,22 @@ export function ProductionPageMediaGallery({
           onChange={handleFileChange}
         />
 
-        <div
-          ref={evidenceTrackRef}
-          className="flex cursor-default gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin]"
-        >
-          {imageUrls.map((url, index) => (
+        {imageUrls.length === 0 ? (
+          <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-[color:color-mix(in_srgb,var(--archive-accent)_3%,transparent)] px-6 py-10 text-center">
+            <p className="font-serif text-2xl italic opacity-60">
+              {t("productionPage.noImagesYet")}
+            </p>
+          </div>
+        ) : (
+          <div
+            ref={evidenceTrackRef}
+            className="flex cursor-default gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin]"
+          >
+            {imageUrls.map((url, index) => (
             <figure
               key={`${production_id_url}-${url}-${index}`}
-              className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
-            >
+              onClick={() => setLightboxImageUrl(url)}
+              className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"            >
               <img
                 src={url}
                 alt={t("productionPage.archivePhotoAlt", {
@@ -269,7 +280,10 @@ export function ProductionPageMediaGallery({
               {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
                 <button
                   type="button"
-                  onClick={() => setConfirmDeleteImageUrl(url)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDeleteImageUrl(url);
+                  }}
                   aria-label={t("productionPage.deleteMedia")}
                   className="absolute top-2 right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
                 >
@@ -293,6 +307,7 @@ export function ProductionPageMediaGallery({
             </figure>
           ))}
         </div>
+      )}
       </section>
 
       {confirmDeleteImageUrl !== null && (
@@ -338,6 +353,45 @@ export function ProductionPageMediaGallery({
                 {t("productionPage.edit.delete")}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {lightboxImageUrl && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImageUrl(null)}
+        >
+          <div
+            className="relative mx-4 max-h-[90vh] max-w-6xl overflow-hidden rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImageUrl(null)}
+              aria-label={t("productionPage.closeLightbox")}
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <img
+              src={lightboxImageUrl}
+              alt={t("productionPage.archivePhoto")}
+              className="max-h-[90vh] max-w-full object-contain"
+            />
           </div>
         </div>
       )}

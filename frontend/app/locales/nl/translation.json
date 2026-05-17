@@ -159,6 +159,9 @@
     "deleteMedia": "Verwijder media",
     "uploadMedia": "Upload media",
     "archivePhotoAlt": "Archieffoto voor {{title}} {{index}}",
+    "noImagesYet": "Nog geen foto's",
+    "closeLightbox": "Sluit fotokijker",
+    "archivePhoto": "Archieffoto",
     "edit": {
       "add": "Voeg info toe",
       "edit": "Pas aan",
