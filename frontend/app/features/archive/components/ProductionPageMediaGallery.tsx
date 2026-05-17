@@ -263,51 +263,52 @@ export function ProductionPageMediaGallery({
             className="flex cursor-default gap-4 overflow-x-auto pb-3 select-none [scrollbar-width:thin]"
           >
             {imageUrls.map((url, index) => (
-            <figure
-              key={`${production_id_url}-${url}-${index}`}
-              onClick={() => setLightboxImageUrl(url)}
-              className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"            >
-              <img
-                src={url}
-                alt={t("productionPage.archivePhotoAlt", {
-                  title,
-                  index: index + 1,
-                })}
-                loading="lazy"
-                className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-              />
+              <figure
+                key={`${production_id_url}-${url}-${index}`}
+                onClick={() => setLightboxImageUrl(url)}
+                className="group bg-archive-surface relative min-w-[260px] flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] sm:min-w-[320px] lg:min-w-[340px]"
+              >
+                <img
+                  src={url}
+                  alt={t("productionPage.archivePhotoAlt", {
+                    title,
+                    index: index + 1,
+                  })}
+                  loading="lazy"
+                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
 
-              {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setConfirmDeleteImageUrl(url);
-                  }}
-                  aria-label={t("productionPage.deleteMedia")}
-                  className="absolute top-2 right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
-                >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                {isEditing && mediaIdUrlByImageUrl[url] !== undefined && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmDeleteImageUrl(url);
+                    }}
+                    aria-label={t("productionPage.deleteMedia")}
+                    className="absolute top-2 right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600/80"
                   >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
-                </button>
-              )}
-            </figure>
-          ))}
-        </div>
-      )}
+                    <svg
+                      className="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                  </button>
+                )}
+              </figure>
+            ))}
+          </div>
+        )}
       </section>
 
       {confirmDeleteImageUrl !== null && (
