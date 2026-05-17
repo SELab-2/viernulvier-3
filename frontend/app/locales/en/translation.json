@@ -24,8 +24,8 @@
     "to": "To",
     "tags": "Tags",
     "search_tags": "Search for more tags",
-    "production_groups": "Production groups",
-    "search_production_groups": "Search for production groups",
+    "production_groups": "Series",
+    "search_production_groups": "Search for series",
     "halls": "Venues",
     "artists": "Artists",
     "search_artists": "Search for artists",
@@ -44,26 +44,26 @@
     "create_error": "Error whilst creating production: ",
     "productionGroups": {
       "actions": {
-        "create": "Create production group",
+        "create": "Create series",
         "creating": "Creating...",
-        "delete": "Delete production group",
+        "delete": "Delete series",
         "deleting": "Deleting...",
         "cancel": "Cancel"
       },
       "deleteInfo": {
-        "ariaLabel": "How to delete a production group",
-        "tooltip": "To delete a production group, first select that group in the filters and then select every production from it. Once the full group is selected, the delete button will appear."
+        "ariaLabel": "How to delete a series",
+        "tooltip": "To delete a series, first select that series in the filters and then select every production from it. Once the full series is selected, the delete button will appear."
       },
       "dialog": {
-        "title": "Create a production group",
-        "description": "Group the selected productions under a shared title so visitors can use them as a filter in the archive.",
+        "title": "Create a series",
+        "description": "Group the selected productions under a shared title so visitors can use the series as a filter in the archive.",
         "selectedCount": "{{count}} selected productions",
-        "nameLabel": "Group title",
-        "publicLabel": "Show this group in the public archive filters",
-        "publicHint": "When enabled, visitors can use this production group as a filter in the archive."
+        "nameLabel": "Series title",
+        "publicLabel": "Show this series in the public archive filters",
+        "publicHint": "When enabled, visitors can use this series as a filter in the archive."
       },
       "deleteDialog": {
-        "title": "Delete production group",
+        "title": "Delete series",
         "description": "You are about to remove \"{{title}}\" from the archive filters.",
         "selectedCount": "{{count}} grouped productions",
         "warning": "The productions themselves stay available in the archive. This action cannot be undone.",
@@ -72,10 +72,11 @@
         }
       },
       "messages": {
-        "titleRequired": "A production group title is required.",
-        "noProductionsSelected": "Select at least one production before creating a production group.",
-        "createFailed": "Could not create the production group.",
-        "deleteFailed": "Could not delete the production group."
+        "titleRequired": "A series title is required.",
+        "duplicateTitle": "A series with this title already exists.",
+        "noProductionsSelected": "Select at least one production before creating a series.",
+        "createFailed": "Could not create the series.",
+        "deleteFailed": "Could not delete the series."
       }
     },
     "accessDenied": {
@@ -281,7 +282,7 @@
         "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
       },
       "series": {
-        "title": "Connected serie",
+        "title": "Linked series",
         "searchSeries": "Search for series"
       },
       "accessDenied": {
@@ -293,7 +294,7 @@
     "contentPage": {
       "backToBlogs": "Back to blogs",
       "linkedProductions": "Linked productions:",
-      "searchProductionGroups": "Search for groups",
+      "searchProductionGroups": "Search for series",
       "fallback": "No translation available",
       "media": "Linked media:",
       "delete": {

@@ -16,7 +16,7 @@ describe("CreateProductionGroupDialog", () => {
 
   it("creates a production group from the selected productions", async () => {
     const createdGroup = {
-      id_url: "/api/v1/archive/production-groups/12",
+      id_url: "/api/v1/archive/series/12",
       title: "Autumn series",
       is_public_filter: true,
       production_id_urls: [
@@ -37,6 +37,7 @@ describe("CreateProductionGroupDialog", () => {
       <CreateProductionGroupDialog
         open
         selectedProductionIds={createdGroup.production_id_urls}
+        existingProductionGroups={[]}
         onClose={onClose}
         onCreated={onCreated}
       />
@@ -64,12 +65,48 @@ describe("CreateProductionGroupDialog", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("shows a validation error when the title already exists", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CreateProductionGroupDialog
+        open
+        selectedProductionIds={["/api/v1/archive/productions/1"]}
+        existingProductionGroups={[
+          {
+            id_url: "/api/v1/archive/series/12",
+            title: "Autumn series",
+            is_public_filter: true,
+            production_id_urls: ["/api/v1/archive/productions/1"],
+          },
+        ]}
+        onClose={vi.fn()}
+        onCreated={vi.fn()}
+      />
+    );
+
+    await user.type(
+      screen.getByLabelText("I18N_Archive_ProductionGroups_Dialog_NameLabel"),
+      "  autumn series  "
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "I18N_Archive_ProductionGroups_Actions_Create",
+      })
+    );
+
+    expect(productionGroupServiceModule.createProductionGroup).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText("I18N_Archive_ProductionGroups_Messages_DuplicateTitle")
+    ).toBeInTheDocument();
+  });
+
   it("shows the backend error message when creation fails", async () => {
     vi.mocked(productionGroupServiceModule.createProductionGroup).mockRejectedValue({
       isAxiosError: true,
       response: {
         data: {
-          detail: "A production group with this title already exists.",
+          detail: "A series with this title already exists.",
         },
       },
     });
@@ -80,6 +117,7 @@ describe("CreateProductionGroupDialog", () => {
       <CreateProductionGroupDialog
         open
         selectedProductionIds={["/api/v1/archive/productions/1"]}
+        existingProductionGroups={[]}
         onClose={vi.fn()}
         onCreated={vi.fn()}
       />
@@ -96,7 +134,7 @@ describe("CreateProductionGroupDialog", () => {
     );
 
     expect(
-      await screen.findByText("A production group with this title already exists.")
+      await screen.findByText("A series with this title already exists.")
     ).toBeInTheDocument();
   });
 });

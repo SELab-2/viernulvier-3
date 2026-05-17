@@ -55,6 +55,8 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
   "archive.productionGroups.dialog.publicHint":
     "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.messages.duplicateTitle":
+    "I18N_Archive_ProductionGroups_Messages_DuplicateTitle",
   "archive.productionGroups.deleteDialog.title":
     "I18N_Archive_ProductionGroups_DeleteDialog_Title",
   "archive.productionGroups.deleteDialog.description":

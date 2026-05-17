@@ -55,26 +55,26 @@
     "create_error": "Error tijdens aanmaken van productie: ",
     "productionGroups": {
       "actions": {
-        "create": "Maak productiegroep",
+        "create": "Maak reeks",
         "creating": "Bezig met aanmaken...",
-        "delete": "Verwijder productiegroep",
+        "delete": "Verwijder reeks",
         "deleting": "Bezig met verwijderen...",
         "cancel": "Annuleer"
       },
       "deleteInfo": {
-        "ariaLabel": "Hoe je een productiegroep verwijdert",
-        "tooltip": "Om een productiegroep te verwijderen, selecteer je eerst die groep in de filters en daarna alle producties uit die groep. Zodra de volledige groep geselecteerd is, verschijnt de verwijderknop."
+        "ariaLabel": "Hoe je een reeks verwijdert",
+        "tooltip": "Om een reeks te verwijderen, selecteer je eerst die reeks in de filters en daarna alle producties uit die reeks. Zodra de volledige reeks geselecteerd is, verschijnt de verwijderknop."
       },
       "dialog": {
-        "title": "Maak een productiegroep",
-        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers ze als filter kunnen gebruiken in het archief.",
+        "title": "Maak een reeks",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers de reeks als filter kunnen gebruiken in het archief.",
         "selectedCount": "{{count}} geselecteerde producties",
-        "nameLabel": "Titel van de groep",
-        "publicLabel": "Toon deze groep in de publieke archieffilters",
-        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze productiegroep gebruiken als filter in het archief."
+        "nameLabel": "Titel van de reeks",
+        "publicLabel": "Toon deze reeks in de publieke archieffilters",
+        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze reeks gebruiken als filter in het archief."
       },
       "deleteDialog": {
-        "title": "Verwijder productiegroep",
+        "title": "Verwijder reeks",
         "description": "Je staat op het punt om \"{{title}}\" uit de archieffilters te verwijderen.",
         "selectedCount": "{{count}} gegroepeerde producties",
         "warning": "De producties zelf blijven beschikbaar in het archief. Deze actie kan niet ongedaan worden gemaakt.",
@@ -83,10 +83,11 @@
         }
       },
       "messages": {
-        "titleRequired": "Een titel voor de productiegroep is verplicht.",
-        "noProductionsSelected": "Selecteer minstens één productie voordat je een productiegroep maakt.",
-        "createFailed": "Kon de productiegroep niet aanmaken.",
-        "deleteFailed": "Kon de productiegroep niet verwijderen."
+        "titleRequired": "Een titel voor de reeks is verplicht.",
+        "duplicateTitle": "Er bestaat al een reeks met deze titel.",
+        "noProductionsSelected": "Selecteer minstens één productie voordat je een reeks maakt.",
+        "createFailed": "Kon de reeks niet aanmaken.",
+        "deleteFailed": "Kon de reeks niet verwijderen."
       }
     },
     "accessDenied": {

@@ -18,7 +18,7 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/1",
       },
     ],
-    production_group_id_url: "",
+    series_id_url: "",
   },
   {
     id_url: "/blogs/2",
@@ -30,7 +30,7 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/2",
       },
     ],
-    production_group_id_url: "",
+    series_id_url: "",
   },
   {
     id_url: "/blogs/3",
@@ -42,7 +42,7 @@ export const mockBlogs: Blog[] = [
         blog_id_url: "/blogs/3",
       },
     ],
-    production_group_id_url: "",
+    series_id_url: "",
   },
 ];
 
