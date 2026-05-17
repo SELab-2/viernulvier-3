@@ -172,7 +172,10 @@
       "search_tags": "Zoek tags...",
       "create_new_tag": "Maak nieuwe tag \"{{tag}}\" aan",
       "create_tag": "Tag aanmaken",
-      "no_tags": "Geen tags gevonden"
+      "english_tag_name": "Engelse naam",
+      "dutch_tag_name": "Nederlandse naam",
+      "no_tags": "Geen tags gevonden",
+      "create": "Aanmaken"
     },
     "delete": {
       "delete": "Verwijder info (nl)",

@@ -84,7 +84,7 @@ function CreateTagDialog({
           className="mt-6 flex flex-col gap-5"
         >
           <ArchiveTextField
-            label={t("Dutch Name")}
+            label={t("productionPage.edit.dutch_tag_name")}
             autoFocus
             value={dutchName}
             onChange={(event) => {
@@ -92,7 +92,7 @@ function CreateTagDialog({
             }}
           />
           <ArchiveTextField
-            label={t("English Name")}
+            label={t("productionPage.edit.english_tag_name")}
             autoFocus
             value={englishName}
             onChange={(event) => {

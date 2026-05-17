@@ -118,8 +118,8 @@ describe("Tags", () => {
 
     await user.click(screen.getByText(/create_new_tag/i));
 
-    const dutchInput = screen.getByLabelText("Dutch Name");
-    const englishInput = screen.getByLabelText("English Name");
+    const dutchInput = screen.getByLabelText(/dutch_tag_name/i);
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
 
     // english should already be prefilled because preferredLanguage="en"
     expect(englishInput).toHaveValue("TagName");
@@ -147,7 +147,7 @@ describe("Tags", () => {
 
     await user.click(screen.getByText(/create_new_tag/i));
 
-    const englishInput = screen.getByLabelText("English Name");
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
     expect(englishInput).toHaveValue("Noise");
     await user.click(
       screen.getByRole("button", {
