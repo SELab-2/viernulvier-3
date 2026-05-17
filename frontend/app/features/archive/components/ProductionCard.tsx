@@ -233,7 +233,8 @@ export function ProductionCard({
 
   if (!productionId) return null;
 
-  const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
+  const imageUrl = firstImageUrl ?? "/logo.svg";
+  const isLogoFallback = !firstImageUrl;
 
   return (
     <Card
@@ -290,6 +291,9 @@ export function ProductionCard({
           image={imageUrl}
           alt={title}
           sx={{
+            objectFit: isLogoFallback ? "contain" : "cover",
+            paddingBlock: isLogoFallback ? "200px" : 0,
+            filter: isLogoFallback ? "var(--archive-logo-filter)" : "none",
             transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
             transform: "translateY(0) scale(1)",
             transformOrigin: "center top",

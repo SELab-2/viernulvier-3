@@ -180,7 +180,8 @@ export function BlogCard({
   compact = false,
 }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
-  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const isLogoFallback = imageUrl === null;
 
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -284,12 +285,14 @@ export function BlogCard({
         <CardMedia
           className="blog-card-image"
           component="img"
-          image={imageUrl}
+          image={imageUrl ?? "/logo.svg"}
           alt={title}
           sx={{
             width: "100%",
             height: "100%",
-            objectFit: "cover",
+            objectFit: isLogoFallback ? "contain" : "cover",
+            padding: isLogoFallback ? "16px" : 0,
+            filter: isLogoFallback ? "var(--archive-logo-filter)" : "none",
             transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
             transform: "scale(1)",
             transformOrigin: "center center",
