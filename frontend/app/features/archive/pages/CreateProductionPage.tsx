@@ -1,7 +1,7 @@
 import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import { ProductionHeader } from "../components/ProductionHeader";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
-import { useNavigate, useParams } from "react-router";
+import { useBlocker, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
@@ -9,7 +9,6 @@ import { EditButton } from "../components/EditButton";
 import { createProduction } from "../services/productionService";
 import {
   getSanitizedHtmlOrUndefined,
-  useUnsavedChangesBlocker,
   isEmptyHtml,
 } from "../utils/productionPageFunctions";
 import type { Tag } from "../types/tagTypes";
@@ -137,11 +136,7 @@ export function CreateProductionPage() {
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const skipWarning = useRef(false);
-  const [skipWarningState, setSkipWarningState] = useState(false);
 
-  useUnsavedChangesBlocker(
-    !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
-  );
   const navigate = useNavigate();
 
   const isModified = useMemo(() => {
@@ -153,28 +148,31 @@ export function CreateProductionPage() {
     );
   }, [draftInfo, draftTags, isQuillDirty, draftEvents]);
 
-  const handleCancel = async () => {
-    if (isModified && !window.confirm(t("notSaveChanges"))) {
-      return;
+  const isCancelling = useRef(false);
+
+  const blocker = useBlocker(
+    !isSaving && !isCancelling.current && (isInfoModified(draftInfo) || isQuillDirty)
+  );
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirm = window.confirm(t("notSaveChanges"));
+      if (confirm) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
     }
-    skipWarning.current = true;
-    setSkipWarningState(true);
-    setDraftInfo({
-      production_id_url: "",
-      language: lang!,
-      title: "",
-      supertitle: "",
-      artist: "",
-      tagline: "",
-      teaser: "",
-      description: "",
-      info: "",
-    });
-    setDraftTags([]);
-    setDraftEvents([]);
-    setDraftAttendanceMode("");
-    setDraftPerformerType("");
-    setIsQuillDirty(false);
+  }, [blocker.state]);
+
+  const handleCancel = async () => {
+    if (isModified) {
+      isCancelling.current = true;
+      if (!window.confirm(t("notSaveChanges"))) {
+        isCancelling.current = false;
+        return;
+      }
+    }
     skipWarning.current = true;
     navigate("/archive");
   };
@@ -190,7 +188,7 @@ export function CreateProductionPage() {
       setIsSaving,
       t("archive.create_error"),
       skipWarning,
-      setSkipWarningState,
+      () => {},
       navigate
     );
   // TODO
