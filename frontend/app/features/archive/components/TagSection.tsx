@@ -5,6 +5,7 @@ import type { Tag } from "../types/tagTypes";
 import { useTranslation } from "react-i18next";
 import { useClickOutside } from "~/shared/hooks/useClickOutside";
 
+import Check from "@mui/icons-material/Check";
 import Add from "@mui/icons-material/Add";
 import Close from "@mui/icons-material/Close";
 import {
@@ -186,13 +187,7 @@ function TagDropdown({
       return false;
     }
 
-    const matchesSearch = localizedName.toLowerCase().includes(search.toLowerCase());
-
-    const alreadySelected = selectedTags.some(
-      (draftTag) => draftTag.id_url === tag.id_url
-    );
-
-    return matchesSearch && !alreadySelected;
+    return localizedName.toLowerCase().includes(search.toLowerCase());
   });
 
   useClickOutside(dropdownRef, () => {
@@ -219,16 +214,26 @@ function TagDropdown({
         <li className="px-3 py-2 text-sm opacity-60">{t("loading")}</li>
       ) : (
         <ul className="max-h-64 overflow-y-auto">
-          {filteredTags.map((tag) => (
-            <li key={tag.id_url}>
-              <button
-                className="hover:bg-archive-control w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition"
-                onClick={() => addTag(tag)}
-              >
-                {getTagNameByLanguage(tag, language)}
-              </button>
-            </li>
-          ))}
+          {filteredTags.map((tag) => {
+            const isSelected = selectedTags.some(
+              (draftTag) => draftTag.id_url === tag.id_url
+            );
+
+            return (
+              <li key={tag.id_url}>
+                <button
+                  className="hover:bg-archive-control flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition"
+                  onClick={() => addTag(tag)}
+                >
+                  <span>{getTagNameByLanguage(tag, language)}</span>
+
+                  {isSelected && (
+                    <Check sx={{ fontSize: "1rem" }} className="text-archive-accent" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
 
           {search.length > 0 && (
             <li>

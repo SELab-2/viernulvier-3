@@ -95,16 +95,23 @@ describe("Tags", () => {
     expect(screen.queryByText("Classical")).not.toBeInTheDocument();
   });
 
-  it("does not show already selected tags", async () => {
+  it("shows already selected tags with a checkmark", async () => {
     const user = userEvent.setup();
     vi.mocked(getAllTags).mockResolvedValue(mockTags);
+
     render(<TagsTestWrapper initialTags={[mockTags[0]]} />);
 
     await user.click(screen.getByLabelText("Add Tag"));
-
     const dropdown = screen.getByTestId("tag-dropdown");
-    expect(within(dropdown).queryByText("Classical")).not.toBeInTheDocument();
+
+    expect(within(dropdown).getByText("Classical")).toBeInTheDocument();
     expect(within(dropdown).getByText("Experimental")).toBeInTheDocument();
+
+    const classicalButton = within(dropdown).getByText("Classical").closest("button");
+
+    expect(
+      within(classicalButton as HTMLElement).getByTestId("CheckIcon")
+    ).toBeInTheDocument();
   });
 
   it("creates a new tag from the dropdown search", async () => {
