@@ -35,3 +35,15 @@ export interface EventUpdate {
   ends_at?: string;
   order_url?: string;
 }
+
+export interface PriceCreate {
+  amount?: number;
+  available?: number;
+  expires_at?: string;
+}
+
+export interface PriceUpdate {
+  amount?: number;
+  available?: number;
+  expires_at?: string;
+}

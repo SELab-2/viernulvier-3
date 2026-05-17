@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Location } from "react-router";
 import {
   isEmptyHtml,
   getSanitizedHtmlOrUndefined,
@@ -130,7 +131,7 @@ describe("useUnsavedChangesBlocker", () => {
         state: null,
         key: "default",
         unstable_mask: undefined,
-      },
+      } as Location<unknown>,
     });
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
@@ -157,7 +158,7 @@ describe("useUnsavedChangesBlocker", () => {
         state: null,
         key: "default",
         unstable_mask: undefined,
-      },
+      } as Location<unknown>,
     });
     vi.spyOn(window, "confirm").mockReturnValue(false);
 
