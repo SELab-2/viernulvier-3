@@ -13,7 +13,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
-    production_id = Column(Integer, ForeignKey("productions.id"))
+    production_id = Column(Integer, ForeignKey("productions.id", ondelete="CASCADE"))
 
     # hall_id = Column(Integer, ForeignKey("halls.id"))
     hall_id = Column(Integer, ForeignKey("halls.id"), nullable=True)
@@ -28,7 +28,12 @@ class Event(Base):
 
     production = relationship("Production", back_populates="events")
     hall = relationship("Hall", back_populates="events")
-    prices = relationship("EventPrice", back_populates="event")
+    prices = relationship(
+        "EventPrice",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 class EventPrice(Base):
@@ -37,7 +42,7 @@ class EventPrice(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     viernulvier_id = Column(Integer, unique=True, autoincrement=False)
 
-    event_id = Column(Integer, ForeignKey("events.id"))
+    event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"))
 
     amount = Column(DECIMAL)
     available = Column(Integer)

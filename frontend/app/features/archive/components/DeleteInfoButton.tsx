@@ -46,7 +46,7 @@ export function DeleteInfoButton({
   return (
     <Protected permissions={[ARCHIVE_PERMISSIONS.update]}>
       <button
-        id="delete-production-button"
+        id="delete-production-info-button"
         onClick={() =>
           handleInfoDelete(
             production_id_url,

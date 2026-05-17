@@ -6,6 +6,9 @@ import {
   getVisualTypes,
   uploadVisual,
   deleteVisual,
+  isImageItem,
+  isVideoItem,
+  isPdfItem,
 } from "~/features/visuals/services/visualService";
 import type { VisualItem, VisualType } from "~/features/visuals/types/visualTypes";
 import { Protected } from "~/features/auth";
@@ -137,14 +140,6 @@ export default function VisualsPage() {
         })
       );
     }
-  }
-
-  function isImageItem(item: VisualItem): boolean {
-    return item.content_type.startsWith("image/");
-  }
-
-  function isVideoItem(item: VisualItem): boolean {
-    return item.content_type.startsWith("video/");
   }
 
   function renderMain() {
@@ -324,6 +319,26 @@ export default function VisualsPage() {
               muted
               preload="metadata"
             />
+          ) : isPdfItem(visual) ? (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 opacity-40"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span className="text-xs font-medium tracking-wider uppercase opacity-40">
+                PDF
+              </span>
+            </div>
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <span className="font-serif text-4xl opacity-20">📄</span>
@@ -404,7 +419,9 @@ export default function VisualsPage() {
         onClick={closeLightbox}
       >
         <div
-          className="bg-archive-paper relative mx-4 flex max-h-[90vh] max-w-5xl flex-col overflow-hidden rounded-lg shadow-2xl"
+          className={`bg-archive-paper relative mx-4 flex max-h-[90vh] flex-col overflow-hidden rounded-lg shadow-2xl ${
+            isPdfItem(lightboxVisual) ? "w-[90vw] max-w-[90vw]" : "w-full max-w-5xl"
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -442,6 +459,12 @@ export default function VisualsPage() {
                 controls
                 autoPlay
               />
+            ) : isPdfItem(lightboxVisual) ? (
+              <iframe
+                src={lightboxVisual.url}
+                title={lightboxVisual.title || t("visuals.card.noTitle")}
+                className="h-[70vh] w-full min-w-[320px]"
+              />
             ) : (
               <div className="flex min-h-[40vh] items-center justify-center">
                 <span className="font-serif text-6xl opacity-30">📄</span>
@@ -473,18 +496,17 @@ export default function VisualsPage() {
                   )}
                 </span>
               </div>
-              <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
-                <button
-                  className="flex items-center gap-2 text-sm font-medium text-red-400 opacity-100 transition-colors hover:text-red-800"
-                  onClick={() => {
-                    const visualId = Number(lightboxVisual.id_url.split("/").pop());
-                    handleDelete(visualId);
-                    closeLightbox();
-                  }}
+              <div className="flex items-center gap-3">
+                <a
+                  href={lightboxVisual.url}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm font-medium opacity-100 transition-colors hover:opacity-70"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -493,12 +515,38 @@ export default function VisualsPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                     />
                   </svg>
-                  {t("visuals.delete")}
-                </button>
-              </Protected>
+                  {t("visuals.download", "Download")}
+                </a>
+                <Protected permissions={[ARCHIVE_PERMISSIONS.delete]}>
+                  <button
+                    className="flex items-center gap-2 text-sm font-medium text-red-400 opacity-100 transition-colors hover:text-red-800"
+                    onClick={() => {
+                      const visualId = Number(lightboxVisual.id_url.split("/").pop());
+                      handleDelete(visualId);
+                      closeLightbox();
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    {t("visuals.delete")}
+                  </button>
+                </Protected>
+              </div>
             </div>
           </div>
         </div>

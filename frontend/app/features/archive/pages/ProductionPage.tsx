@@ -16,9 +16,12 @@ import type { Event, Price } from "~/features/archive/types/eventTypes";
 import type { Blog } from "~/features/blogs/types/blogTypes";
 import {
   createEvent,
+  createPrice,
+  deletePrice,
   getEventByUrl,
   getPriceByUrl,
   updateEventByUrl,
+  updatePriceByUrl,
 } from "~/features/archive/services/eventService";
 import { getHallByUrl } from "~/features/archive/services/hallService";
 import { type EventWithResolvedRelations } from "../components/EventCard";
@@ -32,12 +35,14 @@ import { ProductionInfoSection } from "../components/ProductionInfoSection";
 import type { Tag } from "../types/tagTypes";
 import { BackToCollectionLink } from "../components/BackToCollectionLink";
 import { DeleteInfoButton } from "../components/DeleteInfoButton";
+import { DeleteProductionButton } from "../components/DeleteProductionButton";
 import { EditButton } from "../components/EditButton";
 import { ProductionHeader } from "../components/ProductionHeader";
 import EventSection from "../components/EventSection";
 import Tags from "../components/TagSection";
 import { ARCHIVE_PERMISSIONS } from "../archive.constants";
 import { ProductionGeneralInfo } from "../components/ProductionGeneralInfo";
+import { createTag } from "../services/tagService";
 
 interface ProductionPageProps {
   production: Production;
@@ -96,7 +101,7 @@ function areTagsModified(originalTags: Tag[], draftTags: Tag[]): boolean {
   return originalIds.some((id, index) => id !== draftIds[index]);
 }
 
-function isEventModified(original?: Event, draft?: Event): boolean {
+function areEventFieldsModified(original?: Event, draft?: Event): boolean {
   if (!original || !draft) return false;
 
   return (
@@ -105,6 +110,48 @@ function isEventModified(original?: Event, draft?: Event): boolean {
     original.order_url !== draft.order_url ||
     original.hall?.id_url !== draft.hall?.id_url
   );
+}
+
+function arePricesModified(originalPrices: Price[], draftPrices: Price[]): boolean {
+  if (originalPrices.length !== draftPrices.length) return true;
+
+  const draftById = new Map(draftPrices.map((p) => [p.id_url, p]));
+
+  for (const original of originalPrices) {
+    const draft = draftById.get(original.id_url);
+    if (!draft) return true;
+    if (original.amount !== draft.amount || original.available !== draft.available)
+      return true;
+  }
+
+  for (const draft of draftPrices) {
+    if (draft.id_url.startsWith("temp-")) return true;
+    if (!draftById.has(draft.id_url)) return true;
+  }
+
+  return false;
+}
+
+function isEventModified(
+  original?: EventWithResolvedRelations,
+  draft?: EventWithResolvedRelations
+): boolean {
+  if (!original || !draft) return false;
+
+  return (
+    areEventFieldsModified(original, draft) ||
+    arePricesModified(original.resolvedPrices, draft.resolvedPrices)
+  );
+}
+
+function getEventIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/events\/(\d+)/);
+  return match ? Number(match[1]) : undefined;
+}
+
+function getPriceIdFromUrl(idUrl: string): number | undefined {
+  const match = idUrl.match(/\/prices\/(\d+)/);
+  return match ? Number(match[1]) : undefined;
 }
 
 async function handleInfoSave(
@@ -126,6 +173,10 @@ async function handleInfoSave(
   setNewEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
   deletedEvents: EventWithResolvedRelations[],
   setDeletedEvents: React.Dispatch<React.SetStateAction<EventWithResolvedRelations[]>>,
+  setMediaEdited: React.Dispatch<React.SetStateAction<boolean>>,
+  newTags: Tag[],
+  setNewTags: React.Dispatch<React.SetStateAction<Tag[]>>,
+  setDraftTags: React.Dispatch<React.SetStateAction<Tag[]>>,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>,
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
   language: string,
@@ -161,7 +212,7 @@ async function handleInfoSave(
       if (!draft.id_url) return false;
       const original = originalMap.get(draft.id_url);
       if (!original) return false;
-      return isEventModified(original, draft);
+      return areEventFieldsModified(original, draft);
     });
     for (const event of updatedEvents) {
       await updateEventByUrl(event.id_url, {
@@ -196,15 +247,136 @@ async function handleInfoSave(
       await deleteByUrl(event.id_url);
     }
 
+    const createdTags: Tag[] = [];
+    for (const tag of newTags) {
+      const createdTag = await createTag({
+        names: tag.names,
+      });
+
+      createdTags.push(createdTag);
+    }
+
+    const persistedTags = [...draftTags, ...createdTags];
+
+    await updateProductionByUrl(production_id_url, {
+      attendance_mode: attendance_mode,
+      performer_type: performer_type,
+      production_infos: [
+        {
+          language: language,
+          title: draftInfo.title,
+          supertitle: draftInfo.supertitle,
+          artist: draftInfo.artist,
+          tagline: draftInfo.tagline,
+          teaser: draftInfo.teaser,
+          description: draftInfo.description,
+          info: draftInfo.info,
+        },
+      ],
+      tag_id_urls: persistedTags.map((tag) => tag.id_url),
+    });
+
+    // Handle price changes for existing events
+    const finalDraftEvents = [...draftEvents];
+    for (let i = 0; i < finalDraftEvents.length; i++) {
+      const draftEvent = finalDraftEvents[i];
+      if (!draftEvent.id_url) continue;
+
+      const originalEvent = originalMap.get(draftEvent.id_url);
+      if (!originalEvent) continue;
+
+      const originalPrices = originalEvent.resolvedPrices;
+      const draftPrices = draftEvent.resolvedPrices;
+
+      if (!arePricesModified(originalPrices, draftPrices)) continue;
+
+      const eventId = getEventIdFromUrl(draftEvent.id_url);
+      if (!eventId) continue;
+
+      // Delete removed prices
+      const draftPriceUrls = new Set(
+        draftPrices.filter((p) => !p.id_url.startsWith("temp-")).map((p) => p.id_url)
+      );
+      for (const originalPrice of originalPrices) {
+        if (!draftPriceUrls.has(originalPrice.id_url)) {
+          const priceId = getPriceIdFromUrl(originalPrice.id_url);
+          if (priceId !== undefined) {
+            await deletePrice(eventId, priceId);
+          }
+        }
+      }
+
+      // Create new prices and update modified prices
+      const newResolvedPrices: Price[] = [];
+      for (const draftPrice of draftPrices) {
+        if (draftPrice.id_url.startsWith("temp-")) {
+          const created = await createPrice(eventId, {
+            amount: draftPrice.amount,
+            available: draftPrice.available,
+          });
+          newResolvedPrices.push(created);
+        } else {
+          const originalPrice = originalPrices.find(
+            (p) => p.id_url === draftPrice.id_url
+          );
+          if (
+            originalPrice &&
+            (originalPrice.amount !== draftPrice.amount ||
+              originalPrice.available !== draftPrice.available)
+          ) {
+            const updated = await updatePriceByUrl(draftPrice.id_url, {
+              amount: draftPrice.amount,
+              available: draftPrice.available,
+            });
+            newResolvedPrices.push(updated);
+          } else {
+            newResolvedPrices.push(draftPrice);
+          }
+        }
+      }
+
+      finalDraftEvents[i] = {
+        ...draftEvent,
+        resolvedPrices: newResolvedPrices,
+        price_urls: newResolvedPrices.map((p) => p.id_url),
+      };
+    }
+
+    // Create prices for newly created events
+    const finalCreatedEvents = [...createdEvents];
+    for (let i = 0; i < newEvents.length; i++) {
+      const createdEvent = finalCreatedEvents[i];
+      const eventId = getEventIdFromUrl(createdEvent.id_url);
+      if (!eventId) continue;
+
+      const newResolvedPrices: Price[] = [];
+      for (const price of newEvents[i].resolvedPrices) {
+        const created = await createPrice(eventId, {
+          amount: price.amount,
+          available: price.available,
+        });
+        newResolvedPrices.push(created);
+      }
+
+      finalCreatedEvents[i] = {
+        ...createdEvent,
+        resolvedPrices: newResolvedPrices,
+        price_urls: newResolvedPrices.map((p) => p.id_url),
+      };
+    }
+
     // sync local "source of truth"
     setOriginalAttendanceMode(attendance_mode);
     setOriginalPerformerType(performer_type);
-    setOriginalTags(draftTags);
+    setOriginalTags(persistedTags);
+    setDraftTags(persistedTags);
+    setNewTags([]);
     setOriginalInfo(draftInfo);
-    setOriginalEvents([...draftEvents, ...createdEvents]);
-    setDraftEvents([...draftEvents, ...createdEvents]);
+    setOriginalEvents([...finalDraftEvents, ...finalCreatedEvents]);
+    setDraftEvents([...finalDraftEvents, ...finalCreatedEvents]);
     setNewEvents([]);
     setDeletedEvents([]);
+    setMediaEdited(false);
 
     setIsEditing(false);
     if (!originalInfo) {
@@ -248,6 +420,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   });
   const [originalTags, setOriginalTags] = useState<Tag[]>(production.tags ?? []);
   const [draftTags, setDraftTags] = useState<Tag[]>(production.tags ?? []);
+  const [newTags, setNewTags] = useState<Tag[]>([]);
 
   // General Info
   const [draftPerformerType, setDraftPerformerType] = useState<string>(
@@ -264,6 +437,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   );
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [mediaEdited, setMediaEdited] = useState<boolean>(false);
 
   const _handleSave = () =>
     handleInfoSave(
@@ -285,6 +459,10 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
       setNewEvents,
       deletedEvents,
       setDeletedEvents,
+      setMediaEdited,
+      newTags,
+      setNewTags,
+      setDraftTags,
       setIsEditing,
       setIsSaving,
       language,
@@ -295,7 +473,11 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     return (
       newEvents.length > 0 ||
       deletedEvents.length > 0 ||
-      draftEvents.some((draft, i) => isEventModified(originalEvents[i], draft))
+      draftEvents.some((draft) => {
+        if (!draft.id_url) return true;
+        const original = originalEvents.find((e) => e.id_url === draft.id_url);
+        return isEventModified(original, draft);
+      })
     );
   }, [draftEvents, originalEvents, newEvents, deletedEvents]);
 
@@ -308,12 +490,13 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     const generalModified =
       originalAttendanceMode !== draftAttendanceMode ||
       originalPerformerType !== draftPerformerType;
-    const tagsModified = areTagsModified(originalTags, draftTags);
+    const tagsModified = areTagsModified(originalTags, draftTags) || newTags.length > 0;
     return (
       tagsModified ||
       generalModified ||
       isInfoModified(originalInfo, draftInfo) ||
-      areEventsModified
+      areEventsModified ||
+      mediaEdited
     );
   }, [
     originalInfo,
@@ -326,11 +509,16 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
     draftAttendanceMode,
     originalPerformerType,
     draftPerformerType,
+    mediaEdited,
+    newTags,
   ]);
 
-  useEffect(() => {
+  const productionNumericId = useMemo(() => {
     const match = production.id_url.match(/\/productions\/(\d+)(?:[/?#]|$)/);
-    const productionNumericId = match ? Number(match[1]) : undefined;
+    return match ? Number(match[1]) : undefined;
+  }, [production.id_url]);
+
+  useEffect(() => {
     if (!productionNumericId) return;
 
     getMediaForProduction(productionNumericId, { limit: 1 })
@@ -339,7 +527,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         if (first) setFirstImageUrl(first.url);
       })
       .catch(() => {});
-  }, [production.id_url]);
+  }, [productionNumericId]);
 
   const skipUnloadWarning = useRef(false);
   const isEditingRef = useRef(false);
@@ -523,6 +711,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
           originalTags={originalTags}
           draftTags={draftTags}
           setDraftTags={setDraftTags}
+          newTags={newTags}
+          setNewTags={setNewTags}
           isEditing={isEditing}
         />
 
@@ -589,6 +779,8 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
         <ProductionPageMediaGallery
           production_id_url={production.id_url}
           title={title}
+          isEditing={isEditing}
+          setMediaEdited={setMediaEdited}
         />
       </main>
 
@@ -606,6 +798,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setNewTags={setNewTags}
             setDraftAttendanceMode={setDraftAttendanceMode}
             setDraftPerformerType={setDraftPerformerType}
             originalAttendanceMode={originalAttendanceMode}
@@ -620,6 +813,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
               production_id_url={production.id_url}
               language={language}
             />
+          ) : null}
+          {!isEditing && productionNumericId ? (
+            <DeleteProductionButton productionId={productionNumericId} />
           ) : null}
         </div>
       ) : (
@@ -636,6 +832,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             setDraftEvents={setDraftEvents}
             setNewEvents={setNewEvents}
             setDeletedEvents={setDeletedEvents}
+            setNewTags={setNewTags}
             setDraftAttendanceMode={setDraftAttendanceMode}
             setDraftPerformerType={setDraftPerformerType}
             originalAttendanceMode={originalAttendanceMode}
@@ -645,6 +842,9 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
             _handleSave={_handleSave}
             permissions={[ARCHIVE_PERMISSIONS.update]}
           />
+          {!isEditing && productionNumericId ? (
+            <DeleteProductionButton productionId={productionNumericId} />
+          ) : null}
         </div>
       )}
     </div>

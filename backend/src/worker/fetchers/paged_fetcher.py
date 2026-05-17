@@ -69,7 +69,18 @@ class PagedFetcher:
                 f"Class {__class__} did not set 'endpoint' and can thus not sync"
             )
 
-        parameters = {"updated_at[after]": last_timestamp}
+        # [strictly_after] means that theoretically we could lose an update,
+        # but only on very rare edge cases where there were multiple items
+        # updated at the exact same time, and for some reason the scraper did
+        # not get all of those items. In that case the updateds that we did not
+        # get will be lost.
+
+        # If this edge case must be catched, than a solution could be to hold a
+        # list somewhere of the viernulvier_id's of all the items that were
+        # fetched the last sync and had that last timestamp. Then those could
+        # be ignored during this next update round.
+
+        parameters = {"updated_at[strictly_after]": last_timestamp}
         return self.fetch_all(self.endpoint, parameters)
 
     def fetch_all(self, link: str, parameters: dict) -> list:

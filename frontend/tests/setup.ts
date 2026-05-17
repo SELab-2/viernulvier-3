@@ -55,6 +55,8 @@ const translationMap: Record<string, TranslationValue> = {
     "I18N_Archive_ProductionGroups_Dialog_PublicLabel",
   "archive.productionGroups.dialog.publicHint":
     "I18N_Archive_ProductionGroups_Dialog_PublicHint",
+  "archive.productionGroups.messages.duplicateTitle":
+    "I18N_Archive_ProductionGroups_Messages_DuplicateTitle",
   "archive.productionGroups.deleteDialog.title":
     "I18N_Archive_ProductionGroups_DeleteDialog_Title",
   "archive.productionGroups.deleteDialog.description":
@@ -117,6 +119,15 @@ const translationMap: Record<string, TranslationValue> = {
   "blogs.contentPage.linkedProductions": "I18N_Blog_Productions",
   "blogs.contentPage.fallback": "I18N_Blog_Fallback",
   "blogs.contentPage.media": "I18N_Blog_Media",
+  "blogs.contentPage.uploadMedia": "I18N_Upload_Media",
+  "blogs.contentPage.deleteMedia": "I18N_Delete_Media",
+  "blogs.contentPage.noMedia": "I18N_No_Media",
+  "blogs.contentPage.closeLightbox": "I18N_Close_Lightbox",
+  "blogs.contentPage.blogPhoto": "I18N_Blog_Photo",
+  "blogs.contentPage.edit.confirmTitle": "I18N_Confirm_Title",
+  "blogs.contentPage.edit.confirmBody": "I18N_Confirm_Body",
+  "blogs.contentPage.edit.cancel": "I18N_Edit_Cancel",
+  "blogs.contentPage.edit.delete": "I18N_Edit_Delete",
   "blogs.contentPage.delete.delete": "I18N_Blog_Delete",
   "blogs.contentPage.delete.deleting": "I18N_Blog_Deleting",
   "blogs.contentPage.delete.confirm": "I18N_Blog_Delete_Confirm",
@@ -157,6 +168,12 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.infoNotAvailable": "I18N_ProductionInfo_NotAvailable",
   "productionPage.add.add": "I18N_ProductionInfo_Add",
   "productionPage.delete.delete": "I18N_ProductionInfo_Delete",
+  "productionPage.delete.confirm": "I18N_ProductionInfo_Delete_Confirm",
+  "productionPage.delete.error": "I18N_ProductionInfo_Delete_Error",
+  "productionPage.deleteProduction.delete": "I18N_Production_Delete",
+  "productionPage.deleteProduction.deleting": "I18N_Production_Deleting",
+  "productionPage.deleteProduction.confirm": "I18N_Production_Delete_Confirm",
+  "productionPage.deleteProduction.error": "I18N_Production_Delete_Error",
   "productionPage.edit.title": "I18N_ProductionInfo_Edit_Title",
   "productionPage.edit.teaser": "I18N_ProductionInfo_Edit_Teaser",
   "productionPage.edit.description": "I18N_ProductionInfo_Edit_Description",
@@ -164,6 +181,14 @@ const translationMap: Record<string, TranslationValue> = {
   "productionPage.edit.cancel": "I18N_ProductionPage_Edit_Cancel",
   "productionPage.edit.attendance_mode": "I18N_ProductionPage_AttendanceMode",
   "productionPage.edit.performer_type": "I18N_ProductionPage_PerformerType",
+  "productionPage.deleteMedia": "I18N_Production_DeleteMedia",
+  "productionPage.uploadMedia": "I18N_Production_UploadMedia",
+  "productionPage.noImagesYet": "I18N_Production_NoImagesYet",
+  "productionPage.closeLightbox": "I18N_Production_CloseLightbox",
+  "productionPage.archivePhoto": "I18N_Production_ArchivePhoto",
+  "productionPage.edit.confirmDeleteTitle": "I18N_Production_ConfirmDeleteTitle",
+  "productionPage.edit.confirmDeleteBody": "I18N_Production_ConfirmDeleteBody",
+  "productionPage.edit.delete": "I18N_Production_Edit_Delete",
 };
 
 const mockTranslate = (key: string, options?: TranslationOptions) => {

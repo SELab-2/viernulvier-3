@@ -17,6 +17,12 @@ class Hall(Base):
     names = relationship("HallName", back_populates="hall")
     events = relationship("Event", back_populates="hall")
 
+    def __init__(self, *args, name: str | None = None, language: str = "en", **kwargs):
+        super().__init__(*args, **kwargs)
+        if name is not None:
+            # Lazily import HallName to avoid issues with ordering
+            self.names.append(HallName(language=language, name=name))
+
 
 class HallName(Base):
     __tablename__ = "hallnames"

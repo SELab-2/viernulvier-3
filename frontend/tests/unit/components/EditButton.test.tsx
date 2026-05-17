@@ -56,6 +56,7 @@ const setDraftTags = vi.fn();
 const setDraftAttendanceMode = vi.fn();
 const setDraftPerformerType = vi.fn();
 const handleSave = vi.fn();
+const setNewTags = vi.fn();
 
 function renderEditButton(overrides = {}, user = baseUser) {
   vi.spyOn(loginServiceModule, "restoreSession").mockResolvedValue(user);
@@ -74,6 +75,7 @@ function renderEditButton(overrides = {}, user = baseUser) {
         setDeletedEvents={setDeletedEvents}
         originalTags={originalTags}
         setDraftTags={setDraftTags}
+        setNewTags={setNewTags}
         enable_save={true}
         is_saving={false}
         _handleSave={handleSave}
@@ -121,6 +123,7 @@ describe("EditButton", () => {
   });
 
   it("restores original values when cancel is clicked", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
     const user = userEvent.setup();
 
     renderEditButton({ isEditing: true });
@@ -135,6 +138,7 @@ describe("EditButton", () => {
     expect(setDraftEvents).toHaveBeenCalledWith([{ ...originalEvents[0] }]);
     expect(setNewEvents).toHaveBeenCalledWith([]);
     expect(setDeletedEvents).toHaveBeenCalledWith([]);
+    expect(setNewTags).toHaveBeenCalledWith([]);
     expect(setIsEditing).toHaveBeenCalledWith(false);
   });
 
