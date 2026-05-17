@@ -57,8 +57,7 @@ function CreateTagDialog({
     preferredLanguage === "en" ? (initialValue ?? "") : ""
   );
   function onClose() {
-    setDutchName("");
-    setEnglishName("");
+    setIsOpen(false);
   }
 
   return (
