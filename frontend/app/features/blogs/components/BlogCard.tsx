@@ -279,23 +279,44 @@ export function BlogCard({
             : { xs: "0%", sm: "30%", md: "320px" },
         }}
       >
-        <CardMedia
-          className="blog-card-image"
-          component="img"
-          image={imageUrl ?? "/logo.svg"}
-          alt={title}
-          sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: isLogoFallback ? "contain" : "cover",
-            padding: isLogoFallback ? "16px" : 0,
-            filter: isLogoFallback ? "var(--archive-logo-filter)" : "none",
-            transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-            transform: "scale(1)",
-            transformOrigin: "center center",
-            willChange: "transform",
-          }}
-        />
+        {isLogoFallback ? (
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--color-archive-ink)",
+            }}
+          >
+            <img
+              src="/logo.svg"
+              alt={title}
+              style={{
+                width: "90%",
+                maxWidth: 240,
+                filter: "var(--archive-logo-filter-inverted)",
+              }}
+            />
+          </Box>
+        ) : (
+          <CardMedia
+            className="blog-card-image"
+            component="img"
+            image={imageUrl!}
+            alt={title}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+              transform: "scale(1)",
+              transformOrigin: "center center",
+              willChange: "transform",
+            }}
+          />
+        )}
       </Box>
 
       <CardContent

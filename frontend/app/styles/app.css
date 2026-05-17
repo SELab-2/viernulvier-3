@@ -82,6 +82,7 @@
   --archive-control: rgba(45, 40, 37, 0.05);
   --archive-control-hover: rgba(45, 40, 37, 0.08);
   --archive-logo-filter: brightness(0) saturate(100%);
+  --archive-logo-filter-inverted: none;
   --archive-text-meta: 0.77rem;
   --archive-text-body: 1.1rem;
   --archive-text-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
@@ -104,6 +105,7 @@
   --archive-control: rgba(240, 228, 211, 0.06);
   --archive-control-hover: rgba(240, 228, 211, 0.1);
   --archive-logo-filter: none;
+  --archive-logo-filter-inverted: brightness(0) saturate(100%);
 }
 
 .prose {

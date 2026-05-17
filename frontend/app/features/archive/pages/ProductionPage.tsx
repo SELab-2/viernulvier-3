@@ -564,10 +564,7 @@ export function ProductionPage({ production, preferredLanguage }: ProductionPage
   const infoHtml = getSanitizedHtmlOrUndefined(draftInfo?.info);
 
   //TODO maybe an image saying no image found? Or something else? idk
-  const fallbackImageUrl =
-    "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-
-  const imageUrl = firstImageUrl ?? fallbackImageUrl;
+  const imageUrl = firstImageUrl;
   // keep events chronologically ordered for a predictable schedule list
   const eventObjects = useMemo(
     () =>
