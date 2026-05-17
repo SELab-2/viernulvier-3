@@ -139,7 +139,11 @@ export function CreateProductionPage() {
   const skipWarning = useRef(false);
   const [skipWarningState, setSkipWarningState] = useState(false);
 
-  const handleCancel = () => {
+  useUnsavedChangesBlocker(
+    !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
+  );
+  const navigate = useNavigate();
+  const handleCancel = async () => {
     setDraftInfo({
       production_id_url: "",
       language: lang!,
@@ -156,12 +160,9 @@ export function CreateProductionPage() {
     setDraftAttendanceMode("");
     setDraftPerformerType("");
     setIsQuillDirty(false);
+    skipWarning.current = true;
+    navigate("..");
   };
-
-  useUnsavedChangesBlocker(
-    !skipWarningState && !isSaving && (isInfoModified(draftInfo) || isQuillDirty)
-  );
-  const navigate = useNavigate();
   const isModified = useMemo(() => {
     return (
       draftTags.length > 0 ||
