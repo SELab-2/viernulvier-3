@@ -216,4 +216,37 @@ describe("CreateProductionPage", () => {
       })
     );
   });
+
+  it("cancel button resets form fields", async () => {
+    const user = userEvent.setup();
+    renderWithRouterAndTheme({
+      useRealCreateProductionPage: true,
+      initialPath: "/archive/productions/create",
+    });
+
+    const titleInput = await screen.findByPlaceholderText("I18_Archive_addInfo_Title");
+    await user.type(titleInput, "Test productie");
+    expect(titleInput).toHaveValue("Test productie");
+
+    const cancelButton = await screen.findByText("I18N_ProductionPage_Edit_Cancel");
+    await user.click(cancelButton);
+
+    expect(titleInput).toHaveValue("");
+  });
+
+  it("cancel button navigates back to archive", async () => {
+    const user = userEvent.setup();
+    renderWithRouterAndTheme({
+      useRealCreateProductionPage: true,
+      initialPath: "/archive/productions/create",
+    });
+
+    const cancelButton = await screen.findByText("I18N_ProductionPage_Edit_Cancel");
+    await user.click(cancelButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText("I18N_ProductionPage_Edit_Cancel")).not.toBeInTheDocument();
+    });
+  });
+
 });
