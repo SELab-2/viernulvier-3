@@ -180,7 +180,6 @@ export function CreateProductionPage() {
   ]);
 
   const [isCancelling, setIsCancelling] = useState(false);
-
   const blocker = useBlocker(!isSaving && !isCancelling && isModified);
 
   useEffect(() => {
@@ -194,31 +193,23 @@ export function CreateProductionPage() {
     }
   }, [blocker, t]);
 
-  const isCancellingRef = useRef(false);
-
   const handleCancel = () => {
     if (isModified) {
-      isCancellingRef.current = true;
       setIsCancelling(true);
+      queueMicrotask(() => {
+        const confirmed = window.confirm(t("notSaveChanges"));
+        if (confirmed) {
+          skipWarning.current = true;
+          navigate("/archive");
+        } else {
+          setIsCancelling(false);
+        }
+      });
     } else {
       skipWarning.current = true;
       navigate("/archive");
     }
   };
-
-  useEffect(() => {
-    if (!isCancelling) return;
-    if (!isCancellingRef.current) return;
-    isCancellingRef.current = false;
-
-    const confirmed = window.confirm(t("notSaveChanges"));
-    if (confirmed) {
-      skipWarning.current = true;
-      navigate("/archive");
-    } else {
-      setIsCancelling(false);
-    }
-  }, [isCancelling, t, navigate]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
