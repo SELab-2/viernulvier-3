@@ -5,11 +5,14 @@ import AxiosMockAdapter from "axios-mock-adapter";
 import { createApiClient } from "~/shared/services/apiClient";
 import {
   getEvent,
+  getEventByUrl,
   createEvent,
+  updateEventByUrl,
   updateEvent,
   deleteEvent,
   getEventPrices,
   getEventPrice,
+  getPriceByUrl,
   createPrice,
   updatePrice,
   updatePriceByUrl,
@@ -66,6 +69,37 @@ describe("eventService", () => {
     });
   });
 
+  describe("getEventByUrl", () => {
+    it("returns a single event by full url on success", async () => {
+      const eventUrl = "http://localhost/api/v1/archive/events/1";
+      const mockEvent: Event = {
+        id_url: eventUrl,
+        production_id_url: "prod1",
+        starts_at: "2026-03-20T19:00:00",
+        ends_at: "2026-03-20T22:00:00",
+        order_url: "https://example.com/order",
+        price_urls: ["price1", "price2"],
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-20T10:00:00",
+      };
+
+      mockAdapter.onGet("/api/v1/archive/events/1").reply(200, mockEvent);
+
+      const result = await getEventByUrl(eventUrl);
+
+      expect(result).toEqual(mockEvent);
+      expect(result.id_url).toBe(eventUrl);
+    });
+
+    it("throws when event by url is not found", async () => {
+      const eventUrl = "http://localhost/api/v1/archive/events/999";
+
+      mockAdapter.onGet("/api/v1/archive/events/999").reply(404);
+
+      await expect(getEventByUrl(eventUrl)).rejects.toThrow();
+    });
+  });
+
   describe("createEvent", () => {
     it("creates a new event and returns it", async () => {
       const eventData: EventCreate = {
@@ -101,6 +135,43 @@ describe("eventService", () => {
       mockAdapter.onPost("/api/v1/archive/events").reply(400);
 
       await expect(createEvent(eventData)).rejects.toThrow();
+    });
+  });
+
+  describe("updateEventByUrl", () => {
+    it("updates an event by full url and returns updated data", async () => {
+      const eventUrl = "http://localhost/api/v1/archive/events/1";
+      const eventData: EventUpdate = {
+        starts_at: "2026-03-21T19:00:00",
+        ends_at: "2026-03-21T22:00:00",
+      };
+
+      const mockResponse: Event = {
+        id_url: eventUrl,
+        production_id_url: "prod1",
+        ...eventData,
+        price_urls: ["price1"],
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-21T10:00:00",
+      };
+
+      mockAdapter.onPatch("/api/v1/archive/events/1").reply(200, mockResponse);
+
+      const result = await updateEventByUrl(eventUrl, eventData);
+
+      expect(result).toEqual(mockResponse);
+      expect(result.starts_at).toBe("2026-03-21T19:00:00");
+    });
+
+    it("throws when update by url request fails", async () => {
+      const eventUrl = "http://localhost/api/v1/archive/events/999";
+      const eventData: EventUpdate = {
+        starts_at: "2026-03-21T19:00:00",
+      };
+
+      mockAdapter.onPatch("/api/v1/archive/events/999").reply(404);
+
+      await expect(updateEventByUrl(eventUrl, eventData)).rejects.toThrow();
     });
   });
 
@@ -213,6 +284,36 @@ describe("eventService", () => {
       mockAdapter.onGet("/api/v1/archive/events/1/prices/999").reply(404);
 
       await expect(getEventPrice(1, 999)).rejects.toThrow();
+    });
+  });
+
+  describe("getPriceByUrl", () => {
+    it("returns a single price by full url", async () => {
+      const priceUrl = "http://localhost/api/v1/archive/events/1/prices/1";
+      const mockPrice: Price = {
+        id_url: priceUrl,
+        amount: 25.0,
+        available: 100,
+        expires_at: "2026-03-20T23:59:59",
+        created_at: "2026-03-20T10:00:00",
+        updated_at: "2026-03-20T10:00:00",
+      };
+
+      mockAdapter.onGet("/api/v1/archive/events/1/prices/1").reply(200, mockPrice);
+
+      const result = await getPriceByUrl(priceUrl);
+
+      expect(result).toEqual(mockPrice);
+      expect(result.id_url).toBe(priceUrl);
+      expect(result.amount).toBe(25.0);
+    });
+
+    it("throws when price by url is not found", async () => {
+      const priceUrl = "http://localhost/api/v1/archive/events/1/prices/999";
+
+      mockAdapter.onGet("/api/v1/archive/events/1/prices/999").reply(404);
+
+      await expect(getPriceByUrl(priceUrl)).rejects.toThrow();
     });
   });
 
