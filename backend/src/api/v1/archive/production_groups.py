@@ -39,17 +39,17 @@ async def get_production_groups(
 
 
 @router.get(
-    "/{production_group_id}",
+    "/{series_id}",
     response_model=ProductionGroupResponse,
     summary="Get a series",
 )
 async def get_production_group(
-    production_group_id: int,
+    series_id: int,
     request: Request,
     db: Session = Depends(get_db),
 ):
     base_url = get_base_url(str(request.url), remove_last_segments=2)
-    return get_production_group_by_id(db, production_group_id, base_url)
+    return get_production_group_by_id(db, series_id, base_url)
 
 
 @router.post(
@@ -69,12 +69,12 @@ async def post_production_group(
 
 
 @router.patch(
-    "/{production_group_id}",
+    "/{series_id}",
     response_model=ProductionGroupResponse,
     summary="Update a series",
 )
 async def patch_production_group(
-    production_group_id: int,
+    series_id: int,
     production_group_in: ProductionGroupUpdate,
     request: Request,
     db: Session = Depends(get_db),
@@ -82,18 +82,18 @@ async def patch_production_group(
 ):
     base_url = get_base_url(str(request.url), remove_last_segments=2)
     return update_production_group(
-        db, production_group_id, production_group_in, base_url
+        db, series_id, production_group_in, base_url
     )
 
 
 @router.delete(
-    "/{production_group_id}",
+    "/{series_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a series",
 )
 async def delete_production_group(
-    production_group_id: int,
+    series_id: int,
     db: Session = Depends(get_db),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    delete_production_group_by_id(db, production_group_id)
+    delete_production_group_by_id(db, series_id)
