@@ -20,7 +20,10 @@ export type MediaUploadWidgetProps = {
  * with a star toggle — selecting a new banner moves that file to index 0 while
  * keeping the relative order of the rest.
  */
-export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUploadWidgetProps) {
+export function MediaUploadWidget({
+  onFilesChange,
+  onBannerUrlChange,
+}: MediaUploadWidgetProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<MediaPreview[]>([]);
@@ -34,7 +37,9 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
   function handleFiles(files: FileList | null) {
     if (!files) return;
     const incoming = Array.from(files)
-      .filter((f) => ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(f.type))
+      .filter((f) =>
+        ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(f.type)
+      )
       .map((f) => ({
         src: URL.createObjectURL(f),
         file: f,
@@ -72,9 +77,7 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
           {t("archive.media.title")}
         </h3>
         {previews.length > 0 && (
-          <p className="text-archive-ink/40 text-xs">
-            {t("archive.media.bannerHint")}
-          </p>
+          <p className="text-archive-ink/40 text-xs">{t("archive.media.bannerHint")}</p>
         )}
       </div>
 
@@ -137,9 +140,7 @@ export function MediaUploadWidget({ onFilesChange, onBannerUrlChange }: MediaUpl
               {/* Banner toggle */}
               <Tooltip
                 title={
-                  i === 0
-                    ? t("archive.media.isBanner")
-                    : t("archive.media.setBanner")
+                  i === 0 ? t("archive.media.isBanner") : t("archive.media.setBanner")
                 }
               >
                 <IconButton

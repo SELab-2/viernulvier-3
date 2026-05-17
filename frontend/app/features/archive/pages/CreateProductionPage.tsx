@@ -102,8 +102,7 @@ async function handleAddProduction(
     // Go to newly created production
     const currentParts = window.location.pathname.split("/");
     const responseParts = response["id_url"].split("/");
-    currentParts[currentParts.length - 1] =
-      responseParts[responseParts.length - 1];
+    currentParts[currentParts.length - 1] = responseParts[responseParts.length - 1];
     navigate(currentParts.join("/"));
   } catch (e) {
     window.alert(`${errorMessage}: ${e}`);
@@ -157,7 +156,9 @@ export function CreateProductionPage() {
   const [draftTags, setDraftTags] = useState<Tag[]>([]);
   const [draftEvents, setDraftEvents] = useState<EventWithResolvedRelations[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(undefined);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | undefined>(
+    undefined
+  );
 
   const [isQuillDirty, setIsQuillDirty] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -228,7 +229,10 @@ export function CreateProductionPage() {
           {t("archive.create_production")}
         </h1>
         <ProductionHeader
-          image_url={bannerPreviewUrl ?? "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"}
+          image_url={
+            bannerPreviewUrl ??
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+          }
           isEditing={true}
           originalInfo={null}
           draftInfo={draftInfo}
