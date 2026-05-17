@@ -179,18 +179,24 @@ export function CreateProductionPage() {
     }
   }, [blocker, t]);
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     if (isModified) {
-      setIsCancelling(true);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      if (!window.confirm(t("notSaveChanges"))) {
-        setIsCancelling(false);
-        return;
-      }
+      setIsCancelling(true); // triggert re-render → blocker uit → useEffect hieronder
+    } else {
+      skipWarning.current = true;
+      navigate("/archive");
     }
-    skipWarning.current = true;
-    navigate("/archive");
   };
+
+  useEffect(() => {
+    if (!isCancelling) return;
+    const confirmed = window.confirm(t("notSaveChanges"));
+    if (confirmed) {
+      skipWarning.current = true;
+      navigate("/archive");
+    }
+    setIsCancelling(false);
+  }, [isCancelling]);
 
   const _handleAddProduction = () =>
     handleAddProduction(
