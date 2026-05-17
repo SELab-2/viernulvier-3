@@ -164,4 +164,27 @@ describe("Tags", () => {
 
     expect(screen.getByText("Noise")).toBeInTheDocument();
   });
+
+  it("shows an error and disables submit when creating a duplicate tag", async () => {
+    const user = userEvent.setup();
+    render(<TagsTestWrapper initialTags={[]} />);
+
+    await user.click(screen.getByLabelText("Add Tag"));
+
+    const searchInput = screen.getByRole("textbox");
+    await user.type(searchInput, "Classical");
+
+    await user.click(screen.getByText(/create_new_tag/i));
+
+    const englishInput = screen.getByLabelText(/english_tag_name/i);
+    expect(englishInput).toHaveValue("Classical");
+
+    // duplicate validation message should appear
+    expect(screen.getByText(/tag_already_exists/i)).toBeInTheDocument();
+
+    const createButton = screen.getByRole("button", {
+      name: /create/i,
+    });
+    expect(createButton).toBeDisabled();
+  });
 });
