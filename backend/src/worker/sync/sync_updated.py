@@ -18,7 +18,7 @@ UPDATE_FUNCTIONS: dict[ResourceType, types.FunctionType] = {
     ResourceType.EVENT: store_updated_events,
     ResourceType.EVENT_PRICES: store_updated_eventprices,
     ResourceType.GENRES: store_updated_genres,
-    ResourceType.HALLS: lambda: (),  # Not implemented
+    ResourceType.HALLS: lambda _1, _2: (),  # Not implemented
 }
 
 
