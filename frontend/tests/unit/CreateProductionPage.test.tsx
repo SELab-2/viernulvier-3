@@ -217,7 +217,7 @@ describe("CreateProductionPage", () => {
     );
   });
 
-  it("cancel button resets form fields", async () => {
+  it("cancel button does not reset form fields", async () => {
     const user = userEvent.setup();
     renderWithRouterAndTheme({
       useRealCreateProductionPage: true,
@@ -231,7 +231,7 @@ describe("CreateProductionPage", () => {
     const cancelButton = await screen.findByText("I18N_ProductionPage_Edit_Cancel");
     await user.click(cancelButton);
 
-    expect(titleInput).toHaveValue("");
+    expect(titleInput).toHaveValue("Test productie");
   });
 
   it("cancel button navigates back to archive", async () => {

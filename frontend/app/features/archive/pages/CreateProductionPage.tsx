@@ -155,15 +155,15 @@ export function CreateProductionPage() {
   );
 
   useEffect(() => {
-  if (blocker.state === "blocked") {
-    const confirmed = window.confirm(t("notSaveChanges"));
-    if (confirmed) {
-      blocker.proceed();
-    } else {
-      blocker.reset();
+    if (blocker.state === "blocked") {
+      const confirmed = window.confirm(t("notSaveChanges"));
+      if (confirmed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
     }
-  }
-}, [blocker.state]);
+  }, [blocker.state]);
 
   const handleCancel = async () => {
     if (isModified) {
