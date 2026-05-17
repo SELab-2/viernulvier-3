@@ -297,6 +297,12 @@
       "searchProductionGroups": "Zoeken naar reeksen",
       "fallback": "Geen vertaling beschikbaar",
       "media": "Gelinkte media:",
+      "uploading": "Aan het uploaden...",
+      "uploadMedia": "Upload media",
+      "deleteMedia": "Verwijder media",
+      "noMedia": "Geen media voor deze blog",
+      "closeLightbox": "Sluit afbeelding popup",
+      "blogPhoto": "Blog foto",
       "delete": {
         "delete": "Blog verwijderen",
         "deleting": "Bezig met verwijderen...",
@@ -309,7 +315,10 @@
         "edit": "Bewerk blog",
         "cancel": "Annuleren",
         "save": "Opslaan",
-        "add": "Voeg inhoud toe"
+        "add": "Voeg inhoud toe",
+        "delete": "Verwijder",
+        "confirmTitle": "Bent u zeker dat dit bestand verwijderd mag worden?",
+        "confirmBody": "Deze actie kan niet ongedaan gemaakt worden."
       },
       "archivePhotoAlt": "{{title}} - Foto {{index}}"
     },
