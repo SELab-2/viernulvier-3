@@ -160,12 +160,12 @@ def get_productions_paginated(
     # Date filter
     if earliest_at:
         base_query = base_query.filter(
-            or_(Production.latest_at >= earliest_at, Production.latest_at == None)
+            or_(Production.latest_at >= earliest_at, Production.latest_at is None)
         )
 
     if latest_at:
         base_query = base_query.filter(
-            or_(Production.earliest_at <= latest_at, Production.earliest_at == None)
+            or_(Production.earliest_at <= latest_at, Production.earliest_at is None)
         )
 
     # Tags filter
