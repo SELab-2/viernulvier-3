@@ -1,8 +1,17 @@
+import { redirect, Outlet, useParams } from "react-router";
 import { useEffect } from "react";
-import { useParams, Navigate, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
+import type { Route } from "./+types/LanguageWrapper";
 
 const SUPPORTED_LANGS = ["en", "nl"];
+
+export function loader({ params, request }: Route.LoaderArgs) {
+  if (!SUPPORTED_LANGS.includes(params.lang ?? "")) {
+    const url = new URL(request.url);
+    return redirect(`/nl${url.pathname}`);
+  }
+  return null;
+}
 
 export default function LanguageWrapper() {
   const { lang } = useParams();
@@ -13,10 +22,6 @@ export default function LanguageWrapper() {
       i18n.changeLanguage(lang);
     }
   }, [lang, i18n]);
-
-  if (!lang || !SUPPORTED_LANGS.includes(lang)) {
-    return <Navigate to="/en" replace />;
-  }
 
   return <Outlet />;
 }

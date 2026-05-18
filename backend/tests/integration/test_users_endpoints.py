@@ -47,7 +47,7 @@ def create_user_with_permissions(
 
 def get_token(client: TestClient, username: str) -> str:
     response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": "pw"}
+        "/api/v1/auth/login", json={"username": username, "password": "pw"}
     )
     return response.json()["access_token"]
 
@@ -67,7 +67,7 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     headers = {"Authorization": f"Bearer {get_token(client, 'admin')}"}
 
     response = client.post(
-        "/api/v1/auth/users/",
+        "/api/v1/auth/users",
         json={"username": "bob", "password": "secret", "roles": ["viewer"]},
         headers=headers,
     )
@@ -96,7 +96,7 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     assert patched["permissions"] == [Permissions.USERS_READ]
 
     response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "bobby", "password": "secret"},
     )
     assert response.status_code == 200
@@ -113,12 +113,12 @@ def test_users_crud_endpoints(client: TestClient, db_session: Session):
     assert updated["permissions"] == []
 
     response = client.post(
-        "/api/v1/auth/login/",
+        "/api/v1/auth/login",
         json={"username": "robert", "password": "new-secret"},
     )
     assert response.status_code == 200
 
-    response = client.get("/api/v1/auth/users/", headers=headers)
+    response = client.get("/api/v1/auth/users", headers=headers)
     assert response.status_code == 200
     assert any(user["username"] == "robert" for user in response.json())
 
@@ -143,14 +143,14 @@ def test_users_permissions_are_enforced(client: TestClient, db_session: Session)
 
     headers = {"Authorization": f"Bearer {get_token(client, readonly.username)}"}
 
-    response = client.get("/api/v1/auth/users/", headers=headers)
+    response = client.get("/api/v1/auth/users", headers=headers)
     assert response.status_code == 200
 
     response = client.get(f"/api/v1/auth/users/{target.id}", headers=headers)
     assert response.status_code == 200
 
     response = client.post(
-        "/api/v1/auth/users/",
+        "/api/v1/auth/users",
         json={"username": "new-user", "password": "secret", "roles": ["viewer"]},
         headers=headers,
     )
@@ -183,7 +183,7 @@ def test_create_user_rejects_unknown_role(client: TestClient, db_session: Sessio
     headers = {"Authorization": f"Bearer {get_token(client, 'admin')}"}
 
     response = client.post(
-        "/api/v1/auth/users/",
+        "/api/v1/auth/users",
         json={"username": "bob", "password": "secret", "roles": ["missing"]},
         headers=headers,
     )

@@ -1,0 +1,587 @@
+{
+  "notSaveChanges": "Je hebt niet opgeslagen wijzigingen. Toch doorgaan?",
+  "loading": "Laden...",
+  "nav": {
+    "home": "Home",
+    "archive": "Archief",
+    "history": "Geschiedenis",
+    "blog": "Blog",
+    "blogs": "Blogs",
+    "blogs_create": "Creëer Blog",
+    "users": "Gebruikers",
+    "visuals": "Beeldmateriaal",
+    "login": "Log in",
+    "create_production": "Nieuwe productie"
+  },
+  "footer": {
+    "website": "Onze officiële website"
+  },
+  "filter": {
+    "search": "Zoeken",
+    "search_in_collection": "Zoek in de collectie",
+    "period": "Periode",
+    "from": "Van",
+    "to": "Tot",
+    "tags": "Tags",
+    "search_tags": "Zoek naar andere tags",
+    "production_groups": "Reeksen",
+    "search_production_groups": "Zoek naar reeksen",
+    "halls": "Locaties",
+    "artists": "Artiesten",
+    "search_artists": "Zoek naar artiesten",
+    "reset": "Filters resetten",
+    "toggle_menu": "Filteren & Zoeken"
+  },
+  "archive": {
+    "title": "De Collectie",
+    "results": "resultaten",
+    "result": "resultaat",
+    "show_more": "Toon meer",
+    "selection": {
+      "enter": "Producties selecteren",
+      "exit": "Selectie afronden",
+      "select_all": "Alles zichtbaar selecteren",
+      "clear": "Selectie wissen",
+      "selected_singular": "geselecteerde productie",
+      "selected_plural": "geselecteerde producties",
+      "select": "Selecteer",
+      "selected": "Geselecteerd"
+    },
+    "no_results": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder filter- of trefwoorden te bevatten"
+    },
+    "create_production": "Nieuwe productie",
+    "create_error": "Error tijdens aanmaken van productie: ",
+    "productionGroups": {
+      "actions": {
+        "create": "Maak reeks",
+        "creating": "Bezig met aanmaken...",
+        "delete": "Verwijder reeks",
+        "deleting": "Bezig met verwijderen...",
+        "cancel": "Annuleer"
+      },
+      "deleteInfo": {
+        "ariaLabel": "Hoe je een reeks verwijdert",
+        "tooltip": "Om een reeks te verwijderen, selecteer je eerst die reeks in de filters en daarna alle producties uit die reeks. Zodra de volledige reeks geselecteerd is, verschijnt de verwijderknop."
+      },
+      "dialog": {
+        "title": "Maak een reeks",
+        "description": "Groepeer de geselecteerde producties onder een gedeelde titel zodat bezoekers de reeks als filter kunnen gebruiken in het archief.",
+        "selectedCount": "{{count}} geselecteerde producties",
+        "nameLabel": "Titel van de reeks",
+        "publicLabel": "Toon deze reeks in de publieke archieffilters",
+        "publicHint": "Wanneer ingeschakeld, kunnen bezoekers deze reeks gebruiken als filter in het archief."
+      },
+      "deleteDialog": {
+        "title": "Verwijder reeks",
+        "description": "Je staat op het punt om \"{{title}}\" uit de archieffilters te verwijderen.",
+        "selectedCount": "{{count}} gegroepeerde producties",
+        "warning": "De producties zelf blijven beschikbaar in het archief. Deze actie kan niet ongedaan worden gemaakt.",
+        "actions": {
+          "delete": "Verwijder"
+        }
+      },
+      "messages": {
+        "titleRequired": "Een titel voor de reeks is verplicht.",
+        "duplicateTitle": "Er bestaat al een reeks met deze titel.",
+        "noProductionsSelected": "Selecteer minstens één productie voordat je een reeks maakt.",
+        "createFailed": "Kon de reeks niet aanmaken.",
+        "deleteFailed": "Kon de reeks niet verwijderen."
+      }
+    },
+    "accessDenied": {
+      "sectionLabel": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot blogcreatie",
+      "description": "Deze sectie vereist de permissie archive:create. Contacteer een beheerder als je toegang nodig hebt om producties te maken."
+    },
+    "add_info": {
+      "performer_type": "Voeg soort artiest toe",
+      "attendance_mode": "voeg aanwezigheidsmodus toe",
+      "supertitle": "Voeg een supertitel toe",
+      "title": "Voeg een titel toe",
+      "artist": "Voeg een artiest toe",
+      "tagline": "Voeg een tagline toe",
+      "teaser": "Voeg een teaser toe",
+      "description": "Voeg een beschrijving toe",
+      "info": "Voeg bijkomende info toe"
+    },
+    "sortBy": "Sorteer op",
+    "sortOrder": {
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst"
+    },
+    "unknownDate": "Onbekende datum",
+    "card": {
+      "defaults": {
+        "title": "Onbekende productie titel",
+        "dateLabel": "Onbekende datum",
+        "venueLabel": "Onbekend"
+      }
+    },
+    "media": {
+      "title": "Media",
+      "bannerHint": "★ markeert de bannerafbeelding",
+      "dropMedia": "Sleep bestanden hierheen of",
+      "browse": "bladeren",
+      "acceptedFormats": "JPEG, PNG, WebP, GIF",
+      "isBanner": "Bannerafbeelding",
+      "setBanner": "Instellen als banner",
+      "remove": "Verwijderen"
+    }
+  },
+  "editfield": {
+    "modified": "Aangepast",
+    "cancel": "Annuleren",
+    "save": "Opslaan"
+  },
+  "productionPage": {
+    "fallback": {
+      "unknownPerformerType": "Niet beschikbaar.",
+      "unknownAttendanceMode": "Niet beschikbaar.",
+      "unknownProduction": "Informatie in deze taal is niet beschikbaar.",
+      "archive": "Archief",
+      "defaultArtist": "viernulvier",
+      "noTeaser": "Geen teaser beschikbaar voor deze productie.",
+      "noDescription": "Geen extra beschrijving beschikbaar voor deze productie.",
+      "noInfo": "Geen extra informatie beschikbaar voor deze productie.",
+      "noEvents": "Geen evenementen opgeslagen voor deze productie.",
+      "noLinkedBlogs": "Geen blogs gekoppeld aan deze productie.",
+      "dateUnknown": "Datum onbekend",
+      "locationUnknown": "Locatie onbekend"
+    },
+    "headerBrandAria": "VIERNULVIER Archief",
+    "archiveLabel": "Archief",
+    "backToCollection": "Terug naar de collectie",
+    "eventMore": "Meer",
+    "archiveSchema": "Archiefschema",
+    "linkedBlogs": "Gekoppelde blogs",
+    "dateLabel": "Datum",
+    "newEvent": "Nieuw Evenement",
+    "startDateLabel": "Start datum",
+    "endDateLabel": "Eind datum",
+    "timeLabel": "Tijd",
+    "placeLabel": "Plaats",
+    "priceLabel": "Prijs",
+    "noPrice": "Geen prijs beschikbaar",
+    "address": "Adres",
+    "addressUnknown": "Adres onbekend",
+    "visualEvidence": "Foto's",
+    "deleteMedia": "Verwijder media",
+    "uploadMedia": "Upload media",
+    "archivePhotoAlt": "Archieffoto voor {{title}} {{index}}",
+    "noImagesYet": "Nog geen foto's",
+    "closeLightbox": "Sluit fotokijker",
+    "archivePhoto": "Archieffoto",
+    "edit": {
+      "add": "Voeg info toe",
+      "edit": "Pas aan",
+      "save": "Sla op",
+      "cancel": "Annuleer",
+      "attendance_mode": "Aanwezigheidsmodus",
+      "performer_type": "Soort artiest",
+      "supertitle": "Supertitel",
+      "title": "Titel",
+      "artist": "Artiest",
+      "description": "Beschrijving",
+      "teaser": "Teaser",
+      "info": "Info",
+      "search_tags": "Zoek tags...",
+      "no_tags": "Geen tags gevonden",
+      "delete": "Verwijder",
+      "confirmDeleteTitle": "Verwijder media?",
+      "confirmDeleteBody": "Bent u zeker dat dit bestand verwijderd mag worden? Deze actie kan niet ongedaan gemaakt worden.",
+      "create_new_tag": "Maak nieuwe tag \"{{tag}}\" aan",
+      "create_tag": "Tag aanmaken",
+      "create_tag_description": "Voer de Nederlandse en Engelse naam van de tag in.",
+      "english_tag_name": "Engelse naam",
+      "dutch_tag_name": "Nederlandse naam",
+      "tag_already_exists": "Tag bestaat al",
+      "create": "Aanmaken"
+    },
+    "delete": {
+      "delete": "Verwijder info (nl)",
+      "confirm": "Weet je zeker dat je deze productie-informatie wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "error": "Error: Elke productie heeft info in minstens één taal."
+    },
+    "deleteProduction": {
+      "delete": "Verwijder productie",
+      "deleting": "Productie verwijderen...",
+      "confirm": "Weet je zeker dat je deze productie wilt verwijderen? Alle gekoppelde productie-info, media, evenementen en archiefrelaties worden ook verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+      "error": "Error: De productie kon niet worden verwijderd."
+    },
+    "add": {
+      "add": "Voeg productie-informatie toe"
+    },
+    "price": {
+      "edit": "Bewerk",
+      "deleteLabel": "Verwijder",
+      "deleteConfirm": "Weet je zeker dat je deze prijs wilt verwijderen?",
+      "deleteError": "Kon de prijs niet verwijderen.",
+      "saveError": "Kon de prijs niet opslaan.",
+      "createError": "Kon de prijs niet aanmaken.",
+      "addLabel": "Prijs toevoegen",
+      "amountLabel": "Bedrag",
+      "availableLabel": "Beschikbaar",
+      "available": "beschikbaar"
+    }
+  },
+  "home": {
+    "title": "Vensters naar het Verleden",
+    "description": "VIERNULVIER is altijd een baken van cultuur geweest in Gent. Ons digitaal archief bewaart deze fragmenten van de tijd — van het geraas van ondergrondse concerten tot de stille poëzie van experimenteel theater.",
+    "stats": {
+      "productions": "Producties",
+      "artists": "Artiesten",
+      "events": "Evenementen",
+      "genres": "Genres"
+    },
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    }
+  },
+  "history": {
+    "title": "De Echo's van het Gebouw",
+    "heroAlt": "Een zwart-wit foto van de inhuldiging van het Feestlokaal Vooruit in 1914, met een grote menigte voor de ingang.",
+    "loading": "Geschiedenis wordt geladen",
+    "errorTitle": "Geschiedenis kon niet worden geladen",
+    "error": "De geschiedenis-tijdlijn kon niet worden opgehaald van de server.",
+    "messages": {
+      "createFailed": "Aanmaken mislukt: {{error}}",
+      "updateFailed": "Opslaan mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je deze entry wilt verwijderen?"
+    },
+    "edit": {
+      "edit": "Pas aan",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "saving": "Opslaan...",
+      "delete": "Verwijder",
+      "create": "Aanmaken",
+      "Submit": "Indienen"
+    },
+    "empty": {
+      "title": "Geen geschiedenisitems gevonden",
+      "description": "Er is nog geen geschiedenis-data beschikbaar..."
+    },
+    "form": {
+      "labels": {
+        "year": "Jaar",
+        "title": "Titel",
+        "content": "Inhoud"
+      },
+      "placeholders": {
+        "year": "bijv. 2024",
+        "title": "Geef een korte titel voor dit moment",
+        "content": "Vertel het verhaal van dit moment in de geschiedenis"
+      }
+    }
+  },
+  "blogs": {
+    "searchPlaceholder": "Zoek naar blogs...",
+    "title": "Blogs",
+    "showMore": "Toon meer",
+    "noResults": {
+      "header": "Geen resultaten...",
+      "subtext": "Pas je zoekopdracht aan om minder trefwoorden te bevatten"
+    },
+    "card": {
+      "other_prods": "andere producties",
+      "no_prods": "Geen gelinkte producties gevonden voor deze blog",
+      "details": "Details",
+      "noTitleFound": "Geen beschikbare titel gevonden",
+      "noContentFound": "Geen beschikbare inhoud gevonden"
+    },
+    "create_blog": "Nieuwe blog",
+    "createBlogPage": {
+      "backToBlogs": "Terug naar blogs",
+      "heading": "Maak een nieuwe blog aan",
+      "remove": "Verwijder",
+      "save": {
+        "save": "Opslaan",
+        "saving": "Aan het opslaan",
+        "saveDisabledReasonTitle": "Titel is verplicht",
+        "saveDisabledReasonEditing": "Inhoud is nog niet opgeslagen"
+      },
+      "title": {
+        "title": "Titel",
+        "placeholder": "Titel van de blog (verplicht)"
+      },
+      "content": {
+        "title": "Inhoud",
+        "field": "Bewerk de inhoud verder"
+      },
+      "media": {
+        "title": "Media",
+        "dropMedia": "Sleep afbeeldingen en/of video's hier of",
+        "browse": "klik om te uploaden",
+        "acceptedFileFormats": "PNG, JPG, WEBP, GIF - MP4, WEBM, MOV - max 10 MB"
+      },
+      "series": {
+        "title": "Verbonden reeks",
+        "searchSeries": "Zoek naar reeksen"
+      },
+      "accessDenied": {
+        "sectionLabel": "Beperkt gebied",
+        "title": "Je hebt geen toegang tot blogcreatie",
+        "description": "Deze sectie vereist de permissie blogs:create. Contacteer een beheerder als je toegang nodig hebt om blogs te maken."
+      }
+    },
+    "contentPage": {
+      "backToBlogs": "Terug naar blogs",
+      "linkedProductions": "Gelinkte producties:",
+      "searchProductionGroups": "Zoeken naar reeksen",
+      "fallback": "Geen vertaling beschikbaar",
+      "media": "Gelinkte media:",
+      "uploading": "Aan het uploaden...",
+      "uploadMedia": "Upload media",
+      "deleteMedia": "Verwijder media",
+      "noMedia": "Geen media voor deze blog",
+      "closeLightbox": "Sluit afbeelding popup",
+      "blogPhoto": "Blog foto",
+      "delete": {
+        "delete": "Blog verwijderen",
+        "deleting": "Bezig met verwijderen...",
+        "confirm": "Ben je zeker dat je deze blog wil verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "error": "De blog kon niet verwijderd worden. Probeer opnieuw."
+      },
+      "edit": {
+        "title": "Pas titel aan",
+        "content": "Pas inhoud aan",
+        "edit": "Bewerk blog",
+        "cancel": "Annuleren",
+        "save": "Opslaan",
+        "add": "Voeg inhoud toe",
+        "delete": "Verwijder",
+        "confirmTitle": "Bent u zeker dat dit bestand verwijderd mag worden?",
+        "confirmBody": "Deze actie kan niet ongedaan gemaakt worden."
+      },
+      "archivePhotoAlt": "{{title}} - Foto {{index}}"
+    },
+    "detail": {
+      "title": "Blog",
+      "comingSoon": "Deze blogpagina komt binnenkort."
+    }
+  },
+  "auth": {
+    "actions": {
+      "login": "Aanmelden",
+      "logout": "Afmelden"
+    },
+    "login": {
+      "formTitle": "Welkom terug",
+      "formDescription": "Vul je gebruikersnaam en wachtwoord in om een geauthenticeerde sessie te starten.",
+      "usernameLabel": "Gebruikersnaam",
+      "passwordLabel": "Wachtwoord",
+      "showPassword": "Wachtwoord tonen",
+      "hidePassword": "Wachtwoord verbergen",
+      "submit": "Aanmelden",
+      "submitting": "Bezig met aanmelden",
+      "backToSite": "Terug naar het archief",
+      "loading": "Sessie wordt hersteld",
+      "errors": {
+        "invalidCredentials": "De opgegeven gebruikersnaam of het opgegeven wachtwoord is ongeldig.",
+        "generic": "Aanmelden lukt momenteel niet. Probeer het opnieuw."
+      }
+    }
+  },
+  "users": {
+    "sectionLabel": "Beheer",
+    "title": "Gebruikersbeheer",
+    "description": "Bekijk accounts en voer eenvoudige accountwijzigingen uit zonder het overzicht te verlaten.",
+    "loading": "Gebruikers worden geladen",
+    "summary": {
+      "totalUsers": "Totaal aantal gebruikers",
+      "superUsers": "Supergebruikers"
+    },
+    "fields": {
+      "username": "Gebruikersnaam",
+      "password": "Wachtwoord",
+      "roles": "Rollen",
+      "permissions": "Permissies"
+    },
+    "form": {
+      "passwordCreateHint": "Nieuwe gebruikers hebben een wachtwoord nodig voor het account kan worden aangemaakt.",
+      "passwordEditHint": "Laat het wachtwoord leeg om het huidige wachtwoord ongewijzigd te laten.",
+      "rolesHint": "Kies de rollen die meteen aan dit account moeten worden toegewezen.",
+      "rolesEditHint": "Kies de rollen die aan dit account gekoppeld moeten blijven.",
+      "rolesEmptyHint": "Er bestaan nog geen rollen. Maak eerst een rol aan als dit account er meteen een nodig heeft."
+    },
+    "actions": {
+      "retry": "Opnieuw proberen",
+      "refresh": "Herladen",
+      "add": "Gebruiker toevoegen",
+      "edit": "Gebruiker bewerken",
+      "cancel": "Annuleren",
+      "create": "Gebruiker aanmaken",
+      "creating": "Gebruiker wordt aangemaakt",
+      "update": "Wijzigingen opslaan",
+      "updating": "Wijzigingen worden opgeslagen",
+      "delete": "Gebruiker verwijderen",
+      "deleting": "Gebruiker wordt verwijderd"
+    },
+    "badges": {
+      "superUser": "Supergebruiker"
+    },
+    "meta": {
+      "createdAt": "Aangemaakt op",
+      "lastLoginAt": "Laatst aangemeld"
+    },
+    "messages": {
+      "loadFailed": "De gegevens voor gebruikersbeheer konden nu niet geladen worden.",
+      "createFailed": "De gebruiker kon nu niet worden aangemaakt.",
+      "updateFailed": "De gebruiker kon nu niet worden bijgewerkt.",
+      "deleteFailed": "De gebruiker kon nu niet worden verwijderd.",
+      "sessionRefreshFailed": "De gebruiker is bijgewerkt, maar de actieve sessie kon niet ververst worden.",
+      "usernameRequired": "Een gebruikersnaam is verplicht.",
+      "passwordRequired": "Een wachtwoord is verplicht."
+    },
+    "dialogs": {
+      "create": {
+        "title": "Gebruiker toevoegen",
+        "description": "Maak een account aan met een gebruikersnaam, wachtwoord en eventuele initiële rollen."
+      },
+      "edit": {
+        "title": "Gebruiker bewerken",
+        "description": "Werk de accountgegevens of toegewezen rollen van deze gebruiker bij."
+      },
+      "delete": {
+        "title": "Gebruiker verwijderen",
+        "description": "Weet je zeker dat je het account \"{{username}}\" permanent wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "empty": {
+      "title": "Geen gebruikers gevonden",
+      "description": "Zodra accounts zijn aangemaakt, verschijnen ze hier met hun toegewezen rollen en afgeleide permissies.",
+      "roles": "Geen rollen toegewezen",
+      "permissions": "Geen permissies toegewezen",
+      "date": "Nooit"
+    },
+    "card": {
+      "userLabel": "Gebruiker #{{id}}"
+    },
+    "accessDenied": {
+      "sectionLabel": "Beperkt gebied",
+      "title": "Je hebt geen toegang tot gebruikersbeheer",
+      "description": "Deze sectie vereist de permissie users:read. Contacteer een beheerder als je toegang nodig hebt om accounts te beheren."
+    },
+    "roles": {
+      "sectionLabel": "Toegangsbeheer",
+      "title": "Rollen",
+      "loading": "Rollen worden geladen",
+      "fields": {
+        "name": "Rolnaam",
+        "permissions": "Permissies"
+      },
+      "form": {
+        "permissionsHint": "Kies de permissies die deze rol meteen moet krijgen bij het aanmaken.",
+        "permissionsEditHint": "Kies de permissies die aan deze rol gekoppeld moeten blijven.",
+        "permissionsLoading": "Beschikbare permissies worden geladen.",
+        "permissionsEmptyHint": "Er zijn momenteel geen permissies beschikbaar."
+      },
+      "actions": {
+        "add": "Rol toevoegen",
+        "edit": "Rol bewerken",
+        "create": "Rol aanmaken",
+        "creating": "Rol wordt aangemaakt",
+        "update": "Wijzigingen opslaan",
+        "updating": "Wijzigingen worden opgeslagen",
+        "delete": "Rol verwijderen",
+        "deleting": "Rol wordt verwijderd"
+      },
+      "messages": {
+        "loadFailed": "De rollen konden nu niet geladen worden.",
+        "permissionsLoadFailed": "De beschikbare permissies konden nu niet geladen worden.",
+        "createFailed": "De rol kon nu niet worden aangemaakt.",
+        "updateFailed": "De rol kon nu niet worden bijgewerkt.",
+        "deleteFailed": "De rol kon nu niet verwijderd worden.",
+        "nameRequired": "Een rolnaam is verplicht."
+      },
+      "dialogs": {
+        "create": {
+          "title": "Rol toevoegen",
+          "description": "Maak een nieuwe rol aan en wijs meteen de juiste permissies toe."
+        },
+        "edit": {
+          "title": "Rol bewerken",
+          "description": "Werk deze rol bij en houd de toegewezen permissies in sync."
+        },
+        "delete": {
+          "title": "Rol verwijderen",
+          "description": "De rol {{roleName}} verwijderen? Dit is alleen mogelijk als er geen gebruikers aan deze rol gekoppeld zijn."
+        }
+      },
+      "empty": {
+        "title": "Geen rollen gevonden",
+        "description": "Zodra rollen zijn aangemaakt, verschijnen ze hier met hun toegewezen permissies.",
+        "permissions": "Geen permissies toegewezen"
+      },
+      "card": {
+        "label": "Rol"
+      }
+    }
+  },
+  "notFound": {
+    "title": "VIERNULVIER - Pagina niet gevonden",
+    "description": "De pagina die u zoekt bestaat niet. Deze kan zijn verwijderd, de naam gewijzigd of tijdelijk niet beschikbaar.",
+    "buttons": {
+      "explore": "Ontdek de Collectie",
+      "history": "Onze Geschiedenis"
+    },
+    "quote": "Less is soms more, maar soms ook niet"
+  },
+
+  "visuals": {
+    "title": "Beeldmateriaal",
+    "subtitle": "Een visuele reis door het archief van VIERNULVIER",
+    "heroAlt": "Archiefbeelden van VIERNULVIER",
+    "loading": "Beeldmateriaal wordt geladen",
+    "errorTitle": "Beeldmateriaal kon niet worden geladen",
+    "error": "Het beeldmateriaal kon niet worden opgehaald van de server.",
+    "showMore": "Toon meer",
+    "count": "{{count}} items",
+    "delete": "Verwijderen",
+    "filters": {
+      "all": "Alles"
+    },
+    "types": {
+      "poster": "Poster",
+      "timetable": "Tijdschema",
+      "programme": "Programma",
+      "video": "Video",
+      "picture": "Foto",
+      "other": "Overig"
+    },
+    "upload": {
+      "button": "Uploaden",
+      "uploading": "Bezig met uploaden...",
+      "dialogTitle": "Nieuw beeldmateriaal uploaden",
+      "dropOrBrowse": "Sleep een bestand hierheen of klik om te bladeren",
+      "acceptedFormats": "JPG, PNG, WEBP, PDF, MP4, WEBM, MOV",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Geef een titel voor dit beeldmateriaal",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Beschrijf dit beeldmateriaal...",
+      "typeLabel": "Type",
+      "cancel": "Annuleren",
+      "submit": "Uploaden"
+    },
+    "messages": {
+      "loadMoreFailed": "Meer laden mislukt: {{error}}",
+      "uploadFailed": "Uploaden mislukt: {{error}}",
+      "deleteFailed": "Verwijderen mislukt: {{error}}",
+      "confirmDelete": "Weet je zeker dat je dit beeldmateriaal wilt verwijderen?"
+    },
+    "card": {
+      "noTitle": "Zonder titel"
+    },
+    "empty": {
+      "title": "Geen beeldmateriaal gevonden",
+      "description": "Er is nog geen beeldmateriaal beschikbaar voor dit filter."
+    },
+    "lightbox": {
+      "close": "Sluiten"
+    }
+  }
+}

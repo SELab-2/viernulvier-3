@@ -1,9 +1,15 @@
+import logging
 from datetime import datetime
-from src.worker.converters.production import api_prod_to_model_prod
+
+from src.services.language import Languages
 from src.worker.converters.event import api_event_to_model_event
 from src.worker.converters.eventprice import api_eventprice_to_model_eventprice
 from src.worker.converters.genres import api_genre_to_model_tag
-from src.services.language import Languages
+from src.worker.converters.hall import (
+    api_location_to_model_halls,
+    get_address_from_location,
+)
+from src.worker.converters.production import api_prod_to_model_prod
 
 
 # Test normal test case from the actual API
@@ -56,11 +62,11 @@ def test_api_prod_to_model_prod():
 
     # Two info's, one per language
     assert len(prod_infos) == 2
-    assert any(prod_info.language == Languages.NEDERLANDS for prod_info in prod_infos)
+    assert any(prod_info.language == Languages.DUTCH for prod_info in prod_infos)
     assert any(prod_info.language == Languages.ENGLISH for prod_info in prod_infos)
 
     # Extract the info's to more easily test them
-    info_nl = [pi for pi in prod_infos if pi.language == Languages.NEDERLANDS][0]
+    info_nl = [pi for pi in prod_infos if pi.language == Languages.DUTCH][0]
     info_en = [pi for pi in prod_infos if pi.language == Languages.ENGLISH][0]
 
     # Production_id should point to our DB productions, but those are not set
@@ -68,13 +74,13 @@ def test_api_prod_to_model_prod():
     assert info_nl.production_id is None
     assert info_en.production_id is None
 
-    assert info_nl.title == test_input["title"][Languages.NEDERLANDS]
-    assert info_nl.supertitle == test_input["supertitle"][Languages.NEDERLANDS]
-    assert info_nl.artist == test_input["artist"][Languages.NEDERLANDS]
+    assert info_nl.title == test_input["title"][Languages.DUTCH]
+    assert info_nl.supertitle == test_input["supertitle"][Languages.DUTCH]
+    assert info_nl.artist == test_input["artist"][Languages.DUTCH]
     assert info_nl.tagline is None
     assert info_nl.teaser is None
-    assert info_nl.description == test_input["description"][Languages.NEDERLANDS]
-    assert info_nl.info == test_input["info"][Languages.NEDERLANDS]
+    assert info_nl.description == test_input["description"][Languages.DUTCH]
+    assert info_nl.info == test_input["info"][Languages.DUTCH]
 
     assert info_en.title == test_input["title"][Languages.ENGLISH]
     assert info_en.supertitle is None
@@ -133,14 +139,15 @@ def test_api_event_to_model_event():
         },
     }
 
-    event, prod_id = api_event_to_model_event(test_input)
+    event, prod_id, hall_id = api_event_to_model_event(test_input)
 
     assert event.viernulvier_id == 6169
     assert event.starts_at == datetime.fromisoformat(test_input["starts_at"])
     assert event.ends_at == datetime.fromisoformat(test_input["ends_at"])
-    assert event.order_url == test_input["external_order_url"][Languages.NEDERLANDS]
+    assert event.order_url == test_input["external_order_url"][Languages.DUTCH]
 
     assert prod_id == 4129
+    assert hall_id == 18
 
     assert event.id is None
     assert event.production_id is None
@@ -153,22 +160,24 @@ def test_api_event_to_model_event():
 def test_api_event_to_none():
     test_input1 = {"@id": "/api/v1/events/6464"}
 
-    event, prod_id = api_event_to_model_event(test_input1)
+    event, prod_id, hall_id = api_event_to_model_event(test_input1)
 
     assert event is not None
     assert event.viernulvier_id == 6464
     assert prod_id is None
+    assert hall_id is None
 
     test_input2 = {
         "@id": "/api/v1/events/6464",
         "production": {},
     }
 
-    event, prod_id = api_event_to_model_event(test_input2)
+    event, prod_id, hall_id = api_event_to_model_event(test_input2)
 
     assert event is not None
     assert event.viernulvier_id == 6464
     assert prod_id is None
+    assert hall_id is None
 
 
 # Test normal test case from the actual API
@@ -228,13 +237,13 @@ def test_api_genre_to_model_tag():
         "slug": {"nl": "Met voeltoer"},
     }
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 100
-    assert len(tag_names) == 2
+    assert len(tag.names) == 2
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
-    tagname_en = [tn for tn in tag_names if tn.language == Languages.ENGLISH][0]
+    tagname_nl = [tn for tn in tag.names if tn.language == Languages.DUTCH][0]
+    tagname_en = [tn for tn in tag.names if tn.language == Languages.ENGLISH][0]
 
     assert tagname_nl.name == "Met voeltoer"
     assert tagname_en.name == "With feeling tour"
@@ -254,24 +263,194 @@ def test_api_genre_to_model_tag_fallback():
         "vendor_id": "cabaret",
     }
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag.viernulvier_id == 1
-    assert len(tag_names) == 1
+    assert len(tag.names) == 1
 
-    tagname_nl = [tn for tn in tag_names if tn.language == Languages.NEDERLANDS][0]
+    tagname_nl = [tn for tn in tag.names if tn.language == Languages.DUTCH][0]
 
     assert tagname_nl.name == "cabaret"
 
     assert len(tag.productions) == 0
 
 
+def test_api_genre_to_model_tag_unknown_language(caplog):
+    caplog.set_level(logging.WARNING)
+    test_input = {
+        "@id": "/api/v1/genres/100",
+        "name": {
+            "fr": "Je ne sais quoi",
+        },
+    }
+
+    tag = api_genre_to_model_tag(test_input)
+    assert len(tag.names) == 0
+
+    # Check the log messages for dropped languages (fr)
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0] == "ignoring language fr for Tag(viernulvier_id=100)"
+
+
 # Test tags without name should just return an empty list
 def test_api_genre_to_none():
     test_input = {"@id": "/api/v1/genres/7"}
 
-    tag, tag_names = api_genre_to_model_tag(test_input)
+    tag = api_genre_to_model_tag(test_input)
 
     assert tag is not None
     assert tag.viernulvier_id == 7
-    assert len(tag_names) == 0
+    assert len(tag.names) == 0
+
+
+def test_get_address_from_location():
+    test_input1 = {
+        "street": "Chinastraat",
+        "number": "1",
+        "postal_code": "9000",
+        "city": "Gent",
+        "own_location": "",
+    }
+
+    address_1 = get_address_from_location(test_input1)
+    assert address_1 == "Chinastraat 1, 9000 Gent"
+
+    test_input2 = {
+        "street": "Sint-Pietersnieuwstraat",
+        "number": "23",
+        "postal_code": "9000",
+        "city": "Gent",
+        "country": "BE",
+    }
+    address_2 = get_address_from_location(test_input2)
+    assert address_2 == "Sint-Pietersnieuwstraat 23, 9000 Gent (BE)"
+
+
+# Test a normal location with one language we're dropping
+def test_api_location_to_model_halls_normal(caplog):
+    caplog.set_level(logging.WARNING)
+    test_input = {
+        "@context": "/api/contexts/Location",
+        "@id": "/api/v1/locations/91",
+        "@type": "Location",
+        "created_at": "2026-01-27T12:50:22+00:00",
+        "updated_at": "2026-02-05T09:19:17+00:00",
+        "street": "Beekstraat",
+        "number": "3",
+        "postal_code": "9030",
+        "own_location": "",
+        "spaces": [
+            {
+                "@id": "/api/v1/spaces/217",
+                "@type": "Space",
+                "created_at": "2026-01-27T12:52:54+00:00",
+                "updated_at": "2026-01-27T12:52:54+00:00",
+                "name": {"nl": "TestSpace", "en": "TestSpace"},
+                "location": "/api/v1/locations/91",
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/454",
+                        "@type": "Hall",
+                        "created_at": "2026-01-27T12:51:14+00:00",
+                        "updated_at": "2026-01-27T12:54:18+00:00",
+                        "seat_selection": "",
+                        "open_seating": "",
+                        "name": {
+                            "nl": "Fleur-Couleur",
+                            "en": "Fleur-Couleur",
+                            "fr": "Fleur-Couleur",
+                        },
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address == "Beekstraat 3, 9030"
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Fleur-Couleur (TestSpace)"
+    assert names[1].name == "Fleur-Couleur (TestSpace)"
+
+    # Check the log messages for dropped languages (fr)
+    warnings = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert warnings[0] == "ignoring language fr for Hall(viernulvier_id=454)"
+
+
+# NOTE: from down here the location->hall tests use a cut-down location object
+
+
+# Test a normal location
+def test_api_location_to_model_halls_no_location_address():
+    test_input = {
+        "spaces": [
+            {
+                "name": {"nl": "Rabot, 9000 Gent", "en": "Rabot, 9000 Gent"},
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/447",
+                        "name": {
+                            "nl": "Basketbalplein Opge\u00ebistenlaan",
+                            "en": "Basketbalplein Opge\u00ebistenlaan",
+                        },
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address == "Rabot, 9000 Gent"
+    assert parsed_hall.viernulvier_id == 447
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Basketbalplein Opge\u00ebistenlaan"
+    assert names[1].name == "Basketbalplein Opge\u00ebistenlaan"
+
+
+def test_api_location_to_model_halls_no_address():
+    test_input = {
+        "spaces": [
+            {
+                "name": {"nl": "Fleur-Couleur", "en": "Fleur-Couleur"},
+                "halls": [
+                    {
+                        "@id": "/api/v1/halls/454",
+                        "name": {"nl": "Fleur-Couleur", "en": "Fleur-Couleur"},
+                    }
+                ],
+            }
+        ],
+    }
+    parsed_halls = api_location_to_model_halls(test_input)
+    assert len(parsed_halls) == 1
+    parsed_hall = parsed_halls[0]
+
+    assert parsed_hall.address is None
+    assert len(parsed_hall.names) == 2
+
+    names = parsed_hall.names
+    assert (names[0].language == "nl" and names[1].language == "en") or (
+        names[0].language == "en" and names[1].language == "nl"
+    )
+
+    assert names[0].name == "Fleur-Couleur"
+    assert names[1].name == "Fleur-Couleur"

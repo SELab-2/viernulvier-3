@@ -21,7 +21,7 @@ Table productions {
 }
 
 Table prod_info {
-  production_id int [ref: > productions.id]
+  production_id int [pk, ref: > productions.id]
   language varchar [pk]
 
   title varchar
@@ -39,14 +39,25 @@ Table tags {
 }
 
 Table tag_names {
-  tag_id int [ref: > tags.id]
+  tag_id int [pk, ref: > tags.id]
   language varchar [pk]
   name varchar
 }
 
 Table prod_tags {
-  tag_id int [ref: - tags.id]
-  prod_id int [ref: - productions.id]
+  tag_id int [pk, ref: - tags.id]
+  prod_id int [pk, ref: - productions.id]
+}
+
+Table production_groups {
+  id int [pk]
+  title varchar
+  is_public_filter boolean [default: true]
+}
+
+Table prod_groups {
+  group_id int [pk, ref: - production_groups.id]
+  prod_id int [pk, ref: - productions.id]
 }
 
 Table events {
@@ -81,17 +92,38 @@ Table event_prices {
 
 Table halls {
   id int [pk]
+  viernulvier_id int
   address varchar
   name varchar
 
 }
 
+Table hallnames {
+  hall_id int [pk, ref: > halls.id]
+  language varchar [pk]
+  name varchar
+}
+
 Table media {
   id int [pk]
+  vnv_item_id int [unique]
   production_id int [ref: > productions.id]
+  blog_id int [ref: > blogs.id]
   object_key varchar
   content_type varchar
   uploaded_at datetime
+}
+
+Table blogs {
+  id int [pk]
+  production_group_id int [ref: > production_groups.id]
+}
+
+Table blog_content {
+  blog_id int [pk, ref: > blogs.id]
+  language varchar [pk]
+  title varchar
+  content varchar
 }
 ```
 </details>

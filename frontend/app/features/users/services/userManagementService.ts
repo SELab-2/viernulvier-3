@@ -3,15 +3,24 @@ import type { AxiosInstance } from "axios";
 import { createApiClient } from "~/shared/services/apiClient";
 
 import { USERS_API_PATH } from "../users.constants";
-import type { IUser, IUserCreateRequest, IUserResponse } from "../users.types";
+import type {
+  IUser,
+  IUserCreateRequest,
+  IUserResponse,
+  IUserUpdateRequest,
+} from "../users.types";
+
+function sortNames(values: string[]) {
+  return [...values].sort((left, right) => left.localeCompare(right));
+}
 
 function mapUser(response: IUserResponse): IUser {
   return {
     id: response.id,
     username: response.username,
     isSuperUser: response.super_user,
-    roles: response.roles,
-    permissions: response.permissions,
+    roles: sortNames(response.roles),
+    permissions: sortNames(response.permissions),
     createdAt: response.created_at,
     lastLoginAt: response.last_login_at,
   };
@@ -28,4 +37,23 @@ export async function createUser(
 ) {
   const response = await apiClient.post<IUserResponse>(USERS_API_PATH, payload);
   return mapUser(response.data);
+}
+
+export async function updateUser(
+  userId: number,
+  payload: IUserUpdateRequest,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  const response = await apiClient.patch<IUserResponse>(
+    `${USERS_API_PATH}/${userId}`,
+    payload
+  );
+  return mapUser(response.data);
+}
+
+export async function deleteUser(
+  userId: number,
+  apiClient: AxiosInstance = createApiClient()
+) {
+  await apiClient.delete(`${USERS_API_PATH}/${userId}`);
 }

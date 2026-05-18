@@ -1,23 +1,36 @@
 import base64
 import json
-from typing import Literal
 from datetime import datetime
-from sqlalchemy import asc, desc, or_, and_
-from src.schemas.pagination import Pagination
+from typing import Literal
+
+from minio import Minio
+from sqlalchemy import and_, asc, delete, desc, or_
 from sqlalchemy.orm import Session
-from src.models import Event, Production, ProdInfo, Tag
-from src.services.tag import build_tag_response, get_names_for_language
-from src.schemas.tag import TagResponse
+from sqlalchemy.sql import select
 from src.api.dependencies.language import get_accepted_language
+from src.api.exceptions import NotFoundError, ValidationError
+from src.config import settings
+from src.models import (
+    Event,
+    EventPrice,
+    Media,
+    ProdInfo,
+    Production,
+    ProductionGroup,
+    Tag,
+)
+from src.models.associations import prod_groups, prod_tags
+from src.schemas.pagination import JsonPagination
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
-    ProductionUpdate,
-    ProductionResponse,
     ProductionInfoResponse,
     ProductionListResponse,
+    ProductionResponse,
+    ProductionUpdate,
 )
-from src.api.exceptions import NotFoundError, ValidationError
+from src.schemas.tag import TagResponse
+from src.services.tag import build_tag_response, get_names_for_language
 
 
 # The response functions: both return copies.
@@ -109,29 +122,30 @@ def decode_cursor(cursor: str) -> tuple[datetime | None, int]:
         raise ValidationError("Invalid cursor")
 
 
-type ProductionSortOrder = Literal["Ascending", "Descending"]
+type SortOrder = Literal["Ascending", "Descending"]
 
 
 # Uses pagination to return a part of all productions.
-# A list of tags can be given as a paramter to filter.
+# Lists of tags and production groups can be given as filters.
 def get_productions_paginated(
     db: Session,
     base_url: str,
     cursor: str | None = None,
     limit: int = 20,
     tags: list[int] | None = None,
+    groups: list[int] | None = None,
     artists: list[str] | None = None,
     production_name: str | None = None,
     earliest_at: datetime | None = None,
     latest_at: datetime | None = None,
-    sort_order: ProductionSortOrder = "Descending",
+    sort_order: SortOrder = "Descending",
 ) -> ProductionListResponse:
     is_asc = sort_order == "Ascending"
     order_func = asc if is_asc else desc
 
-    query = db.query(Production).order_by(
-        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
-    )
+    # First construct a base query. Then apply all filters one by one.
+    # Then get the total count for the Pagination response, then the actual data.
+    base_query = db.query(Production)
 
     # Name filter
     if production_name:
@@ -141,14 +155,14 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Date filter
     if earliest_at:
-        query = query.filter(Production.latest_at >= earliest_at)
+        base_query = base_query.filter(Production.latest_at >= earliest_at)
 
     if latest_at:
-        query = query.filter(Production.earliest_at <= latest_at)
+        base_query = base_query.filter(Production.earliest_at <= latest_at)
 
     # Tags filter
     if tags:
@@ -159,7 +173,18 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
+
+    # Production groups filter
+    if groups:
+        subq = (
+            db.query(Production.id)
+            .join(Production.groups)
+            .filter(ProductionGroup.id.in_(groups))
+            .distinct()
+            .subquery()
+        )
+        base_query = base_query.filter(Production.id.in_(select(subq)))
 
     # Artists filter
     if artists:
@@ -169,7 +194,15 @@ def get_productions_paginated(
             .distinct()
             .subquery()
         )
-        query = query.filter(Production.id.in_(subq))
+        base_query = base_query.filter(Production.id.in_(select(subq)))
+
+    # Get the total count
+    total_count = base_query.count()
+
+    # Create the final query that will return the actual data
+    query = base_query.order_by(
+        order_func(Production.earliest_at).nulls_last(), order_func(Production.id)
+    )
 
     if cursor is not None:
         cursor_date, cursor_id = decode_cursor(cursor)
@@ -218,7 +251,11 @@ def get_productions_paginated(
             build_production_response(db, production, base_url)
             for production in productions
         ],
-        pagination=Pagination(next_cursor=next_cursor, has_more=has_more),
+        pagination=JsonPagination(
+            next_cursor=next_cursor,
+            has_more=has_more,
+            total_count=total_count,
+        ),
     )
 
 
@@ -234,7 +271,7 @@ def get_event_urls_for_production(
 def get_tags_for_production(
     db: Session, production_id: int, base_url: str
 ) -> list[TagResponse]:
-    production = db.query(Production).get(production_id)
+    production = db.query(Production).filter(Production.id == production_id).first()
     tags = production.tags
     responses = []
     for tag in tags:
@@ -284,7 +321,7 @@ def create_production(
         )
 
     tag_id_urls = production_in.tag_id_urls or []
-    tag_ids = [int(tag_url.rstrip("/").split("/")[-1]) for tag_url in tag_id_urls]
+    tag_ids = [int(tag_url.split("/")[-1]) for tag_url in tag_id_urls]
 
     existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
     existing_tag_ids = {t.id for t in existing_tags}
@@ -330,7 +367,7 @@ def update_production_by_id(
     # Check for tags.
     if production_in.tag_id_urls is not None:
         tag_id_urls = production_in.tag_id_urls or []
-        tag_ids = [int(id_url.rstrip("/").split("/")[-1]) for id_url in tag_id_urls]
+        tag_ids = [int(id_url.split("/")[-1]) for id_url in tag_id_urls]
         existing_tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
         existing_tag_ids = {t.id for t in existing_tags}
         missing_tag_ids = set(tag_ids) - existing_tag_ids
@@ -365,11 +402,17 @@ def update_production_by_id(
                 setattr(production_info, field, value)
 
     if production_in.remove_languages:
-        for lang in production_in.remove_languages:
-            db.query(ProdInfo).filter(
-                ProdInfo.production_id == production_id,
-                ProdInfo.language == lang,
-            ).delete()
+        prod_infos = (
+            db.query(ProdInfo).filter(ProdInfo.production_id == production_id).all()
+        )
+        if len(prod_infos) <= len(production_in.remove_languages):
+            raise Exception(
+                "Cannot remove all languages. At least one language must remain."
+            )
+
+        for prod_info in prod_infos:
+            if prod_info.language in production_in.remove_languages:
+                db.delete(prod_info)
 
     db.commit()
     # Refreshes the whole production with eager loading (simplest).
@@ -377,14 +420,38 @@ def update_production_by_id(
     return build_production_response(db, production, base_url)
 
 
-# Deletes the production and all related production infos/events and returns success or failure.
-def delete_production_by_id(db: Session, production_id: int) -> bool:
-    production = db.query(Production).filter(Production.id == production_id).first()
-    if not production:
+# Deletes the production and all related data and returns success or failure.
+def delete_production_by_id(
+    db: Session, production_id: int, minio_client: Minio
+) -> bool:
+    production_exists = (
+        db.query(Production.id).filter(Production.id == production_id).first()
+    )
+    if not production_exists:
         raise NotFoundError("Production", production_id)
 
-    db.query(ProdInfo).filter(ProdInfo.production_id == production_id).delete()
-    db.query(Event).filter(Event.production_id == production_id).delete()
-    db.delete(production)
+    media_items = db.query(Media).filter(Media.production_id == production_id).all()
+    for media in media_items:
+        try:
+            minio_client.remove_object(settings.MINIO_BUCKET, media.object_key)
+        except Exception:
+            pass
+
+    event_ids = [
+        event_id
+        for (event_id,) in db.query(Event.id)
+        .filter(Event.production_id == production_id)
+        .all()
+    ]
+
+    if event_ids:
+        db.execute(delete(EventPrice).where(EventPrice.event_id.in_(event_ids)))
+
+    db.execute(delete(ProdInfo).where(ProdInfo.production_id == production_id))
+    db.execute(delete(Event).where(Event.production_id == production_id))
+    db.execute(delete(Media).where(Media.production_id == production_id))
+    db.execute(delete(prod_tags).where(prod_tags.c.prod_id == production_id))
+    db.execute(delete(prod_groups).where(prod_groups.c.prod_id == production_id))
+    db.execute(delete(Production).where(Production.id == production_id))
     db.commit()
     return True

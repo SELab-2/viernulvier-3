@@ -31,7 +31,7 @@ def create_user_with_permissions(
 
 def get_token(client: TestClient, username: str) -> str:
     response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": "pw"}
+        "/api/v1/auth/login", json={"username": username, "password": "pw"}
     )
     return response.json()["access_token"]
 
@@ -42,7 +42,7 @@ def test_permissions_endpoint_requires_users_read(
     create_user_with_permissions(db_session, "perm_user", [Permissions.USERS_READ])
     token = get_token(client, "perm_user")
     response = client.get(
-        "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/auth/permissions", headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
     perms = response.json()
@@ -53,7 +53,7 @@ def test_permissions_endpoint_forbidden(client: TestClient, db_session: Session)
     create_user_with_permissions(db_session, "noperm_user", [])
     token = get_token(client, "noperm_user")
     response = client.get(
-        "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/auth/permissions", headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 403
 
@@ -64,7 +64,7 @@ def test_permissions_endpoint_lists_all_defined_permissions(
     create_user_with_permissions(db_session, "perm_user_all", [Permissions.USERS_READ])
     token = get_token(client, "perm_user_all")
     response = client.get(
-        "/api/v1/auth/permissions/", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/auth/permissions", headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 200
     perms = {p["name"] for p in response.json()}
@@ -87,7 +87,7 @@ def test_roles_crud(client: TestClient, db_session: Session):
     headers = {"Authorization": f"Bearer {token}"}
 
     response = client.post(
-        "/api/v1/auth/roles/",
+        "/api/v1/auth/roles",
         json={"name": "testrole", "permissions": [Permissions.USERS_READ]},
         headers=headers,
     )
@@ -107,7 +107,7 @@ def test_roles_crud(client: TestClient, db_session: Session):
     assert response.status_code == 200
     assert response.json()["name"] == "updatedrole"
 
-    response = client.get("/api/v1/auth/roles/", headers=headers)
+    response = client.get("/api/v1/auth/roles", headers=headers)
     assert response.status_code == 200
     assert any(r["name"] == "updatedrole" for r in response.json())
 
@@ -121,7 +121,7 @@ def test_roles_permission_enforcement(client: TestClient, db_session: Session):
     headers = {"Authorization": f"Bearer {token}"}
 
     response = client.post(
-        "/api/v1/auth/roles/",
+        "/api/v1/auth/roles",
         json={"name": "failrole", "permissions": []},
         headers=headers,
     )
@@ -139,3 +139,35 @@ def test_roles_permission_enforcement(client: TestClient, db_session: Session):
 
     response = client.delete(f"/api/v1/auth/roles/{role.id}", headers=headers)
     assert response.status_code == 403
+
+
+def test_delete_role_forbidden_when_assigned_to_user(
+    client: TestClient, db_session: Session
+):
+    create_user_with_permissions(
+        db_session,
+        "admin_delete_role",
+        [
+            Permissions.USERS_READ,
+            Permissions.USERS_DELETE,
+        ],
+    )
+    token = get_token(client, "admin_delete_role")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    protected_role = Role(name="admin", permissions=[])
+    assigned_user = User(
+        username="assigned_user",
+        hashed_password=get_password_hash("pw"),
+        roles=[protected_role],
+    )
+    db_session.add_all([protected_role, assigned_user])
+    db_session.commit()
+
+    response = client.delete(f"/api/v1/auth/roles/{protected_role.id}", headers=headers)
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Roles assigned to users cannot be deleted"
+    assert (
+        db_session.query(Role).filter(Role.id == protected_role.id).first() is not None
+    )

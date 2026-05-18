@@ -39,6 +39,7 @@ def test_build_media_response_basic(db_session, media_item):
     media_item: fixture that returns a Media ORM instance with:
       - id
       - production_id
+      - blog_id
       - object_key
       - content_type
       - uploaded_at
@@ -56,6 +57,29 @@ def test_build_media_response_basic(db_session, media_item):
     assert resp.url == f"http://test/media/{media_item.object_key}"
     assert resp.content_type == media_item.content_type
     assert resp.uploaded_at == media_item.uploaded_at
+
+
+def test_build_media_response_basic_blog(db_session, media_item_blog):
+    """
+    media_item: fixture that returns a Media ORM instance with:
+      - id
+      - production_id
+      - blog_id
+      - object_key
+      - content_type
+      - uploaded_at
+    """
+    resp = build_media_response(media_item_blog, BASE_URL)
+
+    assert (
+        resp.id_url
+        == f"{BASE_URL}/blogs/{media_item_blog.blog_id}/media/{media_item_blog.id}"
+    )
+    assert resp.blog_id_url == f"{BASE_URL}/blogs/{media_item_blog.blog_id}"
+    # Note: host-only URL for actual media file
+    assert resp.url == f"http://test/media/{media_item_blog.object_key}"
+    assert resp.content_type == media_item_blog.content_type
+    assert resp.uploaded_at == media_item_blog.uploaded_at
 
 
 def test_get_media_by_id_found(db_session, media_items_for_production):
@@ -84,6 +108,7 @@ def test_list_media_for_production_empty(db_session, production_with_no_media):
     assert result.media == []
     assert result.pagination.has_more is False
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 def test_list_media_for_production_multiple(db_session, media_items_for_production):
@@ -93,6 +118,7 @@ def test_list_media_for_production_multiple(db_session, media_items_for_producti
     assert len(result.media) == len(media_items_for_production)
     assert result.pagination.has_more is False
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == len(media_items_for_production)
     ids = {m.id for m in media_items_for_production}
     resp_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in result.media}
     assert resp_ids == ids
@@ -120,6 +146,7 @@ def test_upload_media_creates_db_row_and_puts_object(
     resp = upload_media(
         db_session,
         production_id=prod.id,
+        blog_id=None,
         filename=filename,
         content_type=content_type,
         data=data,
@@ -164,6 +191,7 @@ def test_upload_media_preserves_original_extension_case_insensitive(
     resp = upload_media(
         db_session,
         production_id=prod.id,
+        blog_id=None,
         filename=filename,
         content_type=content_type,
         data=data,
@@ -249,6 +277,7 @@ def test_list_media_cursor_pagination(db_session, media_items_for_production):
     assert len(page1.media) == 2
     assert page1.pagination.has_more is True
     assert page1.pagination.next_cursor is not None
+    assert page1.pagination.total_count == 3
 
     page2 = list_media_for_production(
         db_session,
@@ -260,6 +289,7 @@ def test_list_media_cursor_pagination(db_session, media_items_for_production):
     assert len(page2.media) == 1
     assert page2.pagination.has_more is False
     assert page2.pagination.next_cursor is None
+    assert page2.pagination.total_count == 3
 
     # No overlap between pages
     page1_ids = {int(r.id_url.rsplit("/", 1)[-1]) for r in page1.media}

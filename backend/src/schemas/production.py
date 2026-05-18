@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import ConfigDict, Field
 from src.schemas.base_schema import StrictModel
-from src.schemas.pagination import Pagination
+from src.schemas.pagination import JsonPagination
 from src.schemas.tag import TagResponse
 
 
@@ -45,7 +45,7 @@ class ProductionResponse(StrictModel):
 # The response for a list of productions, including pagination info.
 class ProductionListResponse(StrictModel):
     productions: list[ProductionResponse] = Field(default_factory=list)
-    pagination: Pagination = Field(default_factory=Pagination)
+    pagination: JsonPagination = Field(default_factory=JsonPagination)
 
 
 # When a new production info is created in a specific language.

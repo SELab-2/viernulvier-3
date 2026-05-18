@@ -1,26 +1,25 @@
-import { ArrowRightAlt } from "@mui/icons-material";
+import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import Check from "@mui/icons-material/Check";
+import { Link } from "react-router";
 import {
   Box,
   Card,
   CardContent,
   CardMedia,
   Chip,
-  Link,
   Divider,
   Stack,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
+import { useEffect, useState } from "react";
 import type { Production, ProductionInfo } from "../types/productionTypes";
 import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
-
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
+import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
 const DEFAULT_CARD_VALUES = {
-  imageUrl: DEFAULT_IMAGE,
   tagNames: [] as string[],
 } as const;
 
@@ -45,13 +44,7 @@ function colorWithOpacity(color: string, opacity: number): string {
   return `color-mix(in srgb, ${color} ${Math.round(opacity * 100)}%, transparent)`;
 }
 
-interface ProductionCardProps {
-  production: Production;
-  preferredLanguage?: string;
-  className?: string;
-}
-
-function getProductionInfoByLanguage(
+export function getProductionInfoByLanguage(
   productionInfos: ProductionInfo[],
   language: string
 ): ProductionInfo {
@@ -132,28 +125,63 @@ function getProductionStartLabel(
   }
 }
 
-function getVenues(production: Production): string[] | undefined {
-  if (!production.events?.length) return;
+// NOTE: This function currently does not work because the underlying data
+//       never sends an actual list of events, it's undefined.
+//       See https://github.com/SELab-2/viernulvier-3/issues/404
+//
+// function getVenues(production: Production): string[] | undefined {
+//   if (!production.events?.length) return;
+//
+//   // TODO: fix this to use actual I18N
+//   // NOTE: this actually never reaches because `production.events` is
+//   //       currently always undefined
+//   const halls = production.events
+//     .map((e) => e.hall?.names[0].name)
+//     .filter((name): name is string => !!name);
+//
+//   if (halls.length === 0) return;
+//
+//   // Remove duplicates
+//   const uniqueHalls = Array.from(new Set(halls));
+//
+//   return uniqueHalls;
+// }
+//
+// The code that was used to display it:
+//   const venues = getVenues(production);
+//   <Typography
+//     className="production-card-text"
+//     sx={{
+//   	color: colorWithOpacity(CARD_COLORS.accent, 0.92),
+//   	fontSize: "var(--text-archive-meta)",
+//   	letterSpacing: "var(--tracking-archive-label)",
+//   	textTransform: "uppercase",
+//     }}
+//   >
+//     {venues &&
+//   	venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
+//   </Typography>
 
-  const halls = production.events
-    .map((e) => e.hall?.name)
-    .filter((name): name is string => !!name);
-
-  if (halls.length === 0) return;
-
-  // Remove duplicates
-  const uniqueHalls = Array.from(new Set(halls));
-
-  return uniqueHalls;
+interface ProductionCardProps {
+  production: Production;
+  preferredLanguage?: string;
+  className?: string;
+  isSelectable?: boolean;
+  selected?: boolean;
+  anySelected?: boolean;
+  onToggleSelected?: (productionId: string) => void;
 }
 
 export function ProductionCard({
   production,
   preferredLanguage = "nl",
   className,
+  isSelectable = false,
+  selected = false,
+  anySelected = false,
+  onToggleSelected,
 }: ProductionCardProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const lp = useLocalizedPath();
   const { lang } = useParams();
   if (!preferredLanguage) preferredLanguage = lang || "nl";
@@ -161,7 +189,6 @@ export function ProductionCard({
     title: t("archive.card.defaults.title"),
     dateLabel: t("archive.card.defaults.dateLabel"),
     venueLabel: t("archive.card.defaults.venueLabel"),
-    imageUrl: DEFAULT_CARD_VALUES.imageUrl,
     tagNames: DEFAULT_CARD_VALUES.tagNames,
   };
 
@@ -178,37 +205,39 @@ export function ProductionCard({
     defaultCardValues.dateLabel
   );
   const dateParts = dateLabel.split(" - ");
-  const venues = getVenues(production);
-  const imageUrl = getTextOrDefault(
-    (production as { image_url?: string }).image_url,
-    defaultCardValues.imageUrl
-  );
   const tagNames = getTagNamesByLanguage(production, preferredLanguage);
 
   const productionId = getProductionNumericIdFromUrl(production.id_url);
 
-  const handleOpenDetails = () => {
-    if (!productionId) {
-      return;
-    }
-
-    navigate(lp(`/archive/productions/${productionId}`));
+  const handleToggleSelected = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    onToggleSelected?.(production.id_url);
   };
+  const [firstImageUrl, setFirstImageUrl] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!productionId) return;
+
+    getMediaForProduction(Number(productionId), { limit: 1 })
+      .then((response) => {
+        const first = response.media.find((m) => m.content_type.startsWith("image/"));
+        if (first) setFirstImageUrl(first.url);
+      })
+      .catch(() => {
+        // keep default
+      });
+  }, [productionId]);
+
+  if (!productionId) return null;
+
+  const imageUrl = firstImageUrl;
+  const isLogoFallback = !firstImageUrl;
 
   return (
     <Card
-      onClick={handleOpenDetails}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleOpenDetails();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={`Open details for ${title}`}
       className={className}
       sx={{
+        "position": "relative",
         "height": "100%",
         "display": "flex",
         "flexDirection": "column",
@@ -217,12 +246,17 @@ export function ProductionCard({
         "cursor": "pointer",
         "background": `linear-gradient(180deg, ${CARD_COLORS.surfaceStart} 0%, ${CARD_COLORS.surfaceEnd} 100%)`,
         "color": CARD_COLORS.textPrimary,
-        "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
+        "border": selected
+          ? `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.56)}`
+          : `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.12)}`,
         "transition": `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}, box-shadow ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
         "&:hover": {
           transform: "translateY(-2px)",
           boxShadow: `0 16px 36px ${colorWithOpacity(CARD_COLORS.ink, 0.1)}`,
         },
+        "boxShadow": selected
+          ? `0 0 0 2px ${colorWithOpacity(CARD_COLORS.accent, 0.22)}`
+          : undefined,
         "&:hover .production-card-image": {
           transform: `translateY(${CARD_MOTION.imageTranslateYOnHover}) scale(${CARD_MOTION.imageScaleOnHover})`,
         },
@@ -241,20 +275,109 @@ export function ProductionCard({
       }}
       elevation={0}
     >
-      <Box sx={{ position: "relative", overflow: "hidden" }}>
-        <CardMedia
-          className="production-card-image"
-          component="img"
-          height="236"
-          image={imageUrl}
-          alt={title}
-          sx={{
-            transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-            transform: "translateY(0) scale(1)",
-            transformOrigin: "center top",
-            willChange: "transform",
-          }}
+      {!anySelected && (
+        <Link
+          to={lp(`/archive/productions/${productionId}`)}
+          aria-label={`Open details for ${title}`}
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
         />
+      )}
+      <Box sx={{ position: "relative", overflow: "hidden" }}>
+        {isLogoFallback ? (
+          <Box
+            sx={{
+              height: 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--color-archive-ink)",
+              overflow: "hidden",
+            }}
+            onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+          >
+            <Box
+              component="img"
+              src="/logo.svg"
+              alt={title}
+              sx={{
+                width: "90%",
+                maxWidth: 240,
+                filter: "var(--archive-logo-filter-inverted)",
+                transition: "filter 200ms ease",
+              }}
+            />
+          </Box>
+        ) : (
+          <CardMedia
+            className="production-card-image"
+            component="img"
+            height="300"
+            image={imageUrl!}
+            alt={title}
+            onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+            sx={{
+              objectFit: "cover",
+              transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+              transform: "translateY(0) scale(1)",
+              transformOrigin: "center top",
+              willChange: "transform",
+            }}
+          />
+        )}
+
+        {isSelectable ? (
+          <Box
+            component="span"
+            role="checkbox"
+            aria-checked={selected}
+            aria-label={`${selected ? t("archive.selection.selected") : t("archive.selection.select")} ${title}`}
+            tabIndex={-1}
+            onClick={(e) => handleToggleSelected(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleToggleSelected(e);
+              }
+            }}
+            sx={{
+              "position": "absolute",
+              "top": 10,
+              "right": 10,
+              "zIndex": 2,
+              "width": 26,
+              "height": 26,
+              "borderRadius": "50%",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center",
+              "cursor": "pointer",
+              "transition": "all 200ms ease",
+              "backgroundColor": selected
+                ? "var(--color-archive-accent)"
+                : colorWithOpacity("var(--color-archive-paper)", 0.82),
+              "border": selected
+                ? "none"
+                : `1.5px solid ${colorWithOpacity("var(--color-archive-accent)", 0.45)}`,
+              "backdropFilter": "blur(6px)",
+              "&:hover": {
+                backgroundColor: selected
+                  ? "var(--color-archive-accent)"
+                  : colorWithOpacity("var(--color-archive-accent)", 0.18),
+                border: `1.5px solid var(--color-archive-accent)`,
+              },
+            }}
+          >
+            {selected && (
+              <Check
+                sx={{
+                  fontSize: 14,
+                  color: "var(--color-archive-paper)",
+                  display: "block",
+                }}
+              />
+            )}
+          </Box>
+        ) : null}
 
         {supertitle ? (
           <Chip
@@ -262,16 +385,23 @@ export function ProductionCard({
             label={supertitle.toUpperCase()}
             size="small"
             sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              height: 28,
-              borderRadius: 999,
-              backgroundColor: "var(--color-archive-ink)",
-              color: "var(--color-archive-paper)",
-              fontWeight: "var(--weight-archive-bold)",
-              letterSpacing: "var(--tracking-archive-label)",
-              border: `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "position": "absolute",
+              "top": 12,
+              "left": 12,
+              "maxWidth": isSelectable ? "calc(100% - 52px)" : "calc(100% - 24px)",
+              "height": 28,
+              "borderRadius": 999,
+              "backgroundColor": "var(--color-archive-ink)",
+              "color": "var(--color-archive-paper)",
+              "fontWeight": "var(--weight-archive-bold)",
+              "letterSpacing": "var(--tracking-archive-label)",
+              "border": `1px solid ${colorWithOpacity(CARD_COLORS.accent, 0.25)}`,
+              "overflow": "hidden",
+              "& .MuiChip-label": {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
             }}
           />
         ) : null}
@@ -291,6 +421,13 @@ export function ProductionCard({
           willChange: "transform",
         }}
       >
+        {anySelected && (
+          <Link
+            to={lp(`/archive/productions/${productionId}`)}
+            aria-label={`Open details for ${title}`}
+            style={{ position: "absolute", inset: 0, zIndex: 1 }}
+          />
+        )}
         <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.1 }}>
             <Typography
@@ -318,19 +455,6 @@ export function ProductionCard({
                   <span className="text-center">{dateParts[1]}</span>
                 </>
               )}
-            </Typography>
-
-            <Typography
-              className="production-card-text"
-              sx={{
-                color: colorWithOpacity(CARD_COLORS.accent, 0.92),
-                fontSize: "var(--text-archive-meta)",
-                letterSpacing: "var(--tracking-archive-label)",
-                textTransform: "uppercase",
-              }}
-            >
-              {venues &&
-                venues.map((venue) => <p className="text-nowrap">@ {venue}</p>)}
             </Typography>
           </Stack>
 
@@ -438,21 +562,21 @@ export function ProductionCard({
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="flex-end">
-          <Link
+          <div
             className="production-card-text"
-            component="span"
-            underline="none"
-            sx={{
+            style={{
+              alignItems: "center",
               color: colorWithOpacity(CARD_COLORS.accent, 0.98),
-              fontWeight: "var(--weight-archive-bold)",
-              textTransform: "uppercase",
-              letterSpacing: "var(--tracking-archive-label)",
+              display: "flex",
               fontSize: "var(--text-archive-meta)",
-              cursor: "pointer",
+              fontWeight: "var(--weight-archive-bold)",
+              gap: 0.5,
+              letterSpacing: "var(--tracking-archive-label)",
+              textTransform: "uppercase",
             }}
           >
             Details <ArrowRightAlt />
-          </Link>
+          </div>
         </Stack>
       </CardContent>
     </Card>

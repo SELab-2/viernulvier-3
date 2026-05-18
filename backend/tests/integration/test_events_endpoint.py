@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.models.event import Event, EventPrice
-from src.models.hall import Hall
+from src.models.hall import Hall, HallName
 from src.models.production import Production
 from src.models.role import Role
 from src.models.user import User
@@ -37,7 +37,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -45,7 +45,8 @@ def create_user_and_login(
 
 
 def test_create_event_success(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall A", address="Street A")
+    hall = Hall(address="Street A")
+    hall.names.append(HallName(language="en", name="Hall A"))
     production = Production()
     db_session.add_all([hall, production])
     db_session.commit()
@@ -77,7 +78,8 @@ def test_create_event_success(client: TestClient, db_session: Session):
 
 
 def test_get_event_by_id(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall B", address="Street B")
+    hall = Hall(address="Street B")
+    hall.names.append(HallName(language="en", name="Hall B"))
     production = Production()
     event = Event(
         hall=hall,
@@ -121,7 +123,8 @@ def test_get_event_not_found(client: TestClient):
 
 
 def test_update_event_success(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall C", address="Street C")
+    hall = Hall(address="Street C")
+    hall.names.append(HallName(language="en", name="Hall C"))
     production = Production()
     event = Event(
         hall=hall,
@@ -157,7 +160,8 @@ def test_update_event_not_found(client: TestClient, db_session: Session):
 
 
 def test_delete_event_success(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall D", address="Street D")
+    hall = Hall(address="Street D")
+    hall.names.append(HallName(language="en", name="Hall D"))
     production = Production()
     event = Event(
         hall=hall,
@@ -185,7 +189,8 @@ def test_delete_event_not_found(client: TestClient, db_session: Session):
 
 
 def test_create_event_without_permission(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall E", address="Street E")
+    hall = Hall(address="Street E")
+    hall.names.append(HallName(language="en", name="Hall E"))
     production = Production()
     db_session.add_all([hall, production])
     db_session.commit()
@@ -205,7 +210,8 @@ def test_create_event_without_permission(client: TestClient, db_session: Session
 
 
 def test_get_event_prices_success(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall Prices", address="Street Prices")
+    hall = Hall(address="Street Prices")
+    hall.names.append(HallName(language="en", name="Hall Prices"))
     production = Production()
 
     event = Event(
@@ -246,7 +252,8 @@ def test_get_event_prices_event_not_found(client: TestClient):
 
 
 def test_get_event_price_success(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall Price Detail", address="Street Price Detail")
+    hall = Hall(address="Street Price Detail")
+    hall.names.append(HallName(language="en", name="Hall Price Detail"))
     production = Production()
 
     event = Event(
@@ -274,7 +281,8 @@ def test_get_event_price_success(client: TestClient, db_session: Session):
 
 
 def test_get_event_price_not_found(client: TestClient, db_session: Session):
-    hall = Hall(name="Hall Missing Price", address="Street Missing Price")
+    hall = Hall(address="Street Missing Price")
+    hall.names.append(HallName(language="en", name="Hall Missing Price"))
     production = Production()
 
     event = Event(
@@ -292,11 +300,8 @@ def test_get_event_price_not_found(client: TestClient, db_session: Session):
 
 
 def test_event_url_contains_full_path(client: TestClient, db_session: Session):
-    from src.models.hall import Hall
-    from src.models.production import Production
-    from src.models.event import Event
-
-    hall = Hall(name="Hall URL Test", address="Street URL Test")
+    hall = Hall(address="Street URL Test")
+    hall.names.append(HallName(language="en", name="Hall URL Test"))
     production = Production()
     db_session.add_all([hall, production])
     db_session.commit()
@@ -321,8 +326,8 @@ def test_event_url_contains_full_path(client: TestClient, db_session: Session):
 
 
 def test_event_price_url_contains_full_path(client: TestClient, db_session: Session):
-    # setup
-    hall = Hall(name="Hall Price Test", address="Street Price Test")
+    hall = Hall(address="Street Price Test")
+    hall.names.append(HallName(language="en", name="Hall Price Test"))
     production = Production()
     event = Event(hall=hall, production=production, order_url="https://order_example")
     db_session.add_all([hall, production, event])
@@ -332,7 +337,6 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
     db_session.add(price)
     db_session.commit()
 
-    # actual request
     response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}")
     assert response.status_code == 200
     data = response.json()
@@ -346,3 +350,184 @@ def test_event_price_url_contains_full_path(client: TestClient, db_session: Sess
 
     response = client.get(price_url)
     assert response.status_code == 200
+
+
+def test_create_price_success(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Create Price", address="Street Create Price")
+    production = Production()
+    event = Event(hall=hall, production=production, order_url="http://order.url")
+    db_session.add_all([hall, production, event])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "create_price_user", [Permissions.ARCHIVE_CREATE]
+    )
+
+    response = client.post(
+        f"{BASE_URL_EVENTS}/{event.id}/prices",
+        json={"amount": 15.0, "available": 100},
+        headers=headers,
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert float(data["amount"]) == 15.0
+    assert data["available"] == 100
+    assert f"/events/{event.id}/prices/" in data["id_url"]
+
+
+def test_create_price_event_not_found(client: TestClient, db_session: Session):
+    headers = create_user_and_login(
+        client, db_session, "create_price_404_user", [Permissions.ARCHIVE_CREATE]
+    )
+
+    response = client.post(
+        f"{BASE_URL_EVENTS}/9999/prices",
+        json={"amount": 10.0},
+        headers=headers,
+    )
+
+    assert response.status_code == 404
+
+
+def test_create_price_without_permission(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall No Perm", address="Street No Perm")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    db_session.add_all([hall, production, event])
+    db_session.commit()
+
+    headers = create_user_and_login(client, db_session, "no_price_perm_user")
+
+    response = client.post(
+        f"{BASE_URL_EVENTS}/{event.id}/prices",
+        json={"amount": 10.0},
+        headers=headers,
+    )
+
+    assert response.status_code == 403
+
+
+def test_update_price_success(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Update Price", address="Street Update Price")
+    production = Production()
+    event = Event(hall=hall, production=production, order_url="http://order.url")
+    price = EventPrice(event=event, amount=10.0, available=50)
+    db_session.add_all([hall, production, event, price])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "update_price_user", [Permissions.ARCHIVE_UPDATE]
+    )
+
+    response = client.patch(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}",
+        json={"amount": 25.0, "available": 75},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert float(data["amount"]) == 25.0
+    assert data["available"] == 75
+
+
+def test_update_price_partial(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Partial Price", address="Street Partial Price")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    price = EventPrice(event=event, amount=10.0, available=50)
+    db_session.add_all([hall, production, event, price])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "partial_price_user", [Permissions.ARCHIVE_UPDATE]
+    )
+
+    response = client.patch(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}",
+        json={"amount": 20.0},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert float(data["amount"]) == 20.0
+    assert data["available"] == 50
+
+
+def test_update_price_not_found(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Update 404", address="Street Update 404")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    db_session.add_all([hall, production, event])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "update_price_404_user", [Permissions.ARCHIVE_UPDATE]
+    )
+
+    response = client.patch(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/9999",
+        json={"amount": 20.0},
+        headers=headers,
+    )
+
+    assert response.status_code == 404
+
+
+def test_delete_price_success(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Delete Price", address="Street Delete Price")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    price = EventPrice(event=event, amount=10.0, available=50)
+    db_session.add_all([hall, production, event, price])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "delete_price_user", [Permissions.ARCHIVE_DELETE]
+    )
+
+    response = client.delete(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}", headers=headers
+    )
+
+    assert response.status_code == 204
+
+    response = client.get(f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}")
+    assert response.status_code == 404
+
+
+def test_delete_price_not_found(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall Del 404", address="Street Del 404")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    db_session.add_all([hall, production, event])
+    db_session.commit()
+
+    headers = create_user_and_login(
+        client, db_session, "delete_price_404_user", [Permissions.ARCHIVE_DELETE]
+    )
+
+    response = client.delete(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/9999", headers=headers
+    )
+
+    assert response.status_code == 404
+
+
+def test_delete_price_without_permission(client: TestClient, db_session: Session):
+    hall = Hall(name="Hall No Del", address="Street No Del")
+    production = Production()
+    event = Event(hall=hall, production=production)
+    price = EventPrice(event=event, amount=10.0)
+    db_session.add_all([hall, production, event, price])
+    db_session.commit()
+
+    headers = create_user_and_login(client, db_session, "no_del_price_perm_user")
+
+    response = client.delete(
+        f"{BASE_URL_EVENTS}/{event.id}/prices/{price.id}", headers=headers
+    )
+
+    assert response.status_code == 403

@@ -41,7 +41,7 @@ def test_csv_prod_to_model_prod():
 
     # Only 1 info for nl
     assert len(prod_infos) == 1
-    assert prod_infos[0].language == Languages.NEDERLANDS
+    assert prod_infos[0].language == Languages.DUTCH
 
     # Extract the info's to more easily test them
     info_nl = prod_infos[0]

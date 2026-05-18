@@ -12,6 +12,8 @@ class PagedFetcher:
     requests.
     """
 
+    endpoint = None
+
     def __init__(self, vnv_wrapper: VNV_Wrapper):
         self.vnv_wrapper = vnv_wrapper
         """
@@ -22,20 +24,64 @@ class PagedFetcher:
         self.logger = logging.getLogger(__name__)
         self._paged_data: list | None = None
 
-    def get_new_items_after(last_timestamp):
+    def get_new_items_after(self, last_timestamp):
         """
-        Abstract method that should be overwritten by every class inhereting
-        from this class.
+        Get all new items after the given timestamp.
 
-        Is meant to fetch all the newly created items after (inclusive) the
-        given timestamp.
+        The timestamp is used **inclusive**, meaning that it probably returns
+        an item that already exists in the database.
 
-        Throws in this default implementation, shouldn't throw in the
-        overrides of course.
+        When calling the API fails this will throw an error. However,
+        if there was already data fetched (f.e. when paging and hitting a
+        rate limit), the object will have stored the results which you can
+        query with `.has_partial_data()` and `.get_partial_data()`.
+
+        ---
+
+        :param timestamp: used to get new items after (inclusive)
         """
-        raise NotImplementedError(
-            f"method 'get_new_items_after' was not implemented for {__class__}"
-        )
+        if self.endpoint is None:
+            raise NotImplementedError(
+                f"Class {__class__} did not set 'endpoint' and can thus not sync"
+            )
+
+        parameters = {"created_at[after]": last_timestamp}
+        return self.fetch_all(self.endpoint, parameters)
+
+    def get_updated_items_after(self, last_timestamp):
+        """
+        Get all updated items after the given timestamp.
+
+        The timestamp is used **inclusive**, meaning that it probably returns
+        an item that already exists in the database.
+
+        When calling the API fails this will throw an error. However,
+        if there was already data fetched (f.e. when paging and hitting a
+        rate limit), the object will have stored the results which you can
+        query with `.has_partial_data()` and `.get_partial_data()`.
+
+        ---
+
+        :param timestamp: used to get updated items after (inclusive)
+        """
+        if self.endpoint is None:
+            raise NotImplementedError(
+                f"Class {__class__} did not set 'endpoint' and can thus not sync"
+            )
+
+        # [strictly_after] means that theoretically we could lose an update,
+        # but only on very rare edge cases where there were multiple items
+        # updated at the exact same time, and for some reason the scraper did
+        # not get all of those items. In that case the updateds that we did not
+        # get will be lost.
+
+        # If this edge case must be catched, than a solution could be to hold a
+        # list somewhere of the viernulvier_id's of all the items that were
+        # fetched the last sync and had that last timestamp. Then those could
+        # be ignored during this next update round.
+
+        parameters = {"updated_at[strictly_after]": last_timestamp}
+        return self.fetch_all(self.endpoint, parameters)
 
     def fetch_all(self, link: str, parameters: dict) -> list:
         """

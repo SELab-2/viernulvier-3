@@ -71,7 +71,7 @@ class VNV_Wrapper:
         :raises ConnectionError: on other non-ok response status
         """
         parsed_params = ""
-        if params is not None:
+        if params:
             parsed_params = "?" + urlencode(params)
 
         if path[0] == "/":

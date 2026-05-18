@@ -3,19 +3,19 @@ import pytest
 from src.models import Event, ProdInfo, Production, Tag, TagName
 from src.services.language import Languages
 
-STATISTICS_URL = "/api/v1/archive/statistics/"
+STATISTICS_URL = "/api/v1/archive/statistics"
 
 
 @pytest.fixture
 def seed_statistics_db(db_session):
     tag1 = Tag()
     tag1.names = [
-        TagName(language=Languages.NEDERLANDS, name="theater"),
+        TagName(language=Languages.DUTCH, name="theater"),
         TagName(language=Languages.ENGLISH, name="theatre"),
     ]
     tag2 = Tag()
     tag2.names = [
-        TagName(language=Languages.NEDERLANDS, name="muziek"),
+        TagName(language=Languages.DUTCH, name="muziek"),
         TagName(language=Languages.ENGLISH, name="music"),
     ]
     db_session.add_all([tag1, tag2])
@@ -29,15 +29,15 @@ def seed_statistics_db(db_session):
     db_session.add_all(
         [
             ProdInfo(
-                production_id=prod1.id, language=Languages.NEDERLANDS, artist="Artist A"
+                production_id=prod1.id, language=Languages.DUTCH, artist="Artist A"
             ),
             ProdInfo(
                 production_id=prod1.id, language=Languages.ENGLISH, artist="Artist A"
             ),
             ProdInfo(
-                production_id=prod2.id, language=Languages.NEDERLANDS, artist="Artist B"
+                production_id=prod2.id, language=Languages.DUTCH, artist="Artist B"
             ),
-            ProdInfo(production_id=prod3.id, language=Languages.NEDERLANDS, artist=""),
+            ProdInfo(production_id=prod3.id, language=Languages.DUTCH, artist=""),
         ]
     )
 

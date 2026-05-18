@@ -1,5 +1,5 @@
 import { useState, type JSX } from "react";
-import { NavLink, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Protected, useAuthSession } from "~/features/auth";
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { i18n_key: "nav.home", path: "/" },
   { i18n_key: "nav.archive", path: "/archive" },
   { i18n_key: "nav.history", path: "/history" },
+  { i18n_key: "nav.visuals", path: "/visuals" },
+  { i18n_key: "nav.blogs", path: "/blogs" },
   {
     i18n_key: "nav.users",
     path: "/users",
@@ -23,21 +25,24 @@ const NAV_ITEMS = [
 type LogoProps = { nav_name: string };
 
 function Logo({ nav_name }: LogoProps) {
+  const lp = useLocalizedPath();
   return (
-    <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
-      <img
-        src="/logo.svg"
-        alt={`${nav_name} logo`}
-        className="xs:h-8 h-6 w-auto md:h-10"
-        style={{ filter: "var(--archive-logo-filter)" }}
-      />
-      <span
-        aria-hidden="true"
-        className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
-      >
-        {nav_name}
-      </span>
-    </div>
+    <Link to={lp("/")}>
+      <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
+        <img
+          src="/logo.svg"
+          alt={`${nav_name} logo`}
+          className="xs:h-8 h-6 w-auto md:h-10"
+          style={{ filter: "var(--archive-logo-filter)" }}
+        />
+        <span
+          aria-hidden="true"
+          className="xs:text-[0.8rem] mb-[2px] font-serif text-[0.6rem] italic opacity-50 md:text-[1.125rem]"
+        >
+          {nav_name}
+        </span>
+      </div>
+    </Link>
   );
 }
 
@@ -51,13 +56,14 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 const authActionClassName =
-  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden lg:flex";
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden xl:flex";
 
 type NavLinksProps = { onNavigate?: () => void };
 
 function NavLinks({ onNavigate }: NavLinksProps) {
   const { t } = useTranslation();
   const lp = useLocalizedPath();
+  const { pathname } = useLocation();
 
   return (
     <>
@@ -66,7 +72,11 @@ function NavLinks({ onNavigate }: NavLinksProps) {
           <li key={i18n_key}>
             <NavLink
               to={lp(path)}
-              className={navLinkClass}
+              className={() => {
+                const current = pathname.replace(/\/+$/, "");
+                const target = lp(path).replace(/\/+$/, "");
+                return navLinkClass({ isActive: current === target });
+              }}
               end={path === "/"}
               onClick={onNavigate}
             >
@@ -144,7 +154,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 lg:hidden"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 xl:hidden"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -165,13 +175,13 @@ function Navbar(): JSX.Element {
     >
       <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase lg:flex">
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase xl:flex">
           <NavLinks />
         </ul>
         <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden lg:flex" />
+          <NavbarAuthControls className="hidden xl:flex" />
           <HamburgerMenuButton
             isOpen={menuOpen}
             onToggle={() => setMenuOpen(!menuOpen)}
@@ -181,7 +191,7 @@ function Navbar(): JSX.Element {
           <div
             data-testid="mobile-menu"
             id="mobile-menu"
-            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t lg:hidden"
+            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t xl:hidden"
           >
             <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
               <NavLinks onNavigate={() => setMenuOpen(false)} />

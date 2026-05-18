@@ -74,6 +74,47 @@ databank zal er voor zorgen dat er geen dubbele items opgeslagen worden via
 restricties op uniekheid.
 
 
+### Halls, spaces, locaties
+
+Waar een event zich afspeelt wordt nogal ingewikkeld opgeslagen in de data van
+de Viernulvier. In onze databank kozen we er voor om deze locaties onder `Hall`
+te bundelen. Een `Hall` heeft een `address` en een `name`.
+
+In de Viernulvier data heeft een `Event` een `Hall`, wat een `name` heeft. Om
+dan het adres van deze `Hall` te weten te komen moeten we kijken naar alle
+`Locaties`, die optioneel adres-velden heeft, en een verzameling `spaces`. Een
+`space` heeft een `name` en een verzameling `halls`.
+
+Deze meerlagige indirectie oplossen was mogelijk door te beginnen met het
+scrapen van locaties, en van daaruit de spaces en halls te scrapen. Op dat
+moment kennen we dus alle info om een eigen `Hall` object aan te maken.
+
+Helaas is de data uit de Viernulvier API (VNV) zeer inconsistent. Hoewel een
+VNV locatie velden heeft voor een adres (`street`, `number`, `postal_code`,
+...) worden deze nauwelijks gebruikt. Opmerkelijk is dat `name` van een `space`
+soms een adres kan zijn, maar soms ook gewoon echt een naam. En soms is de naam
+van een `space` dezelfde naam als de naam van de `hall` die bij die `space`
+hoort.
+
+In een poging deze inconsistentie uit onze databank te houden stelden we de
+volgende regels op om het adres te bepalen:
+- als een locatie een `street` en `postal_code` heeft, gebruik dan de
+  adres-velden van de locatie als adres, geformatteerd als:
+  ```{street}[ {number}], {postal_code}[ {city}][ ({country})]```
+  (Velden tussen `[]` worden weggelaten als deze niet aanwezig zijn in de VNV
+  data). Voorbeeld: `Bloemenlaan, 9000 Gent` of `Rozendreef 4, 9000 (BE)`
+- als een locatie niet de juiste adres-velden heeft, gebruik dan de `space.name`
+  als adres, **behalve** als `space.name == hall.name` (zet dan `adres = None`)
+
+En deze regels om de naam van een hall te bepalen:
+- Als de `space.name != hall.name` en `space.name` werd niet gebruik als adres,
+  neem dan `name = {hall.name} ({space.name})`
+- Anders neem `name = {hall.name}`
+
+Deze regels lijken voldoende om de VNV data redelijk simpel en consistent weer
+te geven.
+
+
 ## `sync_job` architectuur
 De padnamen laten steeds `backend/src/worker/` weg.
 
@@ -89,3 +130,20 @@ de stappen orchestreren:
 - converteren van json api response naar databank objecten (`converters/*`)
 - databank objecten opslaan in de databank (`sync/store/*`)
 - nieuwe laatste timestamp in databank opslaan (`sync/db_sync.py`)
+
+
+## Update regels
+Bij het updaten van verschillende items uit de API zijn er een paar regels die
+gevolgd worden:
+- als het aangepaste item uit de API andere vertalingen heeft, dan worden
+    de talen die niet gespecifieerd zijn in de API behouden in onze databank,
+    als bijvoorbeeld een tag een naam in het nederlands en in het engels heeft,
+    maar de geupdatete tag uit de API enkel meer een engelse naam heeft, dan
+    zal die engelse naam in onze databank aangepast worden, maar de nederlandse
+    naam zal behouden worden
+- voor producties zullen tags altijd volledig vervangen worden door de lijst
+    van tags uit de API
+
+Elke aanpassing van data uit onze databank zal gelogd worden op niveau `INFO`
+via Python's logger interface. Op die manier zou het mogelijk moeten zijn om
+ongewenste aanpassingen terug te vinden in de logs.

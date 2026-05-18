@@ -8,9 +8,19 @@ from src.services.event_service import (
     update_event,
     get_prices_for_event,
     get_event_price,
+    create_price,
+    update_price,
+    delete_price,
 )
 
-from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
+from src.schemas.event import (
+    EventResponse,
+    EventCreate,
+    EventUpdate,
+    PriceResponse,
+    PriceCreate,
+    PriceUpdate,
+)
 from src.services.auth.permissions import Permissions
 from src.api.dependencies import RequirePermissions
 from src.models.user import User
@@ -35,7 +45,7 @@ def delete_event(
     delete_event_by_id(db, event_id)
 
 
-@router.post("/", response_model=EventResponse, status_code=201)
+@router.post("", response_model=EventResponse, status_code=201)
 def post_event(
     event_in: EventCreate,
     request: Request,
@@ -86,3 +96,46 @@ def get_price(
         return get_event_price(db, event_id, price_id, base_url)
     except ValueError:
         raise HTTPException(status_code=404, detail="Price not found")
+
+
+@router.post("/{event_id}/prices", response_model=PriceResponse, status_code=201)
+def post_price(
+    event_id: int,
+    price_in: PriceCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_CREATE])),
+):
+    base_url = get_base_url(str(request.url), 3)
+
+    try:
+        return create_price(db, event_id, price_in, base_url)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.patch("/{event_id}/prices/{price_id}", response_model=PriceResponse)
+def patch_price(
+    event_id: int,
+    price_id: int,
+    price_in: PriceUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
+):
+    base_url = get_base_url(str(request.url), 4)
+
+    try:
+        return update_price(db, event_id, price_id, price_in, base_url)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.delete("/{event_id}/prices/{price_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_price_endpoint(
+    event_id: int,
+    price_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
+):
+    delete_price(db, event_id, price_id)

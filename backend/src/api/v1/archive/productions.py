@@ -1,32 +1,38 @@
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from minio import Minio
 from sqlalchemy.orm import Session
+from src.api.dependencies import RequirePermissions
 from src.api.dependencies.language import get_accepted_language
+from src.api.exceptions import NotFoundError
 from src.database import get_db
+from src.models.user import User
+from src.schemas.blogs import BlogListResponse
 from src.schemas.production import (
     ProductionCreate,
     ProductionListResponse,
     ProductionResponse,
     ProductionUpdate,
 )
+from src.services.archive import get_base_url
+from src.services.auth.permissions import Permissions
+from src.services.blogs import get_blogs_by_production_id
+from src.services.media import get_minio_client
 from src.services.production import (
-    ProductionSortOrder,
+    SortOrder,
     create_production,
+    delete_production_by_id,
     get_production_by_id,
     get_productions_paginated,
     update_production_by_id,
-    delete_production_by_id,
 )
-from fastapi import APIRouter, Depends, Query, Request, status, HTTPException
-from src.services.auth.permissions import Permissions
-from src.api.dependencies import RequirePermissions
-from src.models.user import User
-from src.services.archive import get_base_url
-from datetime import datetime
 
 router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=ProductionListResponse,
     summary="Get productions",
     description="Gets all productions of the database, using pagination.",
@@ -37,31 +43,46 @@ async def get_productions(
     cursor: str | None = Query(None),
     limit: int = Query(20, ge=1, le=50),
     tag_ids: str | None = Query(None),
+    series_ids: str | None = Query(None),
     artists: str | None = Query(None),
     production_name: str | None = Query(None),
     earliest_at: datetime | None = Query(None),
     latest_at: datetime | None = Query(None),
-    sort_order: ProductionSortOrder = Query("Descending"),
+    sort_order: SortOrder = Query("Descending"),
 ) -> ProductionListResponse:
     base_url = get_base_url(str(request.url))
+    parsed_tag_ids: list[int] | None = None
+    parsed_series_ids: list[int] | None = None
+    parsed_artists: list[str] | None = None
+
     if tag_ids:
         try:
-            tag_ids = [int(t) for t in tag_ids.split(",")]
+            parsed_tag_ids = [int(tag_id) for tag_id in tag_ids.split(",")]
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="tag_ids must be a comma-separated list of integers.",
             )
 
+    if series_ids:
+        try:
+            parsed_series_ids = [int(series_id) for series_id in series_ids.split(",")]
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="series_ids must be a comma-separated list of integers.",
+            )
+
     if artists:
-        artists = artists.split(",")
+        parsed_artists = artists.split(",")
     return get_productions_paginated(
         db,
         base_url,
         cursor,
         limit,
-        tags=tag_ids,
-        artists=artists,
+        tags=parsed_tag_ids,
+        groups=parsed_series_ids,
+        artists=parsed_artists,
         production_name=production_name,
         earliest_at=earliest_at,
         latest_at=latest_at,
@@ -70,7 +91,7 @@ async def get_productions(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductionResponse,
     status_code=201,
     summary="Create production",
@@ -118,10 +139,14 @@ async def patch_production(
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_UPDATE])),
 ) -> ProductionResponse:
     base_url = get_base_url(str(request.url), 2)
-    production_data = update_production_by_id(
-        db, production_in, production_id, base_url
-    )
-
+    try:
+        production_data = update_production_by_id(
+            db, production_in, production_id, base_url
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return production_data
 
 
@@ -134,6 +159,23 @@ async def patch_production(
 async def delete_production(
     production_id: int,
     db: Session = Depends(get_db),
+    minio: Minio = Depends(get_minio_client),
     _: User = Depends(RequirePermissions([Permissions.ARCHIVE_DELETE])),
 ):
-    delete_production_by_id(db, production_id)
+    delete_production_by_id(db, production_id, minio)
+
+
+@router.get(
+    "/{production_id}/blogs",
+    response_model=BlogListResponse,
+    summary="Get blogs by production id",
+    description="Get all blogs linked to a specific production",
+)
+async def get_blogs_by_production(
+    production_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    language: str | None = Depends(get_accepted_language),
+) -> BlogListResponse:
+    base_url = get_base_url(str(request.url), 3)
+    return get_blogs_by_production_id(db, production_id, base_url, language)

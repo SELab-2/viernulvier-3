@@ -1,7 +1,14 @@
 from sqlalchemy.orm import Session
 from src.models.production import Production
 from src.models import Event, Hall, EventPrice
-from src.schemas.event import EventResponse, EventCreate, EventUpdate, PriceResponse
+from src.schemas.event import (
+    EventResponse,
+    EventCreate,
+    EventUpdate,
+    PriceResponse,
+    PriceCreate,
+    PriceUpdate,
+)
 from src.schemas.hall import HallResponse
 from typing import Any
 from src.api.exceptions import NotFoundError, ValidationError
@@ -10,7 +17,7 @@ from src.api.exceptions import NotFoundError, ValidationError
 def extract_id(url: str | None) -> int | None:
     if not url:
         return None
-    return int(url.rstrip("/").split("/")[-1])
+    return int(url.split("/")[-1])
 
 
 def build_event_response(db: Session, event: Event, base_url: str) -> EventResponse:
@@ -24,7 +31,7 @@ def build_event_response(db: Session, event: Event, base_url: str) -> EventRespo
 
     hall_id_url = f"{base_url}/halls/{event.hall_id}" if hall else None
     hall = (
-        HallResponse(id_url=hall_id_url, name=hall.name, address=hall.address)
+        HallResponse(id_url=hall_id_url, names=hall.names, address=hall.address)
         if hall
         else None
     )
@@ -61,17 +68,14 @@ def delete_event_by_id(db: Session, event_id: int) -> bool:
     return True
 
 
-def get_hall_by_id(db: Session, hall_id: int) -> Hall:
-    hall = db.query(Hall).filter(Hall.id == hall_id).first()
-    if not hall:
-        raise NotFoundError("Hall", hall_id)
-    return hall
-
-
 def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResponse:
     try:
         production_id = extract_id(event_in.production_id_url)
-        hall_id = extract_id(event_in.hall_id_url)
+        hall_id = (
+            extract_id(event_in.hall_id_url)
+            if event_in.hall_id_url is not None
+            else None
+        )
     except ValueError:
         raise ValidationError("Invalid production_id_url or hall_id_url format")
 
@@ -79,9 +83,11 @@ def create_event(db: Session, event_in: EventCreate, base_url: str) -> EventResp
     if not db_production:
         raise NotFoundError("Production", production_id)
 
-    db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
-    if not db_hall:
-        raise NotFoundError("Hall", hall_id)
+    db_hall = None
+    if hall_id is not None:
+        db_hall = db.query(Hall).filter(Hall.id == hall_id).first()
+        if not db_hall:
+            raise NotFoundError("Hall", hall_id)
 
     if event_in.starts_at is not None and event_in.ends_at is not None:
         if event_in.ends_at <= event_in.starts_at:
@@ -123,23 +129,7 @@ def update_event(
         if not db_hall:
             raise NotFoundError("Hall", hall_id)
 
-        update_dict["hall_id_url"] = hall_id
-
-    # production_id update
-    if "production_id_url" in update_dict:
-        try:
-            production_id = extract_id(update_dict["production_id_url"])
-        except ValueError:
-            raise ValidationError("Invalid production_id_url format")
-
-        db_production = (
-            db.query(Production).filter(Production.id == production_id).first()
-        )
-
-        if not db_production:
-            raise NotFoundError("Production", production_id)
-
-        update_dict["production_id_url"] = production_id
+        update_dict["hall_id"] = hall_id
 
     # starts_at / ends_at validation
     starts_at = update_dict.get("starts_at", event.starts_at)
@@ -206,3 +196,85 @@ def get_event_price(
         created_at=price.created_at,
         updated_at=price.updated_at,
     )
+
+
+def build_price_response(
+    db: Session, event_id: int, price: EventPrice, base_url: str
+) -> PriceResponse:
+    return PriceResponse(
+        id_url=f"{base_url}/events/{event_id}/prices/{price.id}",
+        amount=float(price.amount) if price.amount is not None else None,
+        available=price.available,
+        expires_at=price.expires_at,
+        created_at=price.created_at,
+        updated_at=price.updated_at,
+    )
+
+
+def create_price(
+    db: Session, event_id: int, price_in: PriceCreate, base_url: str
+) -> PriceResponse:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    db_price = EventPrice(
+        event_id=event_id,
+        amount=price_in.amount,
+        available=price_in.available,
+        expires_at=price_in.expires_at,
+    )
+
+    db.add(db_price)
+    db.commit()
+    db.refresh(db_price)
+
+    return build_price_response(db, event_id, db_price, base_url)
+
+
+def update_price(
+    db: Session,
+    event_id: int,
+    price_id: int,
+    price_in: PriceUpdate,
+    base_url: str,
+) -> PriceResponse:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    price = (
+        db.query(EventPrice)
+        .filter(EventPrice.id == price_id, EventPrice.event_id == event_id)
+        .first()
+    )
+    if not price:
+        raise NotFoundError("Price", price_id)
+
+    update_dict = price_in.model_dump(exclude_unset=True)
+
+    for field, value in update_dict.items():
+        setattr(price, field, value)
+
+    db.commit()
+    db.refresh(price)
+
+    return build_price_response(db, event_id, price, base_url)
+
+
+def delete_price(db: Session, event_id: int, price_id: int) -> bool:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise NotFoundError("Event", event_id)
+
+    price = (
+        db.query(EventPrice)
+        .filter(EventPrice.id == price_id, EventPrice.event_id == event_id)
+        .first()
+    )
+    if not price:
+        raise NotFoundError("Price", price_id)
+
+    db.delete(price)
+    db.commit()
+    return True

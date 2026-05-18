@@ -13,10 +13,11 @@ def update_production_dates(db: Session, production_id: int):
 
     earliest_at, latest_at = db.execute(stmt).one_or_none()
 
-    production = db.get(Production, production_id)
-    if production:
-        production.earliest_at = earliest_at
-        production.latest_at = latest_at
+    if production_id:
+        production = db.get(Production, production_id)
+        if production:
+            production.earliest_at = earliest_at
+            production.latest_at = latest_at
 
 
 @event.listens_for(Event, "after_insert")

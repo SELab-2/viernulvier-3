@@ -26,7 +26,18 @@ describe("Navbar", () => {
     expect(screen.getByText("I18N_History")).toBeInTheDocument();
     // Once for the logo, once for the link
     expect(screen.getAllByText("I18N_Archive").length).toBe(2);
+    expect(screen.getByText("I18N_Blogs")).toBeInTheDocument();
     expect(screen.queryByText("I18N_Users")).not.toBeInTheDocument();
+  });
+
+  it("Home is selected by default", () => {
+    renderWithRouterAndTheme({});
+    expect(screen.getByText("I18N_Home").closest("a")).toHaveClass(
+      "border-archive-accent"
+    );
+    expect(screen.getByText("I18N_History").closest("a")).toHaveClass(
+      "border-transparent"
+    );
   });
 
   it("toggles mobile menu when clicking hamburger button", async () => {
@@ -65,6 +76,7 @@ describe("Navbar", () => {
     expect(within(menu).getByText("I18N_Home")).toBeInTheDocument();
     expect(within(menu).getByText("I18N_Archive")).toBeInTheDocument();
     expect(within(menu).getByText("I18N_History")).toBeInTheDocument();
+    expect(within(menu).getByText("I18N_Blogs")).toBeInTheDocument();
     await userEvent.click(button);
   });
 
@@ -74,6 +86,16 @@ describe("Navbar", () => {
 
     const user = userEvent.setup();
     const links = screen.getAllByRole("link", { name: "I18N_Home" });
+    await user.click(links[0]);
+    expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("navigates to home page when clicking VierNulVier logo", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("img");
     await user.click(links[0]);
     expect(screen.getAllByText("TEST_HOME_PAGE").length).toBeGreaterThanOrEqual(1);
   });
@@ -96,6 +118,16 @@ describe("Navbar", () => {
     const links = screen.getAllByRole("link", { name: "I18N_History" });
     await user.click(links[0]);
     expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("navigates to blogs page when clicking Blogs link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const user = userEvent.setup();
+    const links = screen.getAllByRole("link", { name: "I18N_Blogs" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_BLOGS_PAGE")).toBeInTheDocument();
   });
 
   it("mobile - navigates to home page when clicking Home link", async () => {
@@ -138,6 +170,20 @@ describe("Navbar", () => {
     const links = within(menu).getAllByRole("link", { name: "I18N_History" });
     await user.click(links[0]);
     expect(screen.getByText("TEST_HISTORY_PAGE")).toBeInTheDocument();
+  });
+
+  it("mobile - navigates to blogs page when clicking Blogs link", async () => {
+    // For this we override the routes defined
+    renderWithRouterAndTheme({});
+
+    const button = screen.getAllByTestId("hamburger-menu-button")[0];
+    await userEvent.click(button);
+    const menu = screen.getByTestId("mobile-menu");
+
+    const user = userEvent.setup();
+    const links = within(menu).getAllByRole("link", { name: "I18N_Blogs" });
+    await user.click(links[0]);
+    expect(screen.getByText("TEST_BLOGS_PAGE")).toBeInTheDocument();
   });
 
   it("shows no auth action when the user is anonymous", async () => {

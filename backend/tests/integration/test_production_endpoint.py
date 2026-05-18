@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.models.user import User
 from src.models.role import Role
+from src.models.user import User
 from src.services.auth.password import get_password_hash
 from src.services.auth.permissions import Permissions
 from src.services.language import Languages
@@ -39,7 +39,7 @@ def create_user_and_login(
     db_session.commit()
 
     login_response = client.post(
-        "/api/v1/auth/login/", json={"username": username, "password": password}
+        "/api/v1/auth/login", json={"username": username, "password": password}
     )
 
     token = login_response.json()["access_token"]
@@ -58,6 +58,7 @@ def test_get_productions_success(
     # Check first page.
     data = response.json()
     assert len(data["productions"]) == 5
+    assert data["pagination"]["total_count"] == 10
     next_cursor = data["pagination"]["next_cursor"]
     assert next_cursor is not None
     assert data["pagination"]["has_more"]
@@ -70,6 +71,7 @@ def test_get_productions_success(
     # Check second (last) page.
     data = response.json()
     assert len(data["productions"]) == 5
+    assert data["pagination"]["total_count"] == 10
     assert data["pagination"]["next_cursor"] is None
     assert not data["pagination"]["has_more"]
 
@@ -88,7 +90,7 @@ def test_get_productions_with_tag(
     assert len(data["productions"]) == 5
     assert all(
         all(
-            int(tag_response["id_url"].rstrip("/").split("/")[-1]) == tag_id1
+            int(tag_response["id_url"].split("/")[-1]) == tag_id1
             for tag_response in production["tags"]
         )
         for production in data["productions"]
@@ -107,7 +109,7 @@ def test_get_productions_with_tag(
     assert len(data["productions"]) == 5
     assert all(
         all(
-            int(tag_response["id_url"].rstrip("/").split("/")[-1]) == tag_id2
+            int(tag_response["id_url"].split("/")[-1]) == tag_id2
             for tag_response in production["tags"]
         )
         for production in data["productions"]
@@ -117,6 +119,16 @@ def test_get_productions_with_tag(
     next_cursor = data["pagination"]["next_cursor"]
     assert next_cursor is None
     assert not data["pagination"]["has_more"]
+
+
+def test_get_productions_with_invalid_series_ids(client: TestClient):
+    response = client.get(BASE_PROD_URL + "/", params={"series_ids": "a,b"})
+
+    assert response.status_code == 422
+    assert (
+        response.json()["detail"]
+        == "series_ids must be a comma-separated list of integers."
+    )
 
 
 # Productions can be filtered on artist.
@@ -267,7 +279,7 @@ def test_get_production_by_id_valid_language(
     id = productions_limited[0].id
     response = client.get(
         BASE_PROD_URL + f"/{id}",
-        headers={"Accept-Language": Languages.NEDERLANDS},
+        headers={"Accept-Language": Languages.DUTCH},
     )
     assert response.status_code == 200
     data = response.json()
@@ -419,8 +431,7 @@ def test_patch_production_tags_success(
 
     data = response.json()
     assert {
-        int(tag_response["id_url"].rstrip("/").split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 3}
 
     response = client.patch(
@@ -432,8 +443,7 @@ def test_patch_production_tags_success(
     # Updated in response.
     data = response.json()
     assert {
-        int(tag_response["id_url"].rstrip("/").split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2, 3}
 
     response = client.get(
@@ -443,8 +453,7 @@ def test_patch_production_tags_success(
     # Updated in database.
     data = response.json()
     assert {
-        int(tag_response["id_url"].rstrip("/").split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2, 3}
 
 
@@ -462,8 +471,7 @@ def test_patch_production_tags_failure(
 
     data = response.json()
     assert {
-        int(tag_response["id_url"].rstrip("/").split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 3}
 
     response = client.patch(
@@ -495,6 +503,24 @@ def test_patch_production_delete_info_success(
     assert len(data["production_infos"]) == 1
 
 
+# User with permissions cannot delete all existing infos of an existing production.
+def test_patch_production_delete_info_failure(
+    client: TestClient, db_session: Session, productions_limited
+):
+    headers = create_user_and_login(
+        client, db_session, "update_production_user", [Permissions.ARCHIVE_UPDATE]
+    )
+    production = productions_limited[0]
+
+    response = client.patch(
+        f"{BASE_PROD_URL}/{production.id}",
+        json={"remove_languages": [Languages.ENGLISH, Languages.DUTCH]},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
+
+
 # User should be able to create a new production.
 def test_create_production_success(client: TestClient, db_session: Session):
     headers = create_user_and_login(
@@ -506,7 +532,7 @@ def test_create_production_success(client: TestClient, db_session: Session):
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {
-                "language": Languages.NEDERLANDS,
+                "language": Languages.DUTCH,
                 "title": "Nieuwe productie",
             },
         },
@@ -544,8 +570,7 @@ def test_create_production_with_tags_success(
     assert data["performer_type"] == "band"
     assert data["attendance_mode"] == "offline"
     assert {
-        int(tag_response["id_url"].rstrip("/").split("/")[-1])
-        for tag_response in data["tags"]
+        int(tag_response["id_url"].split("/")[-1]) for tag_response in data["tags"]
     } == {1, 2}
 
 
@@ -581,7 +606,7 @@ def test_create_production_failure(client: TestClient, db_session: Session):
             "performer_type": "band",
             "attendance_mode": "offline",
             "production_info": {
-                "language": Languages.NEDERLANDS,
+                "language": Languages.DUTCH,
                 "title": "Nieuwe productie",
             },
         },
@@ -647,11 +672,12 @@ def test_delete_production_not_found(
 
 
 def test_production_urls_contain_full_path(client: TestClient, db_session: Session):
-    from src.models.production import Production
     from src.models.event import Event
-    from src.models.hall import Hall
+    from src.models.hall import Hall, HallName
+    from src.models.production import Production
 
-    hall = Hall(name="Test Hall", address="Test Street")
+    hall = Hall(address="Test Street")
+    hall.names.append(HallName(language="en", name="Test Hall"))
     production = Production()
     db_session.add_all([hall, production])
     db_session.commit()

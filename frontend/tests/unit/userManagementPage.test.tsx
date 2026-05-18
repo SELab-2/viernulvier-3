@@ -1,4 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material/styles";
 import userEvent from "@testing-library/user-event";
 import type { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -48,8 +49,10 @@ vi.mock("~/features/auth", () => ({
 }));
 
 import UserManagementPage from "~/features/users/pages/UserManagementPage";
+import * as permissionManagementServiceModule from "~/features/users/services/permissionManagementService";
 import * as userManagementServiceModule from "~/features/users/services/userManagementService";
-import type { IUser } from "~/features/users/users.types";
+import * as roleManagementServiceModule from "~/features/users/services/roleManagementService";
+import type { IRole, IUser } from "~/features/users/users.types";
 
 const dateTimeFormatOptions = {
   year: "numeric",
@@ -80,6 +83,40 @@ const users: IUser[] = [
   },
 ];
 
+const roles: IRole[] = [
+  { id: 1, name: "editor", permissions: ["archive:write"] },
+  { id: 2, name: "viewer", permissions: [] },
+];
+
+const testTheme = createTheme({
+  components: {
+    MuiBackdrop: {
+      defaultProps: {
+        transitionDuration: 0,
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        transitionDuration: 0,
+      },
+    },
+  },
+});
+
+function renderPage() {
+  return render(
+    <MuiThemeProvider theme={testTheme}>
+      <UserManagementPage />
+    </MuiThemeProvider>
+  );
+}
+
+function setFieldValue(label: string, value: string) {
+  fireEvent.change(screen.getByLabelText(label), {
+    target: { value },
+  });
+}
+
 describe("UserManagementPage", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -92,12 +129,19 @@ describe("UserManagementPage", () => {
       createdAt: "2026-04-09T10:00:00",
       lastLoginAt: null,
     };
+    authSessionValue.refreshSession = vi.fn().mockResolvedValue(authSessionValue.user);
+    // Default: roles load successfully with an empty list so existing
+    // user-focused tests are not affected by the roles section.
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+    vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue(
+      []
+    );
   });
 
   it("renders the empty state when no users are returned", async () => {
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(screen.getByText("I18N_Users_Loading")).toBeInTheDocument();
     expect(await screen.findByText("users.empty.title")).toBeInTheDocument();
@@ -122,7 +166,7 @@ describe("UserManagementPage", () => {
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("Backend says no")).toBeInTheDocument();
 
@@ -157,36 +201,43 @@ describe("UserManagementPage", () => {
       new Error("boom")
     );
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("users.messages.loadFailed")).toBeInTheDocument();
   });
 
   it("creates a user from the add dialog", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      isSuperUser: true,
+    };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
     vi.spyOn(userManagementServiceModule, "createUser").mockResolvedValue({
       id: 7,
       username: "fresh-account",
       isSuperUser: false,
-      roles: [],
-      permissions: [],
+      roles: ["editor"],
+      permissions: ["archive:write"],
       createdAt: "2026-04-15T10:00:00",
       lastLoginAt: null,
     });
 
     const user = userEvent.setup();
 
-    render(<UserManagementPage />);
+    renderPage();
 
     await screen.findByText("users.empty.title");
     await user.click(screen.getByRole("button", { name: "users.actions.add" }));
-    await user.type(screen.getByLabelText("users.fields.username"), " fresh-account ");
-    await user.type(screen.getByLabelText("users.fields.password"), "temporary-secret");
+    setFieldValue("users.fields.username", " fresh-account ");
+    setFieldValue("users.fields.password", "temporary-secret");
+    await user.click(screen.getByRole("checkbox", { name: "editor" }));
     await user.click(screen.getByRole("button", { name: "users.actions.create" }));
 
     expect(userManagementServiceModule.createUser).toHaveBeenCalledWith({
       username: "fresh-account",
       password: "temporary-secret",
+      roles: ["editor"],
     });
 
     const createdUserCard = (await screen.findByText("fresh-account")).closest(
@@ -194,7 +245,179 @@ describe("UserManagementPage", () => {
     );
 
     expect(createdUserCard).not.toBeNull();
-    expect(createdUserCard).not.toBeNull();
+  });
+
+  it("validates create form fields and clears validation on input change", async () => {
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText("users.empty.title");
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
+
+    const createForm = document.querySelector("#user-form-dialog-create");
+    expect(createForm).not.toBeNull();
+
+    fireEvent.submit(createForm as HTMLFormElement);
+    expect(
+      await screen.findByText("users.messages.usernameRequired")
+    ).toBeInTheDocument();
+
+    setFieldValue("users.fields.username", "operator");
+    expect(screen.queryByText("users.messages.usernameRequired")).toBeNull();
+
+    fireEvent.submit(createForm as HTMLFormElement);
+    expect(
+      await screen.findByText("users.messages.passwordRequired")
+    ).toBeInTheDocument();
+
+    setFieldValue("users.fields.password", "secret");
+    expect(screen.queryByText("users.messages.passwordRequired")).toBeNull();
+  });
+
+  it("shows create API errors and resets create dialog state on close", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      isSuperUser: true,
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    vi.spyOn(userManagementServiceModule, "createUser").mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { detail: "Username already exists" } },
+    });
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText("users.empty.title");
+
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
+    setFieldValue("users.fields.username", "operator");
+    setFieldValue("users.fields.password", "secret");
+    await user.click(screen.getByRole("button", { name: "users.actions.create" }));
+
+    expect(await screen.findByText("Username already exists")).toBeInTheDocument();
+    expect(userManagementServiceModule.createUser).toHaveBeenCalledWith({
+      username: "operator",
+      password: "secret",
+      roles: [],
+    });
+
+    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+    expect(screen.queryByText("users.dialogs.create.title")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.add" }));
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
+    expect(usernameInput.value).toBe("");
+    expect(passwordInput.value).toBe("");
+  });
+
+  it("hides edit buttons without the users:update permission", async () => {
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "users.actions.edit" })).toBeNull();
+  });
+
+  it("updates a user from the edit dialog", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      isSuperUser: true,
+      permissions: ["users:read", "users:update"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+    vi.spyOn(userManagementServiceModule, "updateUser").mockResolvedValue({
+      ...users[0],
+      username: "curator-updated",
+      roles: ["editor", "viewer"],
+      permissions: ["archive:write"],
+    });
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+    expect(curatorCard).not.toBeNull();
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.edit",
+      })
+    );
+
+    const usernameInput = screen.getByLabelText(
+      "users.fields.username"
+    ) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "users.fields.password"
+    ) as HTMLInputElement;
+    expect(usernameInput.value).toBe("curator");
+    expect(passwordInput.value).toBe("");
+
+    await user.clear(usernameInput);
+    await user.type(usernameInput, " curator-updated ");
+    await user.click(screen.getByRole("checkbox", { name: "viewer" }));
+    await user.click(screen.getByRole("button", { name: "users.actions.update" }));
+
+    expect(userManagementServiceModule.updateUser).toHaveBeenCalledWith(users[0].id, {
+      username: "curator-updated",
+      roles: ["editor", "viewer"],
+    });
+
+    expect(await screen.findByText("curator-updated")).toBeInTheDocument();
+    expect(screen.queryByText("curator")).toBeNull();
+  });
+
+  it("refreshes the session after updating the current user", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      id: users[0].id,
+      permissions: ["users:read", "users:update"],
+    };
+    authSessionValue.refreshSession = vi.fn().mockResolvedValue({
+      ...authSessionValue.user,
+      username: "curator-updated",
+    });
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+    vi.spyOn(userManagementServiceModule, "updateUser").mockResolvedValue({
+      ...users[0],
+      username: "curator-updated",
+    });
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.edit",
+      })
+    );
+    setFieldValue("users.fields.username", "curator-updated");
+    await user.click(screen.getByRole("button", { name: "users.actions.update" }));
+
+    expect(authSessionValue.refreshSession).toHaveBeenCalledTimes(1);
   });
 
   it("hides create actions without the matching permissions", async () => {
@@ -204,9 +427,632 @@ describe("UserManagementPage", () => {
     };
     vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
 
-    render(<UserManagementPage />);
+    renderPage();
 
     expect(await screen.findByText("curator")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "users.actions.add" })).toBeNull();
+  });
+
+  it("shows delete buttons when the current user has users:delete permission", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    const deleteButtons = screen.getAllByRole("button", {
+      name: "users.actions.delete",
+    });
+
+    expect(deleteButtons).toHaveLength(1);
+  });
+
+  it("hides delete buttons without the users:delete permission", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:create"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "users.actions.delete" })).toBeNull();
+  });
+
+  it("hides the delete button on the current user's own card", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      id: users[0].id,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    // No delete buttons — the current user can't delete themselves and super users are protected.
+    const deleteButtons = screen.queryAllByRole("button", {
+      name: "users.actions.delete",
+    });
+
+    expect(deleteButtons).toHaveLength(0);
+  });
+
+  it("removes the user from the list after confirming deletion", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockResolvedValue(undefined);
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+    expect(curatorCard).not.toBeNull();
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(userManagementServiceModule.deleteUser).toHaveBeenCalledWith(users[0].id);
+    expect(await screen.findByText("admin")).toBeInTheDocument();
+    expect(screen.queryByText("curator")).toBeNull();
+  });
+
+  it("shows an error message when deletion fails", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { detail: "Cannot delete last admin" } },
+    });
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(await screen.findByText("Cannot delete last admin")).toBeInTheDocument();
+    // The user should still be in the list
+    expect(screen.getByText("curator")).toBeInTheDocument();
+  });
+
+  it("falls back to the generic delete failure message for non-axios errors", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+    vi.spyOn(userManagementServiceModule, "deleteUser").mockRejectedValue(
+      new Error("network failure")
+    );
+
+    const user = userEvent.setup();
+
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "users.actions.delete" }));
+
+    expect(await screen.findByText("users.messages.deleteFailed")).toBeInTheDocument();
+  });
+
+  it("closes the delete dialog when cancel is clicked", async () => {
+    authSessionValue.user = {
+      ...authSessionValue.user,
+      permissions: ["users:read", "users:delete"],
+    };
+    vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue(users);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    expect(await screen.findByText("curator")).toBeInTheDocument();
+    const curatorCard = screen
+      .getByRole("heading", { name: "curator" })
+      .closest("article");
+
+    await user.click(
+      within(curatorCard as HTMLElement).getByRole("button", {
+        name: "users.actions.delete",
+      })
+    );
+
+    expect(await screen.findByText("users.dialogs.delete.title")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+    expect(screen.queryByText("users.dialogs.delete.title")).toBeNull();
+  });
+
+  describe("roles section", () => {
+    beforeEach(() => {
+      vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+    });
+
+    it("renders roles in cards after loading", async () => {
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      expect(await screen.findByText("editor")).toBeInTheDocument();
+      expect(screen.getByText("viewer")).toBeInTheDocument();
+      expect(screen.getByText("archive:write")).toBeInTheDocument();
+      expect(screen.getByText("users.roles.empty.permissions")).toBeInTheDocument();
+    });
+
+    it("shows role edit buttons when user has users:update permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:update"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      ).toBeInTheDocument();
+    });
+
+    it("shows role delete buttons when user has users:delete permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      ).toBeInTheDocument();
+    });
+
+    it("hides role edit buttons without users:update permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).queryByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      ).toBeNull();
+    });
+
+    it("hides role delete buttons without users:delete permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      expect(editorRoleCard).not.toBeNull();
+      expect(
+        within(editorRoleCard as HTMLElement).queryByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      ).toBeNull();
+    });
+
+    it("renders the empty state when no roles exist", async () => {
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+
+      renderPage();
+
+      expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
+      expect(screen.getByText("users.roles.empty.description")).toBeInTheDocument();
+    });
+
+    it("shows an error banner when roles fail to load", async () => {
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Roles fetch failed" } },
+      } as AxiosError);
+
+      renderPage();
+
+      expect(await screen.findByText("Roles fetch failed")).toBeInTheDocument();
+    });
+
+    it("falls back to the generic roles load failure message for non-axios errors", async () => {
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockRejectedValue(
+        new Error("network error")
+      );
+
+      renderPage();
+
+      expect(
+        await screen.findByText("users.roles.messages.loadFailed")
+      ).toBeInTheDocument();
+    });
+
+    it("shows the add role button when user has users:create permission", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+
+      renderPage();
+
+      expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "users.roles.actions.add" })
+      ).toBeInTheDocument();
+    });
+
+    it("hides the add role button without create permission", async () => {
+      authSessionValue.user = { ...authSessionValue.user, permissions: ["users:read"] };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+
+      renderPage();
+
+      expect(await screen.findByText("users.roles.empty.title")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "users.roles.actions.add" })
+      ).toBeNull();
+    });
+
+    it("creates a role from the add dialog and appends it to the list", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue([
+        "users:read",
+        "archive:create",
+      ]);
+      vi.spyOn(roleManagementServiceModule, "createRole").mockResolvedValue({
+        id: 10,
+        name: "moderator",
+        permissions: ["users:read", "archive:create"],
+      });
+
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText("users.roles.empty.title");
+
+      await user.click(
+        await screen.findByRole("button", { name: "users.roles.actions.add" })
+      );
+      await user.type(
+        await screen.findByLabelText("users.roles.fields.name"),
+        "moderator"
+      );
+      await user.click(screen.getByRole("checkbox", { name: "users:read" }));
+      await user.click(screen.getByRole("checkbox", { name: "archive:create" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.create" })
+      );
+
+      expect(roleManagementServiceModule.createRole).toHaveBeenCalledWith({
+        name: "moderator",
+        permissions: ["users:read", "archive:create"],
+      });
+
+      await screen.findByText("moderator");
+      expect(screen.queryByText("users.roles.empty.title")).toBeNull();
+    });
+
+    it("updates a role from the edit dialog and refreshes dependent data", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:update"],
+      };
+      vi.spyOn(userManagementServiceModule, "listUsers").mockResolvedValue([]);
+      vi.spyOn(roleManagementServiceModule, "listRoles")
+        .mockResolvedValueOnce(roles)
+        .mockResolvedValue([
+          { id: 1, name: "editor-in-chief", permissions: ["users:read"] },
+          roles[1],
+        ]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockResolvedValue([
+        "users:read",
+        "archive:write",
+      ]);
+      vi.spyOn(roleManagementServiceModule, "updateRole").mockResolvedValue({
+        id: 1,
+        name: "editor-in-chief",
+        permissions: ["users:read"],
+      });
+
+      const user = userEvent.setup();
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+      expect(editorRoleCard).not.toBeNull();
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.edit",
+        })
+      );
+
+      const nameInput = screen.getByLabelText(
+        "users.roles.fields.name"
+      ) as HTMLInputElement;
+      expect(nameInput.value).toBe("editor");
+      await user.clear(nameInput);
+      await user.type(nameInput, " editor-in-chief ");
+      await user.click(screen.getByRole("checkbox", { name: "archive:write" }));
+      await user.click(screen.getByRole("checkbox", { name: "users:read" }));
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.update" })
+      );
+
+      expect(roleManagementServiceModule.updateRole).toHaveBeenCalledWith(1, {
+        name: "editor-in-chief",
+        permissions: ["users:read"],
+      });
+      expect(authSessionValue.refreshSession).toHaveBeenCalledTimes(1);
+      expect(await screen.findByText("editor-in-chief")).toBeInTheDocument();
+      expect(screen.queryByText("editor")).toBeNull();
+    });
+
+    it("shows a permissions load error inside the create role dialog", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+      vi.spyOn(permissionManagementServiceModule, "listPermissions").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Permissions fetch failed" } },
+      } as AxiosError);
+
+      const user = userEvent.setup();
+      render(<UserManagementPage />);
+
+      await screen.findByText("users.roles.empty.title");
+      await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
+
+      expect(await screen.findByText("Permissions fetch failed")).toBeInTheDocument();
+    });
+
+    it("removes the role from the list after confirming deletion", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockResolvedValue(undefined);
+
+      const user = userEvent.setup();
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+      expect(editorRoleCard).not.toBeNull();
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      expect(
+        await screen.findByText("users.roles.dialogs.delete.title")
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
+
+      expect(roleManagementServiceModule.deleteRole).toHaveBeenCalledWith(roles[0].id);
+      expect(await screen.findByText("viewer")).toBeInTheDocument();
+      expect(screen.queryByText("editor")).toBeNull();
+    });
+
+    it("validates that the role name is required", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText("users.roles.empty.title");
+      await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
+
+      const createForm = document.querySelector("#role-form-dialog-create");
+      expect(createForm).not.toBeNull();
+
+      fireEvent.submit(createForm as HTMLFormElement);
+
+      expect(
+        await screen.findByText("users.roles.messages.nameRequired")
+      ).toBeInTheDocument();
+    });
+
+    it("shows an error message when role deletion fails", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Role is protected" } },
+      } as AxiosError);
+
+      const user = userEvent.setup();
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
+
+      expect(await screen.findByText("Role is protected")).toBeInTheDocument();
+      expect(screen.getByText("editor")).toBeInTheDocument();
+    });
+
+    it("falls back to the generic role delete failure message for non-axios errors", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:delete"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue(roles);
+      vi.spyOn(roleManagementServiceModule, "deleteRole").mockRejectedValue(
+        new Error("network error")
+      );
+
+      const user = userEvent.setup();
+      renderPage();
+
+      const editorRoleCard = (
+        await screen.findByRole("heading", { name: "editor" })
+      ).closest("article");
+
+      await user.click(
+        within(editorRoleCard as HTMLElement).getByRole("button", {
+          name: "users.roles.actions.delete",
+        })
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.delete" })
+      );
+
+      expect(
+        await screen.findByText("users.roles.messages.deleteFailed")
+      ).toBeInTheDocument();
+    });
+
+    it("shows API errors and resets dialog state on close", async () => {
+      authSessionValue.user = {
+        ...authSessionValue.user,
+        isSuperUser: true,
+        permissions: ["users:read", "users:create"],
+      };
+      vi.spyOn(roleManagementServiceModule, "listRoles").mockResolvedValue([]);
+      vi.spyOn(roleManagementServiceModule, "createRole").mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { detail: "Role name already exists" } },
+      } as AxiosError);
+
+      const user = userEvent.setup();
+      renderPage();
+
+      await screen.findByText("users.roles.empty.title");
+      await user.click(screen.getByRole("button", { name: "users.roles.actions.add" }));
+      setFieldValue("users.roles.fields.name", "editor");
+      await user.click(
+        screen.getByRole("button", { name: "users.roles.actions.create" })
+      );
+
+      expect(await screen.findByText("Role name already exists")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "users.actions.cancel" }));
+      expect(screen.queryByText("users.roles.dialogs.create.title")).toBeNull();
+
+      await user.click(
+        await screen.findByRole("button", { name: "users.roles.actions.add" })
+      );
+      const nameInput = screen.getByLabelText(
+        "users.roles.fields.name"
+      ) as HTMLInputElement;
+      expect(nameInput.value).toBe("");
+    });
   });
 });

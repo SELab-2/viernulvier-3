@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-serif: "Lora", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -81,6 +82,7 @@
   --archive-control: rgba(45, 40, 37, 0.05);
   --archive-control-hover: rgba(45, 40, 37, 0.08);
   --archive-logo-filter: brightness(0) saturate(100%);
+  --archive-logo-filter-inverted: none;
   --archive-text-meta: 0.77rem;
   --archive-text-body: 1.1rem;
   --archive-text-title-lg: clamp(1.875rem, 1.75rem + 0.5vw, 2.075rem);
@@ -103,6 +105,56 @@
   --archive-control: rgba(240, 228, 211, 0.06);
   --archive-control-hover: rgba(240, 228, 211, 0.1);
   --archive-logo-filter: none;
+  --archive-logo-filter-inverted: brightness(0) saturate(100%);
+}
+
+.prose {
+  --tw-prose-body: var(--archive-ink);
+  --tw-prose-headings: var(--archive-ink);
+  --tw-prose-bold: var(--archive-ink);
+  --tw-prose-links: var(--archive-ink);
+  --tw-prose-lists: var(--archive-ink);
+  --tw-prose-counters: var(--archive-ink);
+  --tw-prose-bullets: var(--archive-ink);
+  color: var(--archive-ink);
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+.prose ul ul {
+  list-style-type: circle;
+}
+.prose ul ul ul {
+  list-style-type: square;
+}
+.prose ul ul ul ul {
+  list-style-type: disc;
+}
+.prose ul ul ul ul ul {
+  list-style-type: circle;
+}
+.prose ul ul ul ul ul ul {
+  list-style-type: square;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+.prose ol ol {
+  list-style-type: lower-alpha;
+}
+.prose ol ol ol {
+  list-style-type: lower-roman;
+}
+.prose ol ol ol ol {
+  list-style-type: decimal;
+}
+.prose ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}
+.prose ol ol ol ol ol ol {
+  list-style-type: lower-roman;
 }
 
 html,
@@ -121,4 +173,16 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* Give all buttons a cursor-pointer unless it is disabled */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
 }

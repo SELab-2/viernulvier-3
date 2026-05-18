@@ -1,27 +1,40 @@
+from datetime import datetime
 from typing import List
-from src.models.production import Production
-from src.services.production import (
-    get_production_by_id,
-    get_productions_paginated,
-    get_event_urls_for_production,
-    get_tags_for_production,
-    create_production,
-    update_production_by_id,
-    delete_production_by_id,
-)
-from src.services.tag import get_existing_tags
+
+import pytest
+from src.api.exceptions import NotFoundError, ValidationError
+from src.models.associations import prod_groups, prod_tags
+from src.models.event import Event, EventPrice
+from src.models.media import Media
+from src.models.production import ProdInfo, Production
+from src.models.production_group import ProductionGroup
+from src.models.tag import Tag, TagName
 from src.schemas.production import (
     ProductionCreate,
     ProductionInfoCreate,
-    ProductionUpdate,
     ProductionInfoUpdate,
+    ProductionUpdate,
 )
 from src.services.language import Languages
+from src.services.production import (
+    create_production,
+    delete_production_by_id,
+    get_event_urls_for_production,
+    get_production_by_id,
+    get_productions_paginated,
+    get_tags_for_production,
+    update_production_by_id,
+)
+from src.services.tag import get_existing_tags
 
-from src.api.exceptions import NotFoundError, ValidationError
-from datetime import datetime
 
-import pytest
+class DummyMinioClient:
+    def __init__(self):
+        self.remove_calls = []
+
+    def remove_object(self, bucket, object_key):
+        self.remove_calls.append((bucket, object_key))
+
 
 BASE_URL = "http://test"
 
@@ -55,6 +68,7 @@ def test_get_productions_paginated(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
+    assert result.pagination.total_count == 10
 
     # Check if each returned production is valid without relying on order
     for prod in result.productions:
@@ -84,6 +98,7 @@ def test_get_productions_paginated(db_session, many_productions):
 
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
 
 
 # Only get productions with a certain tag (in total 10 productions).
@@ -93,18 +108,44 @@ def test_get_productions_with_tag(db_session, many_productions):
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     # 5 productions should have the same tag (id=2).
     result = get_productions_paginated(db_session, BASE_URL, limit=5, tags=[2])
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     # Get productions, given multiple tags.
     result = get_productions_paginated(db_session, BASE_URL, limit=10, tags=[1, 2])
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
+
+
+def test_get_productions_with_group(db_session, many_productions):
+    first_group = ProductionGroup(
+        title="First group",
+        productions=many_productions[:5],
+    )
+    second_group = ProductionGroup(
+        title="Second group",
+        productions=many_productions[5:],
+        is_public_filter=False,
+    )
+    db_session.add_all([first_group, second_group])
+    db_session.commit()
+
+    result = get_productions_paginated(
+        db_session, BASE_URL, limit=10, groups=[first_group.id]
+    )
+    assert len(result.productions) == 5
+    assert result.pagination.total_count == 5
+    assert {
+        int(production.id_url.split("/")[-1]) for production in result.productions
+    } == {production.id for production in many_productions[:5]}
 
 
 # Only get productions with a certain artist (in total 10 productions).
@@ -116,11 +157,13 @@ def test_get_productions_with_artist(db_session, many_productions):
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     result = get_productions_paginated(db_session, BASE_URL, limit=10, artists=["Bob"])
     assert len(result.productions) == 5
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 5
 
     result = get_productions_paginated(
         db_session, BASE_URL, limit=5, artists=["Steve", "Bob"]
@@ -128,11 +171,13 @@ def test_get_productions_with_artist(db_session, many_productions):
     assert len(result.productions) == 5
     assert result.pagination.has_more
     assert result.pagination.next_cursor is not None
+    assert result.pagination.total_count == 10
 
     result = get_productions_paginated(db_session, BASE_URL, limit=5, artists=["Alice"])
     assert len(result.productions) == 0
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 # Only get productions with a specific name (case-insensitive, in total 10 productions).
@@ -143,6 +188,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 1
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 1
     assert (
         result.productions[0].id_url
         == f"{BASE_URL}/productions/{many_productions[0].id}"
@@ -155,6 +201,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 1
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 1
     assert (
         result.productions[0].id_url
         == f"{BASE_URL}/productions/{many_productions[1].id}"
@@ -167,6 +214,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 10
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 10
 
     # No match results in empty list.
     result = get_productions_paginated(
@@ -175,6 +223,7 @@ def test_get_productions_with_name(db_session, many_productions):
     assert len(result.productions) == 0
     assert not result.pagination.has_more
     assert result.pagination.next_cursor is None
+    assert result.pagination.total_count == 0
 
 
 # Only get productions by specific start/end dates (in total 10 productions).
@@ -315,7 +364,7 @@ def test_create_production_valid_info(db_session, productions_limited):
         performer_type="band",
         attendance_mode="offline",
         production_info=ProductionInfoCreate(
-            language=Languages.NEDERLANDS, title="nieuw_prod_nl"
+            language=Languages.DUTCH, title="nieuw_prod_nl"
         ),
     )
 
@@ -352,10 +401,10 @@ def test_create_production_with_tags_valid(db_session, productions_limited):
     result2 = get_productions_paginated(db_session, BASE_URL)
     assert len(result2.productions) == 3
 
-    new_id = int(response.id_url.rstrip("/").split("/")[-1])
+    new_id = int(response.id_url.split("/")[-1])
     new_prod_from_db = get_production_by_id(db_session, new_id, BASE_URL)
     new_prod_tag_ids = {
-        int(tag_response.id_url.rstrip("/").split("/")[-1])
+        int(tag_response.id_url.split("/")[-1])
         for tag_response in new_prod_from_db.tags
     }
     assert new_prod_tag_ids == {tag.id for tag in valid_tags}
@@ -559,6 +608,25 @@ def test_update_production_info_delete(db_session, productions_limited):
     assert len(production_response.production_infos) == 1
 
 
+# Update an existing production - delete all existing production infos should fail.
+def test_update_production_info_delete_all(db_session, productions_limited):
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
+
+    # Should throw an exception.
+    update = ProductionUpdate(remove_languages=[Languages.ENGLISH, Languages.DUTCH])
+    with pytest.raises(Exception):
+        update_production_by_id(db_session, update, productions_limited[0].id, BASE_URL)
+
+    # Not updated in database.
+    production_response = get_production_by_id(
+        db_session, productions_limited[0].id, BASE_URL
+    )
+    assert len(production_response.production_infos) == 2
+
+
 # Update an existing production - delete not existing production info (nothing happens, also no error).
 def test_update_production_info_delete_invalid(db_session, productions_limited):
     production_response = get_production_by_id(
@@ -587,12 +655,120 @@ def test_delete_production(db_session, productions_limited):
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 2
 
-    success = delete_production_by_id(db_session, productions_limited[0].id)
+    success = delete_production_by_id(
+        db_session, productions_limited[0].id, DummyMinioClient()
+    )
     assert success
 
     result = get_productions_paginated(db_session, BASE_URL)
     assert len(result.productions) == 1
     assert result.productions[0].performer_type == "concert"
+
+
+def test_delete_production_removes_related_data(
+    db_session, production_with_no_media, media_items_for_production
+):
+    minio_client = DummyMinioClient()
+    production = production_with_no_media
+
+    prod_info = ProdInfo(
+        production_id=production.id,
+        language=Languages.ENGLISH,
+        title="linked production",
+    )
+    tag = Tag(names=[TagName(language=Languages.ENGLISH, name="linked tag")])
+    production_group = ProductionGroup(title="linked group")
+    event = Event(production_id=production.id, starts_at=datetime.fromtimestamp(123123))
+
+    db_session.add_all([prod_info, tag, production_group, event])
+    db_session.flush()
+
+    db_session.execute(prod_tags.insert().values(tag_id=tag.id, prod_id=production.id))
+    db_session.execute(
+        prod_groups.insert().values(group_id=production_group.id, prod_id=production.id)
+    )
+
+    event_price = EventPrice(event_id=event.id, amount=10, available=1)
+    db_session.add(event_price)
+    db_session.commit()
+    event_price_id = event_price.id
+
+    assert (
+        db_session.query(Media).filter(Media.production_id == production.id).count()
+        == 3
+    )
+    assert (
+        db_session.query(ProdInfo)
+        .filter(ProdInfo.production_id == production.id)
+        .count()
+        == 1
+    )
+    assert (
+        db_session.query(Event).filter(Event.production_id == production.id).count()
+        == 1
+    )
+    assert (
+        db_session.query(EventPrice).filter(EventPrice.event_id == event.id).count()
+        == 1
+    )
+    assert (
+        db_session.execute(
+            prod_tags.select().where(prod_tags.c.prod_id == production.id)
+        ).first()
+        is not None
+    )
+    assert (
+        db_session.execute(
+            prod_groups.select().where(prod_groups.c.prod_id == production.id)
+        ).first()
+        is not None
+    )
+
+    success = delete_production_by_id(db_session, production.id, minio_client)
+    assert success
+
+    assert (
+        db_session.query(Production).filter(Production.id == production.id).first()
+        is None
+    )
+    assert (
+        db_session.query(ProdInfo)
+        .filter(ProdInfo.production_id == production.id)
+        .count()
+        == 0
+    )
+    assert (
+        db_session.query(Event).filter(Event.production_id == production.id).count()
+        == 0
+    )
+    assert (
+        db_session.query(EventPrice).filter(EventPrice.id == event_price_id).count()
+        == 0
+    )
+    assert (
+        db_session.query(Media).filter(Media.production_id == production.id).count()
+        == 0
+    )
+    assert (
+        db_session.execute(
+            prod_tags.select().where(prod_tags.c.prod_id == production.id)
+        ).first()
+        is None
+    )
+    assert (
+        db_session.execute(
+            prod_groups.select().where(prod_groups.c.prod_id == production.id)
+        ).first()
+        is None
+    )
+    assert db_session.query(Tag).filter(Tag.id == tag.id).first() is not None
+    assert (
+        db_session.query(ProductionGroup)
+        .filter(ProductionGroup.id == production_group.id)
+        .first()
+        is not None
+    )
+    assert len(minio_client.remove_calls) == 3
 
 
 # Delete a not existing production (does nothing).
@@ -602,7 +778,7 @@ def test_delete_production_invalid(db_session, productions_limited):
 
     # Give a non-existing production id.
     with pytest.raises(NotFoundError):
-        delete_production_by_id(db_session, 4)
+        delete_production_by_id(db_session, 4, DummyMinioClient())
 
     new_result = get_productions_paginated(db_session, BASE_URL)
     assert len(new_result.productions) == 2

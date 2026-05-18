@@ -1,5 +1,5 @@
 """
-Viernulvier Archief API — entrypoint.
+Viernulvier Archive API — entrypoint.
 """
 
 from contextlib import asynccontextmanager
@@ -27,14 +27,21 @@ async def lifespan(app: FastAPI):
         secure=False,
     )
 
-    if not client.bucket_exists(settings.MINIO_BUCKET):
-        client.make_bucket(settings.MINIO_BUCKET)
-        policy = (
-            '{"Version":"2012-10-17","Statement":[{"Effect":"Allow",'
-            '"Principal":{"AWS":["*"]},"Action":["s3:GetObject"],'
-            '"Resource":["arn:aws:s3:::' + settings.MINIO_BUCKET + '/*"]}]}'
-        )
-        client.set_bucket_policy(settings.MINIO_BUCKET, policy)
+    buckets = [
+        settings.MINIO_BUCKET,
+        settings.MINIO_VISUALS_BUCKET,
+    ]
+
+    for bucket in buckets:
+        if not client.bucket_exists(bucket):
+            client.make_bucket(bucket)
+
+            policy = (
+                '{"Version":"2012-10-17","Statement":[{"Effect":"Allow",'
+                '"Principal":{"AWS":["*"]},"Action":["s3:GetObject"],'
+                '"Resource":["arn:aws:s3:::' + bucket + '/*"]}]}'
+            )
+            client.set_bucket_policy(bucket, policy)
     yield
 
 

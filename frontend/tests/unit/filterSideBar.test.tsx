@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterSidebar from "~/features/archive/components/FilterSidebar";
+import type { ProductionGroup } from "~/features/archive/types/productionGroupTypes";
 import type { Tag } from "~/features/archive/types/tagTypes";
 
 vi.mock("~/i18n", () => ({
@@ -34,6 +35,27 @@ const TAGS: Tag[] = [
   makeTag("foo/3", "Concert", "Concert"),
 ];
 
+const PRODUCTION_GROUPS: ProductionGroup[] = [
+  {
+    id_url: "foo/groups/1",
+    title: "Vooruit Klassiek",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
+  {
+    id_url: "foo/groups/2",
+    title: "Club Wintercircus",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
+  {
+    id_url: "foo/groups/3",
+    title: "Café Concerten",
+    is_public_filter: true,
+    production_id_urls: [],
+  },
+];
+
 const defaultProps = () => ({
   show: true,
   searchQuery: "",
@@ -44,6 +66,10 @@ const defaultProps = () => ({
   setDateTo: vi.fn(),
   selectedTags: [] as Tag[],
   setSelectedTags: vi.fn(),
+  productionGroups: PRODUCTION_GROUPS,
+  selectedProductionGroupIds: [] as string[],
+  selectedProductionGroups: [] as ProductionGroup[],
+  setSelectedProductionGroups: vi.fn(),
   selectedArtists: [] as string[],
   setSelectedArtists: vi.fn(),
 });
@@ -171,6 +197,48 @@ describe("FilterSidebar – artists filter", () => {
   });
 });
 
+describe("FilterSidebar – production groups filter", () => {
+  it("shows a set of production groups without searching", () => {
+    render(<FilterSidebar {...defaultProps()} />);
+
+    expect(screen.getByText("Vooruit Klassiek")).toBeInTheDocument();
+    expect(screen.getByText("Club Wintercircus")).toBeInTheDocument();
+    expect(screen.getByText("Café Concerten")).toBeInTheDocument();
+  });
+
+  it("shows production group search dropdown when query matches", async () => {
+    render(<FilterSidebar {...defaultProps()} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "winter");
+
+    const dropdown = screen.getByRole("list");
+    expect(within(dropdown).getByText("Club Wintercircus")).toBeInTheDocument();
+  });
+
+  it("selecting a production group calls setSelectedProductionGroups", async () => {
+    const props = defaultProps();
+    render(<FilterSidebar {...props} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "vooruit");
+    const dropdown = screen.getByRole("list");
+    fireEvent.mouseDown(within(dropdown).getByText("Vooruit Klassiek"));
+    expect(props.setSelectedProductionGroups).toHaveBeenCalled();
+    expect(input).toHaveValue("");
+  });
+
+  it("matches production groups without accents in the search query", async () => {
+    render(<FilterSidebar {...defaultProps()} />);
+    await waitFor(() => screen.getByPlaceholderText("filter.search_production_groups"));
+    const input = screen.getByPlaceholderText("filter.search_production_groups");
+    await userEvent.type(input, "cafe");
+
+    const dropdown = screen.getByRole("list");
+    expect(within(dropdown).getByText("Café Concerten")).toBeInTheDocument();
+  });
+});
+
 describe("FilterSidebar – data fetching edge cases", () => {
   it("skips rejected popular tag promises and keeps successful ones", async () => {
     (getTagByName as ReturnType<typeof vi.fn>).mockImplementation((name: string) => {
@@ -181,5 +249,31 @@ describe("FilterSidebar – data fetching edge cases", () => {
     fireEvent.click(screen.getByText("filter.tags"));
     await waitFor(() => screen.getByText("Theater"));
     expect(screen.getByText("Theater")).toBeInTheDocument();
+  });
+});
+
+describe("FilterSidebar – reset filters button", () => {
+  it("resets all filters when reset button is clicked", async () => {
+    const props = {
+      ...defaultProps(),
+      searchQuery: "searchterm",
+      dateFrom: "2024-01-01",
+      dateTo: "2024-12-31",
+      selectedTags: [TAGS[0]],
+      selectedProductionGroupIds: ["1"],
+      selectedProductionGroups: [PRODUCTION_GROUPS[0]],
+      selectedArtists: ["Alice"],
+    };
+
+    render(<FilterSidebar {...props} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "filter.reset" }));
+
+    expect(props.setSearchQuery).toHaveBeenCalledWith("");
+    expect(props.setDateFrom).toHaveBeenCalledWith("");
+    expect(props.setDateTo).toHaveBeenCalledWith("");
+    expect(props.setSelectedTags).toHaveBeenCalledWith([]);
+    expect(props.setSelectedProductionGroups).toHaveBeenCalledWith([]);
+    expect(props.setSelectedArtists).toHaveBeenCalledWith([]);
   });
 });

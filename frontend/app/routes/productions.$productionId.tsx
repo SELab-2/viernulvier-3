@@ -1,13 +1,13 @@
 import { useParams } from "react-router";
 import { useEffect, useMemo, useState } from "react";
 
-import { ProductionPage } from "~/features/archive/components/ProductionPage";
 import {
   getProduction,
   getProductionByUrl,
 } from "~/features/archive/services/productionService";
 import type { Production } from "~/features/archive/types/productionTypes";
 import { useTranslation } from "react-i18next";
+import { ProductionPage } from "~/features/archive/pages/ProductionPage";
 
 function getProductionNumericIdFromInput(
   productionIdInput: string
@@ -42,6 +42,13 @@ export default function ProductionDetailRoute() {
     let isCancelled = false;
 
     const loadProduction = async () => {
+      if (decodedProductionId.trim().length === 0) {
+        setProduction(null);
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setHasError(false);
 
@@ -76,13 +83,6 @@ export default function ProductionDetailRoute() {
         }
       }
     };
-
-    if (decodedProductionId.trim().length === 0) {
-      setProduction(null);
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
 
     void loadProduction();
 

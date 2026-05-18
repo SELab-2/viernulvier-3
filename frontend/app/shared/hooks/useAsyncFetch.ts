@@ -29,7 +29,7 @@ export function useAsyncFetch<T>(asyncFn: () => Promise<T>): UseAsyncReturn<T> {
   }, [asyncFn]);
 
   useEffect(() => {
-    refresh();
+    void Promise.resolve().then(refresh);
   }, [refresh]);
 
   return { data, loading, error, refresh, setData };

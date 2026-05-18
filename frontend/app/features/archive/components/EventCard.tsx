@@ -9,14 +9,10 @@ export type EventWithResolvedRelations = Event & {
 };
 
 function formatEventTime(date: Date): string {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  if (minutes === 0) {
-    return `${hours}u`;
-  }
-
-  return `${hours}u${String(minutes).padStart(2, "0")}`;
+  return `${hours}:${minutes}`;
 }
 
 function formatEventDateTimeRange(
@@ -48,15 +44,6 @@ function formatEventDateTimeRange(
     dateLabel,
     timeLabel: `${startTimeLabel}-${formatEventTime(endDate)}`,
   };
-}
-
-function getTextOrDefault(value: string | null | undefined, fallback: string): string {
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : fallback;
 }
 
 function formatPrices(prices: Price[], language: string, fallback: string): string {
@@ -108,6 +95,7 @@ function EventCardSummary({
   dateText,
   locationText,
 }: EventCardSummaryProps) {
+  const { t } = useTranslation();
   return (
     <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 marker:content-none md:px-5">
       <div className="min-w-0">
@@ -128,8 +116,8 @@ function EventCardSummary({
         </p>
       </div>
 
-      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition group-open:rotate-180">
-        Meer
+      <span className="font-sans text-[0.62rem] tracking-[0.18em] uppercase opacity-65 transition select-none group-open:rotate-180">
+        {t("productionPage.eventMore")}
       </span>
     </summary>
   );
@@ -142,13 +130,20 @@ type EventCardProps = {
 export function EventCard({ event }: EventCardProps) {
   const { t, i18n } = useTranslation();
 
+  const getLocalizedHallName = (hall?: Hall): string => {
+    const lang = i18n.language.startsWith("nl") ? "nl" : "en";
+    const fallback = lang === "nl" ? "en" : "nl";
+    return (
+      hall?.names.find((tn) => tn.language === lang)?.name ??
+      hall?.names.find((tn) => tn.language === fallback)?.name ??
+      t("productionPage.fallback.locationUnknown")
+    );
+  };
+
   const dateAndTime = formatEventDateTimeRange(event.starts_at, event.ends_at);
   const eventDate = dateAndTime?.dateLabel ?? t("productionPage.fallback.dateUnknown");
   const eventTime = dateAndTime?.timeLabel ?? t("productionPage.fallback.dateUnknown");
-  const eventLocation = getTextOrDefault(
-    event.resolvedHall?.name ?? event.hall?.name,
-    t("productionPage.fallback.locationUnknown")
-  );
+  const eventLocation = getLocalizedHallName(event.resolvedHall ?? event.hall);
   const eventPrice = formatPrices(
     event.resolvedPrices,
     i18n.language,
@@ -166,11 +161,19 @@ export function EventCard({ event }: EventCardProps) {
         />
 
         <div className="border-t border-[color:color-mix(in_srgb,var(--archive-accent)_14%,transparent)] px-4 py-3 md:px-5">
-          <div className="grid gap-3 text-sm sm:grid-cols-2">
+          <div className="grid items-start gap-3 text-sm sm:grid-cols-2">
             <EventCardDetail label={t("productionPage.timeLabel")} value={eventTime} />
             <EventCardDetail
               label={t("productionPage.priceLabel")}
               value={eventPrice}
+            />
+            <EventCardDetail
+              label={t("productionPage.address")}
+              value={
+                event.hall?.address ??
+                event.resolvedHall?.address ??
+                t("productionPage.addressUnknown")
+              }
             />
           </div>
         </div>

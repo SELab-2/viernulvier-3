@@ -37,9 +37,21 @@ class EventResponse(StrictModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PriceCreate(StrictModel):
+    amount: Optional[float] = None
+    available: Optional[int] = None
+    expires_at: Optional[datetime] = None
+
+
+class PriceUpdate(StrictModel):
+    amount: Optional[float] = None
+    available: Optional[int] = None
+    expires_at: Optional[datetime] = None
+
+
 class EventCreate(StrictModel):
     production_id_url: str
-    hall_id_url: str
+    hall_id_url: Optional[str] = None
     starts_at: Optional[datetime] = None
     ends_at: Optional[datetime] = None
     order_url: Optional[str] = None

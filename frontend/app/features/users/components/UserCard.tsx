@@ -1,3 +1,4 @@
+import { Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import type { IUser } from "../users.types";
@@ -5,6 +6,8 @@ import type { IUser } from "../users.types";
 type UserCardProps = {
   user: IUser;
   formatDateTime: (value: string | null) => string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
 function MetaRow({ label, value }: { label: string; value: string }) {
@@ -43,7 +46,7 @@ function UserBadge({ children }: { children: string }) {
   );
 }
 
-export function UserCard({ user, formatDateTime }: UserCardProps) {
+export function UserCard({ user, formatDateTime, onEdit, onDelete }: UserCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -52,15 +55,13 @@ export function UserCard({ user, formatDateTime }: UserCardProps) {
         <p className="text-xs font-bold tracking-[0.22em] uppercase opacity-40">
           {t("users.card.userLabel", { id: user.id })}
         </p>
-        <h2 className="mt-2 font-serif text-3xl leading-tight [overflow-wrap:anywhere] italic">
+        <h2 className="mt-2 font-serif text-3xl leading-tight wrap-anywhere italic">
           {user.username}
         </h2>
 
         {user.isSuperUser ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            {user.isSuperUser ? (
-              <UserBadge>{t("users.badges.superUser")}</UserBadge>
-            ) : null}
+            <UserBadge>{t("users.badges.superUser")}</UserBadge>
           </div>
         ) : null}
       </div>
@@ -94,6 +95,49 @@ export function UserCard({ user, formatDateTime }: UserCardProps) {
           />
         </section>
       </div>
+
+      {(onEdit || onDelete) && (
+        <div className="border-archive-border mt-5 border-t pt-4">
+          <div className="flex flex-wrap gap-3">
+            {onEdit && (
+              <Button onClick={onEdit} sx={editButtonSx}>
+                {t("users.actions.edit")}
+              </Button>
+            )}
+            {onDelete && (
+              <Button onClick={onDelete} sx={deleteButtonSx}>
+                {t("users.actions.delete")}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </article>
   );
 }
+
+const editButtonSx = {
+  py: 1,
+  px: 2,
+  borderRadius: "999px",
+  textTransform: "none" as const,
+  fontFamily: "var(--font-sans)",
+  fontSize: "0.72rem",
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  color: "var(--archive-ink)",
+  border: "1px solid var(--archive-border)",
+};
+
+const deleteButtonSx = {
+  py: 1,
+  px: 2,
+  borderRadius: "999px",
+  textTransform: "none" as const,
+  fontFamily: "var(--font-sans)",
+  fontSize: "0.72rem",
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  color: "#c0392b",
+  border: "1px solid rgba(192, 57, 43, 0.35)",
+};

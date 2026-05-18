@@ -19,7 +19,7 @@ from src.services.hall_service import (
 router = APIRouter()
 
 
-@router.get("/", response_model=List[HallResponse])
+@router.get("", response_model=List[HallResponse])
 def get_halls(request: Request, db: Session = Depends(get_db)):
     base_url = get_base_url(str(request.url))
     return get_all_halls(db, base_url)
@@ -31,7 +31,7 @@ def get_hall(hall_id: int, request: Request, db: Session = Depends(get_db)):
     return get_hall_by_id(db, hall_id, base_url)
 
 
-@router.post("/", response_model=HallCreate, status_code=201)
+@router.post("", response_model=HallCreate, status_code=201)
 def post_hall(
     hall_in: HallCreate,
     request: Request,
