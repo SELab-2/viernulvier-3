@@ -99,7 +99,11 @@ export default function ArchivePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, debouncedSearch, setSearchQuery] = useDebouncedState("");
   const [dateFrom, debouncedDateFrom, setDateFrom] = useDebouncedState("");
-  const [dateTo, debouncedDateTo, setDateTo] = useDebouncedState("");
+  const date = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const [dateTo, debouncedDateTo, setDateTo] = useDebouncedState(
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  );
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [productionList, setProductionList] = useState<ProductionList | null>(null);

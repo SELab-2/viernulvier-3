@@ -15,6 +15,10 @@ vi.mock("~/features/archive/services/artistService");
 vi.mock("~/features/archive/services/productionGroupService");
 vi.mock("~/features/archive/services/tagService");
 
+const date = new Date();
+const pad = (n: number) => String(n).padStart(2, "0");
+const DATE_TODAY = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
 const PRODUCTION_GROUPS = [
   {
     id_url: "/api/v1/archive/series/1",
@@ -262,7 +266,7 @@ describe("Archive", () => {
         artists: undefined,
         earliest_at: undefined,
         series_ids: undefined,
-        latest_at: undefined,
+        latest_at: DATE_TODAY,
         production_name: undefined,
         sort_order: "Descending",
         tag_ids: undefined,
@@ -278,7 +282,7 @@ describe("Archive", () => {
         artists: undefined,
         earliest_at: undefined,
         series_ids: undefined,
-        latest_at: undefined,
+        latest_at: DATE_TODAY,
         sort_order: "Descending",
         production_name: undefined,
         tag_ids: undefined,
@@ -311,7 +315,7 @@ describe("Archive", () => {
         artists: undefined,
         earliest_at: undefined,
         series_ids: undefined,
-        latest_at: undefined,
+        latest_at: DATE_TODAY,
         production_name: undefined,
         sort_order: "Descending",
         tag_ids: undefined,
@@ -332,7 +336,7 @@ describe("Archive", () => {
         artists: undefined,
         earliest_at: undefined,
         series_ids: ["2"],
-        latest_at: undefined,
+        latest_at: DATE_TODAY,
         production_name: undefined,
         sort_order: "Descending",
         tag_ids: undefined,
