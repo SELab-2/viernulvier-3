@@ -177,7 +177,7 @@ function SeriesSearchBar({
     let cancelled = false;
     async function loadAllGroups() {
       try {
-        const groups = await getAllProductionGroups();
+        const groups = await getAllProductionGroups(false);
         if (!cancelled) {
           setAllProductionGroups(groups);
           const current =
