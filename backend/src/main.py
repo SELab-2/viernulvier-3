@@ -10,7 +10,7 @@ from minio import Minio
 from src.api.exceptions import NotFoundError, ValidationError
 from src.api.v1.router import api_router
 from src.config import settings
-
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,6 +51,8 @@ app = FastAPI(
     root_path="/api",
     lifespan=lifespan,
 )
+
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # app.add_middleware(
 #     CORSMiddleware,
