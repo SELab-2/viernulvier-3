@@ -12,6 +12,7 @@ from src.api.v1.router import api_router
 from src.config import settings
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import os
