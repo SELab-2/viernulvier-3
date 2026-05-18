@@ -22,9 +22,6 @@ import {
   getProductionsForGroup,
 } from "~/features/archive/services/productionGroupService";
 
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-
 const CARD_COLORS = {
   surfaceStart: "var(--color-archive-surface-strong)",
   surfaceEnd: "var(--color-archive-surface)",
@@ -180,7 +177,8 @@ export function BlogCard({
   compact = false,
 }: BlogCardProps) {
   const [productionTitles, setProductionTitles] = useState<string[]>([]);
-  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const isLogoFallback = imageUrl === null;
 
   const { t } = useTranslation();
   const lp = useLocalizedPath();
@@ -281,21 +279,44 @@ export function BlogCard({
             : { xs: "0%", sm: "30%", md: "320px" },
         }}
       >
-        <CardMedia
-          className="blog-card-image"
-          component="img"
-          image={imageUrl}
-          alt={title}
-          sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-            transform: "scale(1)",
-            transformOrigin: "center center",
-            willChange: "transform",
-          }}
-        />
+        {isLogoFallback ? (
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--color-archive-ink)",
+            }}
+          >
+            <img
+              src="/logo.svg"
+              alt={title}
+              style={{
+                width: "90%",
+                maxWidth: 240,
+                filter: "var(--archive-logo-filter-inverted)",
+              }}
+            />
+          </Box>
+        ) : (
+          <CardMedia
+            className="blog-card-image"
+            component="img"
+            image={imageUrl!}
+            alt={title}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+              transform: "scale(1)",
+              transformOrigin: "center center",
+              willChange: "transform",
+            }}
+          />
+        )}
       </Box>
 
       <CardContent

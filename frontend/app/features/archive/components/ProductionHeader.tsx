@@ -13,7 +13,7 @@ function isFieldModified(
 
 type ProductionHeaderProps = {
   isCreateHeader: boolean;
-  image_url: string;
+  image_url: string | undefined;
   isEditing: boolean;
   originalInfo: ProductionInfo | null;
   draftInfo: ProductionInfo | null;
@@ -30,6 +30,7 @@ export function ProductionHeader({
   setDraftInfo,
 }: ProductionHeaderProps) {
   const { t } = useTranslation();
+  const hasImage = Boolean(image_url);
 
   const effectiveIsEditing = isCreateHeader || isEditing;
 
@@ -45,11 +46,15 @@ export function ProductionHeader({
       id="production-header"
       className="relative overflow-hidden rounded-[2rem] border border-[color:color-mix(in_srgb,var(--archive-accent)_12%,transparent)] bg-black/30"
     >
-      <img
-        src={image_url}
-        alt={originalInfo?.title}
-        className="h-[280px] w-full object-cover object-center md:h-[360px]"
-      />
+      {hasImage ? (
+        <img
+          src={image_url}
+          alt={originalInfo?.title ?? ""}
+          className="h-[280px] w-full object-cover object-center md:h-[360px]"
+        />
+      ) : (
+        <div className="flex h-[280px] w-full items-center justify-center bg-black/60 md:h-[360px]"></div>
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
       <div className="absolute right-7 bottom-4 left-7 md:right-12 md:bottom-10 md:left-12">
         <SimpleEditableField

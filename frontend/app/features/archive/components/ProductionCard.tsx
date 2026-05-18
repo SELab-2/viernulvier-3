@@ -19,11 +19,7 @@ import { useLocalizedPath } from "~/shared/hooks/useLocalizedPath";
 import { formatDateDDMonYYYY } from "~/shared/utils/dateFormatting";
 import { getMediaForProduction } from "~/features/archive/services/mediaService";
 
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1600&auto=format&fit=crop";
-
 const DEFAULT_CARD_VALUES = {
-  imageUrl: DEFAULT_IMAGE,
   tagNames: [] as string[],
 } as const;
 
@@ -193,7 +189,6 @@ export function ProductionCard({
     title: t("archive.card.defaults.title"),
     dateLabel: t("archive.card.defaults.dateLabel"),
     venueLabel: t("archive.card.defaults.venueLabel"),
-    imageUrl: DEFAULT_CARD_VALUES.imageUrl,
     tagNames: DEFAULT_CARD_VALUES.tagNames,
   };
 
@@ -235,7 +230,8 @@ export function ProductionCard({
 
   if (!productionId) return null;
 
-  const imageUrl = firstImageUrl ?? defaultCardValues.imageUrl;
+  const imageUrl = firstImageUrl;
+  const isLogoFallback = !firstImageUrl;
 
   return (
     <Card
@@ -287,20 +283,47 @@ export function ProductionCard({
         />
       )}
       <Box sx={{ position: "relative", overflow: "hidden" }}>
-        <CardMedia
-          className="production-card-image"
-          component="img"
-          height="236"
-          image={imageUrl}
-          alt={title}
-          onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
-          sx={{
-            transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
-            transform: "translateY(0) scale(1)",
-            transformOrigin: "center top",
-            willChange: "transform",
-          }}
-        />
+        {isLogoFallback ? (
+          <Box
+            sx={{
+              height: 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "var(--color-archive-ink)",
+              overflow: "hidden",
+            }}
+            onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+          >
+            <Box
+              component="img"
+              src="/logo.svg"
+              alt={title}
+              sx={{
+                width: "90%",
+                maxWidth: 240,
+                filter: "var(--archive-logo-filter-inverted)",
+                transition: "filter 200ms ease",
+              }}
+            />
+          </Box>
+        ) : (
+          <CardMedia
+            className="production-card-image"
+            component="img"
+            height="300"
+            image={imageUrl!}
+            alt={title}
+            onClick={(e) => (anySelected ? handleToggleSelected(e) : null)}
+            sx={{
+              objectFit: "cover",
+              transition: `transform ${CARD_MOTION.transitionDuration} ${CARD_MOTION.transitionEasing}`,
+              transform: "translateY(0) scale(1)",
+              transformOrigin: "center top",
+              willChange: "transform",
+            }}
+          />
+        )}
 
         {isSelectable ? (
           <Box
