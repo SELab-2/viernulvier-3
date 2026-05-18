@@ -40,6 +40,8 @@ jobs:
           echo "MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}" >> .env
           echo "MINIO_VISUALS_BUCKET=${{ secrets.MINIO_VISUALS_BUCKET }}" >> .env
           echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env
+          echo "DOCKER_BUILDKIT=1" >> .env
+          echo "COMPOSE_DOCKER_CLI_BUILD=1" >> .env
 
       - name: Build and Restart Containers
-        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build --force-recreate -d --remove-orphans
