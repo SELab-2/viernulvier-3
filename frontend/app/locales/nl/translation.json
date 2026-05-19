@@ -97,7 +97,7 @@
     },
     "add_info": {
       "performer_type": "Voeg soort artiest toe",
-      "attendance_mode": "voeg aanwezigheidsmodus toe",
+      "attendance_mode": "voeg type aanwezigheid toe",
       "supertitle": "Voeg een supertitel toe",
       "title": "Voeg een titel toe",
       "artist": "Voeg een artiest toe",
@@ -178,7 +178,7 @@
       "edit": "Pas aan",
       "save": "Sla op",
       "cancel": "Annuleer",
-      "attendance_mode": "Aanwezigheidsmodus",
+      "attendance_mode": "Type van aanwezigheid",
       "performer_type": "Soort artiest",
       "supertitle": "Supertitel",
       "title": "Titel",
