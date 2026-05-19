@@ -1,5 +1,8 @@
 # Handleiding Serveropzet
 
+> Deze handleiding is ook beschikbaar als PDF:
+> [gebruikershandleiding.pdf](gebruikershandleiding.pdf)
+
 ## Vereisten
 
 - Docker en Docker Compose geïnstalleerd
