@@ -8,7 +8,6 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "~/shared/components/ThemeToggle";
 import { useLocalizedPath } from "../hooks/useLocalizedPath";
 
-// This contains all the links with their I18N key and (non-localized) path
 const NAV_ITEMS = [
   { i18n_key: "nav.home", path: "/" },
   { i18n_key: "nav.archive", path: "/archive" },
@@ -28,7 +27,7 @@ function Logo({ nav_name }: LogoProps) {
   const lp = useLocalizedPath();
   return (
     <Link to={lp("/")}>
-      <div className="flex items-end sm:space-x-2 shrink-0">
+      <div className="flex shrink-0 items-end sm:space-x-2">
         <img
           src="/logo.svg"
           alt={`${nav_name} logo`}
@@ -46,7 +45,6 @@ function Logo({ nav_name }: LogoProps) {
   );
 }
 
-// Helper function that will underline the link of the page we're currently on
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return `hover:text-archive-accent transition-colors ${
     isActive
@@ -55,7 +53,6 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   }`;
 }
 
-// removed "hidden xl:flex", visibility is now controlled by the parent via isCollapsed state
 const authActionClassName =
   "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors";
 
@@ -86,9 +83,7 @@ function NavLinks({ onNavigate }: NavLinksProps) {
           </li>
         );
 
-        if (!permissions) {
-          return link;
-        }
+        if (!permissions) return link;
 
         return (
           <Protected key={i18n_key} permissions={permissions} fallback={null}>
@@ -138,10 +133,7 @@ function NavbarAuthControls({
   return <Protected>{button}</Protected>;
 }
 
-type HamburgerMenuProps = {
-  isOpen: boolean;
-  onToggle: () => void;
-};
+type HamburgerMenuProps = { isOpen: boolean; onToggle: () => void };
 
 function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
   return (
@@ -150,7 +142,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 shrink-0"
+      className="flex shrink-0 cursor-pointer flex-col space-y-1"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -163,23 +155,47 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
 function Navbar(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const navListRef = useRef<HTMLUListElement>(null);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const el = navListRef.current;
-    if (!el) return;
+  // navAreaRef  — the flex-1 middle div. clientWidth = space actually available for nav links.
+  // navListRef  — the <ul> with NO flex-1 / overflow constraints so scrollWidth = true natural width.
+  // Keeping these on separate elements means neither measurement corrupts the other.
+  const navAreaRef = useRef<HTMLDivElement>(null);
+  const navListRef = useRef<HTMLUListElement>(null);
 
-    const check = () => setIsCollapsed(el.scrollWidth > el.clientWidth);
+  useEffect(() => {
+    const area = navAreaRef.current;
+    const list = navListRef.current;
+    if (!area || !list) return;
+
+    // Hysteresis: collapse on any overflow, but require 40 px of headroom before expanding.
+    // This absorbs the small layout shift from swapping auth controls ↔ hamburger button
+    // so the two states can never trigger each other in a loop.
+    const EXPAND_BUFFER = 40;
+    let rafId: ReturnType<typeof requestAnimationFrame>;
+
+    const check = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        setIsCollapsed((prev) => {
+          const overflow = list.scrollWidth - area.clientWidth;
+          if (!prev && overflow > 0) return true;
+          if (prev && overflow < -EXPAND_BUFFER) return false;
+          return prev;
+        });
+      });
+    };
 
     const observer = new ResizeObserver(check);
-    observer.observe(el);
-    check(); // run once immediately on mount
+    observer.observe(area); // watch the available space, not the content
+    check();
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  // Close mobile menu when switching back to expanded layout
   useEffect(() => {
     if (!isCollapsed) setMenuOpen(false);
   }, [isCollapsed]);
@@ -193,19 +209,24 @@ function Navbar(): JSX.Element {
         <Logo nav_name={t("nav.archive")} />
 
         {/*
-          Always rendered for measurement. When collapsed, invisible + pointer-events-none
-          hides it visually while keeping it in the layout so ResizeObserver can still
-          detect when there's enough room to expand again.
+          navAreaRef div: flex-1 gives it all leftover space → clientWidth = available space.
+          overflow-hidden clips any visual bleed while collapsed.
+
+          navListRef ul: no flex-1, no overflow constraint → scrollWidth = natural content width.
+          invisible + pointer-events-none hides it when collapsed without removing it from
+          layout, so the area div keeps its size and measurements stay valid.
         */}
-        <ul
-          ref={navListRef}
-          aria-hidden={isCollapsed}
-          className={`flex min-w-0 flex-1 items-center justify-center space-x-8 overflow-hidden text-sm font-medium tracking-widest uppercase ${
-            isCollapsed ? "invisible pointer-events-none" : ""
-          }`}
-        >
-          <NavLinks />
-        </ul>
+        <div ref={navAreaRef} className="flex min-w-0 flex-1 justify-center overflow-hidden">
+          <ul
+            ref={navListRef}
+            aria-hidden={isCollapsed}
+            className={`flex w-max items-center space-x-8 text-sm font-medium tracking-widest uppercase ${
+              isCollapsed ? "invisible pointer-events-none" : ""
+            }`}
+          >
+            <NavLinks />
+          </ul>
+        </div>
 
         <div className="flex shrink-0 items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
