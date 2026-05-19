@@ -90,6 +90,7 @@ async function handleAddProduction(
       )
     );
 
+    // Upload media sequentially so the first file (banner) always lands first.
     if (mediaFiles.length > 0) {
       const productionNumericId = response["id_url"].match(
         /\/productions\/(\d+)(?:[/?#]|$)/
@@ -102,7 +103,7 @@ async function handleAddProduction(
       }
     }
 
-    // All steps succeeded — navigate to the newly created production
+    // Go to newly created production
     skipWarning.current = true;
     setSkipWarning(true);
 
