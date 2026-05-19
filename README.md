@@ -2,9 +2,12 @@
 
 Webapplicatie voor het archief van VIERNULVIER.
 
-Voor een gedetailleerd overzicht van de architectuur en ontwerpbeslissingen, zie [`docs/architecture.md`](docs/architecture.md) en [`docs/adr/`](docs/adr/).
+Voor een gedetailleerd overzicht van de architectuur en ontwerpbeslissingen,
+zie [`docs/architecture.md`](docs/architecture.md) en [`docs/adr/`](docs/adr/).
 
-Gebruikershandleiding : [`docs/geruikershandleiding.pdf`](docs/geruikershandleiding.pdf)
+Gebruikershandleiding
+[in PDF](docs/gebruikers_handleiding/gebruikershandleiding.pdf)
+of [in Markdown](docs/gebruikers_handleiding/README.md).
 
 ## Vereisten
 
