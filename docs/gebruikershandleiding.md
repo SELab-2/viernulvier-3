@@ -13,7 +13,7 @@
 **Optie A — via git:**
 
 ```bash
-git clone <repo-url>
+git clone <REPO-URL>
 cd viernulvier-3
 ```
 
@@ -32,7 +32,8 @@ cd viernulvier-3
 cp .env.example .env
 ```
 
-Vul de waarden in `.env` aan. Velden gemarkeerd met `# ⚠ aanpassen` moeten een eigen geheime waarde krijgen. De rest kan zo gelaten worden:
+Vul de waarden in `.env` aan. Velden gemarkeerd met `# ⚠ aanpassen` moeten een
+eigen geheime waarde krijgen. De rest kan zo gelaten worden:
 
 ```bash
 # Database
@@ -52,7 +53,7 @@ REFRESH_TOKEN_EXPIRE_MINUTES=43200 # kan zo blijven
 VIERNULVIER_KEY=                   # ⚠ aanpassen — API-sleutel voor de VNV-sync
 
 # Frontend
-VITE_API_BASE_URL=https://<jouw-domein>/  # ⚠ aanpassen — moet overeenkomen met je domein
+VITE_API_BASE_URL=https://<uw-domein>/  # ⚠ aanpassen — moet overeenkomen met uw domein
 
 # MinIO (objectopslag)
 MINIO_ROOT_USER=                   # ⚠ aanpassen
@@ -69,21 +70,30 @@ DEFAULT_ADMIN_PASSWORD=            # ⚠ aanpassen
 
 ## 3. TLS — Certbot (enkel de eerste keer)
 
-De certificaten moeten bestaan voordat de volledige prod-stack opgestart wordt. Bootstrap ze via een tijdelijke nginx die enkel de ACME-challenge afhandelt.
+De certificaten moeten bestaan voordat de volledige prod-stack opgestart wordt.
+Bootstrap ze via een tijdelijke nginx die enkel de ACME-challenge afhandelt.
 
 **Stap 1** — Start een tijdelijke nginx op poort 80:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up -d proxy certbot
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  up -d proxy certbot
 ```
 
 **Stap 2** — Haal het initiële certificaat op via certbot:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod run --rm certbot \
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  run --rm certbot \
   certbot certonly --webroot \
   --webroot-path=/var/www/certbot \
-  --email <jouw-email> \
+  --email <UW-EMAIL> \
   --agree-tos \
   --no-eff-email \
   -d sel2-3.ugent.be
@@ -92,17 +102,27 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name v
 **Stap 3** — Zet alles af en ga verder met de volledige opstart hieronder:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod down
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  down
 ```
 
-> Certificaatvernieuwing wordt automatisch afgehandeld door de certbot-container, die elke 12 uur `certbot renew` uitvoert. Nginx herlaadt ook elke 12 uur om vernieuwde certificaten op te pikken.
+> Certificaatvernieuwing wordt automatisch afgehandeld door de
+> certbot-container, die elke 12 uur `certbot renew` uitvoert. Nginx herlaadt
+> ook elke 12 uur om vernieuwde certificaten op te pikken.
 
 ---
 
 ## 4. Volledige stack opstarten
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build --force-recreate -d --remove-orphans
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  up --build --force-recreate -d --remove-orphans
 ```
 
 Controleer of alles draait:
@@ -113,20 +133,17 @@ docker ps
 
 ---
 
-## 5. CSV-worker uitvoeren (eenmalig)
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod --profile csv run --rm csv_worker
-```
-
----
-
-## 6. Sync-worker uitvoeren (manueel / eerste keer)
+## 5. Sync-worker uitvoeren (manueel / eerste keer)
 
 Voer uit in de achtergrond zodat de terminal gesloten kan worden:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod --profile sync run --rm -d sync_worker
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  --profile sync \
+  run --rm -d sync_worker
 ```
 
 Controleer of de worker klaar is:
@@ -138,12 +155,12 @@ docker ps -a | grep sync_worker
 `Exited (0)` = geslaagd. Een andere exitcode = mislukt, controleer de logs:
 
 ```bash
-docker logs <container-id>
+docker logs <CONTAINER-ID>
 ```
 
 ---
 
-## 7. Cronjob voor de sync-worker
+## 6. Cronjob voor de sync-worker
 
 Stel een cronjob in om de sync-worker automatisch uit te voeren.
 
@@ -159,7 +176,10 @@ Voeg een regel toe, bijvoorbeeld elke nacht om 2u:
 0 2 * * * cd /home/<gebruiker>/actions-runner/_work/viernulvier-3/viernulvier-3 && docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod --profile sync run --rm sync_worker >> /var/log/viernulvier-sync.log 2>&1
 ```
 
-> Vervang het pad door het werkelijke pad naar de projectroot. De `>> /var/log/viernulvier-sync.log 2>&1` schrijft de uitvoer weg naar een logbestand — zorg dat de gebruiker die de cron uitvoert schrijfrechten heeft op dat pad, of gebruik een pad naar keuze (bv. `~/sync.log`).
+> Vervang het pad door het werkelijke pad naar de projectroot.
+> De `>> /var/log/viernulvier-sync.log 2>&1` schrijft de uitvoer weg naar een
+> logbestand — zorg dat de gebruiker die de cron uitvoert schrijfrechten heeft
+> op dat pad, of gebruik een pad naar keuze (bv. `~/sync.log`).
 
 Controleer of de cronjob geregistreerd is:
 
@@ -169,10 +189,30 @@ crontab -l
 
 ---
 
-## 8. Syncstatus controleren
+## 7. Syncstatus controleren
 
 Bekijk de laatste synctijdstempels in de database:
 
 ```bash
-docker exec viernulvier-prod-database-1 psql -U <POSTGRES_USER> -d <POSTGRES_DB> -c "SELECT * FROM sync_state;"
+docker exec \
+  viernulvier-prod-database-1 \
+  psql -U <POSTGRES_USER> -d <POSTGRES_DB> \
+  -c "SELECT * FROM sync_state;"
+```
+
+---
+
+## 8. CSV-worker uitvoeren (eenmalig)
+
+Opgelet: het is belangrijk dat deze CSV worker pas wordt uitgevoerd nadat de
+sync-worker succesvol heeft kunnen uitvoeren om te zorgen dat alles mooi linkt
+in de databank.
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  --profile csv \
+  run --rm csv_worker
 ```
