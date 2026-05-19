@@ -4,8 +4,6 @@ Webapplicatie voor het archief van VIERNULVIER.
 
 Voor een gedetailleerd overzicht van de architectuur en ontwerpbeslissingen, zie [`docs/architecture.md`](docs/architecture.md) en [`docs/adr/`](docs/adr/).
 
-Gebruikershandleiding : [`docs/geruikershandleiding.pdf`](docs/geruikershandleiding.pdf)
-
 ## Vereisten
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (of Docker Engine + Docker Compose)
