@@ -157,6 +157,14 @@
   list-style-type: lower-roman;
 }
 
+.prose blockquote {
+  color: inherit;
+}
+
+.prose blockquote p {
+  color: inherit;
+}
+
 html,
 body {
   min-height: 100%;
