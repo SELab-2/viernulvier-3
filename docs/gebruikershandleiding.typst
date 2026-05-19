@@ -1,0 +1,226 @@
+#set text(lang: "nl")
+#set page(
+  header: [
+    #set text(8pt)
+    #smallcaps[Viernulvier Archief 3]
+    #h(1fr) _Gebruikershandleiding_
+  ],
+  numbering: "1 / 1",
+)
+#set document(
+  title: [Handleiding Serveropzet]
+)
+#set heading(numbering: "1.", bookmarked: true)
+#show raw.where(block: true): block.with(
+  fill: luma(240),
+  inset: 1em,
+  radius: 0.5em,
+  width: 100%,
+  breakable: false,
+)
+
+#title()
+#outline()
+
+= Vereisten
+
+- Docker en Docker Compose geïnstalleerd
+- Poorten 80 en 443 open in de firewall
+- Domein wijst naar de server (bv. `sel2-3.ugent.be`)
+
+
+= Repository klonen
+
+- Via Git:
+  ```bash
+  git clone <REPO-URL>
+  cd viernulvier-3
+  ```
+
+- Via de Github releases en zip:
+  ```bash
+  unzip viernulvier-3.zip
+  cd viernulvier-3
+  ```
+
+
+= Het `.env` bestand aanmaken
+
+```bash
+cp .env.example .env
+```
+
+Vul de waarden in `.env` aan. Sommige velden moeten ingevuld worden, deze
+hebben als waarde `<INVULLEN>`, anderen mogen zo gelaten worden.
+
+```bash
+# Database
+POSTGRES_USER=viernulvier
+POSTGRES_PASSWORD=<INVULLEN>           # ⚠ aanpassen
+POSTGRES_DB=viernulvier_archief
+DATABASE_HOST=database
+DATABASE_PORT=5432
+
+# Authenticatie
+# Gebruik een lange willekeurige string
+JWT_SECRET_KEY=<INVULLEN>              # ⚠ aanpassen
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_MINUTES=43200
+
+# Sync worker, API sleutel van viernulvier.gent
+VIERNULVIER_KEY=<INVULLEN>             # ⚠ aanpassen
+
+# Frontend
+# Moet overeenkomen met uw domein
+VITE_API_BASE_URL=https://<INVULLEN>/  # ⚠ aanpassen
+
+# MinIO (objectopslag)
+MINIO_ROOT_USER=<INVULLEN>             # ⚠ aanpassen
+MINIO_ROOT_PASSWORD=<INVULLEN>         # ⚠ aanpassen
+MINIO_ENDPOINT=minio:9000
+MINIO_BUCKET=media
+MINIO_VISUALS_BUCKET=visuals
+
+# Beheerder
+DEFAULT_ADMIN_PASSWORD=<INVULLEN>      # ⚠ aanpassen
+```
+
+
+= TLS — Certbot (enkel de eerste keer)
+
+De certificaten moeten bestaan voordat de volledige prod-stack opgestart wordt.
+Bootstrap ze via een tijdelijke nginx die enkel de ACME-challenge afhandelt.
+
+- *Stap 1* — Start een tijdelijke nginx op poort 80:
+  ```bash
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.prod.yml \
+    --project-name viernulvier-prod \
+    up -d proxy certbot
+  ```
+
+- *Stap 2* — Haal het initiële certificaat op via certbot (vergeet uw email
+  niet in te vullen bij `--email`):
+  ```bash
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.prod.yml \
+    --project-name viernulvier-prod \
+    run --rm certbot \
+    certbot certonly --webroot \
+    --webroot-path=/var/www/certbot \
+    --email <UW-EMAIL> \
+    --agree-tos \
+    --no-eff-email \
+    -d sel2-3.ugent.be
+  ```
+
+- *Stap 3* — Zet alles af en ga verder met de volledige opstart hieronder:
+  ```bash
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.prod.yml \
+    --project-name viernulvier-prod \
+    down
+  ```
+
+Certificaatvernieuwing wordt automatisch afgehandeld door de
+certbot-container, die elke 12 uur `certbot renew` uitvoert. Nginx herlaadt ook
+elke 12 uur om vernieuwde certificaten op te pikken.
+
+
+= Volledige stack opstarten
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  up --build --force-recreate -d --remove-orphans
+```
+
+Controleer of alles draait:
+
+```bash
+docker ps
+```
+
+
+= CSV-worker uitvoeren (eenmalig)
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  --profile csv \
+  run --rm csv_worker
+```
+
+
+= Sync-worker uitvoeren (manueel / eerste keer)
+
+Voer uit in de achtergrond zodat de terminal gesloten kan worden:
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  --profile sync \
+  run --rm -d sync_worker
+```
+
+Controleer of de worker klaar is:
+
+```bash
+docker ps -a | grep sync_worker
+```
+
+`Exited (0)` = geslaagd. Een andere exitcode = mislukt, controleer de logs:
+
+```bash
+docker logs <CONTAINER-ID>
+```
+
+
+= Cronjob voor de sync-worker
+
+Stel een cronjob in om de sync-worker automatisch uit te voeren.
+
+Open de crontab:
+
+```bash
+crontab -e
+```
+
+Voeg een regel toe, bijvoorbeeld elke nacht om 2u:
+
+```
+0 2 * * * cd <PAD_NAAR_PROJECT> && docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod --profile sync run --rm sync_worker >> /var/log/viernulvier-sync.log 2>&1
+```
+
+Vervang het pad door het werkelijke pad naar de projectroot. De
+"```sh >> /var/log/viernulvier-sync.log 2>&1```" schrijft de uitvoer weg naar een
+logbestand — zorg dat de gebruiker die de cron uitvoert schrijfrechten heeft op
+dat pad, of gebruik een pad naar keuze (bv. `~/sync.log`).
+
+Controleer of de cronjob geregistreerd is:
+
+```bash
+crontab -l
+```
+
+
+= Syncstatus controleren
+
+Bekijk de laatste synctijdstempels in de database:
+
+```bash
+docker exec \
+  viernulvier-prod-database-1 \
+  psql -U <POSTGRES_USER> -d <POSTGRES_DB> \
+  -c "SELECT * FROM sync_state;"
+```
