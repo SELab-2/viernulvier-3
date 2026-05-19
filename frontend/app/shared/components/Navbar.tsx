@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useState, useEffect, useRef, type JSX } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
@@ -28,7 +28,7 @@ function Logo({ nav_name }: LogoProps) {
   const lp = useLocalizedPath();
   return (
     <Link to={lp("/")}>
-      <div className="sticky top-0 z-50 flex items-end sm:space-x-2">
+      <div className="flex items-end sm:space-x-2 shrink-0">
         <img
           src="/logo.svg"
           alt={`${nav_name} logo`}
@@ -55,8 +55,9 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   }`;
 }
 
+// removed "hidden xl:flex", visibility is now controlled by the parent via isCollapsed state
 const authActionClassName =
-  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors hidden xl:flex";
+  "hover:text-archive-accent inline-flex cursor-pointer items-center gap-2 border-b-2 border-transparent px-1 py-1 opacity-60 transition-colors";
 
 type NavLinksProps = { onNavigate?: () => void };
 
@@ -69,7 +70,7 @@ function NavLinks({ onNavigate }: NavLinksProps) {
     <>
       {NAV_ITEMS.map(({ i18n_key, path, permissions }) => {
         const link = (
-          <li key={i18n_key}>
+          <li key={i18n_key} className="shrink-0">
             <NavLink
               to={lp(path)}
               className={() => {
@@ -101,9 +102,8 @@ function NavLinks({ onNavigate }: NavLinksProps) {
 
 function NavbarAuthControls({
   onNavigate,
-  className,
   asList,
-}: NavLinksProps & { className?: string; asList?: boolean }) {
+}: NavLinksProps & { asList?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const lp = useLocalizedPath();
@@ -135,11 +135,7 @@ function NavbarAuthControls({
     );
   }
 
-  return (
-    <Protected>
-      <div className={className}>{button}</div>
-    </Protected>
-  );
+  return <Protected>{button}</Protected>;
 }
 
 type HamburgerMenuProps = {
@@ -154,7 +150,7 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
       aria-expanded={isOpen}
       aria-controls="mobile-menu"
       data-testid="hamburger-menu-button"
-      className="ml-auto flex cursor-pointer flex-col space-y-1 xl:hidden"
+      className="ml-auto flex cursor-pointer flex-col space-y-1 shrink-0"
       onClick={onToggle}
     >
       <span className="h-0.5 w-6 bg-current" />
@@ -166,41 +162,80 @@ function HamburgerMenuButton({ isOpen, onToggle }: HamburgerMenuProps) {
 
 function Navbar(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const navListRef = useRef<HTMLUListElement>(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const el = navListRef.current;
+    if (!el) return;
+
+    const check = () => setIsCollapsed(el.scrollWidth > el.clientWidth);
+
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    check(); // run once immediately on mount
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Close mobile menu when switching back to expanded layout
+  useEffect(() => {
+    if (!isCollapsed) setMenuOpen(false);
+  }, [isCollapsed]);
 
   return (
     <nav
       aria-label="Main navigation bar"
       className="border-archive-ink/10 bg-archive-paper/80 sticky top-0 z-50 border-b backdrop-blur-md"
     >
-      <div className="mx-auto flex h-20 max-w-[1800px] items-center justify-between px-4 sm:px-6 md:px-24">
+      <div className="mx-auto flex h-20 max-w-[1800px] items-center gap-6 px-4 sm:px-6 md:px-24">
         <Logo nav_name={t("nav.archive")} />
-        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center space-x-8 text-sm font-medium tracking-widest uppercase xl:flex">
+
+        {/*
+          Always rendered for measurement. When collapsed, invisible + pointer-events-none
+          hides it visually while keeping it in the layout so ResizeObserver can still
+          detect when there's enough room to expand again.
+        */}
+        <ul
+          ref={navListRef}
+          aria-hidden={isCollapsed}
+          className={`flex min-w-0 flex-1 items-center justify-center space-x-8 overflow-hidden text-sm font-medium tracking-widest uppercase ${
+            isCollapsed ? "invisible pointer-events-none" : ""
+          }`}
+        >
           <NavLinks />
         </ul>
-        <div className="flex items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
+
+        <div className="flex shrink-0 items-center space-x-2 text-sm font-medium tracking-widest uppercase sm:space-x-4">
           <LanguageSwitcher />
           <ThemeToggle />
-          <NavbarAuthControls className="hidden xl:flex" />
-          <HamburgerMenuButton
-            isOpen={menuOpen}
-            onToggle={() => setMenuOpen(!menuOpen)}
-          />
+          {!isCollapsed && <NavbarAuthControls />}
+          {isCollapsed && (
+            <HamburgerMenuButton
+              isOpen={menuOpen}
+              onToggle={() => setMenuOpen(!menuOpen)}
+            />
+          )}
         </div>
-        {menuOpen && (
-          <div
-            data-testid="mobile-menu"
-            id="mobile-menu"
-            className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t xl:hidden"
-          >
-            <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
-              <NavLinks onNavigate={() => setMenuOpen(false)} />
-              <NavbarAuthControls asList={true} onNavigate={() => setMenuOpen(false)} />
-            </ul>
-            <div className="bg-archive-ink/10 h-px" />
-          </div>
-        )}
       </div>
+
+      {isCollapsed && menuOpen && (
+        <div
+          data-testid="mobile-menu"
+          id="mobile-menu"
+          className="bg-archive-paper border-archive-ink/10 absolute top-20 left-0 w-full border-t"
+        >
+          <ul className="flex flex-col items-center space-y-6 py-6 text-sm font-medium tracking-widest uppercase">
+            <NavLinks onNavigate={() => setMenuOpen(false)} />
+            <NavbarAuthControls
+              asList={true}
+              onNavigate={() => setMenuOpen(false)}
+            />
+          </ul>
+          <div className="bg-archive-ink/10 h-px" />
+        </div>
+      )}
     </nav>
   );
 }
