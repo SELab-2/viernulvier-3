@@ -113,10 +113,10 @@ async function handleAddProduction(
   } catch (e) {
     if (response) {
       try {
-		  const productionNumericId = response["id_url"].match(
-			/\/productions\/(\d+)(?:[/?#]|$)/
-		  )?.[1];
-		if (productionNumericId) await deleteProduction(Number(productionNumericId));
+        const productionNumericId = response["id_url"].match(
+          /\/productions\/(\d+)(?:[/?#]|$)/
+        )?.[1];
+        if (productionNumericId) await deleteProduction(Number(productionNumericId));
       } catch (deleteError) {
         console.error("Rollback failed — production may be orphaned:", deleteError);
       }
