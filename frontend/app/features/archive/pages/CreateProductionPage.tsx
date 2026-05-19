@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductionInfo } from "../types/productionTypes";
 import { EditButton } from "../components/EditButton";
-import { createProduction } from "../services/productionService";
+import { createProduction, deleteProduction } from "../services/productionService";
 import {
   getSanitizedHtmlOrUndefined,
   isEmptyHtml,
@@ -54,18 +54,15 @@ async function handleAddProduction(
   if (!draftInfo) return;
   setIsSaving(true);
 
+  let response: Awaited<ReturnType<typeof createProduction>> | null = null;
+
   try {
     const newCreatedTags = await Promise.all(
-      newTags.map(async (event) => {
-        return await createTag({
-          names: event.names,
-        });
-      })
+      newTags.map((tag) => createTag({ names: tag.names }))
     );
-
     const allTags = [...draftTags, ...newCreatedTags];
 
-    const response = await createProduction({
+    response = await createProduction({
       attendance_mode: attendanceMode,
       performer_type: performerType,
       production_info: {
@@ -80,13 +77,11 @@ async function handleAddProduction(
       },
       tag_id_urls: allTags.map((tag) => tag.id_url),
     });
-    skipWarning.current = true;
-    setSkipWarning(true);
 
     await Promise.all(
       draftEvents.map((event) =>
         createEvent({
-          production_id_url: response["id_url"],
+          production_id_url: response!["id_url"],
           hall_id_url: event.hall?.id_url,
           starts_at: event.starts_at,
           ends_at: event.ends_at,
@@ -95,7 +90,6 @@ async function handleAddProduction(
       )
     );
 
-    // Upload media sequentially so the first file (banner) always lands first.
     if (mediaFiles.length > 0) {
       const productionNumericId = response["id_url"].match(
         /\/productions\/(\d+)(?:[/?#]|$)/
@@ -108,12 +102,25 @@ async function handleAddProduction(
       }
     }
 
-    // Go to newly created production
+    // All steps succeeded — navigate to the newly created production
+    skipWarning.current = true;
+    setSkipWarning(true);
+
     const currentParts = window.location.pathname.split("/");
     const responseParts = response["id_url"].split("/");
     currentParts[currentParts.length - 1] = responseParts[responseParts.length - 1];
     navigate(currentParts.join("/"));
   } catch (e) {
+    if (response) {
+      try {
+		  const productionNumericId = response["id_url"].match(
+			/\/productions\/(\d+)(?:[/?#]|$)/
+		  )?.[1];
+		if (productionNumericId) await deleteProduction(Number(productionNumericId));
+      } catch (deleteError) {
+        console.error("Rollback failed — production may be orphaned:", deleteError);
+      }
+    }
     window.alert(`${errorMessage}: ${e}`);
   } finally {
     setIsSaving(false);
