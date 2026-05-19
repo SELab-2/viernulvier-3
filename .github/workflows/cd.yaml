@@ -42,4 +42,4 @@ jobs:
           echo "DEFAULT_ADMIN_PASSWORD=${{ secrets.DEFAULT_ADMIN_PASSWORD }}" >> .env
 
       - name: Build and Restart Containers
-        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build -d --remove-orphans
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml --project-name viernulvier-prod up --build --force-recreate -d --remove-orphans
