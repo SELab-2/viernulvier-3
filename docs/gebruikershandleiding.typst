@@ -148,18 +148,6 @@ docker ps
 ```
 
 
-= CSV-worker uitvoeren (eenmalig)
-
-```bash
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.prod.yml \
-  --project-name viernulvier-prod \
-  --profile csv \
-  run --rm csv_worker
-```
-
-
 = Sync-worker uitvoeren (manueel / eerste keer)
 
 Voer uit in de achtergrond zodat de terminal gesloten kan worden:
@@ -223,4 +211,20 @@ docker exec \
   viernulvier-prod-database-1 \
   psql -U <POSTGRES_USER> -d <POSTGRES_DB> \
   -c "SELECT * FROM sync_state;"
+```
+
+
+= CSV-worker uitvoeren (eenmalig)
+
+Opgelet: het is belangrijk dat deze CSV worker pas wordt uitgevoerd nadat de
+sync-worker succesvol heeft kunnen uitvoeren om te zorgen dat alles mooi
+linkt in de databank.
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  --project-name viernulvier-prod \
+  --profile csv \
+  run --rm csv_worker
 ```
